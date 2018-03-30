@@ -724,6 +724,8 @@ BOOST_FIXTURE_TEST_CASE( hardfork_test, database_fixture )
       ahplugin->plugin_initialize( options );
       db_plugin->plugin_initialize( options );
 
+      db->init_genesis_hardforks = false;
+      
       open_database();
 
       generate_blocks( 2 );
