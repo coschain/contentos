@@ -1,5 +1,6 @@
 *.a
 *.sw*
+/.vscode/
 
 *.cmake
 CMakeCache.txt
