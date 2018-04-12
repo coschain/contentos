@@ -40,6 +40,98 @@ namespace steemit { namespace chain {
     */
    class database : public chainbase::database
    {
+         public:
+         class test_statistics {
+            public:
+               test_statistics(){};
+               ~test_statistics(){};
+
+               void set_start(bool s) {
+                     _start = s;
+               }
+               bool is_start() {
+                     return _start;
+               }
+             
+             void reset(){
+                 set_start(false);
+                 _test_start_time = time_point::min();
+                 _test_end_time = time_point::min();
+                 _test_tx_cnt = 0;
+                 
+                 _block_test_info.clear();
+                 _block_start_time = time_point::min();
+                 _block_end_time = time_point::min();
+                 _block_tx_cnt = 0;
+             }
+
+               void dump_total_info(){
+                     if(is_start())return;
+                     std::ofstream out("./total_statistics");
+                   using namespace std;
+                     out<< "transaction count:"<< _test_tx_cnt << "\n";
+                     out<< "test start time:"<< _test_start_time.time_since_epoch().count() << "\n";
+                     out<< "test end time:"<< _test_end_time.time_since_epoch().count() << "\n";
+                     out<< "test tps:"<< _test_tx_cnt/(_test_end_time - _test_start_time).count() << "\n";
+                     out.close();
+               }
+
+               void dump_blocks_info(){
+                   using namespace std;
+                     if(is_start())return;
+                     if(_block_test_info.size() == 0) return;
+                     std::ofstream out("./block_statistics");
+                     sort(_block_test_info.begin(),_block_test_info.end(),[](const block_statistic_info& a, const block_statistic_info& b) -> bool{
+                           return (a.transactions/a.duration) >  (b.transactions/b.duration);
+                     });
+                     auto big = _block_test_info.begin();
+                     auto median = _block_test_info[_block_test_info.size()/2];
+                     auto small = _block_test_info.rbegin();
+
+                        out<< "max:block num:"<< big->block_number << "\n";
+                        out<< "max:transactions count:"<< big->transactions << "\n";
+                        out<< "max:block process time:"<< big->duration << "\n";
+                        out<< "max:block tps:"<< (big->transactions/big->duration) << "\n";
+
+                        out<< "median:block num:"<< median.block_number << "\n";
+                        out<< "median:transactions count:"<< median.transactions << "\n";
+                        out<< "median:block process time:"<< median.duration << "\n";
+                        out<< "median:block tps:"<< (median.transactions/median.duration) << "\n";
+
+                        out<< "small:block num:"<< small->block_number << "\n";
+                        out<< "small:transactions count:"<< small->transactions << "\n";
+                        out<< "small:block process time:"<< small->duration << "\n";
+                        out<< "small:block tps:"<< (small->transactions/small->duration) << "\n";
+                           
+                     out.close();
+               }
+
+            public:
+               uint32_t _test_tx_cnt = 0;
+               time_point _test_start_time;
+               time_point _test_end_time;
+               struct block_statistic_info{
+                   block_statistic_info(uint32_t n,uint32_t txs,int64_t d){
+                           block_number = n;
+                           transactions = txs;
+                           duration = d;
+                     }
+                     uint32_t block_number = 0;
+                     uint32_t transactions = 0;
+                   int64_t duration;//microseconds
+               };
+
+               std::vector<block_statistic_info> _block_test_info;
+               uint32_t _block_tx_cnt = 0;
+               time_point _block_start_time;
+               time_point _block_end_time;
+
+            private:
+               bool _start = false;
+         };
+         private:
+         test_statistics _test_statistics;
+
       public:
          database();
          ~database();

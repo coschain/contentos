@@ -2598,6 +2598,30 @@ void database::show_free_memory( bool force )
 
 void database::_apply_block( const signed_block& next_block )
 { try {
+
+      if (next_block.transactions.size() > 0) {
+         if (!_test_statistics.is_start()){
+             _test_statistics.set_start(true);
+             _test_statistics._test_start_time = time_point::now();
+             _test_statistics._test_end_time = time_point::min();
+             _test_statistics._test_tx_cnt = 0;
+         }
+   } else {
+         if (_test_statistics.is_start()){
+             _test_statistics.set_start(false);
+              _test_statistics._test_end_time = time_point::now();
+         //dump statistics to file...
+             _test_statistics.dump_total_info();
+             _test_statistics.dump_blocks_info();
+             
+             _test_statistics.reset();
+         }
+   }
+
+   if (_test_statistics.is_start()){
+         _test_statistics._block_start_time = time_point::now();
+   }
+
    uint32_t next_block_num = next_block.block_num();
    //block_id_type next_block_id = next_block.id();
     
@@ -2673,7 +2697,9 @@ void database::_apply_block( const signed_block& next_block )
          ("witness",witness)("next_block.witness",next_block.witness)("hardfork_state", hardfork_state)
       );
    }
+   
 
+      
    for( const auto& trx : next_block.transactions )
    {
       /* We do not need to push the undo state for each transaction
@@ -2684,6 +2710,10 @@ void database::_apply_block( const signed_block& next_block )
        */
       apply_transaction( trx, skip );
       ++_current_trx_in_block;
+      if (_test_statistics.is_start()){
+             _test_statistics._test_tx_cnt++;
+             _test_statistics._block_tx_cnt++;
+      }
    }
 
    update_global_dynamic_data(next_block);
@@ -2719,6 +2749,16 @@ void database::_apply_block( const signed_block& next_block )
    notify_applied_block( next_block );
 
    notify_changed_objects();
+
+      if (_test_statistics.is_start()){
+         _test_statistics._block_end_time = time_point::now();
+      auto block_duration = _test_statistics._block_end_time - _test_statistics._block_start_time;
+      _test_statistics._block_test_info.emplace_back(next_block_num,_test_statistics._block_tx_cnt,block_duration.count());
+
+      _test_statistics._block_start_time = time_point::min();
+      _test_statistics._block_end_time = time_point::min();
+      _test_statistics._block_tx_cnt = 0;
+   }
 } //FC_CAPTURE_AND_RETHROW( (next_block.block_num()) )  }
 FC_CAPTURE_LOG_AND_RETHROW( (next_block.block_num()) )
 }
