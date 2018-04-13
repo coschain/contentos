@@ -853,6 +853,11 @@ class wallet_api
        *  @param broadcast true if you wish to broadcast the transaction
        */
       annotated_signed_transaction post_comment( string author, string permlink, string parent_author, string parent_permlink, string title, string body, string json, bool broadcast );
+    
+    //presure test
+    void batch_post_comment(string author,uint32_t times);
+    void gen_random(char *s, const int len);
+    //presure test
 
       annotated_signed_transaction      send_private_message( string from, string to, string subject, string body, bool broadcast );
       vector<extended_message_object>   get_inbox( string account, fc::time_point newest, uint32_t limit );
@@ -1056,6 +1061,7 @@ FC_API( steemit::wallet::wallet_api,
         (create_order)
         (cancel_order)
         (post_comment)
+        (batch_post_comment)
         (vote)
         (set_transaction_expiration)
         (challenge)
