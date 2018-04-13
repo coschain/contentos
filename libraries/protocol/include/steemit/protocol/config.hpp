@@ -38,6 +38,10 @@
 #define STEEMIT_ACCOUNT_RECOVERY_REQUEST_EXPIRATION_PERIOD  fc::seconds(12)
 #define STEEMIT_OWNER_UPDATE_LIMIT                          fc::seconds(0)
 #define STEEMIT_OWNER_AUTH_HISTORY_TRACKING_START_BLOCK_NUM 1
+
+#define STEEMIT_MIN_ROOT_COMMENT_INTERVAL       (fc::seconds(0)) // no limit for TEST_NET
+#define STEEMIT_MIN_REPLY_INTERVAL              (fc::seconds(0)) // no limit for TEST_NET
+
 #else // IS LIVE STEEM NETWORK
 
 //#define STEEMIT_INIT_PUBLIC_KEY_STR             "STM8GC13uCZbP44HzMLV6zPZGwVQ8Nt4Kji8PapsPiNq1BK153XTX"
@@ -69,6 +73,9 @@
 #define STEEMIT_ACCOUNT_RECOVERY_REQUEST_EXPIRATION_PERIOD  fc::days(1)
 #define STEEMIT_OWNER_UPDATE_LIMIT                          fc::minutes(60)
 #define STEEMIT_OWNER_AUTH_HISTORY_TRACKING_START_BLOCK_NUM 3186477
+
+#define STEEMIT_MIN_ROOT_COMMENT_INTERVAL       (fc::seconds(60*5)) // 5 minutes
+#define STEEMIT_MIN_REPLY_INTERVAL              (fc::seconds(20)) // 20 seconds
 
 #endif
 
@@ -108,8 +115,6 @@
 #define STEEMIT_MIN_VOTE_INTERVAL_SEC           3
 #define STEEMIT_VOTE_DUST_THRESHOLD             (50000000)
 
-#define STEEMIT_MIN_ROOT_COMMENT_INTERVAL       (fc::seconds(60*5)) // 5 minutes
-#define STEEMIT_MIN_REPLY_INTERVAL              (fc::seconds(20)) // 20 seconds
 #define STEEMIT_POST_AVERAGE_WINDOW             (60*60*24u) // 1 day
 #define STEEMIT_POST_MAX_BANDWIDTH              (4*STEEMIT_100_PERCENT) // 2 posts per 1 days, average 1 every 12 hours
 #define STEEMIT_POST_WEIGHT_CONSTANT            (uint64_t(STEEMIT_POST_MAX_BANDWIDTH) * STEEMIT_POST_MAX_BANDWIDTH)
