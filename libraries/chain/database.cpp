@@ -2610,7 +2610,6 @@ void database::_apply_block( const signed_block& next_block )
    } else {
          if (_test_statistics.is_start()){
              _test_statistics.set_start(false);
-              _test_statistics._test_end_time = time_point::now();
          //dump statistics to file...
              _test_statistics.dump_total_info();
              _test_statistics.dump_blocks_info();
@@ -2754,7 +2753,8 @@ void database::_apply_block( const signed_block& next_block )
    notify_changed_objects();
 
       if (_test_statistics.is_start()){
-         _test_statistics._block_end_time = time_point::now();
+        _test_statistics._block_end_time = time_point::now();
+        _test_statistics._test_end_time = time_point::now();
       auto block_duration = _test_statistics._block_end_time - _test_statistics._block_start_time;
       _test_statistics._block_test_info.emplace_back(next_block_num,_test_statistics._block_tx_cnt,block_duration.count());
 

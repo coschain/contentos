@@ -92,17 +92,17 @@ namespace steemit { namespace chain {
                         out<< "max:block num:"<< big->block_number << "\n";
                         out<< "max:transactions count:"<< big->transactions << "\n";
                         out<< "max:block process time:"<< big->duration << "\n";
-                        out<< "max:block tps:"<< ((big->transactions*MICROTOSECOND)/big->duration) << "\n";
+                        out<< "max:block tps:"<< ((big->transactions*MICROTOSECOND)/big->duration) << "\n\n";
 
                         out<< "median:block num:"<< median.block_number << "\n";
                         out<< "median:transactions count:"<< median.transactions << "\n";
                         out<< "median:block process time:"<< median.duration << "\n";
-                        out<< "median:block tps:"<< ((median.transactions*MICROTOSECOND)/median.duration) << "\n";
+                        out<< "median:block tps:"<< ((median.transactions*MICROTOSECOND)/median.duration) << "\n\n";
 
                         out<< "small:block num:"<< small->block_number << "\n";
                         out<< "small:transactions count:"<< small->transactions << "\n";
                         out<< "small:block process time:"<< small->duration << "\n";
-                        out<< "small:block tps:"<< ((small->transactions*MICROTOSECOND)/small->duration) << "\n";
+                        out<< "small:block tps:"<< ((small->transactions*MICROTOSECOND)/small->duration) << "\n\n";
                            
                      out.close();
                }
