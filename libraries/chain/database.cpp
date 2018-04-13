@@ -2598,13 +2598,14 @@ void database::show_free_memory( bool force )
 
 void database::_apply_block( const signed_block& next_block )
 { try {
-
+ uint32_t next_block_num = next_block.block_num();
       if (next_block.transactions.size() > 0) {
          if (!_test_statistics.is_start()){
              _test_statistics.set_start(true);
              _test_statistics._test_start_time = time_point::now();
              _test_statistics._test_end_time = time_point::min();
              _test_statistics._test_tx_cnt = 0;
+             std::cerr<< "###"<<" block number:"<<next_block_num<<",apply block transactions>0, start statistics,start_time:"<<_test_statistics._test_start_time.time_since_epoch().count()<<" ...\n";
          }
    } else {
          if (_test_statistics.is_start()){
@@ -2615,14 +2616,16 @@ void database::_apply_block( const signed_block& next_block )
              _test_statistics.dump_blocks_info();
              
              _test_statistics.reset();
+             std::cerr<< "###"<<" block number:"<<next_block_num<<",apply block transactions==0, end statistics and write file,end_time:"<<_test_statistics._test_end_time.time_since_epoch().count()<<" ...\n";
          }
    }
 
    if (_test_statistics.is_start()){
          _test_statistics._block_start_time = time_point::now();
+       std::cerr<< "###"<<" block number:"<<next_block_num<<",apply block statistics is start, record current block start time:"<<_test_statistics._block_start_time.time_since_epoch().count()<<" ...\n";
    }
 
-   uint32_t next_block_num = next_block.block_num();
+  
    //block_id_type next_block_id = next_block.id();
     
 #ifdef IS_TEST_NET
@@ -2758,6 +2761,7 @@ void database::_apply_block( const signed_block& next_block )
       _test_statistics._block_start_time = time_point::min();
       _test_statistics._block_end_time = time_point::min();
       _test_statistics._block_tx_cnt = 0;
+          std::cerr<< "###"<<" block number:"<<next_block_num<<",apply block statistics, record current block end time:"<<_test_statistics._block_end_time.time_since_epoch().count()<<" ...\n";
    }
 } //FC_CAPTURE_AND_RETHROW( (next_block.block_num()) )  }
 FC_CAPTURE_LOG_AND_RETHROW( (next_block.block_num()) )
