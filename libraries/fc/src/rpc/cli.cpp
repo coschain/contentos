@@ -88,9 +88,14 @@ void cli::set_prompt( const string& prompt )
 
 void cli::run()
 {
-    uint32_t step = 0;
-    string command_1 = "unlock \"testpassword\"";
-    string command_2 = "batch_post_comment \"huoxin\" 1";
+    uint32_t step = 1;
+    string c1 = "set_password \"testpassword\"";
+    string c2 = "unlock \"testpassword\"";
+
+    string c3 = "import_key 5HvTVEQCYAhVTCV347DEb3tgsCV7o4Xg6wwcJ6zqBdNRU6TEueN";
+    string c4 = "create_account \"initminer\" \"test\" \"\" true";
+    string c5 = "batch_post_comment \"test\" 100";
+    
    while( !_run_complete.canceled() )
    {
       try
@@ -104,11 +109,17 @@ void cli::run()
          {
             break;
          }
-          if (step == 0)
+          if (step == 1)
           {
-              line = command_1;
-          } else {
-              line = command_2;
+              line = c1;
+          } else if (step == 2){
+              line = c2;
+          } else if (step == 3){
+              line = c3;
+          } else if (step == 4){
+              line = c4;
+          } else if (step == 5){
+              line = c5;
           }
          std::cout << line << "\n";
          line += char(EOF);
@@ -127,7 +138,7 @@ void cli::run()
          else
             std::cout << itr->second( result, args ) << "\n";
           
-          step++;
+          if (step<5)step++;
       }
       catch ( const fc::exception& e )
       {
