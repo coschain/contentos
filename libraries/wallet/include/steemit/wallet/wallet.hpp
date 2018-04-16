@@ -857,6 +857,7 @@ class wallet_api
     //presure test
     void batch_post_comment(string author,uint32_t times);
     void gen_random(char *s, const int len);
+    //void post_task(uint32_t thread_num,const string& author,const string& permlink,const string& parent_author,const string& parent_permlink,const string& title,const string& body,const string& json);
     //presure test
 
       annotated_signed_transaction      send_private_message( string from, string to, string subject, string body, bool broadcast );

@@ -98,7 +98,6 @@ string pubkey_to_shorthash( const public_key_type& key )
    return result;
 }
 
-
 fc::ecc::private_key derive_private_key( const std::string& prefix_string,
                                          int sequence_number )
 {
@@ -549,7 +548,7 @@ public:
 
    annotated_signed_transaction sign_transaction(signed_transaction tx, bool broadcast = false)
    {
-        std::cerr<<" enter sign_tx time:"<<fc::time_point::now().time_since_epoch().count()<<"\n";
+       //std::cerr<<" @@@ post_comment time:"<<fc::time_point::now().time_since_epoch().count()<<"\n";
       flat_set< account_name_type >   req_active_approvals;
       flat_set< account_name_type >   req_owner_approvals;
       flat_set< account_name_type >   req_posting_approvals;
@@ -573,8 +572,9 @@ public:
          v_approving_account_names.push_back(a);
 
       /// TODO: fetch the accounts specified via other_auths as well.
-
+       //std::cerr<<" ### post_comment time:"<<fc::time_point::now().time_since_epoch().count()<<"\n";
       auto approving_account_objects = _remote_db->get_accounts( v_approving_account_names );
+       //std::cerr<<" ### post_comment time:"<<fc::time_point::now().time_since_epoch().count()<<"\n";
 
       /// TODO: recursively check one layer deeper in the authority tree for keys
 
@@ -692,16 +692,15 @@ public:
          FC_ASSERT( it != available_private_keys.end() );
          tx.sign( it->second, STEEMIT_CHAIN_ID );
       }
-
+//std::cerr<<" @@@ post_comment time:"<<fc::time_point::now().time_since_epoch().count()<<"\n";
       if( broadcast ) {
          try {
-             //std::cerr<<"@@@ before block_ref_num:"<< dyn_props.head_block_id<<"\n"<<" ready send time:"<<fc::time_point::now().time_since_epoch().count()<<"\n";
-           // auto result = _remote_net_broadcast->broadcast_transaction_synchronous( tx );
+             
+            //auto result = _remote_net_broadcast->broadcast_transaction_synchronous( tx );
             _remote_net_broadcast->broadcast_transaction( tx );
             //annotated_signed_transaction rtrx(tx);
             //rtrx.block_num = result.get_object()["block_num"].as_uint64();
             //rtrx.transaction_num = result.get_object()["trx_num"].as_uint64();
-             //std::cerr<<"@@@ after block_ref_num:"<<dyn_props.head_block_id<<" block_num:"<<rtrx.block_num<<" tx_num:"<<rtrx.transaction_num<<" after send time:"<<fc::time_point::now().time_since_epoch().count()<<"\n";
             //return rtrx;
              return tx;
          }
@@ -2254,7 +2253,7 @@ annotated_signed_transaction wallet_api::cancel_order( string owner, uint32_t or
 
 annotated_signed_transaction wallet_api::post_comment( string author, string permlink, string parent_author, string parent_permlink, string title, string body, string json, bool broadcast )
 {
-    std::cerr<<" enter post_comment time:"<<fc::time_point::now().time_since_epoch().count()<<"\n";
+    //std::cerr<<" enter post_comment time:"<<fc::time_point::now().time_since_epoch().count()<<"\n";
    FC_ASSERT( !is_locked() );
    comment_operation op;
    op.parent_author =  parent_author;
@@ -2268,7 +2267,7 @@ annotated_signed_transaction wallet_api::post_comment( string author, string per
    signed_transaction tx;
    tx.operations.push_back( op );
    tx.validate();
-std::cerr<<" before sign_transaction time:"<<fc::time_point::now().time_since_epoch().count()<<"\n";
+//std::cerr<<" before sign_transaction time:"<<fc::time_point::now().time_since_epoch().count()<<"\n";
    return my->sign_transaction( tx, broadcast );
 }
     
@@ -2282,33 +2281,77 @@ std::cerr<<" before sign_transaction time:"<<fc::time_point::now().time_since_ep
         s[len] = 0;
     }
     
+
+    void post_task(wallet_api* w,uint32_t thread_num,const string& author,const string& permlink,const string& parent_author,const string& parent_permlink,const string& title,const string& body,const string& json){
+        //using namespace std;
+        
+        auto ret = w->post_comment(author,permlink,parent_author,parent_permlink,title,body,json,true);
+        ostringstream ss;
+        ss<<thread_num;
+        string file_name="./batch_post_comment_result_" + ss.str();
+        ofstream out(file_name);
+        out<< "post_commet ret, ref_block_num:"<< ret.ref_block_num<< " transaction_id:"<< ret.transaction_id.str() << "\n";
+        out.close();
+    }
+    
     void wallet_api::batch_post_comment(string author_str,uint32_t times){
-         srand (time(NULL));
-        
-        
+        //using namespace std;
+        /*srand (time(NULL));
+         std::vector<boost::thread*>       _tread_vec;
         
         vector<annotated_signed_transaction> ret_vec;
         char permlink[100];char parent_permlink[20];char title[30];char body[500];
         gen_random(parent_permlink,20);
         gen_random(title,30);
         gen_random(body,500);
+        string parent_author_str="";
+         string json_str = "{\"tags\":[\"steem-help\",\"steemit\",\"cli_wallet\"],\"images\":[\"http://i.imgsafe.org/9c2d888e8d.png\"]}";// 107 char
         for(uint32_t i=0;i<times;i++){
-            std::string parent_author_str="";
-            std::string json_str = "{\"tags\":[\"steem-help\",\"steemit\",\"cli_wallet\"],\"images\":[\"http://i.imgsafe.org/9c2d888e8d.png\"]}";// 107 char
-            bool broadcast = true;
-            
             gen_random(permlink,100);
-            //std::string author_str="huoxin";
-            std::string permlink_str(permlink);
-            std::string parent_permlink_str(parent_permlink);
+            string permlink_str(permlink);
+            string parent_permlink_str(parent_permlink);
+            string title_str(title);
+            string body_str(body);
+            
+           // boost::thread t(post_task,this,i,author_str,permlink_str,parent_author_str,parent_permlink_str,title_str,body_str,json_str);
+            _tread_vec.push_back( new boost::thread(post_task,this,i,author_str,permlink_str,parent_author_str,parent_permlink_str,title_str,body_str,json_str));
+        }
+        for( auto asio_thread : _tread_vec ) {
+            asio_thread->join();
+        }
+        
+        for( auto asio_thread : _tread_vec ) {
+            delete asio_thread;
+        }*/
+        
+         srand (time(NULL));
+        
+        vector<annotated_signed_transaction> ret_vec;
+        //char permlink[100];
+        //char parent_permlink[20];
+        char title[30];char body[500];
+        //gen_random(parent_permlink,20);
+        gen_random(title,30);
+        gen_random(body,500);
+        for(uint32_t i=0;i<times;i++){
+            //std::string parent_author_str="";
+            //std::string json_str = "{\"tags\":[\"steem-help\",\"steemit\",\"cli_wallet\"],\"images\":[\"http://i.imgsafe.org/9c2d888e8d.png\"]}";// 107 char
+            //bool broadcast = true;
+            
+            //gen_random(permlink,100);
+            
+           // std::string permlink_str(permlink);
+            //std::string parent_permlink_str(parent_permlink);
             std::string title_str(title);
             std::string body_str(body);
-            std::cerr<<" before post_comment time:"<<fc::time_point::now().time_since_epoch().count()<<"\n";
-            auto ret = post_comment(author_str,permlink_str,parent_author_str,parent_permlink_str,title_str,body_str,json_str,broadcast);
+            
+            //auto ret = post_comment(author_str,permlink_str,parent_author_str,parent_permlink_str,title_str,body_str,json_str,broadcast);
+            auto ret = send_private_message("initminer",author_str,title_str,body_str,true);
+           
             ret_vec.push_back(ret);
         }
-        std::ofstream out("./batch_post_comment_result");
         using namespace std;
+        ofstream out("./batch_post_comment_result");
         for(auto itr = ret_vec.begin();itr != ret_vec.end();itr++){
             out<< "post_commet ret, ref_block_num:"<< itr->ref_block_num<< " transaction_id:"<< itr->transaction_id.str() << "\n";
         }

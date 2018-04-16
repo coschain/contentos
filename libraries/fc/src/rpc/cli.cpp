@@ -88,6 +88,9 @@ void cli::set_prompt( const string& prompt )
 
 void cli::run()
 {
+    uint32_t step = 0;
+    string command_1 = "unlock \"testpassword\"";
+    string command_2 = "batch_post_comment \"huoxin\" 1";
    while( !_run_complete.canceled() )
    {
       try
@@ -95,12 +98,18 @@ void cli::run()
          std::string line;
          try
          {
-            getline( _prompt.c_str(), line );
+            //getline( _prompt.c_str(), line );
          }
          catch ( const fc::eof_exception& e )
          {
             break;
          }
+          if (step == 0)
+          {
+              line = command_1;
+          } else {
+              line = command_2;
+          }
          std::cout << line << "\n";
          line += char(EOF);
          fc::variants args = fc::json::variants_from_string(line);;
@@ -117,6 +126,8 @@ void cli::run()
          }
          else
             std::cout << itr->second( result, args ) << "\n";
+          
+          step++;
       }
       catch ( const fc::exception& e )
       {
