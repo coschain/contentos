@@ -71,6 +71,7 @@ int main( int argc, char** argv )
 
       boost::program_options::options_description opts;
          opts.add_options()
+       ("clean", "back to origin cli")
         ("filenumber,f", bpo::value<int>(), "Server Username")
        ("create-account,i", "no create account")
          ("help,h", "Print this help message and exit.")
@@ -93,8 +94,12 @@ int main( int argc, char** argv )
 
       bpo::store( bpo::parse_command_line(argc, argv, opts), options );
        
+       bool clean = false;
         bool binit = false;
        int file_suffix = 0;
+       if(options.count("clean")){
+           clean = true;
+       }
        if(options.count("filenumber")){
            std::cout<<"file_number:"<<options["filenumber"].as<int>()<<"\n";
            file_suffix = options["filenumber"].as<int>();
@@ -265,7 +270,7 @@ int main( int argc, char** argv )
       if( !options.count( "daemon" ) )
       {
          wallet_cli->register_api( wapi );
-         wallet_cli->start(binit,file_suffix);
+         wallet_cli->start(clean,binit,file_suffix);
          wallet_cli->wait();
       }
       else
