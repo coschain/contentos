@@ -2329,10 +2329,9 @@ annotated_signed_transaction wallet_api::post_comment( string author, string per
         vector<annotated_signed_transaction> ret_vec;
         //char permlink[100];
         //char parent_permlink[20];
-        char title[30];char body[500];
+        char title[100];char body[400];
         //gen_random(parent_permlink,20);
-        gen_random(title,30);
-        gen_random(body,500);
+
         for(uint32_t i=0;i<times;i++){
             //std::string parent_author_str="";
             //std::string json_str = "{\"tags\":[\"steem-help\",\"steemit\",\"cli_wallet\"],\"images\":[\"http://i.imgsafe.org/9c2d888e8d.png\"]}";// 107 char
@@ -2342,6 +2341,8 @@ annotated_signed_transaction wallet_api::post_comment( string author, string per
             
            // std::string permlink_str(permlink);
             //std::string parent_permlink_str(parent_permlink);
+            gen_random(title,100);
+            gen_random(body,400);
             std::string title_str(title);
             std::string body_str(body);
             
