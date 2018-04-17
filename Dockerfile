@@ -97,24 +97,24 @@ RUN \
 #        -DSKIP_BY_TX_ID=OFF \
 #        -DBUILD_STEEM_TESTNET=OFF \
 #        -DSTEEM_STATIC_BUILD=${STEEM_STATIC_BUILD} \
-        .. \
-    && \
-    make -j$(nproc) && \
-    make install && \
-    cd .. && \
-    ( /usr/local/steemd-default/bin/steemd --version \
-      | grep -o '[0-9]*\.[0-9]*\.[0-9]*' \
-      && echo '_' \
-      && git rev-parse --short HEAD ) \
-      | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n//g' \
-      > /etc/steemdversion && \
-    cat /etc/steemdversion && \
-    rm -rfv build && \
-    mkdir build && \
-    cd build && \
-    cmake \
-        -DCMAKE_INSTALL_PREFIX=/usr/local/steemd-full \
-        -DCMAKE_BUILD_TYPE=Release \
+#dd        .. \
+#    && \
+#    make -j$(nproc) && \
+#    make install && \
+#    cd .. && \
+#    ( /usr/local/steemd-default/bin/steemd --version \
+#      | grep -o '[0-9]*\.[0-9]*\.[0-9]*' \
+#      && echo '_' \
+#      && git rev-parse --short HEAD ) \
+#      | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n//g' \
+#      > /etc/steemdversion && \
+#    cat /etc/steemdversion && \
+#    rm -rfv build && \
+#    mkdir build && \
+#    cd build && \
+#    cmake \
+#        -DCMAKE_INSTALL_PREFIX=/usr/local/steemd-full \
+#dd        -DCMAKE_BUILD_TYPE=Release \
 #        -DLOW_MEMORY_NODE=OFF \
 #        -DCLEAR_VOTES=OFF \
 #        -DSKIP_BY_TX_ID=ON \
