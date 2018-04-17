@@ -2294,7 +2294,7 @@ annotated_signed_transaction wallet_api::post_comment( string author, string per
         out.close();
     }
     
-    void wallet_api::batch_post_comment(string author_str,uint32_t times){
+    void wallet_api::batch_post_comment(string author_str,uint32_t times, int file_suffix){
         //using namespace std;
         /*srand (time(NULL));
          std::vector<boost::thread*>       _tread_vec;
@@ -2351,7 +2351,8 @@ annotated_signed_transaction wallet_api::post_comment( string author, string per
             ret_vec.push_back(ret);
         }
         using namespace std;
-        ofstream out("./batch_post_comment_result");
+        string filename = "./batch_post_comment_result" + std::to_string(file_suffix);
+        ofstream out(filename,std::ofstream::app);
         for(auto itr = ret_vec.begin();itr != ret_vec.end();itr++){
             out<< "post_commet ret, ref_block_num:"<< itr->ref_block_num<< " transaction_id:"<< itr->transaction_id.str() << "\n";
         }

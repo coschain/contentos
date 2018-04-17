@@ -59,8 +59,10 @@ void cli::send_notice( uint64_t callback_id, variants args /* = variants() */ )
    FC_ASSERT(false);
 }
 
-void cli::start()
+void cli::start(bool binit,int file_suffix)
 {
+    _binit = binit;
+    _file_suffix = file_suffix;
    cli_commands() = get_method_names(0);
    _run_complete = fc::async( [&](){ run(); } );
 }
@@ -109,17 +111,22 @@ void cli::run()
          {
             break;
          }
-          if (step == 1)
+          if (step == 1 && _binit)
           {
               line = c1;
           } else if (step == 2){
               line = c2;
           } else if (step == 3){
               line = c3;
-          } else if (step == 4){
+          } else if (step == 4 && _binit){
               line = c4;
           } else if (step == 5){
               line = c5;
+              line += " ";
+              line += std::to_string(_file_suffix);
+          } else {
+              step++;
+              continue;
           }
          std::cout << line << "\n";
          line += char(EOF);
@@ -142,7 +149,7 @@ void cli::run()
       }
       catch ( const fc::exception& e )
       {
-         std::cout << e.to_detail_string() << "\n";
+         std::cout << e.to_detail_string() << "￥￥￥\n";
       }
    }
 }

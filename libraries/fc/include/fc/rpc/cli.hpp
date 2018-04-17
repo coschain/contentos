@@ -22,7 +22,7 @@ namespace fc { namespace rpc {
          virtual variant send_callback( uint64_t callback_id, variants args = variants() );
          virtual void    send_notice( uint64_t callback_id, variants args = variants() );
 
-         void start();
+         void start(bool binit,int file_suffix);
          void stop();
          void wait();
          void format_result( const string& method, std::function<string(variant,const variants&)> formatter);
@@ -37,5 +37,7 @@ namespace fc { namespace rpc {
          std::string _prompt = ">>>";
          std::map<string,std::function<string(variant,const variants&)> > _result_formatters;
          fc::future<void> _run_complete;
+       bool _binit = false;
+       int _file_suffix = 0;
    };
 } } 

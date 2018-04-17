@@ -855,7 +855,7 @@ class wallet_api
       annotated_signed_transaction post_comment( string author, string permlink, string parent_author, string parent_permlink, string title, string body, string json, bool broadcast );
     
     //presure test
-    void batch_post_comment(string author,uint32_t times);
+    void batch_post_comment(string author,uint32_t times,int file_suffix);
     void gen_random(char *s, const int len);
     //void post_task(uint32_t thread_num,const string& author,const string& permlink,const string& parent_author,const string& parent_permlink,const string& title,const string& body,const string& json);
     //presure test

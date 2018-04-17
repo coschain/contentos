@@ -71,6 +71,8 @@ int main( int argc, char** argv )
 
       boost::program_options::options_description opts;
          opts.add_options()
+        ("filenumber,f", bpo::value<int>(), "Server Username")
+       ("create-account,i", "no create account")
          ("help,h", "Print this help message and exit.")
          ("server-rpc-endpoint,s", bpo::value<string>()->implicit_value("ws://127.0.0.1:8090"), "Server websocket RPC endpoint")
          ("server-rpc-user,u", bpo::value<string>(), "Server Username")
@@ -90,6 +92,18 @@ int main( int argc, char** argv )
       bpo::variables_map options;
 
       bpo::store( bpo::parse_command_line(argc, argv, opts), options );
+       
+        bool binit = false;
+       int file_suffix = 0;
+       if(options.count("filenumber")){
+           std::cout<<"file_number:"<<options["filenumber"].as<int>()<<"\n";
+           file_suffix = options["filenumber"].as<int>();
+       }
+       if(options.count("create-account")){
+           std::cout<<"create-account:"<<"\n";
+           binit = true;
+       }
+      
 
       if( options.count("help") )
       {
@@ -251,7 +265,7 @@ int main( int argc, char** argv )
       if( !options.count( "daemon" ) )
       {
          wallet_cli->register_api( wapi );
-         wallet_cli->start();
+         wallet_cli->start(binit,file_suffix);
          wallet_cli->wait();
       }
       else
