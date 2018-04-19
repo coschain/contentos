@@ -399,7 +399,16 @@ namespace detail
 
          has_bandwidth = ( account_vshares * max_virtual_bandwidth ) > ( account_average_bandwidth * total_vshares );
 
-         if( _db.is_producing() )
+          if( _db.is_producing() ) {
+              if(!has_bandwidth){
+                  string name =a.name;
+                  string av =account_vshares;
+                  string aab =account_average_bandwidth;
+                  string mvb =max_virtual_bandwidth;
+                  string tv=total_vshares;
+              std::cerr<<"*** "<<name<<" bandwidth limit exceeded"<<" account_vshares:"<< av  <<" account_average_bandwidth:"<< aab <<" max_virtual_bandwidth:"<< mvb <<" total_vesting_shares:"<< tv <<"\n";
+              }
+              //std::cerr<<"99999"<<"\n";
             STEEMIT_ASSERT( has_bandwidth, chain::plugin_exception,
                "Account: ${account} bandwidth limit exceeded. Please wait to transact or power up STEEM.",
                ("account", a.name)
@@ -407,6 +416,7 @@ namespace detail
                ("account_average_bandwidth", account_average_bandwidth)
                ("max_virtual_bandwidth", max_virtual_bandwidth)
                ("total_vesting_shares", total_vshares) );
+          }
       }
    }
 }
