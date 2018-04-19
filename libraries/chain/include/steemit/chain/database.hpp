@@ -65,6 +65,9 @@ namespace steemit { namespace chain {
                  _block_end_time = time_point::min();
                  _block_tx_cnt = 0;
                  _received_trx_cnt = 0;
+                 _pass_bandwith_check_trx_cnt = 0;
+                 _after_apply_wait_into_block_trx = 0;
+                 _pending_to_block_trx = 0;
              }
 
                void dump_total_info(){
@@ -76,6 +79,9 @@ namespace steemit { namespace chain {
                      out<< "test end time:"<< _test_end_time.time_since_epoch().count() << "\n";
                      out<< "test tps:"<< (_test_tx_cnt*MICROTOSECOND)/(_test_end_time - _test_start_time).count() << "\n";
                    out<< "actaul received trx:"<<_received_trx_cnt<<"\n";
+                   out<<"_apply_transaction:pass bandwith check trx:"<<_pass_bandwith_check_trx_cnt<<"\n";
+                   out<<"_push_transaction: after apply wait into block trx:"<<_after_apply_wait_into_block_trx<<"\n";
+                   out<<"generate_block:pending to block trx:"<<_pending_to_block_trx<<"\n";
                      out.close();
                }
 
@@ -131,6 +137,9 @@ namespace steemit { namespace chain {
              
              //actual received trx
              uint64_t _received_trx_cnt = 0;
+             uint64_t _pass_bandwith_check_trx_cnt = 0;
+             uint64_t _pending_to_block_trx = 0;
+             uint64_t _after_apply_wait_into_block_trx = 0;
 
             private:
                bool _start = false;

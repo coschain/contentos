@@ -679,6 +679,7 @@ void database::_push_transaction( const signed_transaction& trx )
    auto temp_session = start_undo_session( true );
    _apply_transaction( trx );
    _pending_tx.push_back( trx );
+    _test_statistics._after_apply_wait_into_block_trx++;
 
    notify_changed_objects();
    // The transaction applied successfully. Merge its changes into the pending block session.
@@ -754,8 +755,11 @@ signed_block database::_generate_block(
          // Only include transactions that have not expired yet for currently generating block,
          // this should clear problem transactions and allow block production to continue
 
-         if( tx.expiration < when )
-            continue;
+          if( tx.expiration < when ){
+              std::cerr<<"trx has expired, expiration time:"<<tx.expiration.sec_since_epoch()<<" generate block time:"<<when.sec_since_epoch()<<"\n";
+              continue;
+          }
+          
 
          uint64_t new_total_size = total_block_size + fc::raw::pack_size( tx );
 
@@ -763,7 +767,8 @@ signed_block database::_generate_block(
          if( new_total_size >= maximum_block_size )
          {
             postponed_tx_count++;
-            continue;
+             std::cerr<<" postpone trx because exceed maximum_block_size, maximum_block_size:"<<maximum_block_size<<" current size:"<<new_total_size<<" postponed cnt:"<<postponed_tx_count<<"\n";
+             continue;
          }
 
          try
@@ -774,6 +779,7 @@ signed_block database::_generate_block(
 
             total_block_size += fc::raw::pack_size( tx );
             pending_block.transactions.push_back( tx );
+             _test_statistics._pending_to_block_trx++;
          }
          catch ( const fc::exception& e )
          {
@@ -2963,7 +2969,7 @@ void database::_apply_transaction(const signed_transaction& trx)
    }
 
    notify_on_pre_apply_transaction( trx );
-
+    _test_statistics._pass_bandwith_check_trx_cnt++;
    //Finally process the operations
    _current_op_in_trx = 0;
    for( const auto& op : trx.operations )
