@@ -2909,10 +2909,10 @@ void database::_apply_transaction(const signed_transaction& trx)
    const chain_id_type& chain_id = STEEMIT_CHAIN_ID;
    auto trx_id = trx.id();
    // idump((trx_id)(skip&skip_transaction_dupe_check));
-   FC_ASSERT( (skip & skip_transaction_dupe_check) ||
+   /*FC_ASSERT( (skip & skip_transaction_dupe_check) ||
               trx_idx.indices().get<by_trx_id>().find(trx_id) == trx_idx.indices().get<by_trx_id>().end(),
               "Duplicate transaction check failed", ("trx_ix", trx_id) );
-
+*/
    if( !(skip & (skip_transaction_signatures | skip_authority_check) ) )
    {
       auto get_active  = [&]( const string& name ) { return authority( get< account_authority_object, by_account >( name ).active ); };
