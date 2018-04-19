@@ -64,6 +64,7 @@ namespace steemit { namespace chain {
                  _block_start_time = time_point::min();
                  _block_end_time = time_point::min();
                  _block_tx_cnt = 0;
+                 _received_trx_cnt = 0;
              }
 
                void dump_total_info(){
@@ -74,6 +75,7 @@ namespace steemit { namespace chain {
                      out<< "test start time:"<< _test_start_time.time_since_epoch().count() << "\n";
                      out<< "test end time:"<< _test_end_time.time_since_epoch().count() << "\n";
                      out<< "test tps:"<< (_test_tx_cnt*MICROTOSECOND)/(_test_end_time - _test_start_time).count() << "\n";
+                   out<< "actaul received trx:"<<_received_trx_cnt<<"\n";
                      out.close();
                }
 
@@ -126,6 +128,9 @@ namespace steemit { namespace chain {
                uint64_t _block_tx_cnt = 0;
                time_point _block_start_time;
                time_point _block_end_time;
+             
+             //actual received trx
+             uint64_t _received_trx_cnt = 0;
 
             private:
                bool _start = false;

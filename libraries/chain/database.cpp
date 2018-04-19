@@ -639,6 +639,10 @@ void database::push_transaction( const signed_transaction& trx, uint32_t skip )
    {
       try
       {
+          //if(_test_statistics.is_start()){
+              _test_statistics._received_trx_cnt++;
+          //std::cerr<<"get a trx !!!\n";
+          //}
          FC_ASSERT( fc::raw::pack_size(trx) <= (get_dynamic_global_properties().maximum_block_size - 256) );
          set_producing( true );
          detail::with_skip_flags( *this, skip,
@@ -2605,6 +2609,7 @@ void database::_apply_block( const signed_block& next_block )
              _test_statistics._test_start_time = time_point::now();
              _test_statistics._test_end_time = time_point::min();
              _test_statistics._test_tx_cnt = 0;
+             
              std::cerr<< "###"<<" block number:"<<next_block_num<<",apply block transactions>0, start statistics,start_time:"<<_test_statistics._test_start_time.time_since_epoch().count()<<" ...\n";
          }
    } else {
