@@ -42,6 +42,8 @@
 #define STEEMIT_MIN_ROOT_COMMENT_INTERVAL       (fc::seconds(0)) // no limit for TEST_NET
 #define STEEMIT_MIN_REPLY_INTERVAL              (fc::seconds(0)) // no limit for TEST_NET
 
+#define STEEMIT_INIT_SUPPLY                     int64_t(1000000000)  // 1 billion
+
 #else // IS LIVE STEEM NETWORK
 
 //#define STEEMIT_INIT_PUBLIC_KEY_STR             "STM8GC13uCZbP44HzMLV6zPZGwVQ8Nt4Kji8PapsPiNq1BK153XTX"
@@ -76,6 +78,8 @@
 
 #define STEEMIT_MIN_ROOT_COMMENT_INTERVAL       (fc::seconds(60*5)) // 5 minutes
 #define STEEMIT_MIN_REPLY_INTERVAL              (fc::seconds(20)) // 20 seconds
+
+#define STEEMIT_INIT_SUPPLY                     int64_t(0)
 
 #endif
 
@@ -222,7 +226,6 @@
 #define STEEMIT_MAX_PERMLINK_LENGTH             256
 #define STEEMIT_MAX_WITNESS_URL_LENGTH          2048
 
-#define STEEMIT_INIT_SUPPLY                     int64_t(0)
 #define STEEMIT_MAX_SHARE_SUPPLY                int64_t(1000000000000000ll)
 #define STEEMIT_MAX_SIG_CHECK_DEPTH             2
 
