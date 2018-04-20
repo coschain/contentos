@@ -2324,7 +2324,7 @@ annotated_signed_transaction wallet_api::post_comment( string author, string per
             delete asio_thread;
         }*/
         
-         srand (time(NULL));
+         srand (time(NULL)+file_suffix * 10);
         
         vector<annotated_signed_transaction> ret_vec;
         //char permlink[100];

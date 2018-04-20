@@ -750,26 +750,33 @@ signed_block database::_generate_block(
 
       uint64_t postponed_tx_count = 0;
       // pop pending state (reset to head block state)
+       test_statistics::try_block_info info;
+       info._head_num = head_block_num()+1;
+       info._transactions = _pending_tx.size();
+       uint64_t total_size = 0;
       for( const signed_transaction& tx : _pending_tx )
       {
          // Only include transactions that have not expired yet for currently generating block,
          // this should clear problem transactions and allow block production to continue
-//std::cerr<<"hello world"<<"\n";
+
           if( tx.expiration < when ){
-              std::cerr<<"trx has expired, expiration time:"<<tx.expiration.sec_since_epoch()<<" generate block time:"<<when.sec_since_epoch()<<"\n";
+              //std::cerr<<"trx has expired, expiration time:"<<tx.expiration.sec_since_epoch()<<" generate block time:"<<when.sec_since_epoch()<<"\n";
               _test_statistics._expired_trx++;
+              info._expire_cnt++;
               continue;
           }
           
-
-         uint64_t new_total_size = total_block_size + fc::raw::pack_size( tx );
+          auto trx_size = fc::raw::pack_size( tx );
+          total_size += trx_size;
+          uint64_t new_total_size = total_block_size + trx_size;/*fc::raw::pack_size( tx );*/
 
          // postpone transaction if it would make block too big
          if( new_total_size >= maximum_block_size )
          {
             postponed_tx_count++;
              _test_statistics._postponed_trx++;
-             std::cerr<<" postpone trx because exceed maximum_block_size, maximum_block_size:"<<maximum_block_size<<" current size:"<<new_total_size<<" postponed cnt:"<<postponed_tx_count<<"\n";
+             info._postpone_cnt++;
+             //std::cerr<<" postpone trx because exceed maximum_block_size, maximum_block_size:"<<maximum_block_size<<" current size:"<<new_total_size<<" postponed cnt:"<<postponed_tx_count<<"\n";
              continue;
          }
 
@@ -794,7 +801,7 @@ signed_block database::_generate_block(
       {
          wlog( "Postponed ${n} transactions due to block size limit", ("n", postponed_tx_count) );
       }
-
+       _test_statistics._try_block_info_vec.push_back(info);
       _pending_tx_session.reset();
        
 #ifdef IS_TEST_NET
@@ -2626,6 +2633,7 @@ void database::_apply_block( const signed_block& next_block )
          //dump statistics to file...
              _test_statistics.dump_total_info();
              _test_statistics.dump_blocks_info();
+             _test_statistics.dump_try_block_info();
              
              _test_statistics.reset();
              std::cerr<< "###"<<" block number:"<<next_block_num<<",apply block transactions==0, end statistics and write file,end_time:"<<_test_statistics._test_end_time.time_since_epoch().count()<<" ...\n";
@@ -2769,7 +2777,7 @@ void database::_apply_block( const signed_block& next_block )
         _test_statistics._block_end_time = time_point::now();
         _test_statistics._test_end_time = time_point::now();
       auto block_duration = _test_statistics._block_end_time - _test_statistics._block_start_time;
-      _test_statistics._block_test_info.emplace_back(next_block_num,_test_statistics._block_tx_cnt,block_duration.count());
+      _test_statistics._block_test_info.emplace_back(next_block_num,_test_statistics._block_tx_cnt,block_duration.count(),block_size,gprops.maximum_block_size);
 
       _test_statistics._block_start_time = time_point::min();
       _test_statistics._block_end_time = time_point::min();
@@ -2917,10 +2925,10 @@ void database::_apply_transaction(const signed_transaction& trx)
    const chain_id_type& chain_id = STEEMIT_CHAIN_ID;
    auto trx_id = trx.id();
    // idump((trx_id)(skip&skip_transaction_dupe_check));
-   /*FC_ASSERT( (skip & skip_transaction_dupe_check) ||
+   FC_ASSERT( (skip & skip_transaction_dupe_check) ||
               trx_idx.indices().get<by_trx_id>().find(trx_id) == trx_idx.indices().get<by_trx_id>().end(),
               "Duplicate transaction check failed", ("trx_ix", trx_id) );
-*/
+
    if( !(skip & (skip_transaction_signatures | skip_authority_check) ) )
    {
       auto get_active  = [&]( const string& name ) { return authority( get< account_authority_object, by_account >( name ).active ); };

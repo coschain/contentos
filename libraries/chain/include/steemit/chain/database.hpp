@@ -61,6 +61,7 @@ namespace steemit { namespace chain {
                  _test_tx_cnt = 0;
                  
                  _block_test_info.clear();
+                 _try_block_info_vec.clear();
                  _block_start_time = time_point::min();
                  _block_end_time = time_point::min();
                  _block_tx_cnt = 0;
@@ -88,12 +89,36 @@ namespace steemit { namespace chain {
                    out<<"_postponed trx:"<<_postponed_trx<<"\n";
                      out.close();
                }
+             
+             void dump_try_block_info(){
+                 using namespace std;
+                 if(is_start())return;
+                 if(_try_block_info_vec.size() == 0) return;
+                 std::ofstream out("./generate_block_statistics");
+                 for(auto info : _try_block_info_vec){
+                     out<< "block num:"<< info._head_num << "\n";
+                     out<< "transactions count:"<< info._transactions << "\n";
+                     
+                     out<< "trx total size:"<<info._total_size<<"\n";
+                     out<< "postponed trx cnt:"<<info._postpone_cnt<<"\n";
+                     out<< "expire trx cnt:"<< info._expire_cnt << "\n\n";
+                 }
+             }
 
                void dump_blocks_info(){
                    using namespace std;
                      if(is_start())return;
                      if(_block_test_info.size() == 0) return;
                      std::ofstream out("./block_statistics");
+                   for(auto info : _block_test_info){
+                       out<< "block num:"<< info.block_number << "\n";
+                       out<< "transactions count:"<< info.transactions << "\n";
+                       out<< "block process time:"<< info.duration << "\n";
+                       out<< "block size:"<<info._block_size<<"\n";
+                       out<< "max block size:"<<info._max_block_size<<"\n";
+                       out<< "block tps:"<< ((info.transactions*MICROTOSECOND)/info.duration) << "\n\n";
+                   }
+                   out<< "=================="<<"\n\n";
                      sort(_block_test_info.begin(),_block_test_info.end(),[](const block_statistic_info& a, const block_statistic_info& b) -> bool{
                            return ((a.transactions*MICROTOSECOND)/a.duration) >  ((b.transactions*MICROTOSECOND)/b.duration);
                      });
@@ -104,16 +129,22 @@ namespace steemit { namespace chain {
                         out<< "max:block num:"<< big->block_number << "\n";
                         out<< "max:transactions count:"<< big->transactions << "\n";
                         out<< "max:block process time:"<< big->duration << "\n";
+                        out<< "max:block size:"<<big->_block_size<<"\n";
+                        out<< "max:max block size:"<<big->_max_block_size<<"\n";
                         out<< "max:block tps:"<< ((big->transactions*MICROTOSECOND)/big->duration) << "\n\n";
 
                         out<< "median:block num:"<< median.block_number << "\n";
                         out<< "median:transactions count:"<< median.transactions << "\n";
                         out<< "median:block process time:"<< median.duration << "\n";
+                        out<< "median:block size:"<<median._block_size<<"\n";
+                        out<< "median:max block size:"<<median._max_block_size<<"\n";
                         out<< "median:block tps:"<< ((median.transactions*MICROTOSECOND)/median.duration) << "\n\n";
 
                         out<< "small:block num:"<< small->block_number << "\n";
                         out<< "small:transactions count:"<< small->transactions << "\n";
                         out<< "small:block process time:"<< small->duration << "\n";
+                        out<< "small:block size:"<<small->_block_size<<"\n";
+                        out<< "small:max block size:"<<small->_max_block_size<<"\n";
                         out<< "small:block tps:"<< ((small->transactions*MICROTOSECOND)/small->duration) << "\n\n";
                            
                      out.close();
@@ -124,17 +155,36 @@ namespace steemit { namespace chain {
                time_point _test_start_time;
                time_point _test_end_time;
                struct block_statistic_info{
-                   block_statistic_info(uint32_t n,uint64_t txs,int64_t d){
+                   block_statistic_info(uint32_t n,uint64_t txs,int64_t d,size_t block_size,size_t max_block_size){
                            block_number = n;
                            transactions = txs;
                            duration = d;
+                       _block_size = block_size;
+                       _max_block_size = max_block_size;
                      }
                      uint32_t block_number = 0;
                      uint64_t transactions = 0;
                    int64_t duration;//microseconds
+                   size_t _block_size = 0;
+                   size_t _max_block_size = 0;
                };
 
+             struct try_block_info{
+                 /*(try_block_info(uint64_t total,uint64_t trxs,uint64_t postpones,uint64_t expires,uint32_t head_num){
+                     _total_size = total;
+                     _transactions = trxs;
+                     _postpone_cnt = postpones;
+                     _expire_cnt = expires;
+                     _head_num = head_num;
+                 }*/
+                 uint64_t _total_size = 0;
+                 uint64_t _transactions = 0;
+                 uint64_t _postpone_cnt = 0;
+                 uint64_t _expire_cnt = 0;
+                 uint32_t _head_num = 0;
+             };
                std::vector<block_statistic_info> _block_test_info;
+             std::vector<try_block_info> _try_block_info_vec;
                uint64_t _block_tx_cnt = 0;
                time_point _block_start_time;
                time_point _block_end_time;
