@@ -754,9 +754,10 @@ signed_block database::_generate_block(
       {
          // Only include transactions that have not expired yet for currently generating block,
          // this should clear problem transactions and allow block production to continue
-
+//std::cerr<<"hello world"<<"\n";
           if( tx.expiration < when ){
               std::cerr<<"trx has expired, expiration time:"<<tx.expiration.sec_since_epoch()<<" generate block time:"<<when.sec_since_epoch()<<"\n";
+              _test_statistics._expired_trx++;
               continue;
           }
           
@@ -767,6 +768,7 @@ signed_block database::_generate_block(
          if( new_total_size >= maximum_block_size )
          {
             postponed_tx_count++;
+             _test_statistics._postponed_trx++;
              std::cerr<<" postpone trx because exceed maximum_block_size, maximum_block_size:"<<maximum_block_size<<" current size:"<<new_total_size<<" postponed cnt:"<<postponed_tx_count<<"\n";
              continue;
          }

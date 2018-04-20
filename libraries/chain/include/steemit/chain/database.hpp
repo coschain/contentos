@@ -68,6 +68,8 @@ namespace steemit { namespace chain {
                  _pass_bandwith_check_trx_cnt = 0;
                  _after_apply_wait_into_block_trx = 0;
                  _pending_to_block_trx = 0;
+                 _expired_trx=0;
+                 _postponed_trx=0;
              }
 
                void dump_total_info(){
@@ -82,6 +84,8 @@ namespace steemit { namespace chain {
                    out<<"_apply_transaction:pass bandwith check trx:"<<_pass_bandwith_check_trx_cnt<<"\n";
                    out<<"_push_transaction: after apply wait into block trx:"<<_after_apply_wait_into_block_trx<<"\n";
                    out<<"generate_block:pending to block trx:"<<_pending_to_block_trx<<"\n";
+                   out<<"expired trx:"<<_expired_trx<<"\n";
+                   out<<"_postponed trx:"<<_postponed_trx<<"\n";
                      out.close();
                }
 
@@ -140,6 +144,8 @@ namespace steemit { namespace chain {
              uint64_t _pass_bandwith_check_trx_cnt = 0;
              uint64_t _pending_to_block_trx = 0;
              uint64_t _after_apply_wait_into_block_trx = 0;
+             uint64_t _expired_trx = 0;
+             uint64_t _postponed_trx = 0;
 
             private:
                bool _start = false;
