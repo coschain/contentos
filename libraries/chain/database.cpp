@@ -639,6 +639,12 @@ void database::push_transaction( const signed_transaction& trx, uint32_t skip )
    {
       try
       {
+          if (!_test_statistics.is_start()){
+              _test_statistics.set_start(true);
+              _test_statistics._test_start_time = time_point::now();
+              _test_statistics._test_end_time = time_point::min();
+              _test_statistics._test_tx_cnt = 0;
+          }
           //if(_test_statistics.is_start()){
               _test_statistics._received_trx_cnt++;
           //std::cerr<<"get a trx !!!\n";
@@ -2619,14 +2625,14 @@ void database::_apply_block( const signed_block& next_block )
 { try {
  uint32_t next_block_num = next_block.block_num();
       if (next_block.transactions.size() > 0) {
-         if (!_test_statistics.is_start()){
+         /*if (!_test_statistics.is_start()){
              _test_statistics.set_start(true);
              _test_statistics._test_start_time = time_point::now();
              _test_statistics._test_end_time = time_point::min();
              _test_statistics._test_tx_cnt = 0;
              
              std::cerr<< "###"<<" block number:"<<next_block_num<<",apply block transactions>0, start statistics,start_time:"<<_test_statistics._test_start_time.time_since_epoch().count()<<" ...\n";
-         }
+         }*/
    } else {
          if (_test_statistics.is_start()){
              _test_statistics.set_start(false);
