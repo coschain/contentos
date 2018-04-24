@@ -1196,6 +1196,10 @@ namespace graphene { namespace net { namespace detail {
                  ("count", items_by_type.second.size())("type", (uint32_t)items_by_type.first)
                  ("endpoint", peer_and_items.peer->get_remote_endpoint())
                  ("hashes", items_by_type.second));
+              ilog("@@@requesting ${count} items of type ${type} from peer ${endpoint}: ${hashes}",
+                   ("count", items_by_type.second.size())("type", (uint32_t)items_by_type.first)
+                   ("endpoint", peer_and_items.peer->get_remote_endpoint())
+                   ("hashes", items_by_type.second));
             if (items_by_type.first == core_message_type_enum::block_message_type)
               for (const item_hash_t& id : items_by_type.second)
               {
@@ -1284,6 +1288,11 @@ namespace graphene { namespace net { namespace detail {
               }
             }
               dlog("advertising ${count} new item(s) of ${types} type(s) to peer ${endpoint}",
+                   ("count", total_items_to_send_to_this_peer)
+                   ("types", items_to_advertise_by_type.size())
+                   ("endpoint", peer->get_remote_endpoint()));
+              
+              ilog("@@@advertising ${count} new item(s) of ${types} type(s) to peer ${endpoint}",
                    ("count", total_items_to_send_to_this_peer)
                    ("types", items_to_advertise_by_type.size())
                    ("endpoint", peer->get_remote_endpoint()));
@@ -2776,6 +2785,10 @@ namespace graphene { namespace net { namespace detail {
            ("ids", fetch_items_message_received.items_to_fetch)
            ("type", fetch_items_message_received.item_type)
            ("endpoint", originating_peer->get_remote_endpoint()));
+        ilog("@@@received items request for ids ${ids} of type ${type} from peer ${endpoint}",
+             ("ids", fetch_items_message_received.items_to_fetch)
+             ("type", fetch_items_message_received.item_type)
+             ("endpoint", originating_peer->get_remote_endpoint()));
 
       fc::optional<message> last_block_message_sent;
 
@@ -2788,6 +2801,9 @@ namespace graphene { namespace net { namespace detail {
           dlog("received item request for item ${id} from peer ${endpoint}, returning the item from my message cache",
                ("endpoint", originating_peer->get_remote_endpoint())
                ("id", requested_message.id()));
+            ilog("@@@received item request for item ${id} from peer ${endpoint}, returning the item from my message cache",
+                 ("endpoint", originating_peer->get_remote_endpoint())
+                 ("id", requested_message.id()));
           reply_messages.push_back(requested_message);
           if (fetch_items_message_received.item_type == block_message_type)
             last_block_message_sent = requested_message;
@@ -2806,6 +2822,10 @@ namespace graphene { namespace net { namespace detail {
                ("id", requested_message.id())
                ("size", requested_message.size)
                ("endpoint", originating_peer->get_remote_endpoint()));
+            ilog("received item request from peer ${endpoint}, returning the item from delegate with id ${id} size ${size}",
+                 ("id", requested_message.id())
+                 ("size", requested_message.size)
+                 ("endpoint", originating_peer->get_remote_endpoint()));
           reply_messages.push_back(requested_message);
           if (fetch_items_message_received.item_type == block_message_type)
             last_block_message_sent = requested_message;
@@ -2880,6 +2900,8 @@ namespace graphene { namespace net { namespace detail {
 
       dlog( "received inventory of ${count} items from peer ${endpoint}",
            ( "count", item_ids_inventory_message_received.item_hashes_available.size() )("endpoint", originating_peer->get_remote_endpoint() ) );
+        ilog( "@@@received inventory of ${count} items from peer ${endpoint}",
+             ( "count", item_ids_inventory_message_received.item_hashes_available.size() )("endpoint", originating_peer->get_remote_endpoint() ) );
       for( const item_hash_t& item_hash : item_ids_inventory_message_received.item_hashes_available )
       {
         if (_message_ids_currently_being_processed.find(item_hash) != _message_ids_currently_being_processed.end())
@@ -3946,6 +3968,7 @@ namespace graphene { namespace net { namespace detail {
           {
             trx_message transaction_message_to_process = message_to_process.as<trx_message>();
             dlog("passing message containing transaction ${trx} to client", ("trx", transaction_message_to_process.trx.id()));
+              ilog("@@@passing message containing transaction ${trx} to client", ("trx", transaction_message_to_process.trx.id()));
             _delegate->handle_transaction(transaction_message_to_process);
           }
           else
@@ -5010,6 +5033,7 @@ namespace graphene { namespace net { namespace detail {
         graphene::net::trx_message transaction_message_to_broadcast = item_to_broadcast.as<graphene::net::trx_message>();
         hash_of_message_contents = transaction_message_to_broadcast.trx.id(); // for debugging
         dlog( "broadcasting trx: ${trx}", ("trx", transaction_message_to_broadcast) );
+          ilog( "@@@broadcasting trx: ${trx}", ("trx", transaction_message_to_broadcast) );
       }
       message_hash_type hash_of_item_to_broadcast = item_to_broadcast.id();
 
