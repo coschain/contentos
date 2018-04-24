@@ -507,12 +507,12 @@ namespace detail {
                if( !sync_mode )
                {
                   fc::microseconds latency = fc::time_point::now() - blk_msg.block.timestamp;
-                   ilog( "###Got ${t} transactions on block ${b} by ${w} -- latency: ${l} ms, now: ${t}",
+                   ilog( "###Got ${t} transactions on block ${b} by ${w} -- latency: ${l} ms, now: ${n}",
                      ("t", blk_msg.block.transactions.size())
                      ("b", blk_msg.block.block_num())
                      ("w", blk_msg.block.witness)
                      ("l", latency.count() / 1000)
-                        ("t", fc::time_point::now().time_since_epoch().count()));
+                        ("n", fc::time_point::now().time_since_epoch().count()));
                }
 
                return result;
