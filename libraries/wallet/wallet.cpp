@@ -2323,7 +2323,8 @@ annotated_signed_transaction wallet_api::post_comment( string author, string per
         for( auto asio_thread : _tread_vec ) {
             delete asio_thread;
         }*/
-        
+        int64_t start = fc::time_point::now().time_since_epoch().count();
+        int64_t end = 0;
          srand (time(NULL)+file_suffix * 10);
         
         vector<annotated_signed_transaction> ret_vec;
@@ -2348,14 +2349,14 @@ annotated_signed_transaction wallet_api::post_comment( string author, string per
             
             //auto ret = post_comment(author_str,permlink_str,parent_author_str,parent_permlink_str,title_str,body_str,json_str,broadcast);
             auto ret = send_private_message("initminer",author_str,title_str,body_str,true);
-           
+            end = fc::time_point::now().time_since_epoch().count();
             ret_vec.push_back(ret);
         }
         using namespace std;
         string filename = "./batch_post_comment_result" + std::to_string(file_suffix);
         ofstream out(filename,std::ofstream::app);
         for(auto itr = ret_vec.begin();itr != ret_vec.end();itr++){
-            out<< "post_commet ret, ref_block_num:"<< itr->ref_block_num<< " transaction_id:"<< itr->transaction_id.str() << "\n";
+            out<< "post_commet ret, ref_block_num:"<< itr->ref_block_num<< " transaction_id:"<< itr->transaction_id.str()<<" start:"<<start<<" end"<<end << "\n";
         }
         out.close();
     }

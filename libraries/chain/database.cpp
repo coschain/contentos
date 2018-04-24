@@ -870,6 +870,13 @@ signed_block database::_generate_block(
    }
 
    push_block( pending_block, skip );
+    fc::microseconds latency = fc::time_point::now() - pending_block.timestamp;
+    ilog( "### Generate Got ${t} transactions on block ${b} by ${w} -- latency: ${l} ms,  now: ${t}",
+         ("t", pending_block.transactions.size())
+         ("b", pending_block.block_num())
+         ("w", pending_block.witness)
+         ("l", latency.count() / 1000)
+         ("t", fc::time_point::now().time_since_epoch().count()));
 
    return pending_block;
 }
