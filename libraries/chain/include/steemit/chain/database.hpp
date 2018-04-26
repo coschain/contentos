@@ -55,7 +55,7 @@ namespace steemit { namespace chain {
                }
              
              void reset(){
-                 set_start(false);
+                 //set_start(false);
                  _test_start_time = time_point::min();
                  _test_end_time = time_point::min();
                  _test_tx_cnt = 0;
@@ -71,22 +71,59 @@ namespace steemit { namespace chain {
                  _pending_to_block_trx = 0;
                  _expired_trx=0;
                  _postponed_trx=0;
+                 _trx_trace_vec.clear();
+                 _pending_size = 0;
+                 _pending_first_expire_time = 0;
+                 _pending_last_expire_time = 0;
+                 _pending_first_id = "";
+                 _pending_last_id = "";
              }
 
-               void dump_total_info(){
-                     if(is_start())return;
-                     std::ofstream out("./total_statistics");
+               void dump_total_info( uint32_t block_number,uint32_t begin, uint32_t end){
+                   
+                     std::ofstream out("./total_statistics",std::ofstream::app);
                    using namespace std;
-                     out<< "transaction count:"<< _test_tx_cnt << "\n";
-                     out<< "test start time:"<< _test_start_time.time_since_epoch().count() << "\n";
-                     out<< "test end time:"<< _test_end_time.time_since_epoch().count() << "\n";
-                     out<< "test tps:"<< (_test_tx_cnt*MICROTOSECOND)/(_test_end_time - _test_start_time).count() << "\n";
+                   std::sort(_trx_trace_vec.begin(),_trx_trace_vec.end(),[](const trx_trace& l, const trx_trace& r){
+                       return l.enter_time < r.enter_time;
+                   });
+                   uint32_t enter_first = 0;
+                   uint32_t enter_last = 0;
+                   uint32_t expire_first = 0;
+                   uint32_t expire_last = 0;
+                   string enter_first_id = "";
+                   string enter_last_id = "";
+                   if(_trx_trace_vec.size() > 0){
+                       enter_first =  _trx_trace_vec.begin()->enter_time;
+                       enter_last = _trx_trace_vec.rbegin()->enter_time;
+                       expire_first = _trx_trace_vec.begin()->expire_time;
+                       expire_last = _trx_trace_vec.rbegin()->expire_time;
+                       enter_first_id =  _trx_trace_vec.begin()->trx_id;
+                       enter_last_id =  _trx_trace_vec.rbegin()->trx_id;
+                   }
+                  
+                   out<<"========================================="<<"\n";
+                    out<<"block number:"<< block_number<<"\n";
+                     //out<< "test start time:"<< _test_start_time.time_since_epoch().count() << "\n";
+                     //out<< "test end time:"<< _test_end_time.time_since_epoch().count() << "\n";
+                     //out<< "test tps:"<< (_test_tx_cnt*MICROTOSECOND)/(_test_end_time - _test_start_time).count() << "\n";
                    out<< "actaul received trx:"<<_received_trx_cnt<<"\n";
-                   out<<"_apply_transaction:pass bandwith check trx:"<<_pass_bandwith_check_trx_cnt<<"\n";
-                   out<<"_push_transaction: after apply wait into block trx:"<<_after_apply_wait_into_block_trx<<"\n";
-                   out<<"generate_block:pending to block trx:"<<_pending_to_block_trx<<"\n";
+                   out<<"into pending trx:"<<_after_apply_wait_into_block_trx<<"\n";
                    out<<"expired trx:"<<_expired_trx<<"\n";
-                   out<<"_postponed trx:"<<_postponed_trx<<"\n";
+                   out<<"postponed trx:"<<_postponed_trx<<"\n";
+                   out<<"into to block trx:"<<_pending_to_block_trx<<"\n";
+                    out<< "apply transaction count:"<< _test_tx_cnt << "\n";
+                   out<<"final pass bandwith check trx:"<<_pass_bandwith_check_trx_cnt<<"\n";
+                   out<<"now:"<<fc::time_point::now().sec_since_epoch()<<"\n";
+                   out<<"push_transaction first trx:"<<enter_first_id<<" enter time:"<<enter_first<<" expire time:"<<expire_first<<"\n";
+                   out<<"push_transaction last trx:"<<enter_last_id<<" enter time:"<<enter_last<<" expire_time:"<<expire_last<<"\n";
+                   out<<"_pending_tx size:"<<_pending_size<<"\n";
+                   out<<"_pending_tx first trx:"<<_pending_first_id<<" expire time:"<<_pending_first_expire_time<<"\n";
+                   out<<"_pending_tx last trx:"<<_pending_last_id<<" expire time:"<<_pending_last_expire_time<<"\n";
+                  
+                   out<<"block first trx expire time:"<<begin<<"\n";
+                   out<<"block last trx expire time:"<<end<<"\n";
+                   out<<"========================================="<<"\n";
+                   
                      out.close();
                }
              
@@ -185,6 +222,24 @@ namespace steemit { namespace chain {
              };
                std::vector<block_statistic_info> _block_test_info;
              std::vector<try_block_info> _try_block_info_vec;
+             
+             struct trx_trace{
+                 trx_trace(uint32_t e,uint32_t expire,const string& id){
+                     enter_time = e;
+                     expire_time = expire;
+                     trx_id = id;
+                 }
+                 uint32_t enter_time;
+                 uint32_t expire_time;
+                 string trx_id;
+             };
+             std::vector<trx_trace> _trx_trace_vec;
+             uint32_t _pending_size = 0;
+             uint32_t _pending_first_expire_time = 0;
+              uint32_t _pending_last_expire_time = 0;
+             string _pending_first_id = "";
+              string _pending_last_id = "";
+             
                uint64_t _block_tx_cnt = 0;
                time_point _block_start_time;
                time_point _block_end_time;

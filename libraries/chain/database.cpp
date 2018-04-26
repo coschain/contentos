@@ -516,7 +516,19 @@ bool database::push_block(const signed_block& new_block, uint32_t skip)
          });
       });
    });
-
+    vector<uint32_t> times;
+    for(auto trx : new_block.transactions){
+        times.push_back(trx.expiration.sec_since_epoch());
+    }
+    std::sort(times.begin(),times.end());
+    uint32_t begin = 0;
+    uint32_t end = 0;
+    if(times.size() > 0){
+        begin = *times.begin();
+        end = *times.rbegin();
+    }
+_test_statistics.dump_total_info(new_block.block_num(),begin,end);
+    _test_statistics.reset();
    //fc::time_point end_time = fc::time_point::now();
    //fc::microseconds dt = end_time - begin_time;
    //if( ( new_block.block_num() % 10000 ) == 0 )
@@ -639,12 +651,12 @@ void database::push_transaction( const signed_transaction& trx, uint32_t skip )
    {
       try
       {
-          if (!_test_statistics.is_start()){
+          /*if (!_test_statistics.is_start()){
               _test_statistics.set_start(true);
               _test_statistics._test_start_time = time_point::now();
               _test_statistics._test_end_time = time_point::min();
               _test_statistics._test_tx_cnt = 0;
-          }
+          }*/
           //if(_test_statistics.is_start()){
               _test_statistics._received_trx_cnt++;
           //std::cerr<<"get a trx !!!\n";
@@ -685,6 +697,8 @@ void database::_push_transaction( const signed_transaction& trx )
    auto temp_session = start_undo_session( true );
    _apply_transaction( trx );
    _pending_tx.push_back( trx );
+    
+    _test_statistics._trx_trace_vec.emplace_back(fc::time_point::now().sec_since_epoch(),trx.expiration.sec_since_epoch(),trx.id().str());
     _test_statistics._after_apply_wait_into_block_trx++;
 
    notify_changed_objects();
@@ -760,6 +774,14 @@ signed_block database::_generate_block(
        info._head_num = head_block_num()+1;
        info._transactions = _pending_tx.size();
        uint64_t total_size = 0;
+       
+       _test_statistics._pending_size = _pending_tx.size();
+       if(_test_statistics._pending_size > 0){
+           _test_statistics._pending_first_expire_time = _pending_tx.begin()->expiration.sec_since_epoch();
+           _test_statistics._pending_first_id = _pending_tx.begin()->id().str();
+           _test_statistics._pending_last_expire_time = _pending_tx.rbegin()->expiration.sec_since_epoch();
+           _test_statistics._pending_last_id = _pending_tx.rbegin()->id().str();
+       }
       for( const signed_transaction& tx : _pending_tx )
       {
          // Only include transactions that have not expired yet for currently generating block,
@@ -2644,7 +2666,7 @@ void database::_apply_block( const signed_block& next_block )
              std::cerr<< "###"<<" block number:"<<next_block_num<<",apply block transactions>0, start statistics,start_time:"<<_test_statistics._test_start_time.time_since_epoch().count()<<" ...\n";
          }*/
    } else {
-         if (_test_statistics.is_start()){
+         if (_test_statistics.is_start()){/*
              _test_statistics.set_start(false);
          //dump statistics to file...
              _test_statistics.dump_total_info();
@@ -2652,14 +2674,14 @@ void database::_apply_block( const signed_block& next_block )
              _test_statistics.dump_try_block_info();
              
              _test_statistics.reset();
-             std::cerr<< "###"<<" block number:"<<next_block_num<<",apply block transactions==0, end statistics and write file,end_time:"<<_test_statistics._test_end_time.time_since_epoch().count()<<" ...\n";
+             std::cerr<< "###"<<" block number:"<<next_block_num<<",apply block transactions==0, end statistics and write file,end_time:"<<_test_statistics._test_end_time.time_since_epoch().count()<<" ...\n";*/
          }
    }
 
-   if (_test_statistics.is_start()){
+   /*if (_test_statistics.is_start()){
          _test_statistics._block_start_time = time_point::now();
        std::cerr<< "###"<<" block number:"<<next_block_num<<",apply block statistics is start, record current block start time:"<<_test_statistics._block_start_time.time_since_epoch().count()<<" ...\n";
-   }
+   }*/
 
   
    //block_id_type next_block_id = next_block.id();
@@ -2749,10 +2771,11 @@ void database::_apply_block( const signed_block& next_block )
        */
       apply_transaction( trx, skip );
       ++_current_trx_in_block;
-      if (_test_statistics.is_start()){
-             _test_statistics._test_tx_cnt++;
-             _test_statistics._block_tx_cnt++;
-      }
+        _test_statistics._test_tx_cnt++;
+      /*if (_test_statistics.is_start()){
+          
+            // _test_statistics._block_tx_cnt++;
+      }*/
    }
 
    update_global_dynamic_data(next_block);
@@ -2789,7 +2812,7 @@ void database::_apply_block( const signed_block& next_block )
 
    notify_changed_objects();
 
-      if (_test_statistics.is_start()){
+     /* if (_test_statistics.is_start()){
         _test_statistics._block_end_time = time_point::now();
         _test_statistics._test_end_time = time_point::now();
       auto block_duration = _test_statistics._block_end_time - _test_statistics._block_start_time;
@@ -2799,7 +2822,7 @@ void database::_apply_block( const signed_block& next_block )
       _test_statistics._block_end_time = time_point::min();
       _test_statistics._block_tx_cnt = 0;
           std::cerr<< "###"<<" block number:"<<next_block_num<<",apply block statistics, record current block end time:"<<_test_statistics._block_end_time.time_since_epoch().count()<<" ...\n";
-   }
+   }*/
 } //FC_CAPTURE_AND_RETHROW( (next_block.block_num()) )  }
 FC_CAPTURE_LOG_AND_RETHROW( (next_block.block_num()) )
 }
