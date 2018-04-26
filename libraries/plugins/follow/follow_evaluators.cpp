@@ -59,7 +59,7 @@ void follow_evaluator::do_apply( const follow_operation& o )
       }
       else
       {
-         was_followed = itr->what & 1 << blog;
+         was_followed = itr->what & 1 << blog;//已经关注
 
          db().modify( *itr, [&]( follow_object& obj )
          {

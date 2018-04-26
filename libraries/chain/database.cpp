@@ -753,7 +753,7 @@ signed_block database::_generate_block(
       //
       _pending_tx_session.reset();
       _pending_tx_session = start_undo_session( true );
-
+    
       uint64_t postponed_tx_count = 0;
       // pop pending state (reset to head block state)
        test_statistics::try_block_info info;
@@ -769,6 +769,7 @@ signed_block database::_generate_block(
               //std::cerr<<"trx has expired, expiration time:"<<tx.expiration.sec_since_epoch()<<" generate block time:"<<when.sec_since_epoch()<<"\n";
               _test_statistics._expired_trx++;
               info._expire_cnt++;
+              std::cerr<<"wtf expired trx, expire cnt:"<< info._expire_cnt<<"trx id:"<<tx.id().str()<<"\n";
               continue;
           }
           
@@ -782,7 +783,8 @@ signed_block database::_generate_block(
             postponed_tx_count++;
              _test_statistics._postponed_trx++;
              info._postpone_cnt++;
-             //std::cerr<<" postpone trx because exceed maximum_block_size, maximum_block_size:"<<maximum_block_size<<" current size:"<<new_total_size<<" postponed cnt:"<<postponed_tx_count<<"\n";
+             std::cerr<<"wtf postpone trx, maximum_block_size:"<<maximum_block_size<<" current size:"<<new_total_size<<" postponed cnt:"<<postponed_tx_count<<" trx id:"<<tx.id().str()<<"\n";
+             
              continue;
          }
 
@@ -871,12 +873,13 @@ signed_block database::_generate_block(
 
    push_block( pending_block, skip );
     fc::microseconds latency = fc::time_point::now() - pending_block.timestamp;
-    ilog( "### Generate Got ${t} transactions on block ${b} by ${w} -- latency: ${l} ms,  now: ${n}",
+    ilog( "### Generate Got ${t} transactions on block ${b} by ${w} -- latency: ${l} ms, now: ${n}, block size:${s}",
          ("t", pending_block.transactions.size())
          ("b", pending_block.block_num())
          ("w", pending_block.witness)
          ("l", latency.count() / 1000)
-         ("n", fc::time_point::now().time_since_epoch().count()));
+         ("n", fc::time_point::now().time_since_epoch().count())
+         ("s", fc::raw::pack_size(pending_block)));
 
    return pending_block;
 }
