@@ -527,6 +527,8 @@ bool database::push_block(const signed_block& new_block, uint32_t skip)
         begin = *times.begin();
         end = *times.rbegin();
     }
+    const dynamic_global_property_object& dpo = get_dynamic_global_properties();
+    std::cerr<<"max block size:"<<dpo.maximum_block_size<<"\n";
 _test_statistics.dump_total_info(new_block.block_num(),begin,end);
     _test_statistics.reset();
    //fc::time_point end_time = fc::time_point::now();

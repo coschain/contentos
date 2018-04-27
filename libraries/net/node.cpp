@@ -1210,6 +1210,7 @@ namespace graphene { namespace net { namespace detail {
 
             peer_and_items.peer->send_message(fetch_items_message(items_by_type.first,
                                                                   items_by_type.second));
+              std::cerr<<"send fetch item message "<<fc::time_point::now().sec_since_epoch()<<"\n";
           }
         }
         items_by_peer.clear();
@@ -2869,6 +2870,7 @@ namespace graphene { namespace net { namespace detail {
           _items_to_fetch.insert(prioritized_item_id(requested_item, _items_to_fetch_sequence_counter++));
         wlog("Peer doesn't have the requested item.");
         trigger_fetch_items_loop();
+          std::cerr<<"trigger_fetch_items_loop on_item_not_available_message:"<<fc::time_point::now().sec_since_epoch()<<"\n";
         return;
       }
 
@@ -2954,6 +2956,7 @@ namespace graphene { namespace net { namespace detail {
                 dlog("adding item ${item_hash} from inventory message to our list of items to fetch",
                      ("item_hash", item_hash));
                 trigger_fetch_items_loop();
+                  std::cerr<<"trigger_fetch_items_loop on inventory message:"<<fc::time_point::now().sec_since_epoch()<<"\n";
               }
               else
               {
@@ -3083,6 +3086,7 @@ namespace graphene { namespace net { namespace detail {
             _items_to_fetch.insert(prioritized_item_id(item_and_time.first, _items_to_fetch_sequence_counter++));
         }
         trigger_fetch_items_loop();
+          std::cerr<<"trigger_fetch_items_loop on_connection_closed:"<<fc::time_point::now().sec_since_epoch()<<"\n";
       }
 
       schedule_peer_for_deletion(originating_peer_ptr);
@@ -3608,8 +3612,11 @@ namespace graphene { namespace net { namespace detail {
       {
         originating_peer->items_requested_from_peer.erase(item_iter);
         process_block_during_normal_operation(originating_peer, block_message_to_process, message_hash);
-        if (originating_peer->idle())
-          trigger_fetch_items_loop();
+          if (originating_peer->idle()){
+              trigger_fetch_items_loop();
+              std::cerr<<"trigger_fetch_items_loop process_block_message:"<<fc::time_point::now().sec_since_epoch()<<"\n";
+          }
+          
         return;
       }
       else
@@ -3957,8 +3964,10 @@ namespace graphene { namespace net { namespace detail {
       else
       {
         originating_peer->items_requested_from_peer.erase( iter );
-        if (originating_peer->idle())
-          trigger_fetch_items_loop();
+          if (originating_peer->idle()){
+              trigger_fetch_items_loop();
+              std::cerr<<"trigger_fetch_items_loop process_ordinary_message:"<<fc::time_point::now().sec_since_epoch()<<"\n";
+          }
 
         // Next: have the delegate process the message
         fc::time_point message_validated_time;
@@ -4167,6 +4176,7 @@ namespace graphene { namespace net { namespace detail {
         _fetch_item_loop_done.cancel("node_impl::close()");
         // cancel() is currently broken, so we need to wake up the task to allow it to finish
         trigger_fetch_items_loop();
+          std::cerr<<"trigger_fetch_items_loop node close:"<<fc::time_point::now().sec_since_epoch()<<"\n";
         _fetch_item_loop_done.wait();
         dlog("Fetch items loop terminated");
       }
