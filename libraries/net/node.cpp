@@ -1111,7 +1111,7 @@ namespace graphene { namespace net { namespace detail {
         _items_to_fetch_updated = false;
         dlog("beginning an iteration of fetch items (${count} items to fetch)",
              ("count", _items_to_fetch.size()));
-
+std::cerr<<"enter fetch items loop "<<fc::time_point::now().sec_since_epoch()<<"\n";
         fc::time_point oldest_timestamp_to_fetch = fc::time_point::now() - fc::seconds(_recent_block_interval_in_seconds * GRAPHENE_NET_MESSAGE_CACHE_DURATION_IN_BLOCKS);
         fc::time_point next_peer_unblocked_time = fc::time_point::maximum();
 
@@ -1148,6 +1148,7 @@ namespace graphene { namespace net { namespace detail {
             // with a bunch of items that we'll never be able to request from any peer
             wlog("Unable to fetch item ${item} before its likely expiration time, removing it from our list of items to fetch", ("item", item_iter->item));
             item_iter = _items_to_fetch.erase(item_iter);
+              std::cerr<<"Unable to fetch item too old "<<fc::time_point::now().sec_since_epoch()<<"\n";
           }
           else
           {
@@ -1164,6 +1165,7 @@ namespace graphene { namespace net { namespace detail {
                   next_peer_unblocked_time = std::min(peer->transaction_fetching_inhibited_until, next_peer_unblocked_time);
                 else
                 {
+                    std::cerr<<"push fetch item info list"<<fc::time_point::now().sec_since_epoch()<<"\n";
                   //dlog("requesting item ${hash} from peer ${endpoint}",
                   //     ("hash", iter->item.item_hash)("endpoint", peer->get_remote_endpoint()));
                   item_id item_id_to_fetch = item_iter->item;
