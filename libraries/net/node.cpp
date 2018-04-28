@@ -1111,7 +1111,7 @@ namespace graphene { namespace net { namespace detail {
         _items_to_fetch_updated = false;
         dlog("beginning an iteration of fetch items (${count} items to fetch)",
              ("count", _items_to_fetch.size()));
-std::cerr<<"enter fetch items loop "<<fc::time_point::now().sec_since_epoch()<<"\n";
+          std::cerr<<"enter fetch items loop "<<" _items_to_fetch size:"<<_items_to_fetch.size()<<" now:"<<fc::time_point::now().sec_since_epoch()<<"\n";
         fc::time_point oldest_timestamp_to_fetch = fc::time_point::now() - fc::seconds(_recent_block_interval_in_seconds * GRAPHENE_NET_MESSAGE_CACHE_DURATION_IN_BLOCKS);
         fc::time_point next_peer_unblocked_time = fc::time_point::maximum();
 
@@ -1135,8 +1135,10 @@ std::cerr<<"enter fetch items loop "<<fc::time_point::now().sec_since_epoch()<<"
 
         // initialize the fetch_messages_to_send with an empty set of items for all idle peers
         for (const peer_connection_ptr& peer : _active_connections)
-          if (peer->idle())
+            if (peer->idle()){
             items_by_peer.insert(peer_and_items_to_fetch(peer));
+                 std::cerr<<"insert peer "<<" _items_to_fetch size:"<<_items_to_fetch.size()<<" time:"<<fc::time_point::now().sec_since_epoch()<<"\n";
+            }
 
         // now loop over all items we want to fetch
         for (auto item_iter = _items_to_fetch.begin(); item_iter != _items_to_fetch.end();)
@@ -1148,24 +1150,30 @@ std::cerr<<"enter fetch items loop "<<fc::time_point::now().sec_since_epoch()<<"
             // with a bunch of items that we'll never be able to request from any peer
             wlog("Unable to fetch item ${item} before its likely expiration time, removing it from our list of items to fetch", ("item", item_iter->item));
             item_iter = _items_to_fetch.erase(item_iter);
-              std::cerr<<"Unable to fetch item too old "<<fc::time_point::now().sec_since_epoch()<<"\n";
+              std::cerr<<"Unable to fetch item too old "<<" _items_to_fetch size:"<<_items_to_fetch.size()<<" time:"<<fc::time_point::now().sec_since_epoch()<<"\n";
           }
           else
           {
+               std::cerr<<"fetch into else"<<" _items_to_fetch size:"<<_items_to_fetch.size()<<fc::time_point::now().sec_since_epoch()<<"\n";
             // find a peer that has it, we'll use the one who has the least requests going to it to load balance
             bool item_fetched = false;
             for (auto peer_iter = items_by_peer.get<requested_item_count_index>().begin(); peer_iter != items_by_peer.get<requested_item_count_index>().end(); ++peer_iter)
             {
+                std::cerr<<"find a valid peer"<<" _items_to_fetch size:"<<_items_to_fetch.size()<<fc::time_point::now().sec_since_epoch()<<"\n";
               const peer_connection_ptr& peer = peer_iter->peer;
               // if they have the item and we haven't already decided to ask them for too many other items
               if (peer_iter->item_ids.size() < GRAPHENE_NET_MAX_ITEMS_PER_PEER_DURING_NORMAL_OPERATION &&
                   peer->inventory_peer_advertised_to_us.find(item_iter->item) != peer->inventory_peer_advertised_to_us.end())
               {
+                  std::cerr<<"this peer is good "<<" _items_to_fetch size:"<<_items_to_fetch.size()<<fc::time_point::now().sec_since_epoch()<<"\n";
                 if (item_iter->item.item_type == graphene::net::trx_message_type && peer->is_transaction_fetching_inhibited())
-                  next_peer_unblocked_time = std::min(peer->transaction_fetching_inhibited_until, next_peer_unblocked_time);
+                {
+                    next_peer_unblocked_time = std::min(peer->transaction_fetching_inhibited_until, next_peer_unblocked_time);
+                    std::cerr<<"peer is fetching inhibited "<<" _items_to_fetch size:"<<_items_to_fetch.size()<<fc::time_point::now().sec_since_epoch()<<"\n";
+                }
                 else
                 {
-                    std::cerr<<"push fetch item info list"<<fc::time_point::now().sec_since_epoch()<<"\n";
+                    std::cerr<<"push fetch item info list"<<" _items_to_fetch size:"<<_items_to_fetch.size()<<fc::time_point::now().sec_since_epoch()<<"\n";
                   //dlog("requesting item ${hash} from peer ${endpoint}",
                   //     ("hash", iter->item.item_hash)("endpoint", peer->get_remote_endpoint()));
                   item_id item_id_to_fetch = item_iter->item;
@@ -1198,10 +1206,6 @@ std::cerr<<"enter fetch items loop "<<fc::time_point::now().sec_since_epoch()<<"
                  ("count", items_by_type.second.size())("type", (uint32_t)items_by_type.first)
                  ("endpoint", peer_and_items.peer->get_remote_endpoint())
                  ("hashes", items_by_type.second));
-              ilog("@@@requesting ${count} items of type ${type} from peer ${endpoint}: ${hashes}",
-                   ("count", items_by_type.second.size())("type", (uint32_t)items_by_type.first)
-                   ("endpoint", peer_and_items.peer->get_remote_endpoint())
-                   ("hashes", items_by_type.second));
             if (items_by_type.first == core_message_type_enum::block_message_type)
               for (const item_hash_t& id : items_by_type.second)
               {
@@ -1212,13 +1216,13 @@ std::cerr<<"enter fetch items loop "<<fc::time_point::now().sec_since_epoch()<<"
 
             peer_and_items.peer->send_message(fetch_items_message(items_by_type.first,
                                                                   items_by_type.second));
-              std::cerr<<"send fetch item message "<<fc::time_point::now().sec_since_epoch()<<"\n";
+              std::cerr<<"send fetch item message "<<" _items_to_fetch size:"<<_items_to_fetch.size()<<fc::time_point::now().sec_since_epoch()<<"\n";
           }
         }
         items_by_peer.clear();
 
         if (!_items_to_fetch_updated)
-        {
+        { std::cerr<<"fetch go to sleep "<<" _items_to_fetch size:"<<_items_to_fetch.size()<<fc::time_point::now().sec_since_epoch()<<"\n";
           _retrigger_fetch_item_loop_promise = fc::promise<void>::ptr(new fc::promise<void>("graphene::net::retrigger_fetch_item_loop"));
           fc::microseconds time_until_retrigger = fc::microseconds::maximum();
           if (next_peer_unblocked_time != fc::time_point::maximum())
