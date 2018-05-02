@@ -38,6 +38,7 @@
 #include <boost/multi_index/tag.hpp>
 #include <boost/multi_index/sequenced_index.hpp>
 #include <boost/multi_index/hashed_index.hpp>
+#include <boost/asio/ip/host_name.hpp>
 
 #include <fc/container/deque.hpp>
 #include <fc/git_revision.hpp>
@@ -2325,7 +2326,14 @@ annotated_signed_transaction wallet_api::post_comment( string author, string per
         }*/
         int64_t start = fc::time_point::now().time_since_epoch().count();
         int64_t end = 0;
-         srand (time(NULL)+file_suffix * 10);
+        string host_name = boost::asio::ip::host_name();
+        const char *str = host_name.c_str();
+        unsigned int hash = 5381;
+        int c;
+        while (c = *str++)
+            hash = ((hash << 1) + hash) + c;
+        
+         srand (time(NULL)+file_suffix * 10 + hash);
         
         vector<annotated_signed_transaction> ret_vec;
         //char permlink[100];
