@@ -2331,8 +2331,8 @@ annotated_signed_transaction wallet_api::post_comment( string author, string per
         unsigned int hash = 5381;
         int c;
         while (c = *str++)
-            hash = ((hash << 1) + hash) + c;
-        
+            hash = ((hash << 5) + hash) + c;
+      
          srand (time(NULL)+file_suffix * 10 + hash);
         
         vector<annotated_signed_transaction> ret_vec;
