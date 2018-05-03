@@ -23,6 +23,7 @@ namespace steemit { namespace protocol {
             feed_publish_operation,
             convert_operation,
 
+            admin_grant_operation,
             account_create_operation,
             account_update_operation,
 

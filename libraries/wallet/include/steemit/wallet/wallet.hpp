@@ -353,6 +353,7 @@ class wallet_api
        */
       annotated_signed_transaction create_account( string creator, string new_account_name, string json_meta, bool broadcast );
       annotated_signed_transaction create_councillor ( bool broadcast );
+      annotated_signed_transaction grant_admin ( string creator, vector<string> targets, bool broadcast );
       /**
        * This method is used by faucets to create new accounts for other users which must
        * provide their desired keys. The resulting account may not be controllable by this
@@ -1028,6 +1029,7 @@ FC_API( steemit::wallet::wallet_api,
         /// transaction api
         (create_account)
         (create_councillor)
+        (grant_admin)
         (create_account_with_keys)
         (create_account_delegated)
         (create_account_with_keys_delegated)

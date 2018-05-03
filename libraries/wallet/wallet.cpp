@@ -1277,9 +1277,10 @@ pair<public_key_type,string> wallet_api::get_private_key_from_password( string a
 feed_history_api_obj wallet_api::get_feed_history()const { return my->_remote_db->get_feed_history(); }
 
 annotated_signed_transaction wallet_api::create_councillor ( bool broadcast ) {
+try {
    FC_ASSERT( !is_locked() );
    signed_transaction tx;
-   for (int i=0; i<5; i++) {
+   for (int i = 0; i < 5; i++) {
       auto owner = suggest_brain_key();
       auto active = suggest_brain_key();
       auto posting = suggest_brain_key();
@@ -1291,7 +1292,7 @@ annotated_signed_transaction wallet_api::create_councillor ( bool broadcast ) {
       
       account_create_operation op;
       op.creator = STEEMIT_INIT_MINER_NAME;
-      op.new_account_name = "councillor" + std::to_string(i);
+      op.new_account_name = "councillor" + (i ? "" : std::to_string(i));
       op.owner = authority( 1, owner.pub_key, 1 );
       op.active = authority( 1, active.pub_key, 1 );
       op.posting = authority( 1, posting.pub_key, 1 );
@@ -1302,8 +1303,25 @@ annotated_signed_transaction wallet_api::create_councillor ( bool broadcast ) {
             
       tx.operations.push_back(op);
    }
+   tx.validate();
    return my->sign_transaction( tx, broadcast );
-}
+} FC_CAPTURE_AND_RETHROW( (broadcast) ) }
+
+annotated_signed_transaction wallet_api::grant_admin( string creator,
+      vector<string> targets, bool broadcast ) {
+try {
+   FC_ASSERT( !is_locked() && targets.size() );
+   signed_transaction tx;
+   for (auto target : targets) {
+      admin_grant_operation op;
+      op.creator = creator;
+      op.target = target;
+
+      tx.operations.push_back(op);
+   }
+   tx.validate();
+   return my->sign_transaction( tx, broadcast );
+} FC_CAPTURE_AND_RETHROW( (creator)(broadcast) ) }
 
 /**
  * This method is used by faucets to create new accounts for other users which must

@@ -55,6 +55,10 @@ struct get_impacted_account_visitor
       _impacted.insert( op.creator );
    }
 
+   void operator() ( const admin_grant_operation& op ) {
+      //
+   }
+
    void operator()( const account_create_with_delegation_operation& op )
    {
       _impacted.insert( op.new_account_name );

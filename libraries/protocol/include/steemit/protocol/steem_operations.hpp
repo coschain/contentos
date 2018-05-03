@@ -13,11 +13,25 @@ namespace steemit { namespace protocol {
       FC_ASSERT( is_valid_account_name( name ), "Account name ${n} is invalid", ("n", name) );
    }
 
+   inline void validate_councillor_name( const string& name ) {
+      FC_ASSERT( is_councillor( name ), "Invalid councillor name: ${n}", ("n", name) );
+   }
+
    inline void validate_permlink( const string& permlink )
    {
       FC_ASSERT( permlink.size() < STEEMIT_MAX_PERMLINK_LENGTH, "permlink is too long" );
       FC_ASSERT( fc::is_utf8( permlink ), "permlink not formatted in UTF8" );
    }
+
+   struct admin_grant_operation : public base_operation {
+      account_name_type creator;
+      account_name_type target;
+
+      void validate() const;
+      void get_required_active_authorities( flat_set<account_name_type>& a ) const { 
+         a.insert(creator); 
+      }
+   };
 
    struct account_create_operation : public base_operation
    {
@@ -963,6 +977,7 @@ FC_REFLECT_TYPENAME( steemit::protocol::pow2_work )
 FC_REFLECT( steemit::protocol::pow_operation, (worker_account)(block_id)(nonce)(work)(props) )
 FC_REFLECT( steemit::protocol::pow2_operation, (work)(new_owner_key)(props) )
 
+FC_REFLECT( steemit::protocol::admin_grant_operation, (creator)(target))
 FC_REFLECT( steemit::protocol::account_create_operation,
             (fee)
             (creator)

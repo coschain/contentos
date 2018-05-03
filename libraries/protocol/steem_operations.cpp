@@ -10,6 +10,11 @@ namespace steemit { namespace protocol {
       return asset.symbol == symbol;
    }
 
+   void admin_grant_operation::validate() const {
+      validate_councillor_name( creator );
+      validate_account_name( target );
+   }
+
    void account_create_operation::validate() const
    {
       validate_account_name( new_account_name );

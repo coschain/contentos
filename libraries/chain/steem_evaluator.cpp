@@ -107,6 +107,10 @@ void witness_update_evaluator::do_apply( const witness_update_operation& o )
    }
 }
 
+void admin_grant_evaluator::do_apply( const admin_grant_operation& o) {
+    
+}
+
 void account_create_evaluator::do_apply( const account_create_operation& o )
 {
    const auto& creator = _db.get_account( o.creator );

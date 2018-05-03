@@ -76,6 +76,10 @@ struct operation_process
       });
    }
 
+   void operator() ( const admin_grant_operation& op ) const {
+         
+   }
+
    void operator()( const pow_operation& op )const
    {
       _db.modify( _bucket, [&]( bucket_object& b )
