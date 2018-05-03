@@ -4,6 +4,7 @@
 
 #include <steemit/app/api.hpp>
 #include <steemit/protocol/base.hpp>
+#include <steemit/protocol/config.hpp>
 #include <steemit/follow/follow_operations.hpp>
 #include <steemit/private_message/private_message_operations.hpp>
 #include <steemit/wallet/wallet.hpp>
@@ -1274,6 +1275,35 @@ pair<public_key_type,string> wallet_api::get_private_key_from_password( string a
 }
 
 feed_history_api_obj wallet_api::get_feed_history()const { return my->_remote_db->get_feed_history(); }
+
+annotated_signed_transaction wallet_api::create_councillor ( bool broadcast ) {
+   FC_ASSERT( !is_locked() );
+   signed_transaction tx;
+   for (int i=0; i<5; i++) {
+      auto owner = suggest_brain_key();
+      auto active = suggest_brain_key();
+      auto posting = suggest_brain_key();
+      auto memo = suggest_brain_key();
+      import_key( owner.wif_priv_key );
+      import_key( active.wif_priv_key );
+      import_key( posting.wif_priv_key );
+      import_key( memo.wif_priv_key );
+      
+      account_create_operation op;
+      op.creator = STEEMIT_INIT_MINER_NAME;
+      op.new_account_name = "councillor" + std::to_string(i);
+      op.owner = authority( 1, owner.pub_key, 1 );
+      op.active = authority( 1, active.pub_key, 1 );
+      op.posting = authority( 1, posting.pub_key, 1 );
+      op.memo_key = memo.pub_key;
+      //op.json_metadata = json_meta;
+      op.fee = my->_remote_db->get_chain_properties().account_creation_fee * 
+            asset( STEEMIT_CREATE_ACCOUNT_WITH_STEEM_MODIFIER, STEEM_SYMBOL );
+            
+      tx.operations.push_back(op);
+   }
+   return my->sign_transaction( tx, broadcast );
+}
 
 /**
  * This method is used by faucets to create new accounts for other users which must
