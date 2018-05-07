@@ -13,12 +13,24 @@ class Helper:
 		for t, c in Helper.handlers.iteritems():
 			c.apply(debugger, t)
 
+	@staticmethod
+	def get_std_ptr_type(target, ptr_type):
+		ptr_type_str = None
+		for prefix in ["std::", "std::__1::"]:
+			try:
+				ptr_type_str = prefix + ptr_type
+				t = target.CreateValueFromExpression("_", "(%s)0" % ptr_type_str).type
+			except:
+				ptr_type_str, t = None, None
+			if t:
+				break
+		return ptr_type_str
+
 
 ######## type formatters ########
 
 
 class fc__variant:
-	types = ["long long", "unsigned long long", "double", "bool", "std::__1::string*", "fc::variants*", "fc::variant_object*", "fc::blob*"]
 
 	@classmethod
 	def apply(clz, debugger, target_class_name):
@@ -28,6 +40,7 @@ class fc__variant:
 	def __init__(self, valobj, internal_dict):
 		self.valobj = valobj
 		self.val = None
+		self.types = ["long long", "unsigned long long", "double", "bool", Helper.get_std_ptr_type(valobj.target, "string*"), "fc::variants*", "fc::variant_object*", "fc::blob*"]
 		self.parse()
 
 	def parse(self):
