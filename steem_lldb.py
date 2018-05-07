@@ -14,17 +14,17 @@ class Helper:
 			c.apply(debugger, t)
 
 	@staticmethod
-	def get_std_ptr_type(target, ptr_type):
-		ptr_type_str = None
-		for prefix in ["std::", "std::__1::"]:
+	def get_std_namespace(target):
+		result = None
+		for ns in ["std", "std::__1"]:
 			try:
-				ptr_type_str = prefix + ptr_type
-				t = target.CreateValueFromExpression("_", "(%s)0" % ptr_type_str).type
+				t = target.CreateValueFromExpression("_", "(%s::string*)0" % ns).type
 			except:
-				ptr_type_str, t = None, None
+				t = None
 			if t:
+				result = ns[:]
 				break
-		return ptr_type_str
+		return result
 
 
 ######## type formatters ########
@@ -40,15 +40,25 @@ class fc__variant:
 	def __init__(self, valobj, internal_dict):
 		self.valobj = valobj
 		self.val = None
-		self.types = ["long long", "unsigned long long", "double", "bool", Helper.get_std_ptr_type(valobj.target, "string*"), "fc::variants*", "fc::variant_object*", "fc::blob*"]
+		std_ns = Helper.get_std_namespace(valobj.target)
+		self.types = ["long long", "unsigned long long", "double", "bool", 
+			"%s::string*" % std_ns, 
+			"fc::variants*", 
+			"fc::variant_object*",
+			"fc::blob*"
+			]
 		self.parse()
 
 	def parse(self):
-		typeid = self.valobj.GetChildMemberWithName("_type").data.sint8s[-1]
-		val = self.valobj.GetChildMemberWithName("_data")
+		typeid = 0
+		try:
+			typeid = self.valobj.GetChildMemberWithName("_type").data.sint8s[-1]
+			val = self.valobj.GetChildMemberWithName("_data")
+		except:
+			typeid = 0
 		if 0 < typeid < 9:
-			real_type = self.valobj.target.CreateValueFromExpression("_", "(%s)0" % self.types[typeid - 1]).type
-			real_val = self.valobj.target.CreateValueFromData("_", val.data, real_type)
+			real_type = self.valobj.CreateValueFromExpression("_tmp_ptr_", "(%s)0" % self.types[typeid - 1]).type
+			real_val = self.valobj.CreateValueFromData("_tmp_val_", val.data, real_type)
 			while real_val.TypeIsPointerType():
 				real_val = real_val.deref
 			self.val = self.valobj.target.CreateValueFromData("value", real_val.data, real_val.type)
