@@ -12,7 +12,7 @@ namespace steemit { namespace protocol {
 
    void admin_grant_operation::validate() const {
       validate_councillor_name( creator );
-      validate_account_name( target );
+      validate_account_name( nominee );
    }
 
    void account_create_operation::validate() const

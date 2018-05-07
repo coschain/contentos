@@ -1315,7 +1315,7 @@ try {
    for (auto target : targets) {
       admin_grant_operation op;
       op.creator = creator;
-      op.target = target;
+      op.nominee = target;
 
       tx.operations.push_back(op);
    }

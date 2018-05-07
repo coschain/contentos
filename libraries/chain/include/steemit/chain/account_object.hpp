@@ -111,6 +111,8 @@ namespace steemit { namespace chain {
          time_point_sec    last_root_post = fc::time_point_sec::min();
          uint32_t          post_bandwidth = 0;
 
+         uint128_t         admin_nomination = 0;
+
          /// This function should be used only when the account votes for a witness directly
          share_type        witness_vote_weight()const {
             return std::accumulate( proxied_vsf_votes.begin(),

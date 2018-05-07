@@ -25,7 +25,7 @@ namespace steemit { namespace protocol {
 
    struct admin_grant_operation : public base_operation {
       account_name_type creator;
-      account_name_type target;
+      account_name_type nominee;
 
       void validate() const;
       void get_required_active_authorities( flat_set<account_name_type>& a ) const { 
@@ -977,7 +977,7 @@ FC_REFLECT_TYPENAME( steemit::protocol::pow2_work )
 FC_REFLECT( steemit::protocol::pow_operation, (worker_account)(block_id)(nonce)(work)(props) )
 FC_REFLECT( steemit::protocol::pow2_operation, (work)(new_owner_key)(props) )
 
-FC_REFLECT( steemit::protocol::admin_grant_operation, (creator)(target))
+FC_REFLECT( steemit::protocol::admin_grant_operation, (creator)(nominee))
 FC_REFLECT( steemit::protocol::account_create_operation,
             (fee)
             (creator)

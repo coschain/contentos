@@ -108,7 +108,14 @@ void witness_update_evaluator::do_apply( const witness_update_operation& o )
 }
 
 void admin_grant_evaluator::do_apply( const admin_grant_operation& o) {
-    
+   _db.get_account( o.creator );
+   const auto& nominee = _db.get_account( o.nominee );
+
+   std::string acc_name(o.nominee);
+   int bitshift = (acc_name == "councillor") ? 0 : (acc_name.at(acc_name.length()-1)-'0');
+   _db.modify( nominee, [&]( account_object& c ){
+      c.admin_nomination |= 1 << bitshift;
+   });
 }
 
 void account_create_evaluator::do_apply( const account_create_operation& o )
