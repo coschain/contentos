@@ -2908,18 +2908,24 @@ namespace graphene { namespace net { namespace detail {
 
       dlog( "received inventory of ${count} items from peer ${endpoint}",
            ( "count", item_ids_inventory_message_received.item_hashes_available.size() )("endpoint", originating_peer->get_remote_endpoint() ) );
-        ilog( "@@@received inventory of ${count} items from peer ${endpoint}",
-             ( "count", item_ids_inventory_message_received.item_hashes_available.size() )("endpoint", originating_peer->get_remote_endpoint() ) );
+        
       for( const item_hash_t& item_hash : item_ids_inventory_message_received.item_hashes_available )
       {
-        if (_message_ids_currently_being_processed.find(item_hash) != _message_ids_currently_being_processed.end())
-          // we're in the middle of processing this item, no need to fetch it again
-          continue;
+          if (_message_ids_currently_being_processed.find(item_hash) != _message_ids_currently_being_processed.end()){
+              dlog("${item_hash} _message_ids_currently_being_processed we're in the middle of processing this item",
+                   ("item_hash", item_hash));
+              // we're in the middle of processing this item, no need to fetch it again
+              continue;
+          }
+          
         item_id advertised_item_id(item_ids_inventory_message_received.item_type, item_hash);
 
-        if (_new_inventory.find(advertised_item_id) != _new_inventory.end())
-          // we've processed this item but haven't advertised it to our peers yet, don't fetch it again
-          continue;
+          if (_new_inventory.find(advertised_item_id) != _new_inventory.end()){
+              dlog("${item_hash} _new_inventory we've processed this item but haven't advertised it to our peers yet",
+                   ("item_hash", item_hash));
+              // we've processed this item but haven't advertised it to our peers yet, don't fetch it again
+              continue;
+          }
 
         bool we_advertised_this_item_to_a_peer = false;
         bool we_requested_this_item_from_a_peer = false;
@@ -2937,16 +2943,21 @@ namespace graphene { namespace net { namespace detail {
         // if we have already advertised it to a peer, we must have it, no need to do anything else
         if (!we_advertised_this_item_to_a_peer)
         {
+            dlog("we_advertised_this_item_to_a_peer not");
           // if the peer has flooded us with transactions, don't add these to the inventory to prevent our
           // inventory list from growing without bound.  We try to allow fetching blocks even when
           // we've stopped fetching transactions.
           if ((item_ids_inventory_message_received.item_type == graphene::net::trx_message_type &&
                originating_peer->is_inventory_advertised_to_us_list_full_for_transactions()) ||
-              originating_peer->is_inventory_advertised_to_us_list_full())
-            break;
+              originating_peer->is_inventory_advertised_to_us_list_full()) {
+              dlog("if the peer has flooded us with transactions");
+              break;
+          }
+            
           originating_peer->inventory_peer_advertised_to_us.insert(peer_connection::timestamped_item_id(advertised_item_id, fc::time_point::now()));
           if (!we_requested_this_item_from_a_peer)
           {
+              dlog("we_requested_this_item_from_a_peer not");
             if (_recently_failed_items.find(item_id(item_ids_inventory_message_received.item_type, item_hash)) != _recently_failed_items.end())
             {
               dlog("not adding ${item_hash} to our list of items to fetch because we've recently fetched a copy and it failed to push",
@@ -2966,6 +2977,7 @@ namespace graphene { namespace net { namespace detail {
               }
               else
               {
+                   dlog("another peer has told us about this item already, but this peer just told us it has the item too");
                 // another peer has told us about this item already, but this peer just told us it has the item
                 // too, we can expect it to be around in this peer's cache for longer, so update its timestamp
                 _items_to_fetch.get<item_id_index>().modify(items_to_fetch_iter,
