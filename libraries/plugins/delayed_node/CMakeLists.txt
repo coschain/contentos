@@ -2,7 +2,8 @@ file(GLOB HEADERS "include/steemit/delayed_node/*.hpp")
 
 add_library( steemit_delayed_node
              delayed_node_plugin.cpp
-           )
+             ${HEADERS}
+            )
 
 target_link_libraries( steemit_delayed_node steemit_chain steemit_protocol steemit_app )
 target_include_directories( steemit_delayed_node

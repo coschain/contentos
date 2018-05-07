@@ -3,6 +3,7 @@ file(GLOB HEADERS "include/steemit/account_by_key/*.hpp")
 add_library( steemit_account_by_key
              account_by_key_plugin.cpp
              account_by_key_api.cpp
+             ${HEADERS}
            )
 
 target_link_libraries( steemit_account_by_key steemit_chain steemit_protocol steemit_app )

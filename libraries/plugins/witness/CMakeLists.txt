@@ -4,6 +4,7 @@ add_library( steemit_witness
              witness_plugin.cpp
              witness_evaluators.cpp
              witness_operations.cpp
+             ${HEADERS} 
            )
 
 target_link_libraries( steemit_witness steemit_chain steemit_protocol steemit_app )

@@ -3,6 +3,7 @@ file(GLOB HEADERS "include/steemit/blockchain_statistics/*.hpp")
 add_library( steemit_blockchain_statistics
              blockchain_statistics_plugin.cpp
              blockchain_statistics_api.cpp
+             ${HEADERS} 
            )
 
 target_link_libraries( steemit_blockchain_statistics steemit_chain steemit_protocol steemit_app )

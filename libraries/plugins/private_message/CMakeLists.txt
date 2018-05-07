@@ -2,6 +2,7 @@ file(GLOB HEADERS "include/steemit/private_message/*.hpp")
 
 add_library( steemit_private_message
              private_message_plugin.cpp
+             ${HEADERS}
            )
 
 target_link_libraries( steemit_private_message steemit_chain steemit_protocol steemit_app )
