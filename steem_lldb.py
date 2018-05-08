@@ -141,6 +141,7 @@ class steemit__protocol__operation:
 	@classmethod
 	def apply(clz, debugger, target_class_name):
 		debugger.HandleCommand("type synthetic add %s --python-class %s.%s" % (target_class_name, clz.__module__, clz.__name__))
+		debugger.HandleCommand("type synthetic add --python-class %s.%s -x \"fc::static_variant<.+>\"" % (clz.__module__, clz.__name__))
 
 	def __init__(self, valobj, internal_dict):
 		self.valobj = valobj
@@ -148,16 +149,20 @@ class steemit__protocol__operation:
 		self.parse()
 		
 	def parse(self):
+		if self.valobj.IsValid() and self.valobj.size > 0:
+			t = self.valobj.type
+			self.real_parse(t.GetTypedefedType() if t.IsTypedefType() else t)
+
+	def real_parse(self, t):
 		self.val = None
-		if self.valobj.IsValid() and self.valobj.size > 0 and self.valobj.type.IsTypedefType():
-			idx = self.valobj.GetChildMemberWithName("_tag").signed
-			sv_typename = self.valobj.type.GetTypedefedType().name
-			if sv_typename.startswith("fc::static_variant<") and sv_typename.endswith(">"):
-				types = map(str.strip, sv_typename[19:-1].split(","))
-				if 0 <= idx < len(types):
-					op_type = self.valobj.CreateValueFromExpression("_tmp_ptr_", "(%s*)0" % types[idx]).type.GetPointeeType()
-					self.val = self.valobj.CreateValueFromData("value", self.valobj.data, op_type)
-	
+		idx = self.valobj.GetChildMemberWithName("_tag").signed
+		sv_typename = t.name
+		if sv_typename.startswith("fc::static_variant<") and sv_typename.endswith(">"):
+			types = map(str.strip, sv_typename[19:-1].split(","))
+			if 0 <= idx < len(types):
+				op_type = self.valobj.CreateValueFromExpression("_tmp_ptr_", "(%s*)0" % types[idx]).type.GetPointeeType()
+				self.val = self.valobj.CreateValueFromData("value", self.valobj.data, op_type)
+
 	def get_value(self):
 		return self.val
 
