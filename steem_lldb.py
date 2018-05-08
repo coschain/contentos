@@ -137,12 +137,54 @@ class fc__variant_object__entry:
 		debugger.HandleCommand('type summary add --inline-children %s' % target_class_name)
 
 
+class steemit__protocol__operation:
+	@classmethod
+	def apply(clz, debugger, target_class_name):
+		debugger.HandleCommand("type synthetic add %s --python-class %s.%s" % (target_class_name, clz.__module__, clz.__name__))
+
+	def __init__(self, valobj, internal_dict):
+		self.valobj = valobj
+		self.val = None
+		self.parse()
+		
+	def parse(self):
+		self.val = None
+		if self.valobj.IsValid() and self.valobj.size > 0 and self.valobj.type.IsTypedefType():
+			idx = self.valobj.GetChildMemberWithName("_tag").signed
+			sv_typename = self.valobj.type.GetTypedefedType().name
+			if sv_typename.startswith("fc::static_variant<") and sv_typename.endswith(">"):
+				types = map(str.strip, sv_typename[19:-1].split(","))
+				if 0 <= idx < len(types):
+					op_type = self.valobj.CreateValueFromExpression("_tmp_ptr_", "(%s*)0" % types[idx]).type.GetPointeeType()
+					self.val = self.valobj.CreateValueFromData("value", self.valobj.data, op_type)
+	
+	def get_value(self):
+		return self.val
+
+	def num_children(self):
+		return 1 if self.get_value() else 0
+
+	def has_children(self):
+		return self.num_children() > 0
+
+	def get_child_index(self, name):
+		return 0 if name == "value" else None
+
+	def get_child_at_index(self, index):
+		return self.val if index == 0 else None
+
+	def update(self):
+		if self.valobj.changed:
+			self.parse()
+
+
 ######## module entry point ########
 
 def __lldb_init_module(debugger, dictionary):
 	Helper.add_handler("fc::variant", fc__variant)
 	Helper.add_handler("fc::variant_object", fc__variant_object)
 	Helper.add_handler("fc::variant_object::entry", fc__variant_object__entry)
+	Helper.add_handler("steemit::protocol::operation", steemit__protocol__operation)
 	Helper.apply(debugger)
 
 
