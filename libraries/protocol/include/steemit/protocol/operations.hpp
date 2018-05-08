@@ -24,6 +24,7 @@ namespace steemit { namespace protocol {
             convert_operation,
 
             admin_grant_operation,
+            comment_report_operation,
             account_create_operation,
             account_update_operation,
 

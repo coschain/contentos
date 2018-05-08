@@ -474,7 +474,7 @@ FC_REFLECT( steemit::chain::account_object,
              (curation_rewards)
              (posting_rewards)
              (proxied_vsf_votes)(witnesses_voted_for)
-             (last_post)(last_root_post)(post_bandwidth)
+             (last_post)(last_root_post)(post_bandwidth)(admin_nomination)
           )
 CHAINBASE_SET_INDEX_TYPE( steemit::chain::account_object, steemit::chain::account_index )
 

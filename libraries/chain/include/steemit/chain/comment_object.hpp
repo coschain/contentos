@@ -101,6 +101,62 @@ namespace steemit { namespace chain {
          bip::vector< beneficiary_route_type, allocator< beneficiary_route_type > > beneficiaries;
    };
 
+/*
+   class comment_report_object 
+      : public object< comment_report_object_type, comment_report_object > 
+   {
+      public:
+         template< typename Constructor, typename Allocator >
+         comment_report_object( Constructor&& c, allocator< Allocator > a ) 
+         {
+            c( *this );
+         }
+
+         id_type          id;
+
+         account_id_type  reporter;
+         comment_id_type  comment;
+         asset            credit;
+         shared_string    tag;
+   };
+   struct by_reporter_comment;
+   struct by_comment_reporter;
+   typedef multi_index_container<
+      comment_report_object,
+      indexed_by<
+         ordered_unique< tag< by_id >, member< comment_report_object, comment_report_id_type, &comment_report_object::id > >,
+         ordered_unique< tag< by_comment_reporter >,
+            composite_key< comment_report_object,
+               member< comment_report_object, comment_id_type, &comment_report_object::comment>,
+               member< comment_report_object, account_id_type, &comment_report_object::reporter>
+            >
+         >,
+         ordered_unique< tag< by_reporter_comment >,
+            composite_key< comment_report_object,
+               member< comment_report_object, account_id_type, &comment_report_object::reporter>,
+               member< comment_report_object, comment_id_type, &comment_report_object::comment>
+            >
+         >,
+         ordered_unique< tag< by_voter_last_update >,
+            composite_key< comment_vote_object,
+               member< comment_vote_object, account_id_type, &comment_vote_object::voter>,
+               member< comment_vote_object, time_point_sec, &comment_vote_object::last_update>,
+               member< comment_vote_object, comment_id_type, &comment_vote_object::comment>
+            >,
+            composite_key_compare< std::less< account_id_type >, std::greater< time_point_sec >, std::less< comment_id_type > >
+         >,
+         ordered_unique< tag< by_comment_weight_voter >,
+            composite_key< comment_vote_object,
+               member< comment_vote_object, comment_id_type, &comment_vote_object::comment>,
+               member< comment_vote_object, uint64_t, &comment_vote_object::weight>,
+               member< comment_vote_object, account_id_type, &comment_vote_object::voter>
+            >,
+            composite_key_compare< std::less< comment_id_type >, std::greater< uint64_t >, std::less< account_id_type > >
+         >
+      >,
+      allocator< comment_vote_object >
+   > comment_vote_index;
+   */
 
    /**
     * This index maintains the set of voter/comment pairs that have been used, voters cannot

@@ -33,6 +33,21 @@ namespace steemit { namespace protocol {
       }
    };
 
+   struct comment_report_operation : public base_operation {
+      account_name_type reporter;
+
+      account_name_type author;
+      string            permlink;
+
+      asset credit;
+      string tag;
+
+      void validate() const;
+      void get_required_posting_authorities( flat_set<account_name_type>& a ) const { 
+         a.insert(reporter); 
+      }
+   };
+
    struct account_create_operation : public base_operation
    {
       asset             fee;
@@ -978,6 +993,7 @@ FC_REFLECT( steemit::protocol::pow_operation, (worker_account)(block_id)(nonce)(
 FC_REFLECT( steemit::protocol::pow2_operation, (work)(new_owner_key)(props) )
 
 FC_REFLECT( steemit::protocol::admin_grant_operation, (creator)(nominee))
+FC_REFLECT( steemit::protocol::comment_report_operation, (reporter)(author)(permlink)(credit)(tag))
 FC_REFLECT( steemit::protocol::account_create_operation,
             (fee)
             (creator)

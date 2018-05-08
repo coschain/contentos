@@ -176,6 +176,7 @@ namespace chainbase {
     *
     *  Additionally, the constructor for value_type must take an allocator
     */
+   // MultiIndexType    e.g. account_index
    template<typename MultiIndexType>
    class generic_index
    {
@@ -750,6 +751,8 @@ namespace chainbase {
 
          template<typename MultiIndexType>
          void add_index() {
+               // generic_index<MultiIndexType>::value_type   e.g. account_object
+               // MultiIndexType    e.g. account_index
              const uint16_t type_id = generic_index<MultiIndexType>::value_type::type_id;
              typedef generic_index<MultiIndexType>          index_type;
              typedef typename index_type::allocator_type    index_alloc;
@@ -918,6 +921,7 @@ namespace chainbase {
          {
              CHAINBASE_REQUIRE_WRITE_LOCK("create", ObjectType);
              typedef typename get_index_type<ObjectType>::type index_type;
+             // get_mutable_index<index_type>() returns generic_index<account_index>
              return get_mutable_index<index_type>().emplace( std::forward<Constructor>(con) );
          }
 

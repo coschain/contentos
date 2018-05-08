@@ -15,6 +15,14 @@ namespace steemit { namespace protocol {
       validate_account_name( nominee );
    }
 
+   void comment_report_operation::validate() const {
+      validate_account_name( reporter );
+      validate_account_name( author );
+      validate_permlink( permlink );
+      FC_ASSERT( is_asset_type( credit, STEEM_SYMBOL ), "report comment fee must be STEEM" );
+      FC_ASSERT( credit > asset( 0, STEEM_SYMBOL ), "report comment fee must be positive" );
+   }
+
    void account_create_operation::validate() const
    {
       validate_account_name( new_account_name );

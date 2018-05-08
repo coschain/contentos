@@ -10,6 +10,7 @@ using namespace steemit::protocol;
 
 DEFINE_EVALUATOR( account_create )
 DEFINE_EVALUATOR( admin_grant )
+DEFINE_EVALUATOR( comment_report )
 DEFINE_EVALUATOR( account_create_with_delegation )
 DEFINE_EVALUATOR( account_update )
 DEFINE_EVALUATOR( transfer )
