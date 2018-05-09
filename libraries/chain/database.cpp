@@ -2265,6 +2265,7 @@ void database::initialize_indexes()
    add_core_index< witness_schedule_index                  >(*this);
    add_core_index< comment_index                           >(*this);
    add_core_index< comment_vote_index                      >(*this);
+   add_core_index< comment_report_index                    >(*this);
    add_core_index< witness_vote_index                      >(*this);
    add_core_index< limit_order_index                       >(*this);
    add_core_index< feed_history_index                      >(*this);

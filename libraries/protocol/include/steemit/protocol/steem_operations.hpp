@@ -130,6 +130,17 @@ namespace steemit { namespace protocol {
       bool operator < ( const beneficiary_route_type& o )const { return account < o.account; }
    };
 
+   struct report_info_type
+   {
+      report_info_type() {}
+      report_info_type(const account_name_type& acc, asset credit, string tag)
+            : reporter(acc), credit(credit), tag(tag) {}
+
+      account_name_type  reporter;
+      asset            credit;
+      string    tag;
+   };
+
    struct comment_payout_beneficiaries
    {
       vector< beneficiary_route_type > beneficiaries;

@@ -12,6 +12,7 @@
 namespace steemit { namespace chain {
 
    using protocol::beneficiary_route_type;
+   using protocol::report_info_type;
 
    struct strcmp_less
    {
@@ -101,62 +102,24 @@ namespace steemit { namespace chain {
          bip::vector< beneficiary_route_type, allocator< beneficiary_route_type > > beneficiaries;
    };
 
-/*
    class comment_report_object 
       : public object< comment_report_object_type, comment_report_object > 
    {
       public:
          template< typename Constructor, typename Allocator >
          comment_report_object( Constructor&& c, allocator< Allocator > a ) 
+            : reports(a)
          {
             c( *this );
          }
 
          id_type          id;
-
-         account_id_type  reporter;
          comment_id_type  comment;
-         asset            credit;
-         shared_string    tag;
+         asset            total_credit;
+         time_point_sec   last_update;
+         bip::vector< report_info_type, allocator<report_info_type> > reports;
+
    };
-   struct by_reporter_comment;
-   struct by_comment_reporter;
-   typedef multi_index_container<
-      comment_report_object,
-      indexed_by<
-         ordered_unique< tag< by_id >, member< comment_report_object, comment_report_id_type, &comment_report_object::id > >,
-         ordered_unique< tag< by_comment_reporter >,
-            composite_key< comment_report_object,
-               member< comment_report_object, comment_id_type, &comment_report_object::comment>,
-               member< comment_report_object, account_id_type, &comment_report_object::reporter>
-            >
-         >,
-         ordered_unique< tag< by_reporter_comment >,
-            composite_key< comment_report_object,
-               member< comment_report_object, account_id_type, &comment_report_object::reporter>,
-               member< comment_report_object, comment_id_type, &comment_report_object::comment>
-            >
-         >,
-         ordered_unique< tag< by_voter_last_update >,
-            composite_key< comment_vote_object,
-               member< comment_vote_object, account_id_type, &comment_vote_object::voter>,
-               member< comment_vote_object, time_point_sec, &comment_vote_object::last_update>,
-               member< comment_vote_object, comment_id_type, &comment_vote_object::comment>
-            >,
-            composite_key_compare< std::less< account_id_type >, std::greater< time_point_sec >, std::less< comment_id_type > >
-         >,
-         ordered_unique< tag< by_comment_weight_voter >,
-            composite_key< comment_vote_object,
-               member< comment_vote_object, comment_id_type, &comment_vote_object::comment>,
-               member< comment_vote_object, uint64_t, &comment_vote_object::weight>,
-               member< comment_vote_object, account_id_type, &comment_vote_object::voter>
-            >,
-            composite_key_compare< std::less< comment_id_type >, std::greater< uint64_t >, std::less< account_id_type > >
-         >
-      >,
-      allocator< comment_vote_object >
-   > comment_vote_index;
-   */
 
    /**
     * This index maintains the set of voter/comment pairs that have been used, voters cannot
@@ -222,6 +185,25 @@ namespace steemit { namespace chain {
       allocator< comment_vote_object >
    > comment_vote_index;
 
+   struct by_comment;
+   struct by_total_credit;
+   struct by_last_update;
+   typedef multi_index_container<
+      comment_report_object,
+      indexed_by<
+         ordered_unique< tag< by_id >, member< comment_report_object, comment_report_id_type, &comment_report_object::id > >,
+         ordered_unique< tag< by_comment >,
+            member< comment_report_object, comment_id_type, &comment_report_object::comment >
+         >,
+         ordered_unique< tag< by_total_credit >,
+            member< comment_report_object, asset, &comment_report_object::total_credit >
+         >,
+         ordered_unique< tag< by_last_update >,
+            member< comment_report_object, time_point_sec, &comment_report_object::last_update >
+         >
+      >,
+      allocator< comment_report_object >
+   > comment_report_index;
 
    struct by_cashout_time; /// cashout_time
    struct by_permlink; /// author, perm
@@ -316,3 +298,8 @@ FC_REFLECT( steemit::chain::comment_vote_object,
              (id)(voter)(comment)(weight)(rshares)(vote_percent)(last_update)(num_changes)
           )
 CHAINBASE_SET_INDEX_TYPE( steemit::chain::comment_vote_object, steemit::chain::comment_vote_index )
+
+FC_REFLECT( steemit::chain::comment_report_object,
+             (id)(comment)(total_credit)(last_update)(reports)
+          )
+CHAINBASE_SET_INDEX_TYPE( steemit::chain::comment_report_object, steemit::chain::comment_report_index )
