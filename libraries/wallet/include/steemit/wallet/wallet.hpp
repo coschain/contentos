@@ -10,15 +10,15 @@
 #include <fc/real128.hpp>
 #include <fc/crypto/base58.hpp>
 
-using namespace steemit::app;
-using namespace steemit::chain;
+using namespace contento::app;
+using namespace contento::chain;
 using namespace graphene::utilities;
 using namespace std;
 
 namespace steemit { namespace wallet {
 
 using steemit::app::discussion;
-using namespace steemit::private_message;
+using namespace contento::private_message;
 
 typedef uint16_t transaction_handle_type;
 

@@ -26,8 +26,8 @@
 #include <fc/smart_ref_impl.hpp>
 #include <iostream>
 
-using namespace steemit::chain;
-using namespace steemit::protocol;
+using namespace contento::chain;
+using namespace contento::protocol;
 
 using std::string;
 using std::map;

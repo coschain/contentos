@@ -72,7 +72,7 @@ void new_chain_banner( const steemit::chain::database& db )
 
 namespace detail
 {
-   using namespace steemit::chain;
+   using namespace contento::chain;
 
 
    class witness_plugin_impl

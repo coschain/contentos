@@ -7,7 +7,7 @@
 namespace steemit { namespace witness {
 
 using namespace std;
-using namespace steemit::chain;
+using namespace contento::chain;
 
 #ifndef WITNESS_SPACE_ID
 #define WITNESS_SPACE_ID 12

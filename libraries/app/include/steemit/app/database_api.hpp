@@ -27,8 +27,8 @@
 
 namespace steemit { namespace app {
 
-using namespace steemit::chain;
-using namespace steemit::protocol;
+using namespace contento::chain;
+using namespace contento::protocol;
 using namespace std;
 
 struct order

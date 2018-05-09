@@ -6,7 +6,7 @@
 namespace steemit { namespace account_by_key {
 
 using namespace std;
-using namespace steemit::chain;
+using namespace contento::chain;
 
 #ifndef ACCOUNT_BY_KEY_SPACE_ID
 #define ACCOUNT_BY_KEY_SPACE_ID 11

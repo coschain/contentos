@@ -14,7 +14,7 @@
 
 namespace steemit { namespace app {
 
-using namespace steemit::chain;
+using namespace contento::chain;
 
 /*struct limit_order
 {

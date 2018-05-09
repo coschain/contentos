@@ -10,7 +10,7 @@
 #include <fc/api.hpp>
 
 namespace steemit { namespace tags {
-using namespace steemit::chain;
+using namespace contento::chain;
 using namespace boost::multi_index;
 
 using steemit::app::application;

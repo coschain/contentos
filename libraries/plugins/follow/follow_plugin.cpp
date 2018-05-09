@@ -26,7 +26,7 @@ namespace steemit { namespace follow {
 namespace detail
 {
 
-using namespace steemit::protocol;
+using namespace contento::protocol;
 
 class follow_plugin_impl
 {

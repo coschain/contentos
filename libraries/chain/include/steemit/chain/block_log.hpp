@@ -4,7 +4,7 @@
 
 namespace steemit { namespace chain {
 
-   using namespace steemit::protocol;
+   using namespace contento::protocol;
 
    namespace detail { class block_log_impl; }
 

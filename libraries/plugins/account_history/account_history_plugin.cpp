@@ -20,7 +20,7 @@ namespace steemit { namespace account_history {
 namespace detail
 {
 
-using namespace steemit::protocol;
+using namespace contento::protocol;
 
 class account_history_plugin_impl
 {

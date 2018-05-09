@@ -292,7 +292,7 @@ void debug_node_api_impl::debug_stream_json_objects_flush()
 
 void debug_node_api_impl::debug_set_hardfork( uint32_t hardfork_id )
 {
-   using namespace steemit::chain;
+   using namespace contento::chain;
 
    if( hardfork_id > STEEMIT_NUM_HARDFORKS )
       return;

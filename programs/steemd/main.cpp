@@ -33,7 +33,7 @@
 #endif
 #include <graphene/utilities/key_conversion.hpp>
 
-using namespace steemit;
+using namespace contento;
 using steemit::protocol::version;
 namespace bpo = boost::program_options;
 

@@ -23,7 +23,7 @@ namespace steemit { namespace tags {
 
 namespace detail {
 
-using namespace steemit::protocol;
+using namespace contento::protocol;
 
 class tags_plugin_impl
 {

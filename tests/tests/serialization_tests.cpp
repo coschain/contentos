@@ -35,9 +35,9 @@
 
 #include <cmath>
 
-using namespace steemit;
-using namespace steemit::chain;
-using namespace steemit::protocol;
+using namespace contento;
+using namespace contento::chain;
+using namespace contento::protocol;
 
 BOOST_FIXTURE_TEST_SUITE( serialization_tests, clean_database_fixture )
 

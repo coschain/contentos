@@ -38,9 +38,9 @@
 
 #include "../common/database_fixture.hpp"
 
-using namespace steemit;
-using namespace steemit::chain;
-using namespace steemit::protocol;
+using namespace contento;
+using namespace contento::chain;
+using namespace contento::protocol;
 
 #define TEST_SHARED_MEM_SIZE (1024 * 1024 * 8)
 

@@ -42,7 +42,7 @@
 #include <vector>
 
 namespace steemit { namespace app {
-   using namespace steemit::chain;
+   using namespace contento::chain;
    using namespace fc::ecc;
    using namespace std;
 

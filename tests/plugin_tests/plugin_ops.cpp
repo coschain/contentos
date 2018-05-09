@@ -7,13 +7,13 @@
 
 #include "../common/database_fixture.hpp"
 
-using namespace steemit::chain;
-using namespace steemit::chain::test;
+using namespace contento::chain;
+using namespace contento::chain::test;
 /*
 namespace steemit { namespace plugin_tests {
 
-using namespace steemit::app;
-using namespace steemit::chain;
+using namespace contento::app;
+using namespace contento::chain;
 
 struct test_a_operation : base_operation
 {

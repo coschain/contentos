@@ -7,7 +7,7 @@
 namespace steemit { namespace follow {
 
 using namespace std;
-using namespace steemit::chain;
+using namespace contento::chain;
 using chainbase::shared_vector;
 
 #ifndef FOLLOW_SPACE_ID

@@ -14,7 +14,7 @@ namespace steemit { namespace blockchain_statistics {
 namespace detail
 {
 
-using namespace steemit::protocol;
+using namespace contento::protocol;
 
 class blockchain_statistics_plugin_impl
 {

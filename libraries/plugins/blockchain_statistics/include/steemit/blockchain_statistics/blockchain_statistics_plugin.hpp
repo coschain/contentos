@@ -25,7 +25,7 @@
 
 namespace steemit { namespace blockchain_statistics {
 
-using namespace steemit::chain;
+using namespace contento::chain;
 using app::application;
 
 enum blockchain_statistics_object_type

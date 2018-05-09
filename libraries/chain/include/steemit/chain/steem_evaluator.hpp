@@ -6,7 +6,7 @@
 
 namespace steemit{ namespace chain {
 
-using namespace steemit::protocol;
+using namespace contento::protocol;
 
 DEFINE_EVALUATOR( account_create )
 DEFINE_EVALUATOR( account_create_with_delegation )
