@@ -2,11 +2,11 @@
 #include <steemit/protocol/authority.hpp>
 #include <boost/interprocess/managed_mapped_file.hpp>
 
-namespace steemit { namespace chain {
-   using steemit::protocol::authority;
-   using steemit::protocol::public_key_type;
-   using steemit::protocol::account_name_type;
-   using steemit::protocol::weight_type;
+namespace contento { namespace chain {
+   using contento::protocol::authority;
+   using contento::protocol::public_key_type;
+   using contento::protocol::account_name_type;
+   using contento::protocol::weight_type;
 
    namespace bip = boost::interprocess;
 
@@ -98,7 +98,7 @@ namespace steemit { namespace chain {
    bool operator == ( const authority& a, const shared_authority& b );
    bool operator == ( const shared_authority& a, const authority& b );
 
-} } //steemit::chain
+} } //contento::chain
 
-FC_REFLECT_TYPENAME( steemit::chain::shared_authority::account_authority_map)
-FC_REFLECT( steemit::chain::shared_authority, (weight_threshold)(account_auths)(key_auths) )
+FC_REFLECT_TYPENAME( contento::chain::shared_authority::account_authority_map)
+FC_REFLECT( contento::chain::shared_authority, (weight_threshold)(account_auths)(key_auths) )

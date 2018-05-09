@@ -191,7 +191,7 @@ def __lldb_init_module(debugger, dictionary):
 	Helper.add_handler("fc::variant", fc__variant)
 	Helper.add_handler("fc::variant_object", fc__variant_object)
 	Helper.add_handler("fc::variant_object::entry", fc__variant_object__entry)
-	Helper.add_handler("steemit::protocol::operation", steemit__protocol__operation)
+	Helper.add_handler("contento::protocol::operation", steemit__protocol__operation)
 	Helper.apply(debugger)
 
 

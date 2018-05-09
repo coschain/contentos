@@ -25,7 +25,7 @@
 #include <memory>
 #include <vector>
 
-namespace steemit { namespace app {
+namespace contento { namespace app {
 
 using namespace contento::chain;
 using namespace contento::protocol;
@@ -108,7 +108,7 @@ struct discussion_query {
 class database_api
 {
    public:
-      database_api(const steemit::app::api_context& ctx);
+      database_api(const contento::app::api_context& ctx);
       ~database_api();
 
       ///////////////////
@@ -437,17 +437,17 @@ class database_api
 
 } }
 
-FC_REFLECT( steemit::app::order, (order_price)(real_price)(steem)(sbd)(created) );
-FC_REFLECT( steemit::app::order_book, (asks)(bids) );
-FC_REFLECT( steemit::app::scheduled_hardfork, (hf_version)(live_time) );
-FC_REFLECT( steemit::app::liquidity_balance, (account)(weight) );
-FC_REFLECT( steemit::app::withdraw_route, (from_account)(to_account)(percent)(auto_vest) );
+FC_REFLECT( contento::app::order, (order_price)(real_price)(steem)(sbd)(created) );
+FC_REFLECT( contento::app::order_book, (asks)(bids) );
+FC_REFLECT( contento::app::scheduled_hardfork, (hf_version)(live_time) );
+FC_REFLECT( contento::app::liquidity_balance, (account)(weight) );
+FC_REFLECT( contento::app::withdraw_route, (from_account)(to_account)(percent)(auto_vest) );
 
-FC_REFLECT( steemit::app::discussion_query, (tag)(filter_tags)(select_tags)(select_authors)(truncate_body)(start_author)(start_permlink)(parent_author)(parent_permlink)(limit) );
+FC_REFLECT( contento::app::discussion_query, (tag)(filter_tags)(select_tags)(select_authors)(truncate_body)(start_author)(start_permlink)(parent_author)(parent_permlink)(limit) );
 
-FC_REFLECT_ENUM( steemit::app::withdraw_route_type, (incoming)(outgoing)(all) );
+FC_REFLECT_ENUM( contento::app::withdraw_route_type, (incoming)(outgoing)(all) );
 
-FC_API(steemit::app::database_api,
+FC_API(contento::app::database_api,
    // Subscriptions
    (set_block_applied_callback)
 

@@ -28,7 +28,7 @@
 
 #include <fc/utility.hpp>
 
-namespace steemit { namespace app {
+namespace contento { namespace app {
 
 using namespace fc;
 using namespace contento::protocol;

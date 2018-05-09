@@ -3,29 +3,29 @@
 
 #include <steemit/manifest/plugins.hpp>
 
-namespace steemit { namespace plugin {
+namespace contento { namespace plugin {
 
 {% for plugin in plugins %}
-std::shared_ptr< steemit::app::abstract_plugin > create_{{ plugin["plugin_name"] }}_plugin( steemit::app::application* app );
+std::shared_ptr< contento::app::abstract_plugin > create_{{ plugin["plugin_name"] }}_plugin( contento::app::application* app );
 {% endfor %}
 
-boost::container::flat_map< std::string, std::function< std::shared_ptr< steemit::app::abstract_plugin >( steemit::app::application* app ) > > plugin_factories_by_name;
+boost::container::flat_map< std::string, std::function< std::shared_ptr< contento::app::abstract_plugin >( contento::app::application* app ) > > plugin_factories_by_name;
 
 void initialize_plugin_factories()
 {
    {% for plugin in plugins %}
-   plugin_factories_by_name[ "{{ plugin["plugin_name"] }}" ] = []( steemit::app::application* app ) -> std::shared_ptr< steemit::app::abstract_plugin >
+   plugin_factories_by_name[ "{{ plugin["plugin_name"] }}" ] = []( contento::app::application* app ) -> std::shared_ptr< contento::app::abstract_plugin >
    {
       return create_{{ plugin["plugin_name"] }}_plugin( app );
    };
    {% endfor %}
 }
 
-std::shared_ptr< steemit::app::abstract_plugin > create_plugin( const std::string& name, steemit::app::application* app )
+std::shared_ptr< contento::app::abstract_plugin > create_plugin( const std::string& name, contento::app::application* app )
 {
    auto it = plugin_factories_by_name.find( name );
    if( it == plugin_factories_by_name.end() )
-      return std::shared_ptr< steemit::app::abstract_plugin >();
+      return std::shared_ptr< contento::app::abstract_plugin >();
    return it->second( app );
 }
 

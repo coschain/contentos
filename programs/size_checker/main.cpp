@@ -68,7 +68,7 @@ int main( int argc, char** argv )
 {
    try
    {
-      steemit::protocol::operation op;
+      contento::protocol::operation op;
 
 
       std::vector<uint64_t> witnesses; witnesses.resize(50);

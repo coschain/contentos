@@ -4,7 +4,7 @@
 
 #include <steemit/chain/steem_object_types.hpp>
 
-namespace steemit { namespace chain {
+namespace contento { namespace chain {
 
 struct operation_notification
 {

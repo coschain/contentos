@@ -60,7 +60,7 @@
 
 #define BRAIN_KEY_WORD_COUNT 16
 
-namespace steemit { namespace wallet {
+namespace contento { namespace wallet {
 
 namespace detail {
 
@@ -388,7 +388,7 @@ public:
       fc::optional<fc::ecc::private_key> optional_private_key = wif_to_key(wif_key);
       if (!optional_private_key)
          FC_THROW("Invalid private key");
-      steemit::chain::public_key_type wif_pub_key = optional_private_key->get_public_key();
+      contento::chain::public_key_type wif_pub_key = optional_private_key->get_public_key();
 
       _keys[wif_pub_key] = wif_key;
       return true;
@@ -459,7 +459,7 @@ public:
       for (int key_index = 0; ; ++key_index)
       {
          fc::ecc::private_key derived_private_key = derive_private_key(key_to_wif(parent_key), key_index);
-         steemit::chain::public_key_type derived_public_key = derived_private_key.get_public_key();
+         contento::chain::public_key_type derived_public_key = derived_private_key.get_public_key();
          if( _keys.find(derived_public_key) == _keys.end() )
          {
             if (number_of_consecutive_unused_keys)
@@ -495,9 +495,9 @@ public:
          int memo_key_index = find_first_unused_derived_key_index(active_privkey);
          fc::ecc::private_key memo_privkey = derive_private_key( key_to_wif(active_privkey), memo_key_index);
 
-         steemit::chain::public_key_type owner_pubkey = owner_privkey.get_public_key();
-         steemit::chain::public_key_type active_pubkey = active_privkey.get_public_key();
-         steemit::chain::public_key_type memo_pubkey = memo_privkey.get_public_key();
+         contento::chain::public_key_type owner_pubkey = owner_privkey.get_public_key();
+         contento::chain::public_key_type active_pubkey = active_privkey.get_public_key();
+         contento::chain::public_key_type memo_pubkey = memo_privkey.get_public_key();
 
          account_create_operation account_create_op;
 
@@ -966,11 +966,11 @@ public:
    const string _wallet_filename_extension = ".wallet";
 };
 
-} } } // steemit::wallet::detail
+} } } // contento::wallet::detail
 
 
 
-namespace steemit { namespace wallet {
+namespace contento { namespace wallet {
 
 wallet_api::wallet_api(const wallet_data& initial_data, fc::api<login_api> rapi)
    : my(new detail::wallet_api_impl(*this, initial_data, rapi))
@@ -2468,5 +2468,5 @@ vector<extended_message_object>   wallet_api::get_outbox( string account, fc::ti
    return result;
 }
 
-} } // steemit::wallet
+} } // contento::wallet
 

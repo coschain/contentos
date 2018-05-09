@@ -24,10 +24,10 @@
 #endif
 
 
-namespace steemit { namespace market_history {
+namespace contento { namespace market_history {
 
 using namespace chain;
-using steemit::app::application;
+using contento::app::application;
 
 enum market_history_object_types
 {
@@ -40,7 +40,7 @@ namespace detail
    class market_history_plugin_impl;
 }
 
-class market_history_plugin : public steemit::app::plugin
+class market_history_plugin : public contento::app::plugin
 {
    public:
       market_history_plugin( application* app );
@@ -134,9 +134,9 @@ typedef multi_index_container<
    allocator< order_history_object >
 > order_history_index;
 
-} } // steemit::market_history
+} } // contento::market_history
 
-FC_REFLECT( steemit::market_history::bucket_object,
+FC_REFLECT( contento::market_history::bucket_object,
                      (id)
                      (open)(seconds)
                      (high_steem)(high_sbd)
@@ -144,10 +144,10 @@ FC_REFLECT( steemit::market_history::bucket_object,
                      (open_steem)(open_sbd)
                      (close_steem)(close_sbd)
                      (steem_volume)(sbd_volume) )
-CHAINBASE_SET_INDEX_TYPE( steemit::market_history::bucket_object, steemit::market_history::bucket_index )
+CHAINBASE_SET_INDEX_TYPE( contento::market_history::bucket_object, contento::market_history::bucket_index )
 
-FC_REFLECT( steemit::market_history::order_history_object,
+FC_REFLECT( contento::market_history::order_history_object,
                      (id)
                      (time)
                      (op) )
-CHAINBASE_SET_INDEX_TYPE( steemit::market_history::order_history_object, steemit::market_history::order_history_index )
+CHAINBASE_SET_INDEX_TYPE( contento::market_history::order_history_object, contento::market_history::order_history_index )

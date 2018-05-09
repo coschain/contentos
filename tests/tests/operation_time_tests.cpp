@@ -2668,7 +2668,7 @@ BOOST_AUTO_TEST_CASE( sbd_stability )
       resize_shared_mem( 1024 * 1024 * 512 ); // Due to number of blocks in the test, it requires a large file. (64 MB)
 
       // Using the debug node plugin to manually set account balances to create required market conditions for this test
-      auto db_plugin = app.register_plugin< steemit::plugin::debug_node::debug_node_plugin >();
+      auto db_plugin = app.register_plugin< contento::plugin::debug_node::debug_node_plugin >();
       boost::program_options::variables_map options;
       db_plugin->logging = false;
       db_plugin->plugin_initialize( options );

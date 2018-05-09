@@ -6,7 +6,7 @@
 #include <steemit/chain/account_object.hpp>
 #include <steemit/chain/steem_objects.hpp>
 
-namespace steemit { namespace app {
+namespace contento { namespace app {
    using std::string;
    using std::vector;
 
@@ -175,22 +175,22 @@ namespace steemit { namespace app {
 
 } }
 
-FC_REFLECT_DERIVED( steemit::app::extended_account,
-                   (steemit::app::account_api_obj),
+FC_REFLECT_DERIVED( contento::app::extended_account,
+                   (contento::app::account_api_obj),
                    (vesting_balance)(reputation)
                    (transfer_history)(market_history)(post_history)(vote_history)(other_history)(witness_votes)(tags_usage)(guest_bloggers)(open_orders)(comments)(feed)(blog)(recent_replies)(recommended) )
 
 
-FC_REFLECT( steemit::app::vote_state, (voter)(weight)(rshares)(percent)(reputation)(time) );
-FC_REFLECT( steemit::app::account_vote, (authorperm)(weight)(rshares)(percent)(time) );
+FC_REFLECT( contento::app::vote_state, (voter)(weight)(rshares)(percent)(reputation)(time) );
+FC_REFLECT( contento::app::account_vote, (authorperm)(weight)(rshares)(percent)(time) );
 
-FC_REFLECT( steemit::app::discussion_index, (category)(trending)(payout)(payout_comments)(trending30)(updated)(created)(responses)(active)(votes)(maturing)(best)(hot)(promoted)(cashout) )
-FC_REFLECT( steemit::app::tag_index, (trending) )
-FC_REFLECT_DERIVED( steemit::app::discussion, (steemit::app::comment_api_obj), (url)(root_title)(pending_payout_value)(total_pending_payout_value)(active_votes)(replies)(author_reputation)(promoted)(body_length)(reblogged_by)(first_reblogged_by)(first_reblogged_on) )
+FC_REFLECT( contento::app::discussion_index, (category)(trending)(payout)(payout_comments)(trending30)(updated)(created)(responses)(active)(votes)(maturing)(best)(hot)(promoted)(cashout) )
+FC_REFLECT( contento::app::tag_index, (trending) )
+FC_REFLECT_DERIVED( contento::app::discussion, (contento::app::comment_api_obj), (url)(root_title)(pending_payout_value)(total_pending_payout_value)(active_votes)(replies)(author_reputation)(promoted)(body_length)(reblogged_by)(first_reblogged_by)(first_reblogged_on) )
 
-FC_REFLECT( steemit::app::state, (current_route)(props)(tag_idx)(tags)(content)(accounts)(pow_queue)(witnesses)(discussion_idx)(witness_schedule)(feed_price)(error)(market_data) )
+FC_REFLECT( contento::app::state, (current_route)(props)(tag_idx)(tags)(content)(accounts)(pow_queue)(witnesses)(discussion_idx)(witness_schedule)(feed_price)(error)(market_data) )
 
-FC_REFLECT_DERIVED( steemit::app::extended_limit_order, (steemit::app::limit_order_api_obj), (real_price)(rewarded) )
-FC_REFLECT( steemit::app::order_history_item, (time)(type)(sbd_quantity)(steem_quantity)(real_price) );
-FC_REFLECT( steemit::app::market, (bids)(asks)(history)(price_history)(available_candlesticks)(available_zoom)(current_candlestick)(current_zoom) )
-FC_REFLECT( steemit::app::candle_stick, (open_time)(period)(high)(low)(open)(close)(steem_volume)(dollar_volume) );
+FC_REFLECT_DERIVED( contento::app::extended_limit_order, (contento::app::limit_order_api_obj), (real_price)(rewarded) )
+FC_REFLECT( contento::app::order_history_item, (time)(type)(sbd_quantity)(steem_quantity)(real_price) );
+FC_REFLECT( contento::app::market, (bids)(asks)(history)(price_history)(available_candlesticks)(available_zoom)(current_candlestick)(current_zoom) )
+FC_REFLECT( contento::app::candle_stick, (open_time)(period)(high)(low)(open)(close)(steem_volume)(dollar_volume) );

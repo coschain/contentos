@@ -57,7 +57,7 @@ string remove_namespace( string str )
    str = remove_tail_if( str, '_', "t" );
    str = remove_tail_if( str, '_', "object" );
    str = remove_tail_if( str, '_', "type" );
-   str = remove_namespace_if( str, "steemit::chain" );
+   str = remove_namespace_if( str, "contento::chain" );
    str = remove_namespace_if( str, "chainbase" );
    str = remove_namespace_if( str, "std" );
    str = remove_namespace_if( str, "fc" );
@@ -77,7 +77,7 @@ void register_serializer();
 
 
 map<string, size_t >                st;
-steemit::vector<std::function<void()>>       serializers;
+contento::vector<std::function<void()>>       serializers;
 
 bool register_serializer( const string& name, std::function<void()> sr )
 {

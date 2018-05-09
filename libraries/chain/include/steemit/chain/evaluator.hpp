@@ -2,11 +2,11 @@
 #include <steemit/protocol/exceptions.hpp>
 #include <steemit/protocol/operations.hpp>
 
-namespace steemit { namespace chain {
+namespace contento { namespace chain {
 
 class database;
 
-template< typename OperationType=steemit::protocol::operation >
+template< typename OperationType=contento::protocol::operation >
 class evaluator
 {
    public:
@@ -14,7 +14,7 @@ class evaluator
       virtual int get_type()const = 0;
 };
 
-template< typename EvaluatorType, typename OperationType=steemit::protocol::operation >
+template< typename EvaluatorType, typename OperationType=contento::protocol::operation >
 class evaluator_impl : public evaluator<OperationType>
 {
    public:
@@ -42,13 +42,13 @@ class evaluator_impl : public evaluator<OperationType>
 } }
 
 #define DEFINE_EVALUATOR( X ) \
-class X ## _evaluator : public steemit::chain::evaluator_impl< X ## _evaluator > \
+class X ## _evaluator : public contento::chain::evaluator_impl< X ## _evaluator > \
 {                                                                           \
    public:                                                                  \
       typedef X ## _operation operation_type;                               \
                                                                             \
       X ## _evaluator( database& db )                                       \
-         : steemit::chain::evaluator_impl< X ## _evaluator >( db )          \
+         : contento::chain::evaluator_impl< X ## _evaluator >( db )          \
       {}                                                                    \
                                                                             \
       void do_apply( const X ## _operation& o );                            \

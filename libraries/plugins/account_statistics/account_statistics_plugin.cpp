@@ -5,7 +5,7 @@
 
 #include <steemit/chain/database.hpp>
 
-namespace steemit { namespace account_statistics {
+namespace contento { namespace account_statistics {
 
 namespace detail
 {
@@ -105,6 +105,6 @@ const flat_set< std::string >& account_statistics_plugin::get_tracked_accounts()
    return _my->_tracked_accounts;
 }
 
-} } // steemit::account_statistics
+} } // contento::account_statistics
 
-STEEMIT_DEFINE_PLUGIN( account_statistics, steemit::account_statistics::account_statistics_plugin );
+STEEMIT_DEFINE_PLUGIN( account_statistics, contento::account_statistics::account_statistics_plugin );

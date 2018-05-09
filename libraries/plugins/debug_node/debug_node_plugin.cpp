@@ -17,7 +17,7 @@
 #include <sstream>
 #include <string>
 
-namespace steemit { namespace plugin { namespace debug_node {
+namespace contento { namespace plugin { namespace debug_node {
 
 namespace detail {
 class debug_node_plugin_impl
@@ -281,7 +281,7 @@ uint32_t debug_node_plugin::debug_generate_blocks(
       return 0;
 
    fc::optional<fc::ecc::private_key> debug_private_key;
-   steemit::chain::public_key_type debug_public_key;
+   contento::chain::public_key_type debug_public_key;
    if( debug_key != "" )
    {
       debug_private_key = graphene::utilities::wif_to_key( debug_key );
@@ -289,7 +289,7 @@ uint32_t debug_node_plugin::debug_generate_blocks(
       debug_public_key = debug_private_key->get_public_key();
    }
 
-   steemit::chain::database& db = database();
+   contento::chain::database& db = database();
    uint32_t slot = miss_blocks+1, produced = 0;
    while( produced < count )
    {
@@ -297,7 +297,7 @@ uint32_t debug_node_plugin::debug_generate_blocks(
       std::string scheduled_witness_name = db.get_scheduled_witness( slot );
       fc::time_point_sec scheduled_time = db.get_slot_time( slot );
       const chain::witness_object& scheduled_witness = db.get_witness( scheduled_witness_name );
-      steemit::chain::public_key_type scheduled_key = scheduled_witness.signing_key;
+      contento::chain::public_key_type scheduled_key = scheduled_witness.signing_key;
       if( debug_key != "" )
       {
          if( logging ) wlog( "scheduled key is: ${sk}   dbg key is: ${dk}", ("sk", scheduled_key)("dk", debug_public_key) );
@@ -341,7 +341,7 @@ uint32_t debug_node_plugin::debug_generate_blocks_until(
    private_key_storage* key_storage
 )
 {
-   steemit::chain::database& db = database();
+   contento::chain::database& db = database();
 
    if( db.head_block_time() >= head_block_time )
       return 0;
@@ -439,4 +439,4 @@ void debug_node_plugin::plugin_shutdown()
 
 } } }
 
-STEEMIT_DEFINE_PLUGIN( debug_node, steemit::plugin::debug_node::debug_node_plugin )
+STEEMIT_DEFINE_PLUGIN( debug_node, contento::plugin::debug_node::debug_node_plugin )

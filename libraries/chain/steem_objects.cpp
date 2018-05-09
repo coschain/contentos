@@ -3,6 +3,6 @@
 
 #include <fc/uint128.hpp>
 
-namespace steemit { namespace chain {
+namespace contento { namespace chain {
 
-} } // steemit::chain
+} } // contento::chain

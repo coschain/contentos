@@ -2,7 +2,7 @@
 #include <steemit/protocol/types.hpp>
 #include <fc/interprocess/container.hpp>
 
-namespace steemit { namespace protocol {
+namespace contento { namespace protocol {
 
    struct authority
    {
@@ -98,10 +98,10 @@ bool is_valid_account_name( const string& name );
 
 bool operator == ( const authority& a, const authority& b );
 
-} } // namespace steemit::protocol
+} } // namespace contento::protocol
 
 
-FC_REFLECT_TYPENAME( steemit::protocol::authority::account_authority_map)
-FC_REFLECT_TYPENAME( steemit::protocol::authority::key_authority_map)
-FC_REFLECT( steemit::protocol::authority, (weight_threshold)(account_auths)(key_auths) )
-FC_REFLECT_ENUM( steemit::protocol::authority::classification, (owner)(active)(key)(posting) )
+FC_REFLECT_TYPENAME( contento::protocol::authority::account_authority_map)
+FC_REFLECT_TYPENAME( contento::protocol::authority::key_authority_map)
+FC_REFLECT( contento::protocol::authority, (weight_threshold)(account_auths)(key_auths) )
+FC_REFLECT_ENUM( contento::protocol::authority::classification, (owner)(active)(key)(posting) )

@@ -30,7 +30,7 @@ std::string wstring_to_utf8(const std::wstring& str)
 
 #include <limits>
 
-namespace steemit { namespace chain {
+namespace contento { namespace chain {
    using fc::uint128_t;
 
 inline void validate_permlink_0_1( const string& permlink )
@@ -2260,4 +2260,4 @@ void delegate_vesting_shares_evaluator::do_apply( const delegate_vesting_shares_
    }
 }
 
-} } // steemit::chain
+} } // contento::chain

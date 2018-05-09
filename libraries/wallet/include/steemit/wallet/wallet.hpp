@@ -15,9 +15,9 @@ using namespace contento::chain;
 using namespace graphene::utilities;
 using namespace std;
 
-namespace steemit { namespace wallet {
+namespace contento { namespace wallet {
 
-using steemit::app::discussion;
+using contento::app::discussion;
 using namespace contento::private_message;
 
 typedef uint16_t transaction_handle_type;
@@ -983,20 +983,20 @@ struct plain_keys {
 
 } }
 
-FC_REFLECT( steemit::wallet::wallet_data,
+FC_REFLECT( contento::wallet::wallet_data,
             (cipher_keys)
             (ws_server)
             (ws_user)
             (ws_password)
           )
 
-FC_REFLECT( steemit::wallet::brain_key_info, (brain_priv_key)(wif_priv_key) (pub_key))
+FC_REFLECT( contento::wallet::brain_key_info, (brain_priv_key)(wif_priv_key) (pub_key))
 
-FC_REFLECT( steemit::wallet::plain_keys, (checksum)(keys) )
+FC_REFLECT( contento::wallet::plain_keys, (checksum)(keys) )
 
-FC_REFLECT_ENUM( steemit::wallet::authority_type, (owner)(active)(posting) )
+FC_REFLECT_ENUM( contento::wallet::authority_type, (owner)(active)(posting) )
 
-FC_API( steemit::wallet::wallet_api,
+FC_API( contento::wallet::wallet_api,
         /// wallet api
         (help)(gethelp)
         (about)(is_new)(is_locked)(lock)(unlock)(set_password)
@@ -1090,4 +1090,4 @@ FC_API( steemit::wallet::wallet_api,
         (get_transaction)
       )
 
-FC_REFLECT( steemit::wallet::memo_data, (from)(to)(nonce)(check)(encrypted) )
+FC_REFLECT( contento::wallet::memo_data, (from)(to)(nonce)(check)(encrypted) )

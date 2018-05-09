@@ -4,7 +4,7 @@
 #include <steemit/protocol/types.hpp>
 #include <steemit/protocol/version.hpp>
 
-namespace steemit { namespace protocol {
+namespace contento { namespace protocol {
 
 fc::variant_object get_config()
 {
@@ -184,4 +184,4 @@ fc::variant_object get_config()
    return result;
 }
 
-} } // steemit::protocol
+} } // contento::protocol

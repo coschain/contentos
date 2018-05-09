@@ -34,14 +34,14 @@
 #include <graphene/utilities/key_conversion.hpp>
 
 using namespace contento;
-using steemit::protocol::version;
+using contento::protocol::version;
 namespace bpo = boost::program_options;
 
 void write_default_logging_config_to_stream(std::ostream& out);
 fc::optional<fc::logging_config> load_logging_config_from_ini_file(const fc::path& config_ini_filename);
 
 int main(int argc, char** argv) {
-   steemit::plugin::initialize_plugin_factories();
+   contento::plugin::initialize_plugin_factories();
    app::application* node = new app::application();
    fc::oexception unhandled_exception;
    try {
@@ -79,8 +79,8 @@ int main(int argc, char** argv) {
 
       bpo::variables_map options;
 
-      for( const std::string& plugin_name : steemit::plugin::get_available_plugins() )
-         node->register_abstract_plugin( steemit::plugin::create_plugin( plugin_name, node ) );
+      for( const std::string& plugin_name : contento::plugin::get_available_plugins() )
+         node->register_abstract_plugin( contento::plugin::create_plugin( plugin_name, node ) );
 
       try
       {

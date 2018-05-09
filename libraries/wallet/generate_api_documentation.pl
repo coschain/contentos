@@ -16,7 +16,7 @@ my $fileHeader = <<'END';
 #include <steemit/wallet/api_documentation.hpp>
 #include <steemit/wallet/wallet.hpp>
 
-namespace steemit { namespace wallet {
+namespace contento { namespace wallet {
    namespace detail
    {
       struct api_method_name_collector_visitor
@@ -38,7 +38,7 @@ $outFile->print($fileHeader);
 
 for my $class (@{$doxydocs->{classes}})
 {
-  if ($class->{name} eq 'steemit::wallet::wallet_api')
+  if ($class->{name} eq 'contento::wallet::wallet_api')
   {
     for my $member (@{$class->{public_methods}->{members}})
     {
@@ -84,7 +84,7 @@ my $fileFooter = <<'END';
           ++iter;
    }
 
-} } // end namespace steemit::wallet
+} } // end namespace contento::wallet
 END
 $outFile->print($fileFooter);
 $outFile->close();

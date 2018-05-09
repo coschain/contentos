@@ -4,7 +4,7 @@
 
 #include <steemit/chain/steem_object_types.hpp>
 
-namespace steemit { namespace follow {
+namespace contento { namespace follow {
 
 using namespace std;
 using namespace contento::chain;
@@ -327,24 +327,24 @@ typedef multi_index_container<
    allocator< follow_count_object >
 > follow_count_index;
 
-} } // steemit::follow
+} } // contento::follow
 
-FC_REFLECT_ENUM( steemit::follow::follow_type, (undefined)(blog)(ignore) )
+FC_REFLECT_ENUM( contento::follow::follow_type, (undefined)(blog)(ignore) )
 
-FC_REFLECT( steemit::follow::follow_object, (id)(follower)(following)(what) )
-CHAINBASE_SET_INDEX_TYPE( steemit::follow::follow_object, steemit::follow::follow_index )
+FC_REFLECT( contento::follow::follow_object, (id)(follower)(following)(what) )
+CHAINBASE_SET_INDEX_TYPE( contento::follow::follow_object, contento::follow::follow_index )
 
-FC_REFLECT( steemit::follow::feed_object, (id)(account)(first_reblogged_by)(first_reblogged_on)(reblogged_by)(comment)(reblogs)(account_feed_id) )
-CHAINBASE_SET_INDEX_TYPE( steemit::follow::feed_object, steemit::follow::feed_index )
+FC_REFLECT( contento::follow::feed_object, (id)(account)(first_reblogged_by)(first_reblogged_on)(reblogged_by)(comment)(reblogs)(account_feed_id) )
+CHAINBASE_SET_INDEX_TYPE( contento::follow::feed_object, contento::follow::feed_index )
 
-FC_REFLECT( steemit::follow::blog_object, (id)(account)(comment)(reblogged_on)(blog_feed_id) )
-CHAINBASE_SET_INDEX_TYPE( steemit::follow::blog_object, steemit::follow::blog_index )
+FC_REFLECT( contento::follow::blog_object, (id)(account)(comment)(reblogged_on)(blog_feed_id) )
+CHAINBASE_SET_INDEX_TYPE( contento::follow::blog_object, contento::follow::blog_index )
 
-FC_REFLECT( steemit::follow::reputation_object, (id)(account)(reputation) )
-CHAINBASE_SET_INDEX_TYPE( steemit::follow::reputation_object, steemit::follow::reputation_index )
+FC_REFLECT( contento::follow::reputation_object, (id)(account)(reputation) )
+CHAINBASE_SET_INDEX_TYPE( contento::follow::reputation_object, contento::follow::reputation_index )
 
-FC_REFLECT( steemit::follow::follow_count_object, (id)(account)(follower_count)(following_count) )
-CHAINBASE_SET_INDEX_TYPE( steemit::follow::follow_count_object, steemit::follow::follow_count_index )
+FC_REFLECT( contento::follow::follow_count_object, (id)(account)(follower_count)(following_count) )
+CHAINBASE_SET_INDEX_TYPE( contento::follow::follow_count_object, contento::follow::follow_count_index )
 
-FC_REFLECT( steemit::follow::blog_author_stats_object, (id)(blogger)(guest)(count) )
-CHAINBASE_SET_INDEX_TYPE( steemit::follow::blog_author_stats_object, steemit::follow::blog_author_stats_index );
+FC_REFLECT( contento::follow::blog_author_stats_object, (id)(blogger)(guest)(count) )
+CHAINBASE_SET_INDEX_TYPE( contento::follow::blog_author_stats_object, contento::follow::blog_author_stats_index );

@@ -2,7 +2,7 @@
 
 #include <steemit/chain/evaluator.hpp>
 
-namespace steemit { namespace chain {
+namespace contento { namespace chain {
 
 template< typename OperationType >
 class evaluator_registry

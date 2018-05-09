@@ -5,11 +5,11 @@
 
 #include <steemit/app/plugin.hpp>
 
-namespace steemit { namespace witness {
+namespace contento { namespace witness {
 
 using namespace std;
-using steemit::protocol::base_operation;
-using steemit::chain::database;
+using contento::protocol::base_operation;
+using contento::chain::database;
 
 class witness_plugin;
 
@@ -29,10 +29,10 @@ typedef fc::static_variant<
 
 DEFINE_PLUGIN_EVALUATOR( witness_plugin, witness_plugin_operation, enable_content_editing );
 
-} } // steemit::witness
+} } // contento::witness
 
-FC_REFLECT( steemit::witness::enable_content_editing_operation, (account)(relock_time) )
+FC_REFLECT( contento::witness::enable_content_editing_operation, (account)(relock_time) )
 
-FC_REFLECT_TYPENAME( steemit::witness::witness_plugin_operation )
+FC_REFLECT_TYPENAME( contento::witness::witness_plugin_operation )
 
-DECLARE_OPERATION_TYPE( steemit::witness::witness_plugin_operation )
+DECLARE_OPERATION_TYPE( contento::witness::witness_plugin_operation )

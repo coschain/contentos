@@ -40,10 +40,10 @@
 #include <vector>
 
 namespace graphene { namespace net {
-  using steemit::protocol::signed_transaction;
-  using steemit::protocol::block_id_type;
-  using steemit::protocol::transaction_id_type;
-  using steemit::protocol::signed_block;
+  using contento::protocol::signed_transaction;
+  using contento::protocol::block_id_type;
+  using contento::protocol::transaction_id_type;
+  using contento::protocol::signed_block;
 
   typedef fc::ecc::public_key_data node_id_t;
   typedef fc::ripemd160 item_hash_t;

@@ -59,7 +59,7 @@
 
 #include <boost/range/adaptor/reversed.hpp>
 
-namespace steemit { namespace app {
+namespace contento { namespace app {
 using graphene::net::item_hash_t;
 using graphene::net::item_id;
 using graphene::net::message;
@@ -515,7 +515,7 @@ namespace detail {
                }
 
                return result;
-            } catch ( const steemit::chain::unlinkable_block_exception& e ) {
+            } catch ( const contento::chain::unlinkable_block_exception& e ) {
                // translate to a graphene::net exception
                fc_elog(fc::logger::get("sync"),
                      "Error when pushing block, current head block is ${head}:\n${e}",
@@ -919,7 +919,7 @@ namespace detail {
       api_access _apiaccess;
 
       //std::shared_ptr<graphene::db::object_database>   _pending_trx_db;
-      std::shared_ptr<steemit::chain::database>        _chain_db;
+      std::shared_ptr<contento::chain::database>        _chain_db;
       std::shared_ptr<graphene::net::node>             _p2p_network;
       std::shared_ptr<fc::http::websocket_server>      _websocket_server;
       std::shared_ptr<fc::http::websocket_tls_server>  _websocket_tls_server;

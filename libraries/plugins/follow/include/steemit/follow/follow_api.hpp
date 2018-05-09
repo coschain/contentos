@@ -7,7 +7,7 @@
 
 #include <fc/api.hpp>
 
-namespace steemit { namespace follow {
+namespace contento { namespace follow {
 
 using std::vector;
 using std::string;
@@ -112,17 +112,17 @@ class follow_api
       std::shared_ptr< detail::follow_api_impl > my;
 };
 
-} } // steemit::follow
+} } // contento::follow
 
-FC_REFLECT( steemit::follow::feed_entry, (author)(permlink)(reblog_by)(reblog_on)(entry_id) );
-FC_REFLECT( steemit::follow::comment_feed_entry, (comment)(reblog_by)(reblog_on)(entry_id) );
-FC_REFLECT( steemit::follow::blog_entry, (author)(permlink)(blog)(reblog_on)(entry_id) );
-FC_REFLECT( steemit::follow::comment_blog_entry, (comment)(blog)(reblog_on)(entry_id) );
-FC_REFLECT( steemit::follow::account_reputation, (account)(reputation) );
-FC_REFLECT( steemit::follow::follow_api_obj, (follower)(following)(what) );
-FC_REFLECT( steemit::follow::follow_count_api_obj, (account)(follower_count)(following_count) );
+FC_REFLECT( contento::follow::feed_entry, (author)(permlink)(reblog_by)(reblog_on)(entry_id) );
+FC_REFLECT( contento::follow::comment_feed_entry, (comment)(reblog_by)(reblog_on)(entry_id) );
+FC_REFLECT( contento::follow::blog_entry, (author)(permlink)(blog)(reblog_on)(entry_id) );
+FC_REFLECT( contento::follow::comment_blog_entry, (comment)(blog)(reblog_on)(entry_id) );
+FC_REFLECT( contento::follow::account_reputation, (account)(reputation) );
+FC_REFLECT( contento::follow::follow_api_obj, (follower)(following)(what) );
+FC_REFLECT( contento::follow::follow_count_api_obj, (account)(follower_count)(following_count) );
 
-FC_API( steemit::follow::follow_api,
+FC_API( contento::follow::follow_api,
    (get_followers)
    (get_following)
    (get_follow_count)

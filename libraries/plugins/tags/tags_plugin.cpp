@@ -19,7 +19,7 @@
 #include <boost/range/iterator_range.hpp>
 #include <boost/algorithm/string.hpp>
 
-namespace steemit { namespace tags {
+namespace contento { namespace tags {
 
 namespace detail {
 
@@ -33,7 +33,7 @@ class tags_plugin_impl
       { }
       virtual ~tags_plugin_impl();
 
-      steemit::chain::database& database()
+      contento::chain::database& database()
       {
          return _self.database();
       }
@@ -533,6 +533,6 @@ void tags_plugin::plugin_startup()
 {
 }
 
-} } /// steemit::tags
+} } /// contento::tags
 
-STEEMIT_DEFINE_PLUGIN( tags, steemit::tags::tags_plugin )
+STEEMIT_DEFINE_PLUGIN( tags, contento::tags::tags_plugin )

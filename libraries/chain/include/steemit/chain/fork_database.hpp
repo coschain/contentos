@@ -8,12 +8,12 @@
 #include <boost/multi_index/mem_fun.hpp>
 
 
-namespace steemit { namespace chain {
+namespace contento { namespace chain {
    using boost::multi_index_container;
    using namespace boost::multi_index;
 
-   using steemit::protocol::signed_block;
-   using steemit::protocol::block_id_type;
+   using contento::protocol::signed_block;
+   using contento::protocol::block_id_type;
 
    struct fork_item
    {
@@ -104,4 +104,4 @@ namespace steemit { namespace chain {
          shared_ptr<fork_item>    _head;
    };
 
-} } // steemit::chain
+} } // contento::chain

@@ -18,14 +18,14 @@
 
 #include <map>
 
-namespace steemit { namespace chain {
+namespace contento { namespace chain {
 
-   using steemit::protocol::signed_transaction;
-   using steemit::protocol::operation;
-   using steemit::protocol::authority;
-   using steemit::protocol::asset;
-   using steemit::protocol::asset_symbol_type;
-   using steemit::protocol::price;
+   using contento::protocol::signed_transaction;
+   using contento::protocol::operation;
+   using contento::protocol::authority;
+   using contento::protocol::asset;
+   using contento::protocol::asset_symbol_type;
+   using contento::protocol::price;
 
    class database_impl;
    class custom_operation_interpreter;

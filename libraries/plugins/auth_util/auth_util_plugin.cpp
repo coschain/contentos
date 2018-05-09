@@ -5,7 +5,7 @@
 
 #include <string>
 
-namespace steemit { namespace plugin { namespace auth_util {
+namespace contento { namespace plugin { namespace auth_util {
 
 auth_util_plugin::auth_util_plugin( application* app ) : plugin( app ) {}
 auth_util_plugin::~auth_util_plugin() {}
@@ -28,6 +28,6 @@ void auth_util_plugin::plugin_shutdown()
 {
 }
 
-} } } // steemit::plugin::auth_util
+} } } // contento::plugin::auth_util
 
-STEEMIT_DEFINE_PLUGIN( auth_util, steemit::plugin::auth_util::auth_util_plugin )
+STEEMIT_DEFINE_PLUGIN( auth_util, contento::plugin::auth_util::auth_util_plugin )

@@ -5,9 +5,9 @@
 
 #include <boost/multi_index/hashed_index.hpp>
 
-namespace steemit { namespace chain {
+namespace contento { namespace chain {
 
-   using steemit::protocol::signed_transaction;
+   using contento::protocol::signed_transaction;
 
    /**
     * The purpose of this object is to enable the detection of duplicate transactions. When a transaction is included
@@ -45,7 +45,7 @@ namespace steemit { namespace chain {
       allocator< transaction_object >
    > transaction_index;
 
-} } // steemit::chain
+} } // contento::chain
 
-FC_REFLECT( steemit::chain::transaction_object, (id)(packed_trx)(trx_id)(expiration) )
-CHAINBASE_SET_INDEX_TYPE( steemit::chain::transaction_object, steemit::chain::transaction_index )
+FC_REFLECT( contento::chain::transaction_object, (id)(packed_trx)(trx_id)(expiration) )
+CHAINBASE_SET_INDEX_TYPE( contento::chain::transaction_object, contento::chain::transaction_index )

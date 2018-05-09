@@ -7,15 +7,15 @@
 #include <string>
 #include <vector>
 
-namespace steemit { namespace protocol {
+namespace contento { namespace protocol {
 struct signed_block;
 } }
 
-namespace steemit { namespace plugin { namespace block_info {
+namespace contento { namespace plugin { namespace block_info {
 
-using steemit::app::application;
+using contento::app::application;
 
-class block_info_plugin : public steemit::app::plugin
+class block_info_plugin : public contento::app::plugin
 {
    public:
       block_info_plugin( application* app );

@@ -16,14 +16,14 @@ target_link_libraries( steemit_plugins
 # we will have this circular dependency:
 #
 # ```
-# xxx_plugin ===> steemit::app ===> plugins ===> xxx_plugin
+# xxx_plugin ===> contento::app ===> plugins ===> xxx_plugin
 # ```
 #
 # To break the dependency, we create `mf_plugins` which only
 # has a "weak" reference to the plugin:
 #
 # ```
-# xxx_plugin ===> steemit::app ===> mf_plugins ---> xxx_plugin
+# xxx_plugin ===> contento::app ===> mf_plugins ---> xxx_plugin
 # ```
 #
 # This weak reference is implemented by a declaring a

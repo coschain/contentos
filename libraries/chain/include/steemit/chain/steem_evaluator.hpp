@@ -4,7 +4,7 @@
 
 #include <steemit/chain/evaluator.hpp>
 
-namespace steemit{ namespace chain {
+namespace contento{ namespace chain {
 
 using namespace contento::protocol;
 
@@ -51,4 +51,4 @@ DEFINE_EVALUATOR( set_reset_account )
 DEFINE_EVALUATOR( claim_reward_balance )
 DEFINE_EVALUATOR( delegate_vesting_shares )
 
-} } // steemit::chain
+} } // contento::chain

@@ -5,17 +5,17 @@
 #include <string>
 #include <vector>
 
-namespace steemit { namespace app {
+namespace contento { namespace app {
 
 class abstract_plugin;
 class application;
 
 } }
 
-namespace steemit { namespace plugin {
+namespace contento { namespace plugin {
 
 void initialize_plugin_factories();
-std::shared_ptr< steemit::app::abstract_plugin > create_plugin( const std::string& name, steemit::app::application* app );
+std::shared_ptr< contento::app::abstract_plugin > create_plugin( const std::string& name, contento::app::application* app );
 std::vector< std::string > get_available_plugins();
 
 } }

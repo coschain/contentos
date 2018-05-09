@@ -3,7 +3,7 @@
 
 #include <boost/multi_index/composite_key.hpp>
 
-namespace steemit { namespace account_by_key {
+namespace contento { namespace account_by_key {
 
 using namespace std;
 using namespace contento::chain;
@@ -67,8 +67,8 @@ typedef multi_index_container<
    allocator< key_lookup_object >
 > key_lookup_index;
 
-} } // steemit::account_by_key
+} } // contento::account_by_key
 
 
-FC_REFLECT( steemit::account_by_key::key_lookup_object, (id)(key)(account) )
-CHAINBASE_SET_INDEX_TYPE( steemit::account_by_key::key_lookup_object, steemit::account_by_key::key_lookup_index )
+FC_REFLECT( contento::account_by_key::key_lookup_object, (id)(key)(account) )
+CHAINBASE_SET_INDEX_TYPE( contento::account_by_key::key_lookup_object, contento::account_by_key::key_lookup_index )

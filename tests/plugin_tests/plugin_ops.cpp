@@ -10,7 +10,7 @@
 using namespace contento::chain;
 using namespace contento::chain::test;
 /*
-namespace steemit { namespace plugin_tests {
+namespace contento { namespace plugin_tests {
 
 using namespace contento::app;
 using namespace contento::chain;
@@ -76,16 +76,16 @@ test_plugin::test_plugin( application* app ) : plugin( app )
    database().set_custom_operation_interpreter( plugin_name(), _evaluator_registry );
 }
 
-} } // steemit::plugin_tests
+} } // contento::plugin_tests
 
-STEEMIT_DEFINE_PLUGIN( test, steemit::plugin_tests::test_plugin )
+STEEMIT_DEFINE_PLUGIN( test, contento::plugin_tests::test_plugin )
 
-FC_REFLECT( steemit::plugin_tests::test_a_operation, (account) )
-FC_REFLECT( steemit::plugin_tests::test_b_operation, (account) )
+FC_REFLECT( contento::plugin_tests::test_a_operation, (account) )
+FC_REFLECT( contento::plugin_tests::test_b_operation, (account) )
 
-DECLARE_OPERATION_TYPE( steemit::plugin_tests::test_op );
-FC_REFLECT_TYPENAME( steemit::plugin_tests::test_op );
-DEFINE_OPERATION_TYPE( steemit::plugin_tests::test_op );
+DECLARE_OPERATION_TYPE( contento::plugin_tests::test_op );
+FC_REFLECT_TYPENAME( contento::plugin_tests::test_op );
+DEFINE_OPERATION_TYPE( contento::plugin_tests::test_op );
 */
 
 BOOST_FIXTURE_TEST_SUITE( plugin_ops, clean_database_fixture );

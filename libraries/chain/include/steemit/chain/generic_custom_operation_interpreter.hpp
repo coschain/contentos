@@ -15,7 +15,7 @@
 #include <string>
 #include <vector>
 
-namespace steemit { namespace chain {
+namespace contento { namespace chain {
 
 class database;
 
