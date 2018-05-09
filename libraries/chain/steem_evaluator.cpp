@@ -107,7 +107,8 @@ void witness_update_evaluator::do_apply( const witness_update_operation& o )
    }
 }
 
-void admin_grant_evaluator::do_apply( const admin_grant_operation& o ) {
+void admin_grant_evaluator::do_apply( const admin_grant_operation& o ) 
+{
    _db.get_account( o.creator );
    const auto& nominee = _db.get_account( o.nominee );
 
@@ -118,8 +119,25 @@ void admin_grant_evaluator::do_apply( const admin_grant_operation& o ) {
    });
 }
 
-void comment_report_evaluator::do_apply( const comment_report_operation& o ) {
-
+void comment_report_evaluator::do_apply( const comment_report_operation& o ) 
+{
+   const auto& comment = _db.get_comment( o.author, o.permlink );
+   const auto& by_comment_idx = _db.get_index< comment_report_index >().indices().get< by_comment >();
+   auto comment_itr = by_comment_idx.find( comment.id );
+   if( comment_itr != by_comment_idx.end() )
+   {
+      _db.modify( *comment_itr, [&]( comment_report_object& c ) {
+         c.add_report(o.reporter, o.credit, o.tag);
+         c.last_update = _db.head_block_time();
+      });
+      return;
+   }
+   
+   _db.create< comment_report_object >( [&]( comment_report_object& c ) {
+      c.comment = comment.id;
+      c.add_report(o.reporter, o.credit, o.tag);
+      c.last_update = _db.head_block_time();
+   });
 }
 
 void account_create_evaluator::do_apply( const account_create_operation& o )

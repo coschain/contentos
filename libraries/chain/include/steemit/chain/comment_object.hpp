@@ -4,6 +4,7 @@
 #include <steemit/protocol/steem_operations.hpp>
 
 #include <steemit/chain/steem_object_types.hpp>
+#include <steemit/chain/shared_report_info.hpp>
 #include <steemit/chain/witness_objects.hpp>
 
 #include <boost/multi_index/composite_key.hpp>
@@ -12,7 +13,7 @@
 namespace steemit { namespace chain {
 
    using protocol::beneficiary_route_type;
-   using protocol::report_info_type;
+   //using protocol::report_info_type;
 
    struct strcmp_less
    {
@@ -113,11 +114,20 @@ namespace steemit { namespace chain {
             c( *this );
          }
 
-         id_type          id;
-         comment_id_type  comment;
-         asset            total_credit;
-         time_point_sec   last_update;
-         bip::vector< report_info_type, allocator<report_info_type> > reports;
+         const asset& total_credit() const
+         {
+            return reports.total_credit;
+         }
+
+         void add_report(const account_name_type& acc, const asset& credit, const string& tag)
+         {
+            reports.add_report(acc, credit, tag);
+         }
+
+         id_type              id;
+         comment_id_type      comment;
+         time_point_sec       last_update;
+         shared_report_info   reports;
 
    };
 
@@ -196,7 +206,7 @@ namespace steemit { namespace chain {
             member< comment_report_object, comment_id_type, &comment_report_object::comment >
          >,
          ordered_unique< tag< by_total_credit >,
-            member< comment_report_object, asset, &comment_report_object::total_credit >
+            const_mem_fun< comment_report_object, const asset&, &comment_report_object::total_credit >
          >,
          ordered_unique< tag< by_last_update >,
             member< comment_report_object, time_point_sec, &comment_report_object::last_update >
@@ -300,6 +310,6 @@ FC_REFLECT( steemit::chain::comment_vote_object,
 CHAINBASE_SET_INDEX_TYPE( steemit::chain::comment_vote_object, steemit::chain::comment_vote_index )
 
 FC_REFLECT( steemit::chain::comment_report_object,
-             (id)(comment)(total_credit)(last_update)(reports)
+             (id)(comment)(last_update)(reports)
           )
 CHAINBASE_SET_INDEX_TYPE( steemit::chain::comment_report_object, steemit::chain::comment_report_index )

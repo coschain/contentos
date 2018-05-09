@@ -129,7 +129,7 @@ namespace steemit { namespace protocol {
       // For use by std::sort such that the route is sorted first by name (ascending)
       bool operator < ( const beneficiary_route_type& o )const { return account < o.account; }
    };
-
+/*
    struct report_info_type
    {
       report_info_type() {}
@@ -139,7 +139,7 @@ namespace steemit { namespace protocol {
       account_name_type  reporter;
       asset            credit;
       string    tag;
-   };
+   };*/
 
    struct comment_payout_beneficiaries
    {
