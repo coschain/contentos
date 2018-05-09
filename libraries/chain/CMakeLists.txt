@@ -15,7 +15,7 @@ endif( MSVC )
 set_source_files_properties( "${CMAKE_CURRENT_BINARY_DIR}/include/contento/chain/hardfork.hpp" PROPERTIES GENERATED TRUE )
 
 ## SORT .cpp by most likely to change / break compile
-add_library( steemit_chain
+add_library( contento_chain
 
              # As database takes the longest to compile, start it first
              database.cpp
@@ -35,9 +35,9 @@ add_library( steemit_chain
              "${CMAKE_CURRENT_BINARY_DIR}/include/contento/chain/hardfork.hpp"
            )
 
-add_dependencies( steemit_chain steemit_protocol build_hardfork_hpp )
-target_link_libraries( steemit_chain steemit_protocol fc chainbase graphene_schema ${PATCH_MERGE_LIB} )
-target_include_directories( steemit_chain
+add_dependencies( contento_chain contento_protocol build_hardfork_hpp )
+target_link_libraries( contento_chain contento_protocol fc chainbase graphene_schema ${PATCH_MERGE_LIB} )
+target_include_directories( contento_chain
                             PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_BINARY_DIR}/include" )
 
 if(MSVC)
@@ -45,7 +45,7 @@ if(MSVC)
 endif(MSVC)
 
 INSTALL( TARGETS
-   steemit_chain
+   contento_chain
 
    RUNTIME DESTINATION bin
    LIBRARY DESTINATION lib

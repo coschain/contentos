@@ -1,15 +1,15 @@
 
-# The steemit_plugins target links with all plugins
-add_library( steemit_plugins
+# The contento_plugins target links with all plugins
+add_library( contento_plugins
    plugins.cpp )
 
-target_link_libraries( steemit_plugins
+target_link_libraries( contento_plugins
 {% for plugin in plugins %}
    {{ plugin["plugin_project"] }}
 {% endfor %}
 )
 
-# The `steemit_mf_plugins` target has prototypes for querying plugins
+# The `contento_mf_plugins` target has prototypes for querying plugins
 # as abstract, but does not itself define the plugins.
 #
 # The reason for this design is that if we try to use `plugins`
@@ -30,21 +30,21 @@ target_link_libraries( steemit_plugins
 # `create_xxx_plugin()` global function which returns a
 # `shared_ptr< abstract_plugin >`.  The weak reference isn't
 # resolved until link time.  So as long as we link with both
-# `steemit_mf_plugins` and `steemit_plugins` we are fine.
+# `contento_mf_plugins` and `contento_plugins` we are fine.
 #
 
-add_library( steemit_mf_plugins
+add_library( contento_mf_plugins
    mf_plugins.cpp
    ${CMAKE_CURRENT_SOURCE_DIR}/include/steemit/manifest/plugins.hpp
 )
 
-target_include_directories( steemit_mf_plugins
+target_include_directories( contento_mf_plugins
    PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
    )
-target_link_libraries( steemit_mf_plugins fc )
+target_link_libraries( contento_mf_plugins fc )
 
 INSTALL( TARGETS
-   steemit_mf_plugins
+   contento_mf_plugins
 
    RUNTIME DESTINATION bin
    LIBRARY DESTINATION lib
