@@ -1,6 +1,6 @@
 #pragma once
 
-#include <steemit/protocol/types.hpp>
+#include <contento/protocol/types.hpp>
 
 #include <fc/uint128.hpp>
 

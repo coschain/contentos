@@ -1,4 +1,4 @@
-#include <steemit/protocol/authority.hpp>
+#include <contento/protocol/authority.hpp>
 
 namespace contento { namespace protocol {
 

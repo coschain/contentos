@@ -10,10 +10,10 @@
 
 #include <graphene/utilities/key_conversion.hpp>
 
-#include <steemit/protocol/types.hpp>
-#include <steemit/protocol/authority.hpp>
+#include <contento/protocol/types.hpp>
+#include <contento/protocol/authority.hpp>
 
-#include <steemit/chain/shared_authority.hpp>
+#include <contento/chain/shared_authority.hpp>
 
 #include <boost/interprocess/managed_mapped_file.hpp>
 #include <boost/interprocess/allocators/allocator.hpp>

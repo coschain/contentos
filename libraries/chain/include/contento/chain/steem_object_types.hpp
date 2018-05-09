@@ -7,8 +7,8 @@
 //#include <graphene/db2/database.hpp>
 #include <chainbase/chainbase.hpp>
 
-#include <steemit/protocol/types.hpp>
-#include <steemit/protocol/authority.hpp>
+#include <contento/protocol/types.hpp>
+#include <contento/protocol/authority.hpp>
 
 
 namespace contento { namespace chain {

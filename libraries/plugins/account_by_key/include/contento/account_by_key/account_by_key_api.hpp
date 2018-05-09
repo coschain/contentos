@@ -1,8 +1,8 @@
 #pragma once
 
-#include <steemit/app/application.hpp>
+#include <contento/app/application.hpp>
 
-#include <steemit/account_by_key/account_by_key_objects.hpp>
+#include <contento/account_by_key/account_by_key_objects.hpp>
 
 #include <fc/api.hpp>
 

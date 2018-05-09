@@ -1,7 +1,7 @@
 
-#include <steemit/chain/compound.hpp>
-#include <steemit/protocol/asset.hpp>
-#include <steemit/protocol/types.hpp>
+#include <contento/chain/compound.hpp>
+#include <contento/protocol/asset.hpp>
+#include <contento/protocol/types.hpp>
 
 #include <fc/io/json.hpp>
 #include <fc/variant_object.hpp>

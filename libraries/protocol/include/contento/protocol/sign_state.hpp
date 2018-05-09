@@ -1,7 +1,7 @@
 #pragma once
 
-#include <steemit/protocol/authority.hpp>
-#include <steemit/protocol/types.hpp>
+#include <contento/protocol/authority.hpp>
+#include <contento/protocol/types.hpp>
 
 namespace contento { namespace protocol {
 

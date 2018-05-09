@@ -1,8 +1,8 @@
 #pragma once
 
-#include <steemit/protocol/types.hpp>
-#include <steemit/protocol/authority.hpp>
-#include <steemit/protocol/version.hpp>
+#include <contento/protocol/types.hpp>
+#include <contento/protocol/authority.hpp>
+#include <contento/protocol/version.hpp>
 
 #include <fc/time.hpp>
 

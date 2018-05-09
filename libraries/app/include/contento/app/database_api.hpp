@@ -1,16 +1,16 @@
 #pragma once
-#include <steemit/app/applied_operation.hpp>
-#include <steemit/app/state.hpp>
+#include <contento/app/applied_operation.hpp>
+#include <contento/app/state.hpp>
 
-#include <steemit/chain/database.hpp>
-#include <steemit/chain/steem_objects.hpp>
-#include <steemit/chain/steem_object_types.hpp>
-#include <steemit/chain/history_object.hpp>
+#include <contento/chain/database.hpp>
+#include <contento/chain/steem_objects.hpp>
+#include <contento/chain/steem_object_types.hpp>
+#include <contento/chain/history_object.hpp>
 
-#include <steemit/tags/tags_plugin.hpp>
+#include <contento/tags/tags_plugin.hpp>
 
-#include <steemit/follow/follow_plugin.hpp>
-#include <steemit/witness/witness_plugin.hpp>
+#include <contento/follow/follow_plugin.hpp>
+#include <contento/witness/witness_plugin.hpp>
 
 #include <fc/api.hpp>
 #include <fc/optional.hpp>

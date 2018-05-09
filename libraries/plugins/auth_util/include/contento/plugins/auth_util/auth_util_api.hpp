@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <steemit/protocol/types.hpp>
+#include <contento/protocol/types.hpp>
 
 #include <fc/api.hpp>
 #include <fc/crypto/sha256.hpp>

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <steemit/app/application.hpp>
-#include <steemit/app/steem_api_objects.hpp>
+#include <contento/app/application.hpp>
+#include <contento/app/steem_api_objects.hpp>
 
-#include <steemit/follow/follow_objects.hpp>
+#include <contento/follow/follow_objects.hpp>
 
 #include <fc/api.hpp>
 

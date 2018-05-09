@@ -1,6 +1,6 @@
 #pragma once
-#include <steemit/protocol/exceptions.hpp>
-#include <steemit/protocol/operations.hpp>
+#include <contento/protocol/exceptions.hpp>
+#include <contento/protocol/operations.hpp>
 
 namespace contento { namespace chain {
 

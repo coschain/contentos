@@ -1,10 +1,10 @@
 
-#include <steemit/chain/database.hpp>
-#include <steemit/chain/global_property_object.hpp>
+#include <contento/chain/database.hpp>
+#include <contento/chain/global_property_object.hpp>
 
-#include <steemit/plugins/block_info/block_info.hpp>
-#include <steemit/plugins/block_info/block_info_api.hpp>
-#include <steemit/plugins/block_info/block_info_plugin.hpp>
+#include <contento/plugins/block_info/block_info.hpp>
+#include <contento/plugins/block_info/block_info_api.hpp>
+#include <contento/plugins/block_info/block_info_plugin.hpp>
 
 #include <string>
 

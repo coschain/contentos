@@ -1,4 +1,4 @@
-file(GLOB HEADERS "include/steemit/plugins/raw_block/*.hpp")
+file(GLOB HEADERS "include/contento/plugins/raw_block/*.hpp")
 
 add_library( steemit_raw_block
              ${HEADERS}

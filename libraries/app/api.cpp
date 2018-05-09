@@ -23,16 +23,16 @@
  */
 #include <cctype>
 
-#include <steemit/app/api.hpp>
-#include <steemit/app/api_access.hpp>
-#include <steemit/app/application.hpp>
-#include <steemit/app/impacted.hpp>
+#include <contento/app/api.hpp>
+#include <contento/app/api_access.hpp>
+#include <contento/app/application.hpp>
+#include <contento/app/impacted.hpp>
 
-#include <steemit/protocol/get_config.hpp>
+#include <contento/protocol/get_config.hpp>
 
-#include <steemit/chain/database.hpp>
-#include <steemit/chain/steem_objects.hpp>
-#include <steemit/chain/transaction_object.hpp>
+#include <contento/chain/database.hpp>
+#include <contento/chain/steem_objects.hpp>
+#include <contento/chain/transaction_object.hpp>
 #include <fc/time.hpp>
 
 #include <graphene/utilities/key_conversion.hpp>

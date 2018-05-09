@@ -1,8 +1,8 @@
-#include <steemit/market_history/market_history_api.hpp>
+#include <contento/market_history/market_history_api.hpp>
 
-#include <steemit/chain/database.hpp>
-#include <steemit/chain/index.hpp>
-#include <steemit/chain/operation_notification.hpp>
+#include <contento/chain/database.hpp>
+#include <contento/chain/index.hpp>
+#include <contento/chain/operation_notification.hpp>
 
 namespace contento { namespace market_history {
 

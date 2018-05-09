@@ -3,20 +3,20 @@
 #include <fc/optional.hpp>
 #include <fc/variant_object.hpp>
 
-#include <steemit/app/api_context.hpp>
-#include <steemit/app/application.hpp>
+#include <contento/app/api_context.hpp>
+#include <contento/app/application.hpp>
 
-#include <steemit/protocol/block.hpp>
+#include <contento/protocol/block.hpp>
 
-#include <steemit/chain/block_log.hpp>
-#include <steemit/chain/account_object.hpp>
-#include <steemit/chain/database.hpp>
-#include <steemit/chain/witness_objects.hpp>
+#include <contento/chain/block_log.hpp>
+#include <contento/chain/account_object.hpp>
+#include <contento/chain/database.hpp>
+#include <contento/chain/witness_objects.hpp>
 
 #include <graphene/utilities/key_conversion.hpp>
 
-#include <steemit/plugins/debug_node/debug_node_api.hpp>
-#include <steemit/plugins/debug_node/debug_node_plugin.hpp>
+#include <contento/plugins/debug_node/debug_node_api.hpp>
+#include <contento/plugins/debug_node/debug_node_plugin.hpp>
 
 namespace contento { namespace plugin { namespace debug_node {
 

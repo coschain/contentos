@@ -1,6 +1,6 @@
 #pragma once
 
-#include <steemit/chain/database.hpp>
+#include <contento/chain/database.hpp>
 
 namespace contento { namespace chain {
 

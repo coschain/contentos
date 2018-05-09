@@ -1,7 +1,7 @@
 #pragma once
-#include <steemit/protocol/base.hpp>
-#include <steemit/protocol/block_header.hpp>
-#include <steemit/protocol/asset.hpp>
+#include <contento/protocol/base.hpp>
+#include <contento/protocol/block_header.hpp>
+#include <contento/protocol/asset.hpp>
 
 #include <fc/utf8.hpp>
 

@@ -22,13 +22,13 @@
  * THE SOFTWARE.
  */
 
-#include <steemit/delayed_node/delayed_node_plugin.hpp>
+#include <contento/delayed_node/delayed_node_plugin.hpp>
 
-#include <steemit/protocol/types.hpp>
+#include <contento/protocol/types.hpp>
 
-#include <steemit/chain/database.hpp>
-#include <steemit/app/api.hpp>
-#include <steemit/app/database_api.hpp>
+#include <contento/chain/database.hpp>
+#include <contento/app/api.hpp>
+#include <contento/app/database_api.hpp>
 
 #include <fc/network/http/websocket.hpp>
 #include <fc/rpc/websocket_api.hpp>

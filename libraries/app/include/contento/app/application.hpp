@@ -23,9 +23,9 @@
  */
 #pragma once
 
-#include <steemit/app/api_access.hpp>
-#include <steemit/app/api_context.hpp>
-#include <steemit/chain/database.hpp>
+#include <contento/app/api_access.hpp>
+#include <contento/app/api_context.hpp>
+#include <contento/chain/database.hpp>
 
 #include <graphene/net/node.hpp>
 

@@ -1,4 +1,4 @@
-file(GLOB HEADERS "include/steemit/app/*.hpp")
+file(GLOB HEADERS "include/contento/app/*.hpp")
 
 add_library( steemit_app
              database_api.cpp
@@ -24,4 +24,4 @@ INSTALL( TARGETS
    LIBRARY DESTINATION lib
    ARCHIVE DESTINATION lib
 )
-INSTALL( FILES ${HEADERS} DESTINATION "include/steemit/app" )
+INSTALL( FILES ${HEADERS} DESTINATION "include/contento/app" )

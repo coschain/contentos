@@ -1,5 +1,5 @@
 #pragma once
-#include <steemit/chain/steem_object_types.hpp>
+#include <contento/chain/steem_object_types.hpp>
 
 namespace contento { namespace chain {
 

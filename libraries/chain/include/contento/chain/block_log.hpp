@@ -1,6 +1,6 @@
 #pragma once
 #include <fc/filesystem.hpp>
-#include <steemit/protocol/block.hpp>
+#include <contento/protocol/block.hpp>
 
 namespace contento { namespace chain {
 

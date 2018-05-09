@@ -1,4 +1,4 @@
-file(GLOB HEADERS "include/steemit/private_message/*.hpp")
+file(GLOB HEADERS "include/contento/private_message/*.hpp")
 
 add_library( steemit_private_message
              private_message_plugin.cpp

@@ -1,18 +1,18 @@
-file(GLOB HEADERS "include/steemit/chain/*.hpp" "include/steemit/chain/util/*.hpp")
+file(GLOB HEADERS "include/contento/chain/*.hpp" "include/contento/chain/util/*.hpp")
 
 if( MSVC )
-   set( hardfork_hpp_file "${CMAKE_CURRENT_SOURCE_DIR}/include/steemit/chain/hardfork.hpp" )
+   set( hardfork_hpp_file "${CMAKE_CURRENT_SOURCE_DIR}/include/contento/chain/hardfork.hpp" )
    add_custom_target( build_hardfork_hpp
       COMMAND cat-parts "${CMAKE_CURRENT_SOURCE_DIR}/hardfork.d" ${hardfork_hpp_file} )
    add_dependencies( build_hardfork_hpp cat-parts )
 else( MSVC )
-   set( hardfork_hpp_file "${CMAKE_CURRENT_BINARY_DIR}/include/steemit/chain/hardfork.hpp" )
+   set( hardfork_hpp_file "${CMAKE_CURRENT_BINARY_DIR}/include/contento/chain/hardfork.hpp" )
    add_custom_target( build_hardfork_hpp
       COMMAND "${CMAKE_SOURCE_DIR}/programs/build_helpers/cat_parts.py" "${CMAKE_CURRENT_SOURCE_DIR}/hardfork.d" ${hardfork_hpp_file} )
 endif( MSVC )
 
 
-set_source_files_properties( "${CMAKE_CURRENT_BINARY_DIR}/include/steemit/chain/hardfork.hpp" PROPERTIES GENERATED TRUE )
+set_source_files_properties( "${CMAKE_CURRENT_BINARY_DIR}/include/contento/chain/hardfork.hpp" PROPERTIES GENERATED TRUE )
 
 ## SORT .cpp by most likely to change / break compile
 add_library( steemit_chain
@@ -32,7 +32,7 @@ add_library( steemit_chain
 
              ${HEADERS}
              ${hardfork_hpp_file}
-             "${CMAKE_CURRENT_BINARY_DIR}/include/steemit/chain/hardfork.hpp"
+             "${CMAKE_CURRENT_BINARY_DIR}/include/contento/chain/hardfork.hpp"
            )
 
 add_dependencies( steemit_chain steemit_protocol build_hardfork_hpp )
@@ -51,4 +51,4 @@ INSTALL( TARGETS
    LIBRARY DESTINATION lib
    ARCHIVE DESTINATION lib
 )
-INSTALL( FILES ${HEADERS} DESTINATION "include/steemit/chain" )
+INSTALL( FILES ${HEADERS} DESTINATION "include/contento/chain" )

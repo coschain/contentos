@@ -1,6 +1,6 @@
 #pragma once
 
-#include <steemit/protocol/asset.hpp>
+#include <contento/protocol/asset.hpp>
 
 namespace contento { namespace chain { namespace util {
 

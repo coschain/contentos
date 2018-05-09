@@ -1,16 +1,16 @@
 #pragma once
-#include <steemit/chain/account_object.hpp>
-#include <steemit/chain/block_summary_object.hpp>
-#include <steemit/chain/comment_object.hpp>
-#include <steemit/chain/global_property_object.hpp>
-#include <steemit/chain/history_object.hpp>
-#include <steemit/chain/steem_objects.hpp>
-#include <steemit/chain/transaction_object.hpp>
-#include <steemit/chain/witness_objects.hpp>
+#include <contento/chain/account_object.hpp>
+#include <contento/chain/block_summary_object.hpp>
+#include <contento/chain/comment_object.hpp>
+#include <contento/chain/global_property_object.hpp>
+#include <contento/chain/history_object.hpp>
+#include <contento/chain/steem_objects.hpp>
+#include <contento/chain/transaction_object.hpp>
+#include <contento/chain/witness_objects.hpp>
 
-#include <steemit/tags/tags_plugin.hpp>
+#include <contento/tags/tags_plugin.hpp>
 
-#include <steemit/witness/witness_objects.hpp>
+#include <contento/witness/witness_objects.hpp>
 
 namespace contento { namespace app {
 

@@ -9,8 +9,8 @@
 
 #pragma once
 
-#include <steemit/protocol/types.hpp>
-#include <steemit/protocol/version.hpp>
+#include <contento/protocol/types.hpp>
+#include <contento/protocol/version.hpp>
 
 namespace contento { namespace chain {
 

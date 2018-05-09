@@ -1,4 +1,4 @@
-#include <steemit/app/plugin.hpp>
+#include <contento/app/plugin.hpp>
 
 #include <boost/multi_index/composite_key.hpp>
 

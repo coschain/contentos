@@ -1,4 +1,4 @@
-file(GLOB HEADERS "include/steemit/tags/*.hpp")
+file(GLOB HEADERS "include/contento/tags/*.hpp")
 
 add_library( steemit_tags
              tags_plugin.cpp

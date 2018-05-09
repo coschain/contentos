@@ -1,10 +1,10 @@
 #pragma once
-#include <steemit/app/applied_operation.hpp>
-#include <steemit/app/steem_api_objects.hpp>
+#include <contento/app/applied_operation.hpp>
+#include <contento/app/steem_api_objects.hpp>
 
-#include <steemit/chain/global_property_object.hpp>
-#include <steemit/chain/account_object.hpp>
-#include <steemit/chain/steem_objects.hpp>
+#include <contento/chain/global_property_object.hpp>
+#include <contento/chain/account_object.hpp>
+#include <contento/chain/steem_objects.hpp>
 
 namespace contento { namespace app {
    using std::string;

@@ -1,7 +1,7 @@
 #pragma once
-#include <steemit/protocol/operations.hpp>
-#include <steemit/protocol/sign_state.hpp>
-#include <steemit/protocol/types.hpp>
+#include <contento/protocol/operations.hpp>
+#include <contento/protocol/sign_state.hpp>
+#include <contento/protocol/types.hpp>
 
 #include <numeric>
 

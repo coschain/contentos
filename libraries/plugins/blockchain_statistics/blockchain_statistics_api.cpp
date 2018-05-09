@@ -1,4 +1,4 @@
-#include <steemit/blockchain_statistics/blockchain_statistics_api.hpp>
+#include <contento/blockchain_statistics/blockchain_statistics_api.hpp>
 
 namespace contento { namespace blockchain_statistics {
 

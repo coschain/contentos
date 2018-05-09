@@ -28,7 +28,7 @@
 #include <fc/crypto/elliptic.hpp>
 #include <fc/io/json.hpp>
 
-#include <steemit/protocol/types.hpp>
+#include <contento/protocol/types.hpp>
 #include <graphene/utilities/key_conversion.hpp>
 
 #ifndef WIN32

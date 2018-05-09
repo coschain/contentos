@@ -13,8 +13,8 @@ my $outFile = new IO::File($outputFileName, "w")
 my $fileHeader = <<'END';
 /** GENERATED FILE **/
 #include <set>
-#include <steemit/wallet/api_documentation.hpp>
-#include <steemit/wallet/wallet.hpp>
+#include <contento/wallet/api_documentation.hpp>
+#include <contento/wallet/wallet.hpp>
 
 namespace contento { namespace wallet {
    namespace detail

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <steemit/blockchain_statistics/blockchain_statistics_plugin.hpp>
+#include <contento/blockchain_statistics/blockchain_statistics_plugin.hpp>
 
 #include <fc/api.hpp>
 

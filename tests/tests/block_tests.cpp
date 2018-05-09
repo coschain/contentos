@@ -24,13 +24,13 @@
 #ifdef IS_TEST_NET
 #include <boost/test/unit_test.hpp>
 
-#include <steemit/protocol/exceptions.hpp>
+#include <contento/protocol/exceptions.hpp>
 
-#include <steemit/chain/database.hpp>
-#include <steemit/chain/steem_objects.hpp>
-#include <steemit/chain/history_object.hpp>
+#include <contento/chain/database.hpp>
+#include <contento/chain/steem_objects.hpp>
+#include <contento/chain/history_object.hpp>
 
-#include <steemit/account_history/account_history_plugin.hpp>
+#include <contento/account_history/account_history_plugin.hpp>
 
 #include <graphene/utilities/tempdir.hpp>
 

@@ -22,9 +22,9 @@
  * THE SOFTWARE.
  */
 
-#include <steemit/protocol/authority.hpp>
+#include <contento/protocol/authority.hpp>
 
-#include <steemit/app/impacted.hpp>
+#include <contento/app/impacted.hpp>
 
 #include <fc/utility.hpp>
 

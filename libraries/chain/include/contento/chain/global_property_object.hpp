@@ -1,9 +1,9 @@
 #pragma once
 #include <fc/uint128.hpp>
 
-#include <steemit/chain/steem_object_types.hpp>
+#include <contento/chain/steem_object_types.hpp>
 
-#include <steemit/protocol/asset.hpp>
+#include <contento/protocol/asset.hpp>
 
 namespace contento { namespace chain {
 

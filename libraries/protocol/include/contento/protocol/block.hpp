@@ -1,6 +1,6 @@
 #pragma once
-#include <steemit/protocol/block_header.hpp>
-#include <steemit/protocol/transaction.hpp>
+#include <contento/protocol/block_header.hpp>
+#include <contento/protocol/transaction.hpp>
 
 namespace contento { namespace protocol {
 

@@ -1,15 +1,15 @@
-#include <steemit/tags/tags_plugin.hpp>
+#include <contento/tags/tags_plugin.hpp>
 
-#include <steemit/app/impacted.hpp>
+#include <contento/app/impacted.hpp>
 
-#include <steemit/protocol/config.hpp>
+#include <contento/protocol/config.hpp>
 
-#include <steemit/chain/database.hpp>
-#include <steemit/chain/hardfork.hpp>
-#include <steemit/chain/index.hpp>
-#include <steemit/chain/operation_notification.hpp>
-#include <steemit/chain/account_object.hpp>
-#include <steemit/chain/comment_object.hpp>
+#include <contento/chain/database.hpp>
+#include <contento/chain/hardfork.hpp>
+#include <contento/chain/index.hpp>
+#include <contento/chain/operation_notification.hpp>
+#include <contento/chain/account_object.hpp>
+#include <contento/chain/comment_object.hpp>
 
 #include <fc/smart_ref_impl.hpp>
 #include <fc/thread/thread.hpp>

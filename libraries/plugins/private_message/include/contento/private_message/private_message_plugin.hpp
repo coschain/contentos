@@ -23,8 +23,8 @@
  */
 #pragma once
 
-#include <steemit/app/plugin.hpp>
-#include <steemit/chain/database.hpp>
+#include <contento/app/plugin.hpp>
+#include <contento/chain/database.hpp>
 
 #include <boost/multi_index/composite_key.hpp>
 

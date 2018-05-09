@@ -1,11 +1,11 @@
 #pragma once
 
-#include <steemit/app/application.hpp>
-#include <steemit/chain/database.hpp>
+#include <contento/app/application.hpp>
+#include <contento/chain/database.hpp>
 #include <fc/io/json.hpp>
 #include <fc/smart_ref_impl.hpp>
 
-#include <steemit/plugins/debug_node/debug_node_plugin.hpp>
+#include <contento/plugins/debug_node/debug_node_plugin.hpp>
 
 #include <graphene/utilities/key_conversion.hpp>
 

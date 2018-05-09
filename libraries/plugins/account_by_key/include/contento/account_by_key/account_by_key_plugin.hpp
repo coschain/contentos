@@ -1,8 +1,8 @@
 #pragma once
-#include <steemit/app/plugin.hpp>
-#include <steemit/chain/database.hpp>
+#include <contento/app/plugin.hpp>
+#include <contento/chain/database.hpp>
 
-#include <steemit/account_by_key/account_by_key_api.hpp>
+#include <contento/account_by_key/account_by_key_api.hpp>
 
 namespace contento { namespace account_by_key {
 

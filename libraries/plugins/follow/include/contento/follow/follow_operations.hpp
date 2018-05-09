@@ -1,8 +1,8 @@
 #pragma once
 
-#include <steemit/protocol/base.hpp>
+#include <contento/protocol/base.hpp>
 
-#include <steemit/follow/follow_plugin.hpp>
+#include <contento/follow/follow_plugin.hpp>
 
 namespace contento { namespace follow {
 

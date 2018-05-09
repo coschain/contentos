@@ -10,7 +10,7 @@
 
 #include <graphene/utilities/key_conversion.hpp>
 
-#include <steemit/protocol/types.hpp>
+#include <contento/protocol/types.hpp>
 
 struct signing_request
 {

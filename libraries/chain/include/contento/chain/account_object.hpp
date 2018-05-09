@@ -1,12 +1,12 @@
 #pragma once
 #include <fc/fixed_string.hpp>
 
-#include <steemit/protocol/authority.hpp>
-#include <steemit/protocol/steem_operations.hpp>
+#include <contento/protocol/authority.hpp>
+#include <contento/protocol/steem_operations.hpp>
 
-#include <steemit/chain/steem_object_types.hpp>
-#include <steemit/chain/witness_objects.hpp>
-#include <steemit/chain/shared_authority.hpp>
+#include <contento/chain/steem_object_types.hpp>
+#include <contento/chain/witness_objects.hpp>
+#include <contento/chain/shared_authority.hpp>
 
 #include <boost/multi_index/composite_key.hpp>
 

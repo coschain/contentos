@@ -1,8 +1,8 @@
 #pragma once
 
-#include <steemit/protocol/operations.hpp>
+#include <contento/protocol/operations.hpp>
 
-#include <steemit/chain/steem_object_types.hpp>
+#include <contento/chain/steem_object_types.hpp>
 
 namespace contento { namespace chain {
 

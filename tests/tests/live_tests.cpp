@@ -1,10 +1,10 @@
 #include <boost/test/unit_test.hpp>
 
-#include <steemit/protocol/exceptions.hpp>
+#include <contento/protocol/exceptions.hpp>
 
-#include <steemit/chain/database.hpp>
-#include <steemit/chain/hardfork.hpp>
-#include <steemit/chain/steem_objects.hpp>
+#include <contento/chain/database.hpp>
+#include <contento/chain/hardfork.hpp>
+#include <contento/chain/steem_objects.hpp>
 
 #include <fc/crypto/digest.hpp>
 

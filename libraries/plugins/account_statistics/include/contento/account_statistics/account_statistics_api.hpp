@@ -1,6 +1,6 @@
 #pragma once
 
-#include <steemit/account_statistics/account_statistics_plugin.hpp>
+#include <contento/account_statistics/account_statistics_plugin.hpp>
 
 #include <fc/api.hpp>
 

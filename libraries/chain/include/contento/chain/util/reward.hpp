@@ -1,11 +1,11 @@
 #pragma once
 
-#include <steemit/chain/util/asset.hpp>
-#include <steemit/chain/steem_objects.hpp>
+#include <contento/chain/util/asset.hpp>
+#include <contento/chain/steem_objects.hpp>
 
-#include <steemit/protocol/asset.hpp>
-#include <steemit/protocol/config.hpp>
-#include <steemit/protocol/types.hpp>
+#include <contento/protocol/asset.hpp>
+#include <contento/protocol/config.hpp>
+#include <contento/protocol/types.hpp>
 
 #include <fc/reflect/reflect.hpp>
 

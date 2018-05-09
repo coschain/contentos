@@ -1,9 +1,9 @@
 
-#include <steemit/app/api_context.hpp>
-#include <steemit/app/application.hpp>
+#include <contento/app/api_context.hpp>
+#include <contento/app/application.hpp>
 
-#include <steemit/plugins/block_info/block_info_api.hpp>
-#include <steemit/plugins/block_info/block_info_plugin.hpp>
+#include <contento/plugins/block_info/block_info_api.hpp>
+#include <contento/plugins/block_info/block_info_plugin.hpp>
 
 namespace contento { namespace plugin { namespace block_info {
 

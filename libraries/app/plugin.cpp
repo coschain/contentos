@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-#include <steemit/app/plugin.hpp>
+#include <contento/app/plugin.hpp>
 
 #include <fc/vector.hpp>
 

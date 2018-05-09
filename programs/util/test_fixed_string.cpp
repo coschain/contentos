@@ -1,5 +1,5 @@
 
-#include <steemit/protocol/fixed_string.hpp>
+#include <contento/protocol/fixed_string.hpp>
 
 #include <fc/io/raw.hpp>
 

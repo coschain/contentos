@@ -1,6 +1,6 @@
-#include <steemit/chain/account_object.hpp>
+#include <contento/chain/account_object.hpp>
 
-#include <steemit/follow/follow_api.hpp>
+#include <contento/follow/follow_api.hpp>
 
 namespace contento { namespace follow {
 

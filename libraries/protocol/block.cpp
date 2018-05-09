@@ -1,4 +1,4 @@
-#include <steemit/protocol/block.hpp>
+#include <contento/protocol/block.hpp>
 #include <fc/io/raw.hpp>
 #include <fc/bitutil.hpp>
 #include <algorithm>

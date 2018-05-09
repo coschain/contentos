@@ -1,13 +1,13 @@
-#include <steemit/blockchain_statistics/blockchain_statistics_api.hpp>
+#include <contento/blockchain_statistics/blockchain_statistics_api.hpp>
 
-#include <steemit/app/impacted.hpp>
-#include <steemit/chain/account_object.hpp>
-#include <steemit/chain/comment_object.hpp>
-#include <steemit/chain/history_object.hpp>
+#include <contento/app/impacted.hpp>
+#include <contento/chain/account_object.hpp>
+#include <contento/chain/comment_object.hpp>
+#include <contento/chain/history_object.hpp>
 
-#include <steemit/chain/database.hpp>
-#include <steemit/chain/index.hpp>
-#include <steemit/chain/operation_notification.hpp>
+#include <contento/chain/database.hpp>
+#include <contento/chain/index.hpp>
+#include <contento/chain/operation_notification.hpp>
 
 namespace contento { namespace blockchain_statistics {
 

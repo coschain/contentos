@@ -1,6 +1,6 @@
 #pragma once
 
-#include <steemit/protocol/exceptions.hpp>
+#include <contento/protocol/exceptions.hpp>
 
 #define STEEMIT_DECLARE_OP_BASE_EXCEPTIONS( op_name )                \
    FC_DECLARE_DERIVED_EXCEPTION(                                      \
@@ -102,7 +102,7 @@ namespace contento { namespace chain {
 #pragma once
 
 #include <fc/exception/exception.hpp>
-#include <steemit/protocol/exceptions.hpp>
+#include <contento/protocol/exceptions.hpp>
 
 namespace contento { namespace chain {
 

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <steemit/protocol/base.hpp>
-#include <steemit/protocol/operation_util.hpp>
+#include <contento/protocol/base.hpp>
+#include <contento/protocol/operation_util.hpp>
 
-#include <steemit/app/plugin.hpp>
+#include <contento/app/plugin.hpp>
 
 namespace contento { namespace witness {
 

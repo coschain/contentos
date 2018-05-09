@@ -1,4 +1,4 @@
-#include <steemit/chain/shared_authority.hpp>
+#include <contento/chain/shared_authority.hpp>
 
 namespace contento { namespace chain {
 

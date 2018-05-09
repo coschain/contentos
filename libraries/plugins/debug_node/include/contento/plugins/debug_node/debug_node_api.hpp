@@ -8,9 +8,9 @@
 #include <fc/optional.hpp>
 #include <fc/variant_object.hpp>
 
-#include <steemit/protocol/block.hpp>
+#include <contento/protocol/block.hpp>
 
-#include <steemit/chain/witness_objects.hpp>
+#include <contento/chain/witness_objects.hpp>
 
 namespace contento { namespace app {
    struct api_context;

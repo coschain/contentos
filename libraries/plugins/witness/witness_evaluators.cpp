@@ -1,7 +1,7 @@
-#include <steemit/witness/witness_operations.hpp>
-#include <steemit/witness/witness_objects.hpp>
+#include <contento/witness/witness_operations.hpp>
+#include <contento/witness/witness_objects.hpp>
 
-#include <steemit/chain/comment_object.hpp>
+#include <contento/chain/comment_object.hpp>
 
 namespace contento { namespace witness {
 

@@ -78,7 +78,7 @@
 #include <graphene/net/config.hpp>
 #include <graphene/net/exceptions.hpp>
 
-#include <steemit/protocol/config.hpp>
+#include <contento/protocol/config.hpp>
 
 #include <fc/git_revision.hpp>
 

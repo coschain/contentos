@@ -21,16 +21,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include <steemit/witness/witness_plugin.hpp>
-#include <steemit/witness/witness_objects.hpp>
-#include <steemit/witness/witness_operations.hpp>
+#include <contento/witness/witness_plugin.hpp>
+#include <contento/witness/witness_objects.hpp>
+#include <contento/witness/witness_operations.hpp>
 
-#include <steemit/chain/account_object.hpp>
-#include <steemit/chain/database.hpp>
-#include <steemit/chain/database_exceptions.hpp>
-#include <steemit/chain/generic_custom_operation_interpreter.hpp>
-#include <steemit/chain/index.hpp>
-#include <steemit/chain/steem_objects.hpp>
+#include <contento/chain/account_object.hpp>
+#include <contento/chain/database.hpp>
+#include <contento/chain/database_exceptions.hpp>
+#include <contento/chain/generic_custom_operation_interpreter.hpp>
+#include <contento/chain/index.hpp>
+#include <contento/chain/steem_objects.hpp>
 
 #include <fc/time.hpp>
 

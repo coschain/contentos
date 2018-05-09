@@ -1,8 +1,8 @@
-#include <steemit/follow/follow_operations.hpp>
-#include <steemit/follow/follow_objects.hpp>
+#include <contento/follow/follow_operations.hpp>
+#include <contento/follow/follow_objects.hpp>
 
-#include <steemit/chain/account_object.hpp>
-#include <steemit/chain/comment_object.hpp>
+#include <contento/chain/account_object.hpp>
+#include <contento/chain/comment_object.hpp>
 
 namespace contento { namespace follow {
 

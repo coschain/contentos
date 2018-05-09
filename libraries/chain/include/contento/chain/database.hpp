@@ -2,14 +2,14 @@
  * Copyright (c) 2015 Cryptonomex, Inc., and contributors.
  */
 #pragma once
-#include <steemit/chain/global_property_object.hpp>
-#include <steemit/chain/hardfork.hpp>
-#include <steemit/chain/node_property_object.hpp>
-#include <steemit/chain/fork_database.hpp>
-#include <steemit/chain/block_log.hpp>
-#include <steemit/chain/operation_notification.hpp>
+#include <contento/chain/global_property_object.hpp>
+#include <contento/chain/hardfork.hpp>
+#include <contento/chain/node_property_object.hpp>
+#include <contento/chain/fork_database.hpp>
+#include <contento/chain/block_log.hpp>
+#include <contento/chain/operation_notification.hpp>
 
-#include <steemit/protocol/protocol.hpp>
+#include <contento/protocol/protocol.hpp>
 
 //#include <graphene/db2/database.hpp>
 #include <fc/signals.hpp>

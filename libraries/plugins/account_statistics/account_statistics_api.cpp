@@ -1,4 +1,4 @@
-#include <steemit/account_statistics/account_statistics_api.hpp>
+#include <contento/account_statistics/account_statistics_api.hpp>
 
 namespace contento { namespace account_statistics {
 

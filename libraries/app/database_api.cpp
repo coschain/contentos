@@ -1,10 +1,10 @@
-#include <steemit/app/api_context.hpp>
-#include <steemit/app/application.hpp>
-#include <steemit/app/database_api.hpp>
+#include <contento/app/api_context.hpp>
+#include <contento/app/application.hpp>
+#include <contento/app/database_api.hpp>
 
-#include <steemit/protocol/get_config.hpp>
+#include <contento/protocol/get_config.hpp>
 
-#include <steemit/chain/util/reward.hpp>
+#include <contento/chain/util/reward.hpp>
 
 #include <fc/bloom_filter.hpp>
 #include <fc/smart_ref_impl.hpp>

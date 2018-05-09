@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <steemit/app/plugin.hpp>
+#include <contento/app/plugin.hpp>
 
 namespace contento { namespace plugin { namespace raw_block {
 

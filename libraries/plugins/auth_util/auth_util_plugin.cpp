@@ -1,7 +1,7 @@
 
 
-#include <steemit/plugins/auth_util/auth_util_api.hpp>
-#include <steemit/plugins/auth_util/auth_util_plugin.hpp>
+#include <contento/plugins/auth_util/auth_util_api.hpp>
+#include <contento/plugins/auth_util/auth_util_plugin.hpp>
 
 #include <string>
 

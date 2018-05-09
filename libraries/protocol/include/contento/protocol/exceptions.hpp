@@ -1,7 +1,7 @@
 #pragma once
 
 #include <fc/exception/exception.hpp>
-#include <steemit/protocol/protocol.hpp>
+#include <contento/protocol/protocol.hpp>
 
 #define STEEMIT_ASSERT( expr, exc_type, FORMAT, ... )                \
    FC_MULTILINE_MACRO_BEGIN                                           \

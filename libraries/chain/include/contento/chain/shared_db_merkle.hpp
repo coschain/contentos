@@ -1,4 +1,4 @@
-#include <steemit/protocol/types.hpp>
+#include <contento/protocol/types.hpp>
 
 namespace contento { namespace chain {
 

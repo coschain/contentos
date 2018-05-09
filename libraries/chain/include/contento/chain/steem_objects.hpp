@@ -1,9 +1,9 @@
 #pragma once
 
-#include <steemit/protocol/authority.hpp>
-#include <steemit/protocol/steem_operations.hpp>
+#include <contento/protocol/authority.hpp>
+#include <contento/protocol/steem_operations.hpp>
 
-#include <steemit/chain/steem_object_types.hpp>
+#include <contento/chain/steem_object_types.hpp>
 
 #include <boost/multi_index/composite_key.hpp>
 #include <boost/multiprecision/cpp_int.hpp>
@@ -486,8 +486,8 @@ namespace contento { namespace chain {
 
 } } // contento::chain
 
-#include <steemit/chain/comment_object.hpp>
-#include <steemit/chain/account_object.hpp>
+#include <contento/chain/comment_object.hpp>
+#include <contento/chain/account_object.hpp>
 
 FC_REFLECT_ENUM( contento::chain::curve_id,
                   (quadratic)(quadratic_curation)(linear)(square_root))

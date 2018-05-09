@@ -1,6 +1,6 @@
-#include <steemit/follow/follow_operations.hpp>
+#include <contento/follow/follow_operations.hpp>
 
-#include <steemit/protocol/operation_util_impl.hpp>
+#include <contento/protocol/operation_util_impl.hpp>
 
 namespace contento { namespace follow {
 

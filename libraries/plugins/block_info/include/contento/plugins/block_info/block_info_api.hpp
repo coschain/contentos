@@ -3,7 +3,7 @@
 
 #include <fc/api.hpp>
 
-#include <steemit/plugins/block_info/block_info.hpp>
+#include <contento/plugins/block_info/block_info.hpp>
 
 namespace contento { namespace app {
    struct api_context;

@@ -22,17 +22,17 @@
  * THE SOFTWARE.
  */
 
-#include <steemit/private_message/private_message_evaluators.hpp>
-#include <steemit/private_message/private_message_operations.hpp>
-#include <steemit/private_message/private_message_plugin.hpp>
+#include <contento/private_message/private_message_evaluators.hpp>
+#include <contento/private_message/private_message_operations.hpp>
+#include <contento/private_message/private_message_plugin.hpp>
 
-#include <steemit/app/impacted.hpp>
+#include <contento/app/impacted.hpp>
 
-#include <steemit/protocol/config.hpp>
+#include <contento/protocol/config.hpp>
 
-#include <steemit/chain/database.hpp>
-#include <steemit/chain/index.hpp>
-#include <steemit/chain/generic_custom_operation_interpreter.hpp>
+#include <contento/chain/database.hpp>
+#include <contento/chain/index.hpp>
+#include <contento/chain/generic_custom_operation_interpreter.hpp>
 
 #include <fc/smart_ref_impl.hpp>
 #include <fc/thread/thread.hpp>

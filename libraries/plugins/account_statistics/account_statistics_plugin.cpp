@@ -1,9 +1,9 @@
-#include <steemit/account_statistics/account_statistics_api.hpp>
+#include <contento/account_statistics/account_statistics_api.hpp>
 
-#include <steemit/chain/account_object.hpp>
-#include <steemit/chain/comment_object.hpp>
+#include <contento/chain/account_object.hpp>
+#include <contento/chain/comment_object.hpp>
 
-#include <steemit/chain/database.hpp>
+#include <contento/chain/database.hpp>
 
 namespace contento { namespace account_statistics {
 

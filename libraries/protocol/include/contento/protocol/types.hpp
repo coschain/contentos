@@ -1,6 +1,6 @@
 #pragma once
-#include <steemit/protocol/config.hpp>
-#include <steemit/protocol/fixed_string.hpp>
+#include <contento/protocol/config.hpp>
+#include <contento/protocol/fixed_string.hpp>
 
 #include <fc/container/flat_fwd.hpp>
 #include <fc/io/varint.hpp>

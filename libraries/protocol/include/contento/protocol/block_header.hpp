@@ -1,5 +1,5 @@
 #pragma once
-#include <steemit/protocol/base.hpp>
+#include <contento/protocol/base.hpp>
 
 namespace contento { namespace protocol {
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <steemit/chain/evaluator.hpp>
+#include <contento/chain/evaluator.hpp>
 
 namespace contento { namespace chain {
 

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <steemit/market_history/market_history_plugin.hpp>
+#include <contento/market_history/market_history_plugin.hpp>
 
-#include <steemit/protocol/types.hpp>
+#include <contento/protocol/types.hpp>
 
 #include <fc/api.hpp>
 

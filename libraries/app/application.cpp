@@ -21,14 +21,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#include <steemit/app/api.hpp>
-#include <steemit/app/api_access.hpp>
-#include <steemit/app/application.hpp>
-#include <steemit/app/plugin.hpp>
+#include <contento/app/api.hpp>
+#include <contento/app/api_access.hpp>
+#include <contento/app/application.hpp>
+#include <contento/app/plugin.hpp>
 
-#include <steemit/chain/steem_objects.hpp>
-#include <steemit/chain/steem_object_types.hpp>
-#include <steemit/chain/database_exceptions.hpp>
+#include <contento/chain/steem_objects.hpp>
+#include <contento/chain/steem_object_types.hpp>
+#include <contento/chain/database_exceptions.hpp>
 
 #include <fc/time.hpp>
 

@@ -1,7 +1,7 @@
 #ifdef IS_TEST_NET
-#include <steemit/app/plugin.hpp>
-#include <steemit/chain/generic_custom_operation_interpreter.hpp>
-#include <steemit/chain/account_object.hpp>
+#include <contento/app/plugin.hpp>
+#include <contento/chain/generic_custom_operation_interpreter.hpp>
+#include <contento/chain/account_object.hpp>
 
 #include <boost/test/unit_test.hpp>
 

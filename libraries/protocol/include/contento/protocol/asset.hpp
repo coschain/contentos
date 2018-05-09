@@ -1,6 +1,6 @@
 #pragma once
-#include <steemit/protocol/types.hpp>
-#include <steemit/protocol/config.hpp>
+#include <contento/protocol/types.hpp>
+#include <contento/protocol/config.hpp>
 
 namespace contento { namespace protocol {
 

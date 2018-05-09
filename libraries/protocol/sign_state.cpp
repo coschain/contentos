@@ -1,5 +1,5 @@
 
-#include <steemit/protocol/sign_state.hpp>
+#include <contento/protocol/sign_state.hpp>
 
 namespace contento { namespace protocol {
 

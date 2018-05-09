@@ -1,4 +1,4 @@
-file(GLOB HEADERS "include/steemit/protocol/*.hpp")
+file(GLOB HEADERS "include/contento/protocol/*.hpp")
 
 ## SORT .cpp by most likely to change / break compile
 add_library( steemit_protocol
@@ -30,4 +30,4 @@ INSTALL( TARGETS
    ARCHIVE DESTINATION lib
 )
 
-INSTALL( FILES ${HEADERS} DESTINATION "include/steemit/protocol" )
+INSTALL( FILES ${HEADERS} DESTINATION "include/contento/protocol" )

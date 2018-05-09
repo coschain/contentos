@@ -1,10 +1,10 @@
 #pragma once
-#include <steemit/app/plugin.hpp>
-#include <steemit/chain/database.hpp>
+#include <contento/app/plugin.hpp>
+#include <contento/chain/database.hpp>
 
 #include <fc/thread/future.hpp>
 
-#include <steemit/follow/follow_api.hpp>
+#include <contento/follow/follow_api.hpp>
 
 namespace contento { namespace follow {
 using contento::app::application;

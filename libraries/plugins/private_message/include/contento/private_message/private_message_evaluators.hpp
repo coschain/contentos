@@ -1,9 +1,9 @@
 #pragma once
 
-#include <steemit/chain/evaluator.hpp>
+#include <contento/chain/evaluator.hpp>
 
-#include <steemit/private_message/private_message_operations.hpp>
-#include <steemit/private_message/private_message_plugin.hpp>
+#include <contento/private_message/private_message_operations.hpp>
+#include <contento/private_message/private_message_plugin.hpp>
 
 namespace contento { namespace private_message {
 

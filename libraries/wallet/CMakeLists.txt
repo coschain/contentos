@@ -1,4 +1,4 @@
-file(GLOB HEADERS "include/steemit/wallet/*.hpp")
+file(GLOB HEADERS "include/contento/wallet/*.hpp")
 
 find_package( Perl )
 find_package( Doxygen )
@@ -39,4 +39,4 @@ install( TARGETS
    LIBRARY DESTINATION lib
    ARCHIVE DESTINATION lib
 )
-install( FILES ${HEADERS} DESTINATION "include/steemit/wallet" )
+install( FILES ${HEADERS} DESTINATION "include/contento/wallet" )

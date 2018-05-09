@@ -24,9 +24,9 @@
 #pragma once
 
 #include <fc/container/flat.hpp>
-#include <steemit/protocol/operations.hpp>
-#include <steemit/protocol/transaction.hpp>
-#include <steemit/chain/steem_object_types.hpp>
+#include <contento/protocol/operations.hpp>
+#include <contento/protocol/transaction.hpp>
+#include <contento/chain/steem_object_types.hpp>
 
 #include <fc/string.hpp>
 

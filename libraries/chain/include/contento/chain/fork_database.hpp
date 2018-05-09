@@ -1,5 +1,5 @@
 #pragma once
-#include <steemit/protocol/block.hpp>
+#include <contento/protocol/block.hpp>
 
 #include <boost/multi_index_container.hpp>
 #include <boost/multi_index/member.hpp>

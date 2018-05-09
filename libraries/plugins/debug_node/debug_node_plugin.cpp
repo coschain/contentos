@@ -1,8 +1,8 @@
 
-#include <steemit/app/application.hpp>
-#include <steemit/app/plugin.hpp>
-#include <steemit/plugins/debug_node/debug_node_api.hpp>
-#include <steemit/plugins/debug_node/debug_node_plugin.hpp>
+#include <contento/app/application.hpp>
+#include <contento/app/plugin.hpp>
+#include <contento/plugins/debug_node/debug_node_api.hpp>
+#include <contento/plugins/debug_node/debug_node_plugin.hpp>
 
 #include <fc/io/buffered_iostream.hpp>
 #include <fc/io/fstream.hpp>

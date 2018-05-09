@@ -3,10 +3,10 @@
 
 #include <graphene/utilities/tempdir.hpp>
 
-#include <steemit/chain/steem_objects.hpp>
-#include <steemit/chain/history_object.hpp>
-#include <steemit/account_history/account_history_plugin.hpp>
-#include <steemit/witness/witness_plugin.hpp>
+#include <contento/chain/steem_objects.hpp>
+#include <contento/chain/history_object.hpp>
+#include <contento/account_history/account_history_plugin.hpp>
+#include <contento/witness/witness_plugin.hpp>
 
 #include <fc/crypto/digest.hpp>
 #include <fc/smart_ref_impl.hpp>

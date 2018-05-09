@@ -62,7 +62,7 @@ FC_API( {plugin_provider}::plugin::{plugin_name}::{plugin_name}_api,
 """
 #pragma once
 
-#include <steemit/app/plugin.hpp>
+#include <contento/app/plugin.hpp>
 
 namespace {plugin_provider} {{ namespace plugin {{ namespace {plugin_name} {{
 
@@ -90,8 +90,8 @@ class {plugin_name}_plugin : public contento::app::plugin
 
 "{plugin_name}_api.cpp" :
 """
-#include <steemit/app/api_context.hpp>
-#include <steemit/app/application.hpp>
+#include <contento/app/api_context.hpp>
+#include <contento/app/application.hpp>
 
 #include <{plugin_provider}/plugins/{plugin_name}/{plugin_name}_api.hpp>
 #include <{plugin_provider}/plugins/{plugin_name}/{plugin_name}_plugin.hpp>

@@ -1,8 +1,8 @@
-#include <steemit/protocol/get_config.hpp>
-#include <steemit/protocol/config.hpp>
-#include <steemit/protocol/asset.hpp>
-#include <steemit/protocol/types.hpp>
-#include <steemit/protocol/version.hpp>
+#include <contento/protocol/get_config.hpp>
+#include <contento/protocol/config.hpp>
+#include <contento/protocol/asset.hpp>
+#include <contento/protocol/types.hpp>
+#include <contento/protocol/version.hpp>
 
 namespace contento { namespace protocol {
 

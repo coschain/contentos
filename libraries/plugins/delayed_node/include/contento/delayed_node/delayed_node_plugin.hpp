@@ -23,8 +23,8 @@
  */
 #pragma once
 
-#include <steemit/app/plugin.hpp>
-#include <steemit/chain/steem_objects.hpp>
+#include <contento/app/plugin.hpp>
+#include <contento/chain/steem_objects.hpp>
 
 namespace contento { namespace delayed_node {
 namespace detail { struct delayed_node_plugin_impl; }

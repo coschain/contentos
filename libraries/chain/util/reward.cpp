@@ -1,6 +1,6 @@
 
-#include <steemit/chain/util/reward.hpp>
-#include <steemit/chain/util/uint256.hpp>
+#include <contento/chain/util/reward.hpp>
+#include <contento/chain/util/uint256.hpp>
 
 namespace contento { namespace chain { namespace util {
 

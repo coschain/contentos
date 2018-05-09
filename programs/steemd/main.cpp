@@ -1,7 +1,7 @@
-#include <steemit/app/application.hpp>
+#include <contento/app/application.hpp>
 
-#include <steemit/witness/witness_plugin.hpp>
-#include <steemit/manifest/plugins.hpp>
+#include <contento/witness/witness_plugin.hpp>
+#include <contento/manifest/plugins.hpp>
 
 #include <fc/exception/exception.hpp>
 #include <fc/thread/thread.hpp>
@@ -11,7 +11,7 @@
 #include <fc/log/logger.hpp>
 #include <fc/log/logger_config.hpp>
 
-#include <steemit/protocol/version.hpp>
+#include <contento/protocol/version.hpp>
 #include <graphene/utilities/git_revision.hpp>
 #include <fc/git_revision.hpp>
 

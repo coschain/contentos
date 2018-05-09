@@ -1,5 +1,5 @@
 #pragma once
-#include <steemit/protocol/authority.hpp>
+#include <contento/protocol/authority.hpp>
 #include <boost/interprocess/managed_mapped_file.hpp>
 
 namespace contento { namespace chain {

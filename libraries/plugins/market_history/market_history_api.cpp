@@ -1,6 +1,6 @@
-#include <steemit/market_history/market_history_api.hpp>
+#include <contento/market_history/market_history_api.hpp>
 
-#include <steemit/chain/steem_objects.hpp>
+#include <contento/chain/steem_objects.hpp>
 
 namespace contento { namespace market_history {
 
