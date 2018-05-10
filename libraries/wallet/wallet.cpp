@@ -1292,7 +1292,7 @@ try {
       
       account_create_operation op;
       op.creator = STEEMIT_INIT_MINER_NAME;
-      op.new_account_name = "councillor" + (i ? "" : std::to_string(i));
+      op.new_account_name = "councillor" + (i == 0 ? "" : std::to_string(i));
       op.owner = authority( 1, owner.pub_key, 1 );
       op.active = authority( 1, active.pub_key, 1 );
       op.posting = authority( 1, posting.pub_key, 1 );
