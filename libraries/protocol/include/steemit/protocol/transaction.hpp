@@ -25,6 +25,17 @@ namespace steemit { namespace protocol {
       void set_expiration( fc::time_point_sec expiration_time );
       void set_reference_block( const block_id_type& reference_block );
 
+      vector<operation> extract_admin_ops () const
+      {
+         vector<operation> ret;
+         for ( const auto& op : operations )
+         {
+            if( is_admin_operation(op) )
+               ret.push_back(op);
+         }
+         return ret;
+      }
+
       template<typename Visitor>
       vector<typename Visitor::result_type> visit( Visitor&& visitor )
       {

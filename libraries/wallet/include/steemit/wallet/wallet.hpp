@@ -355,7 +355,8 @@ class wallet_api
       annotated_signed_transaction create_councillor ( bool broadcast );
       annotated_signed_transaction grant_admin ( string creator, vector<string> targets, bool broadcast );
       annotated_signed_transaction report_comment( string reporter,
-          int credit, string author, string permlink, string tag, bool broadcast);
+          int credit, string author, string permlink, string tag, 
+          bool is_ack, bool approved, bool broadcast);
       /**
        * This method is used by faucets to create new accounts for other users which must
        * provide their desired keys. The resulting account may not be controllable by this

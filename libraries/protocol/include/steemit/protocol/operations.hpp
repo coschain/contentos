@@ -94,6 +94,8 @@ namespace steemit { namespace protocol {
 
    bool is_virtual_operation( const operation& op );
 
+   bool is_admin_operation( const operation& op );
+
 } } // steemit::protocol
 
 /*namespace fc {

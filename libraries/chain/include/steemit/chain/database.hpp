@@ -96,6 +96,14 @@ namespace steemit { namespace chain {
          void wipe(const fc::path& data_dir, const fc::path& shared_mem_dir, bool include_blocks);
          void close(bool rewind = true);
 
+         /**
+          * @brief check if the authority of each op has admin authority
+          * @param 
+          *
+          * if check failed, a exception is thrown
+          */
+         void check_admin(const vector<operation>& ops);
+
          //////////////////// db_block.cpp ////////////////////
 
          /**

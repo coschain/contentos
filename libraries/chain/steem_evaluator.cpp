@@ -124,20 +124,38 @@ void comment_report_evaluator::do_apply( const comment_report_operation& o )
    const auto& comment = _db.get_comment( o.author, o.permlink );
    const auto& by_comment_idx = _db.get_index< comment_report_index >().indices().get< by_comment >();
    auto comment_itr = by_comment_idx.find( comment.id );
-   if( comment_itr != by_comment_idx.end() )
+   if( o.is_ack )
    {
-      _db.modify( *comment_itr, [&]( comment_report_object& c ) {
+      FC_ASSERT( comment_itr != by_comment_idx.end(), "cannot ack a non-existed report", 
+            ("comment_author", o.author)("comment_permlink", o.permlink));
+      if( o.approved )
+      {
+         // report is approved. 1. delete corresponding comment_obj, comment_index,
+         // comment_report_object and comment_report_index. 2. start report reward process
+      }
+      else
+      {
+         // all comment_reports of the comment is denied. 1. delete corresponding 
+         // comment_report_object and comment_report_index. 2. start report punish process
+      }
+   }
+   else
+   {
+      if( comment_itr != by_comment_idx.end() )
+      {
+         _db.modify( *comment_itr, [&]( comment_report_object& c ) {
+            c.add_report(o.reporter, o.credit, o.tag);
+            c.last_update = _db.head_block_time();
+         });
+         return;
+      }
+        
+      _db.create< comment_report_object >( [&]( comment_report_object& c ) {
+         c.comment = comment.id;
          c.add_report(o.reporter, o.credit, o.tag);
          c.last_update = _db.head_block_time();
       });
-      return;
    }
-   
-   _db.create< comment_report_object >( [&]( comment_report_object& c ) {
-      c.comment = comment.id;
-      c.add_report(o.reporter, o.credit, o.tag);
-      c.last_update = _db.head_block_time();
-   });
 }
 
 void account_create_evaluator::do_apply( const account_create_operation& o )

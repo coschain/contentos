@@ -1324,7 +1324,8 @@ try {
 } FC_CAPTURE_AND_RETHROW( (creator)(broadcast) ) }
 
 annotated_signed_transaction wallet_api::report_comment( string reporter,
-      int credit, string author, string permlink, string tag, bool broadcast) {
+      int credit, string author, string permlink, string tag, 
+      bool is_ack, bool approved, bool broadcast) {
 try {
    FC_ASSERT( !is_locked() );
    comment_report_operation op;
@@ -1333,6 +1334,8 @@ try {
    op.permlink = permlink;
    op.credit = asset( credit, STEEM_SYMBOL );
    op.tag = tag;
+   op.is_ack = is_ack;
+   op.approved = approved;
 
    signed_transaction tx;
    tx.operations.push_back(op);

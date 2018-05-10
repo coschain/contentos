@@ -42,6 +42,14 @@ namespace steemit { namespace protocol {
       asset credit;
       string tag;
 
+      // true if this op is from admin user
+      // otherwise if it is from common user. i.e. this is a report action waiting
+      // for admin to approve
+      bool is_ack; 
+      // true if the report is accepted.
+      // false if this is a malicious report, reporter will be punished
+      bool approved;
+
       void validate() const;
       void get_required_posting_authorities( flat_set<account_name_type>& a ) const { 
          a.insert(reporter); 
@@ -1004,7 +1012,7 @@ FC_REFLECT( steemit::protocol::pow_operation, (worker_account)(block_id)(nonce)(
 FC_REFLECT( steemit::protocol::pow2_operation, (work)(new_owner_key)(props) )
 
 FC_REFLECT( steemit::protocol::admin_grant_operation, (creator)(nominee))
-FC_REFLECT( steemit::protocol::comment_report_operation, (reporter)(author)(permlink)(credit)(tag))
+FC_REFLECT( steemit::protocol::comment_report_operation, (reporter)(author)(permlink)(credit)(tag)(is_ack)(approved))
 FC_REFLECT( steemit::protocol::account_create_operation,
             (fee)
             (creator)

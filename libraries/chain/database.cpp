@@ -230,6 +230,21 @@ void database::close(bool rewind)
    FC_CAPTURE_AND_RETHROW()
 }
 
+void database::check_admin(const vector<operation>& ops)
+{ try {
+   flat_set< account_name_type > required_auth_acc;
+   vector< authority > other;
+   for( const auto& op : ops )
+      operation_get_required_authorities( op, required_auth_acc, required_auth_acc, required_auth_acc, other );
+
+   for( const auto& acc_name : required_auth_acc )
+   {
+      const auto& acc = get_account(acc_name);
+      FC_ASSERT( acc.admin_nomination.popcount() >= 3 || is_councillor(acc_name), 
+            "account does not have admin authority", ("acc_name", acc_name) );
+   }
+} FC_CAPTURE_AND_RETHROW() }
+
 bool database::is_known_block( const block_id_type& id )const
 { try {
    return fetch_block_by_id( id ).valid();
@@ -2876,6 +2891,7 @@ void database::_apply_transaction(const signed_transaction& trx)
       try
       {
          trx.verify_authority( chain_id, get_active, get_owner, get_posting, STEEMIT_MAX_SIG_CHECK_DEPTH );
+         check_admin(trx.extract_admin_ops());
       }
       catch( protocol::tx_missing_active_auth& e )
       {
