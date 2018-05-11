@@ -112,8 +112,8 @@ void admin_grant_evaluator::do_apply( const admin_grant_operation& o )
    _db.get_account( o.creator );
    const auto& nominee = _db.get_account( o.nominee );
 
-   std::string acc_name(o.nominee);
-   int bitshift = (acc_name == "councillor") ? 0 : (acc_name.at(acc_name.length()-1)-'0');
+   std::string c_name(o.creator);
+   int bitshift = (c_name.compare("councillor") == 0) ? 0 : (c_name.at(c_name.length()-1)-'0');
    _db.modify( nominee, [&]( account_object& c ){
       c.admin_nomination |= 1 << bitshift;
    });
@@ -141,6 +141,7 @@ void comment_report_evaluator::do_apply( const comment_report_operation& o )
    }
    else
    {
+      // TODO: assert balance
       if( comment_itr != by_comment_idx.end() )
       {
          _db.modify( *comment_itr, [&]( comment_report_object& c ) {

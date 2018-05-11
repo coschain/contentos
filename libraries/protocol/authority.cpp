@@ -43,8 +43,9 @@ void authority::validate()const
 }
 
 bool is_councillor(const string& name) {
-   return name == "councillor" || "councillor1" ||
-                  "councillor2" || "councillor3" || "councillor4";
+   return name.compare("councillor") == 0 || name.compare("councillor1") == 0 ||
+            name.compare("councillor2") == 0 || name.compare("councillor3") == 0 || 
+            name.compare("councillor4") == 0;
 }
 
 bool is_valid_account_name( const string& name )
