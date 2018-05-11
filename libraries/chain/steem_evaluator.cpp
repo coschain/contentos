@@ -82,7 +82,7 @@ void witness_update_evaluator::do_apply( const witness_update_operation& o )
    else if( o.props.account_creation_fee.symbol != STEEM_SYMBOL )
    {
       // after HF, above check can be moved to validate() if reindex doesn't show this warning
-      wlog( "Wrong fee symbol in block ${b}", ("b", _db.head_block_num()+1) );
+       wlog( "Wrong fee symbol in block ${b}, symbol:${s}", ("b", _db.head_block_num()+1)("s",o.props.account_creation_fee.symbol));
    }
 
    const auto& by_witness_name_idx = _db.get_index< witness_index >().indices().get< by_name >();

@@ -206,10 +206,13 @@ namespace steemit { namespace app {
 
     void network_broadcast_api::broadcast_transaction(const signed_transaction& trx)
     {
+        if(trx.operations[0].which() == 15){
+             dlog( "api get custom_operation");
+        }
        trx.validate();
 
        if( _app._read_only )
-       {
+       { dlog( "api get transaction read only" );
           // If we are not connected, attempt to connect once and then fail
           if( !_app._remote_net_api )
           {
@@ -221,6 +224,7 @@ namespace steemit { namespace app {
        }
        else
        {
+           
           FC_ASSERT( !check_max_block_age( _max_block_age ) );
           _app.chain_database()->push_transaction(trx);
           _app.p2p_node()->broadcast_transaction(trx);

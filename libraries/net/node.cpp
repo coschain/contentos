@@ -1202,7 +1202,7 @@ namespace graphene { namespace net { namespace detail {
             items_to_fetch_by_type[item.item_type].push_back(item.item_hash);
           for (auto& items_by_type : items_to_fetch_by_type)
           {
-            dlog("requesting ${count} items of type ${type} from peer ${endpoint}: ${hashes}",
+            dlog("go to fetch requesting ${count} items of type ${type} from peer ${endpoint}: ${hashes}",
                  ("count", items_by_type.second.size())("type", (uint32_t)items_by_type.first)
                  ("endpoint", peer_and_items.peer->get_remote_endpoint())
                  ("hashes", items_by_type.second));
@@ -1254,7 +1254,7 @@ namespace graphene { namespace net { namespace detail {
       VERIFY_CORRECT_THREAD();
       while (!_advertise_inventory_loop_done.canceled())
       {
-        dlog("beginning an iteration of advertise inventory");
+       // dlog("beginning an iteration of advertise inventory");
         // swap inventory into local variable, clearing the node's copy
         std::unordered_set<item_id> inventory_to_advertise;
         inventory_to_advertise.swap(_new_inventory);
@@ -1292,19 +1292,19 @@ namespace graphene { namespace net { namespace detail {
                 if (item_to_advertise.item_type == trx_message_type)
                   testnetlog("advertising transaction ${id} to peer ${endpoint}", ("id", item_to_advertise.item_hash)("endpoint", peer->get_remote_endpoint()));
                 dlog("advertising item ${id} to peer ${endpoint}", ("id", item_to_advertise.item_hash)("endpoint", peer->get_remote_endpoint()));
+              } else {
+                   dlog("inventory_advertised_to_peer and inventory_peer_advertised_to_us");
               }
             }
-              dlog("advertising ${count} new item(s) of ${types} type(s) to peer ${endpoint}",
+              dlog("@@@ advertising ${count} new item(s) of ${types} type(s) to peer ${endpoint}",
                    ("count", total_items_to_send_to_this_peer)
                    ("types", items_to_advertise_by_type.size())
                    ("endpoint", peer->get_remote_endpoint()));
               
-              ilog("@@@advertising ${count} new item(s) of ${types} type(s) to peer ${endpoint}",
-                   ("count", total_items_to_send_to_this_peer)
-                   ("types", items_to_advertise_by_type.size())
-                   ("endpoint", peer->get_remote_endpoint()));
             for (auto items_group : items_to_advertise_by_type)
               inventory_messages_to_send.push_back(std::make_pair(peer, item_ids_inventory_message(items_group.first, items_group.second)));
+          } else {
+               dlog("peer_needs_sync_items_from_us true");
           }
           peer->clear_old_inventory();
         }
@@ -2788,14 +2788,10 @@ namespace graphene { namespace net { namespace detail {
     void node_impl::on_fetch_items_message(peer_connection* originating_peer, const fetch_items_message& fetch_items_message_received)
     {
       VERIFY_CORRECT_THREAD();
-      dlog("received items request for ids ${ids} of type ${type} from peer ${endpoint}",
+      dlog("go to received items request for ids ${ids} of type ${type} from peer ${endpoint}",
            ("ids", fetch_items_message_received.items_to_fetch)
            ("type", fetch_items_message_received.item_type)
            ("endpoint", originating_peer->get_remote_endpoint()));
-        ilog("@@@received items request for ids ${ids} of type ${type} from peer ${endpoint}",
-             ("ids", fetch_items_message_received.items_to_fetch)
-             ("type", fetch_items_message_received.item_type)
-             ("endpoint", originating_peer->get_remote_endpoint()));
 
       fc::optional<message> last_block_message_sent;
 
@@ -2805,12 +2801,13 @@ namespace graphene { namespace net { namespace detail {
         try
         {
           message requested_message = _message_cache.get_message(item_hash);
-          dlog("received item request for item ${id} from peer ${endpoint}, returning the item from my message cache",
-               ("endpoint", originating_peer->get_remote_endpoint())
-               ("id", requested_message.id()));
-            ilog("@@@received item request for item ${id} from peer ${endpoint}, returning the item from my message cache",
-                 ("endpoint", originating_peer->get_remote_endpoint())
-                 ("id", requested_message.id()));
+             graphene::net::trx_message transaction_message_to_broadcast = requested_message.as<graphene::net::trx_message>();
+            if(transaction_message_to_broadcast.trx.operations[0].which() == 15){
+                dlog("go to received custom_operation mem item request for item ${id} from peer ${endpoint}, returning the item from my message cache",
+                     ("endpoint", originating_peer->get_remote_endpoint())
+                     ("id", requested_message.id()));
+            }
+          
           reply_messages.push_back(requested_message);
           if (fetch_items_message_received.item_type == block_message_type)
             last_block_message_sent = requested_message;
@@ -2825,14 +2822,14 @@ namespace graphene { namespace net { namespace detail {
         try
         {
           message requested_message = _delegate->get_item(item_to_fetch);
-          dlog("received item request from peer ${endpoint}, returning the item from delegate with id ${id} size ${size}",
-               ("id", requested_message.id())
-               ("size", requested_message.size)
-               ("endpoint", originating_peer->get_remote_endpoint()));
-            ilog("received item request from peer ${endpoint}, returning the item from delegate with id ${id} size ${size}",
-                 ("id", requested_message.id())
-                 ("size", requested_message.size)
-                 ("endpoint", originating_peer->get_remote_endpoint()));
+            graphene::net::trx_message transaction_message_to_broadcast = requested_message.as<graphene::net::trx_message>();
+            if(transaction_message_to_broadcast.trx.operations[0].which() == 15){
+                dlog("go to received custom_operation db item request from peer ${endpoint}, returning the item from delegate with id ${id} size ${size}",
+                     ("id", requested_message.id())
+                     ("size", requested_message.size)
+                     ("endpoint", originating_peer->get_remote_endpoint()));
+            }
+         
           reply_messages.push_back(requested_message);
           if (fetch_items_message_received.item_type == block_message_type)
             last_block_message_sent = requested_message;
@@ -2906,7 +2903,7 @@ namespace graphene { namespace net { namespace detail {
       // expire old inventory so we'll be making decisions our about whether to fetch blocks below based only on recent inventory
       originating_peer->clear_old_inventory();
 
-      dlog( "received inventory of ${count} items from peer ${endpoint}",
+        dlog( "received inventory items from peer ${endpoint}, count:${count}",
            ( "count", item_ids_inventory_message_received.item_hashes_available.size() )("endpoint", originating_peer->get_remote_endpoint() ) );
         
       for( const item_hash_t& item_hash : item_ids_inventory_message_received.item_hashes_available )
@@ -2960,7 +2957,7 @@ namespace graphene { namespace net { namespace detail {
               dlog("we_requested_this_item_from_a_peer not");
             if (_recently_failed_items.find(item_id(item_ids_inventory_message_received.item_type, item_hash)) != _recently_failed_items.end())
             {
-              dlog("not adding ${item_hash} to our list of items to fetch because we've recently fetched a copy and it failed to push",
+              dlog("not adding to our list of items to fetch because we've recently fetched a copy and it failed to push, ${item_hash}",
                    ("item_hash", item_hash));
             }
             else
@@ -2970,7 +2967,7 @@ namespace graphene { namespace net { namespace detail {
               {
                 // it's new to us
                 _items_to_fetch.insert(prioritized_item_id(advertised_item_id, _items_to_fetch_sequence_counter++));
-                dlog("adding item ${item_hash} from inventory message to our list of items to fetch",
+                dlog("go to trigger fetch items loop item ${item_hash}",
                      ("item_hash", item_hash));
                 trigger_fetch_items_loop();
                   //std::cerr<<"trigger_fetch_items_loop on inventory message:"<<fc::time_point::now().sec_since_epoch()<<"\n";
@@ -3995,7 +3992,6 @@ namespace graphene { namespace net { namespace detail {
           {
             trx_message transaction_message_to_process = message_to_process.as<trx_message>();
             dlog("passing message containing transaction ${trx} to client", ("trx", transaction_message_to_process.trx.id()));
-              ilog("@@@passing message containing transaction ${trx} to client", ("trx", transaction_message_to_process.trx.id()));
             _delegate->handle_transaction(transaction_message_to_process);
           }
           else
@@ -5060,8 +5056,10 @@ namespace graphene { namespace net { namespace detail {
       {
         graphene::net::trx_message transaction_message_to_broadcast = item_to_broadcast.as<graphene::net::trx_message>();
         hash_of_message_contents = transaction_message_to_broadcast.trx.id(); // for debugging
-        dlog( "broadcasting trx: ${trx}", ("trx", transaction_message_to_broadcast) );
-          ilog( "@@@broadcasting trx: ${trx}", ("trx", transaction_message_to_broadcast) );
+          
+          if(transaction_message_to_broadcast.trx.operations[0].which() == 15){
+               dlog( "@@@broadcasting custom_operation trx: ${trx}", ("trx", transaction_message_to_broadcast) );
+          }
       }
       message_hash_type hash_of_item_to_broadcast = item_to_broadcast.id();
 
@@ -5075,6 +5073,7 @@ namespace graphene { namespace net { namespace detail {
       VERIFY_CORRECT_THREAD();
       // this version is called directly from the client
       message_propagation_data propagation_data{fc::time_point::now(), fc::time_point::now(), _node_id};
+        dlog( "###broadcasting trx: ${trx}");
       broadcast( item_to_broadcast, propagation_data );
     }
 

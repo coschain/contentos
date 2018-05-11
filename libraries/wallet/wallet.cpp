@@ -2283,7 +2283,7 @@ annotated_signed_transaction wallet_api::post_comment( string author, string per
     }
     
 
-    void post_task(wallet_api* w,uint32_t thread_num,const string& author,const string& permlink,const string& parent_author,const string& parent_permlink,const string& title,const string& body,const string& json){
+    void post_task(wallet_api* w,uint32_t thread_num,const string& author,const string& permlink,const string& parent_author,const string& parent_permlink,const string& title,const string& body,const string& json){/*
         //using namespace std;
         
         auto ret = w->post_comment(author,permlink,parent_author,parent_permlink,title,body,json,true);
@@ -2292,7 +2292,7 @@ annotated_signed_transaction wallet_api::post_comment( string author, string per
         string file_name="./batch_post_comment_result_" + ss.str();
         ofstream out(file_name);
         out<< "post_commet ret, ref_block_num:"<< ret.ref_block_num<< " transaction_id:"<< ret.transaction_id.str() << "\n";
-        out.close();
+        out.close();*/
     }
     
     void wallet_api::batch_post_comment(string author_str,uint32_t times, int file_suffix){
@@ -2504,6 +2504,7 @@ annotated_signed_transaction      wallet_api::send_private_message( string from,
    signed_transaction tx;
    tx.operations.push_back( op );
    tx.validate();
+    //std::cerr<<"trx which:"<<tx.operations[0].which()<<"\n";
 
    return my->sign_transaction( tx, broadcast );
 }

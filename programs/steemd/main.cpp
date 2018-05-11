@@ -66,6 +66,7 @@ int main(int argc, char** argv) {
       std::cerr << "initminer private key: " << initminer_private_key << "\n";
       std::cerr << "chain id: " << std::string(STEEMIT_CHAIN_ID) << "\n";
       std::cerr << "blockchain version: " << fc::string( STEEMIT_BLOCKCHAIN_VERSION ) << "\n";
+       std::cerr << "STEEM_SYMBOL:"<<STEEM_SYMBOL<<" SBD_SYMBOL:"<<SBD_SYMBOL<<" VESTS_SYMBOL:"<<VESTS_SYMBOL<<" STMD_SYMBOL:"<<STMD_SYMBOL<<"\n";
       std::cerr << "------------------------------------------------------\n";
 #endif
 
