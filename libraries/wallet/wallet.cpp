@@ -1308,7 +1308,7 @@ try {
 } FC_CAPTURE_AND_RETHROW( (broadcast) ) }
 
 annotated_signed_transaction wallet_api::grant_admin( string creator,
-      vector<string> targets, bool broadcast ) {
+      vector<string> targets, bool is_grant, bool broadcast ) {
 try {
    FC_ASSERT( !is_locked() && targets.size() );
    signed_transaction tx;
@@ -1316,6 +1316,7 @@ try {
       admin_grant_operation op;
       op.creator = creator;
       op.nominee = target;
+      op.is_grant = is_grant;
 
       tx.operations.push_back(op);
    }

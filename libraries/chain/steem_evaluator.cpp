@@ -115,7 +115,12 @@ void admin_grant_evaluator::do_apply( const admin_grant_operation& o )
    std::string c_name(o.creator);
    int bitshift = (c_name.compare("councillor") == 0) ? 0 : (c_name.at(c_name.length()-1)-'0');
    _db.modify( nominee, [&]( account_object& c ){
-      c.admin_nomination |= 1 << bitshift;
+      if( !o.is_grant )
+      {
+         c.admin_nomination &= ~(uint128_t(1) << bitshift);
+         return;
+      }
+      c.admin_nomination |= (uint128_t(1) << bitshift);
    });
 }
 
