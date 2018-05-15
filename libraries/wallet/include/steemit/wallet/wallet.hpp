@@ -353,7 +353,11 @@ class wallet_api
        */
       annotated_signed_transaction create_account( string creator, string new_account_name, string json_meta, bool broadcast );
       annotated_signed_transaction create_councillor ( bool broadcast );
-      annotated_signed_transaction grant_admin ( string creator, vector<string> targets, bool is_grant, bool broadcast );
+      /**
+       *  @param type  type == 0: comment_delete
+       *               type == 1: commercial 
+       */
+      annotated_signed_transaction grant_admin ( string creator, vector<string> targets, int type, bool is_grant, bool broadcast );
       annotated_signed_transaction report_comment( string reporter,
           int credit, string author, string permlink, string tag, 
           bool is_ack, bool approved, bool broadcast);

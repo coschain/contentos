@@ -40,6 +40,7 @@ enum object_type
 {
    dynamic_global_property_object_type,
    account_object_type,
+   admin_object_type,
    account_authority_object_type,
    witness_object_type,
    transaction_object_type,
@@ -71,6 +72,7 @@ enum object_type
 
 class dynamic_global_property_object;
 class account_object;
+class admin_object;
 class account_authority_object;
 class witness_object;
 class transaction_object;
@@ -101,6 +103,7 @@ class vesting_delegation_expiration_object;
 
 typedef oid< dynamic_global_property_object         > dynamic_global_property_id_type;
 typedef oid< account_object                         > account_id_type;
+typedef oid< admin_object                           > admin_id_type;
 typedef oid< account_authority_object               > account_authority_id_type;
 typedef oid< witness_object                         > witness_id_type;
 typedef oid< transaction_object                     > transaction_object_id_type;
@@ -212,6 +215,7 @@ namespace fc {
 FC_REFLECT_ENUM( steemit::chain::object_type,
                  (dynamic_global_property_object_type)
                  (account_object_type)
+                 (admin_object_type)
                  (account_authority_object_type)
                  (witness_object_type)
                  (transaction_object_type)

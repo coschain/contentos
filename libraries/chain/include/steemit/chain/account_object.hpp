@@ -111,8 +111,6 @@ namespace steemit { namespace chain {
          time_point_sec    last_root_post = fc::time_point_sec::min();
          uint32_t          post_bandwidth = 0;
 
-         uint128_t         admin_nomination = 0;
-
          /// This function should be used only when the account votes for a witness directly
          share_type        witness_vote_weight()const {
             return std::accumulate( proxied_vsf_votes.begin(),
@@ -126,6 +124,24 @@ namespace steemit { namespace chain {
          }
 
          asset effective_vesting_shares()const { return vesting_shares - delegated_vesting_shares + received_vesting_shares; }
+   };
+
+   class admin_object : public object<admin_object_type, admin_object>
+   {
+      admin_object() = delete;
+
+      public:
+         template< typename Constructor, typename Allocator >
+         admin_object( Constructor&& c, allocator< Allocator > a )
+         {
+            c( *this );
+         }
+         
+         id_type              id;
+         account_name_type    name;
+         
+         uint128_t            comment_delete_nomination = 0;
+         uint128_t            commercial_nomination = 0;
    };
 
    class account_authority_object : public object< account_authority_object_type, account_authority_object >
@@ -318,6 +334,18 @@ namespace steemit { namespace chain {
       allocator< account_object >
    > account_index;
 
+   struct by_name;
+   typedef multi_index_container<
+      admin_object,
+      indexed_by<
+         ordered_unique< tag< by_id >,
+            member< admin_object, admin_id_type, &admin_object::id > >,
+         ordered_unique< tag< by_name >,
+            member< admin_object, account_name_type, &admin_object::name > >
+      >,
+      allocator< admin_object >
+   > admin_index;
+
    struct by_account;
    struct by_last_valid;
 
@@ -474,9 +502,15 @@ FC_REFLECT( steemit::chain::account_object,
              (curation_rewards)
              (posting_rewards)
              (proxied_vsf_votes)(witnesses_voted_for)
-             (last_post)(last_root_post)(post_bandwidth)(admin_nomination)
+             (last_post)(last_root_post)(post_bandwidth)
           )
 CHAINBASE_SET_INDEX_TYPE( steemit::chain::account_object, steemit::chain::account_index )
+
+FC_REFLECT( steemit::chain::admin_object,
+             (id)(name)
+             (comment_delete_nomination)(commercial_nomination)
+          )
+CHAINBASE_SET_INDEX_TYPE( steemit::chain::admin_object, steemit::chain::admin_index )
 
 FC_REFLECT( steemit::chain::account_authority_object,
              (id)(account)(owner)(active)(posting)(last_owner_update)

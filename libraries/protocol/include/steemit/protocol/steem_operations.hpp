@@ -6,6 +6,8 @@
 #include <fc/utf8.hpp>
 #include <fc/crypto/equihash.hpp>
 
+#include <utility>
+
 namespace steemit { namespace protocol {
 
    inline void validate_account_name( const string& name )
@@ -22,20 +24,24 @@ namespace steemit { namespace protocol {
       FC_ASSERT( permlink.size() < STEEMIT_MAX_PERMLINK_LENGTH, "permlink is too long" );
       FC_ASSERT( fc::is_utf8( permlink ), "permlink not formatted in UTF8" );
    }
-
-   struct admin_grant_operation : public base_operation {
+   
+   struct admin_grant_operation : public base_operation 
+   {
       account_name_type creator;
       account_name_type nominee;
 
+      int type;
       bool is_grant;
 
       void validate() const;
-      void get_required_active_authorities( flat_set<account_name_type>& a ) const { 
+      void get_required_active_authorities( flat_set<account_name_type>& a ) const 
+      { 
          a.insert(creator); 
       }
    };
 
-   struct comment_report_operation : public base_operation {
+   struct comment_report_operation : public base_operation
+   {
       account_name_type reporter;
 
       account_name_type author;
@@ -53,8 +59,17 @@ namespace steemit { namespace protocol {
       bool approved;
 
       void validate() const;
-      void get_required_posting_authorities( flat_set<account_name_type>& a ) const { 
+      void get_required_posting_authorities( flat_set<account_name_type>& a ) const 
+      { 
          a.insert(reporter); 
+      }
+
+      void get_required_admin( vector< std::pair<account_name_type, admin_type> >& admins ) const 
+      {
+         if( is_ack )
+         {
+            admins.push_back(std::make_pair(reporter, admin_type::comment_delete));
+         }
       }
    };
 
@@ -1013,7 +1028,7 @@ FC_REFLECT_TYPENAME( steemit::protocol::pow2_work )
 FC_REFLECT( steemit::protocol::pow_operation, (worker_account)(block_id)(nonce)(work)(props) )
 FC_REFLECT( steemit::protocol::pow2_operation, (work)(new_owner_key)(props) )
 
-FC_REFLECT( steemit::protocol::admin_grant_operation, (creator)(nominee)(is_grant))
+FC_REFLECT( steemit::protocol::admin_grant_operation, (creator)(nominee)(type)(is_grant))
 FC_REFLECT( steemit::protocol::comment_report_operation, (reporter)(author)(permlink)(credit)(tag)(is_ack)(approved))
 FC_REFLECT( steemit::protocol::account_create_operation,
             (fee)

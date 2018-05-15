@@ -232,16 +232,23 @@ void database::close(bool rewind)
 
 void database::check_admin(const vector<operation>& ops)
 { try {
-   flat_set< account_name_type > required_auth_acc;
-   vector< authority > other;
+   vector<std::pair<account_name_type, admin_type>> admins;
    for( const auto& op : ops )
-      operation_get_required_authorities( op, required_auth_acc, required_auth_acc, required_auth_acc, other );
+      operation_get_required_admin( op, admins );
 
-   for( const auto& acc_name : required_auth_acc )
+   for( const auto& admin_pair : admins )
    {
-      const auto& acc = get_account(acc_name);
-      FC_ASSERT( acc.admin_nomination.popcount() >= 3 || is_councillor(acc_name), 
-            "account does not have admin authority", ("acc_name", acc_name) );
+      const auto& admin = get_admin(admin_pair.first);
+      uint128_t nomination;
+      switch (admin_pair.second)
+      {
+         case admin_type::comment_delete:
+            nomination = admin.comment_delete_nomination;
+         default:
+            nomination = admin.commercial_nomination;
+      }
+      FC_ASSERT( nomination.popcount() >= 3 || is_councillor(admin_pair.first), 
+            "account does not have admin authority", ("acc_name", admin_pair.first) );
    }
 } FC_CAPTURE_AND_RETHROW() }
 
@@ -382,6 +389,16 @@ const account_object& database::get_account( const account_name_type& name )cons
 const account_object* database::find_account( const account_name_type& name )const
 {
    return find< account_object, by_name >( name );
+}
+
+const admin_object& database::get_admin( const account_name_type& name ) const
+{ try {
+   return get< admin_object, by_name >( name );
+} FC_CAPTURE_AND_RETHROW( (name) ) }
+
+const admin_object* database::find_admin( const account_name_type& name )const
+{
+   return find< admin_object, by_name >( name );
 }
 
 const comment_object& database::get_comment( const account_name_type& author, const shared_string& permlink )const
@@ -2273,6 +2290,7 @@ void database::initialize_indexes()
 {
    add_core_index< dynamic_global_property_index           >(*this);
    add_core_index< account_index                           >(*this);
+   add_core_index< admin_index                             >(*this);
    add_core_index< account_authority_index                 >(*this);
    add_core_index< witness_index                           >(*this);
    add_core_index< transaction_index                       >(*this);

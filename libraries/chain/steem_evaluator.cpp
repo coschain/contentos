@@ -109,19 +109,58 @@ void witness_update_evaluator::do_apply( const witness_update_operation& o )
 
 void admin_grant_evaluator::do_apply( const admin_grant_operation& o ) 
 {
-   _db.get_account( o.creator );
-   const auto& nominee = _db.get_account( o.nominee );
+    _db.get_account( o.creator );
+    _db.get_account( o.nominee );
+   
+    std::string c_name(o.creator);
+    int bitshift = (c_name.compare("councillor") == 0) ? 0 : (c_name.at(c_name.length()-1)-'0');
+    const admin_object* nominee = _db.find_admin( o.nominee );
+    if(nominee != nullptr)
+    {
+        _db.modify( *nominee, [&]( admin_object& c ){
+            if( !o.is_grant )
+            {
+                switch (o.type)
+                {
+                    case 0:
+                        c.comment_delete_nomination &= ~(uint128_t(1) << bitshift);
+                    default:
+                        c.commercial_nomination &= ~(uint128_t(1) << bitshift);
+                }
+                return;
+            }
+            switch (o.type)
+            {
+                case 0:
+                    c.comment_delete_nomination |= ~(uint128_t(1) << bitshift);
+                default:
+                    c.commercial_nomination |= ~(uint128_t(1) << bitshift);
+            }
+        });
+        return;
+    }
 
-   std::string c_name(o.creator);
-   int bitshift = (c_name.compare("councillor") == 0) ? 0 : (c_name.at(c_name.length()-1)-'0');
-   _db.modify( nominee, [&]( account_object& c ){
-      if( !o.is_grant )
-      {
-         c.admin_nomination &= ~(uint128_t(1) << bitshift);
-         return;
-      }
-      c.admin_nomination |= (uint128_t(1) << bitshift);
-   });
+    _db.create< admin_object >( [&]( admin_object& c ) {
+        c.name = o.nominee;
+        if( !o.is_grant )
+        {
+            switch (o.type)
+            {
+                case 0:
+                    c.comment_delete_nomination &= ~(uint128_t(1) << bitshift);
+                default:
+                    c.commercial_nomination &= ~(uint128_t(1) << bitshift);
+            }
+            return;
+        }
+        switch (o.type)
+        {
+            case 0:
+                c.comment_delete_nomination |= ~(uint128_t(1) << bitshift);
+            default:
+                c.commercial_nomination |= ~(uint128_t(1) << bitshift);
+        }
+    });
 }
 
 void delete_comment( const comment_object& co, database &db ) {

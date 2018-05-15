@@ -5,8 +5,15 @@
 #include <steemit/protocol/version.hpp>
 
 #include <fc/time.hpp>
+#include <vector>
 
 namespace steemit { namespace protocol {
+
+   enum admin_type
+   {
+      comment_delete,
+      commercial
+   };
 
    struct base_operation
    {
@@ -14,6 +21,7 @@ namespace steemit { namespace protocol {
       void get_required_active_authorities( flat_set<account_name_type>& )const {}
       void get_required_posting_authorities( flat_set<account_name_type>& )const {}
       void get_required_owner_authorities( flat_set<account_name_type>& )const {}
+      void get_required_admin( std::vector< std::pair<account_name_type, admin_type> >& admins ) const {}
 
       bool is_virtual()const { return false; }
       void validate()const {}
@@ -43,3 +51,4 @@ namespace steemit { namespace protocol {
 
 FC_REFLECT_TYPENAME( steemit::protocol::block_header_extensions )
 FC_REFLECT_TYPENAME( steemit::protocol::future_extensions )
+FC_REFLECT_ENUM( steemit::protocol::admin_type, (comment_delete)(commercial) )
