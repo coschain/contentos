@@ -42,6 +42,8 @@
 #include <fc/io/fstream.hpp>
 #include <fc/rpc/api_connection.hpp>
 #include <fc/rpc/websocket_api.hpp>
+#include <fc/network/http/server.hpp>
+#include <fc/rpc/http_api.hpp>
 #include <fc/network/resolve.hpp>
 #include <fc/stacktrace.hpp>
 #include <fc/string.hpp>
@@ -214,10 +216,34 @@ namespace detail {
          _websocket_tls_server->start_accept();
       } FC_CAPTURE_AND_RETHROW() }
 
+       void reset_http_server()
+       { try {
+           if( !_options->count("rpc-http-endpoint") )
+               return;
+           
+           _http_server = std::make_shared<fc::http::server>();
+
+           auto rpc_endpoint = _options->at("rpc-http-endpoint").as<string>();
+           ilog("Configured http rpc to listen on ${ip}", ("ip", rpc_endpoint));
+           auto endpoints = resolve_string_to_ip_endpoints( rpc_endpoint );
+           FC_ASSERT( endpoints.size(), "rpc-http-endpoint ${hostname} did not resolve", ("hostname", rpc_endpoint) );
+           _http_server->listen( endpoints[0] );
+           
+           //
+           // due to implementation, on_request() must come AFTER listen()
+           //
+           _http_server->on_request( [this]( const fc::http::request& req, const fc::http::server::response& resp ) {
+               on_http_request(req, resp);
+           } );
+           
+       } FC_CAPTURE_AND_RETHROW() }
+
+       
       void on_connection( const fc::http::websocket_connection_ptr& c )
       {
          std::shared_ptr< api_session_data > session = std::make_shared<api_session_data>();
          session->wsc = std::make_shared<fc::rpc::websocket_api_connection>(*c);
+         session->httpc = nullptr;
 
          for( const std::string& name : _public_apis )
          {
@@ -233,6 +259,26 @@ namespace detail {
          }
          c->set_session_data( session );
       }
+       
+       void on_http_request( const fc::http::request& req, const fc::http::server::response& resp ) {
+           std::shared_ptr< api_session_data > session = std::make_shared<api_session_data>();
+           session->wsc = nullptr;
+           session->httpc = std::make_shared< fc::rpc::http_api_connection >();
+           
+           for( const std::string& name : _public_apis )
+           {
+               api_context ctx( *_self, name, session );
+               fc::api_ptr api = create_api_by_name( ctx );
+               if( !api )
+               {
+                   elog( "Couldn't create API ${name}", ("name", name) );
+                   continue;
+               }
+               session->api_map[name] = api;
+               api->register_api( *session->httpc );
+           }
+           session->httpc->on_request( req, resp );
+       }
 
       application_impl(application* self)
          : _self(self),
@@ -394,6 +440,8 @@ namespace detail {
 
          reset_websocket_server();
          reset_websocket_tls_server();
+         reset_http_server();
+
       } FC_LOG_AND_RETHROW() }
 
       optional< api_access_info > get_api_access_info(const string& username)const
@@ -923,6 +971,7 @@ namespace detail {
       std::shared_ptr<graphene::net::node>             _p2p_network;
       std::shared_ptr<fc::http::websocket_server>      _websocket_server;
       std::shared_ptr<fc::http::websocket_tls_server>  _websocket_tls_server;
+       std::shared_ptr<fc::http::server>      _http_server;
 
       std::map<string, std::shared_ptr<abstract_plugin> > _plugins_available;
       std::map<string, std::shared_ptr<abstract_plugin> > _plugins_enabled;
@@ -983,6 +1032,7 @@ void application::set_program_options(boost::program_options::options_descriptio
          ("shared-file-size", bpo::value<string>()->default_value("54G"), "Size of the shared memory file. Default: 54G")
          ("rpc-endpoint", bpo::value<string>()->implicit_value("127.0.0.1:8090"), "Endpoint for websocket RPC to listen on")
          ("rpc-tls-endpoint", bpo::value<string>()->implicit_value("127.0.0.1:8089"), "Endpoint for TLS websocket RPC to listen on")
+         ("rpc-http-endpoint", bpo::value<string>()->implicit_value("127.0.0.1:8088"), "Endpoint for http RPC to listen on")
          ("read-forward-rpc", bpo::value<string>(), "Endpoint to forward write API calls to for a read node" )
          ("server-pem,p", bpo::value<string>()->implicit_value("server.pem"), "The TLS certificate file for this server")
          ("server-pem-password,P", bpo::value<string>()->implicit_value(""), "Password for this certificate")
