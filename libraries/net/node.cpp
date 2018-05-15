@@ -1173,6 +1173,7 @@ namespace graphene { namespace net { namespace detail {
                 {
                     next_peer_unblocked_time = std::min(peer->transaction_fetching_inhibited_until, next_peer_unblocked_time);
                     //std::cerr<<"peer is fetching inhibited "<<" _items_to_fetch size:"<<_items_to_fetch.size()<<fc::time_point::now().sec_since_epoch()<<"\n";
+                    dlog("inhabit to fetch item");
                 }
                 else
                 {
@@ -1188,7 +1189,7 @@ namespace graphene { namespace net { namespace detail {
                   break;
                 }
               } else {
-                  dlog("can not requesting because ${count} items to fetch, peer's current fetch size:${size}",("count", _items_to_fetch.size())("size", peer_iter->item_ids.size()));
+                  //dlog("can not requesting because ${count} items to fetch, peer's current fetch size:${size}",("count", _items_to_fetch.size())("size", peer_iter->item_ids.size()));
               }
             }
             if (!item_fetched)
@@ -1249,8 +1250,10 @@ namespace graphene { namespace net { namespace detail {
     {
       VERIFY_CORRECT_THREAD();
       _items_to_fetch_updated = true;
-      if( _retrigger_fetch_item_loop_promise )
-        _retrigger_fetch_item_loop_promise->set_value();
+        if( _retrigger_fetch_item_loop_promise ){
+            _retrigger_fetch_item_loop_promise->set_value();
+            dlog("trigger fetch item loop");
+        }
     }
 
     void node_impl::advertise_inventory_loop()

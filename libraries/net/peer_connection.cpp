@@ -453,6 +453,7 @@ namespace graphene { namespace net
     bool peer_connection::idle() const
     {
       VERIFY_CORRECT_THREAD();
+        return true;
       return !busy();
     }
 
