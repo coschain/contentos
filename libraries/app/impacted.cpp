@@ -22,16 +22,16 @@
  * THE SOFTWARE.
  */
 
-#include <steemit/protocol/authority.hpp>
+#include <contento/protocol/authority.hpp>
 
-#include <steemit/app/impacted.hpp>
+#include <contento/app/impacted.hpp>
 
 #include <fc/utility.hpp>
 
-namespace steemit { namespace app {
+namespace contento { namespace app {
 
 using namespace fc;
-using namespace steemit::protocol;
+using namespace contento::protocol;
 
 // TODO:  Review all of these, especially no-ops
 struct get_impacted_account_visitor

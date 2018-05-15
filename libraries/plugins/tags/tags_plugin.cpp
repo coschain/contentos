@@ -1,15 +1,15 @@
-#include <steemit/tags/tags_plugin.hpp>
+#include <contento/tags/tags_plugin.hpp>
 
-#include <steemit/app/impacted.hpp>
+#include <contento/app/impacted.hpp>
 
-#include <steemit/protocol/config.hpp>
+#include <contento/protocol/config.hpp>
 
-#include <steemit/chain/database.hpp>
-#include <steemit/chain/hardfork.hpp>
-#include <steemit/chain/index.hpp>
-#include <steemit/chain/operation_notification.hpp>
-#include <steemit/chain/account_object.hpp>
-#include <steemit/chain/comment_object.hpp>
+#include <contento/chain/database.hpp>
+#include <contento/chain/hardfork.hpp>
+#include <contento/chain/index.hpp>
+#include <contento/chain/operation_notification.hpp>
+#include <contento/chain/account_object.hpp>
+#include <contento/chain/comment_object.hpp>
 
 #include <fc/smart_ref_impl.hpp>
 #include <fc/thread/thread.hpp>
@@ -19,11 +19,11 @@
 #include <boost/range/iterator_range.hpp>
 #include <boost/algorithm/string.hpp>
 
-namespace steemit { namespace tags {
+namespace contento { namespace tags {
 
 namespace detail {
 
-using namespace steemit::protocol;
+using namespace contento::protocol;
 
 class tags_plugin_impl
 {
@@ -33,7 +33,7 @@ class tags_plugin_impl
       { }
       virtual ~tags_plugin_impl();
 
-      steemit::chain::database& database()
+      contento::chain::database& database()
       {
          return _self.database();
       }
@@ -533,6 +533,6 @@ void tags_plugin::plugin_startup()
 {
 }
 
-} } /// steemit::tags
+} } /// contento::tags
 
-STEEMIT_DEFINE_PLUGIN( tags, steemit::tags::tags_plugin )
+STEEMIT_DEFINE_PLUGIN( tags, contento::tags::tags_plugin )

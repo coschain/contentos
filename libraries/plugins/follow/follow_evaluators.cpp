@@ -1,10 +1,10 @@
-#include <steemit/follow/follow_operations.hpp>
-#include <steemit/follow/follow_objects.hpp>
+#include <contento/follow/follow_operations.hpp>
+#include <contento/follow/follow_objects.hpp>
 
-#include <steemit/chain/account_object.hpp>
-#include <steemit/chain/comment_object.hpp>
+#include <contento/chain/account_object.hpp>
+#include <contento/chain/comment_object.hpp>
 
-namespace steemit { namespace follow {
+namespace contento { namespace follow {
 
 void follow_evaluator::do_apply( const follow_operation& o )
 {
@@ -221,4 +221,4 @@ void reblog_evaluator::do_apply( const reblog_operation& o )
    FC_CAPTURE_AND_RETHROW( (o) )
 }
 
-} } // steemit::follow
+} } // contento::follow

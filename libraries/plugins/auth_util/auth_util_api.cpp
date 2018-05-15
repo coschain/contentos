@@ -1,19 +1,19 @@
 
-#include <steemit/app/api_context.hpp>
-#include <steemit/app/application.hpp>
+#include <contento/app/api_context.hpp>
+#include <contento/app/application.hpp>
 
-#include <steemit/protocol/authority.hpp>
-#include <steemit/protocol/sign_state.hpp>
+#include <contento/protocol/authority.hpp>
+#include <contento/protocol/sign_state.hpp>
 
-#include <steemit/chain/account_object.hpp>
-#include <steemit/chain/database.hpp>
+#include <contento/chain/account_object.hpp>
+#include <contento/chain/database.hpp>
 
-#include <steemit/plugins/auth_util/auth_util_api.hpp>
-#include <steemit/plugins/auth_util/auth_util_plugin.hpp>
+#include <contento/plugins/auth_util/auth_util_api.hpp>
+#include <contento/plugins/auth_util/auth_util_plugin.hpp>
 
 #include <fc/container/flat.hpp>
 
-namespace steemit { namespace plugin { namespace auth_util {
+namespace contento { namespace plugin { namespace auth_util {
 
 using boost::container::flat_set;
 
@@ -22,18 +22,18 @@ namespace detail {
 class auth_util_api_impl
 {
    public:
-      auth_util_api_impl( steemit::app::application& _app );
+      auth_util_api_impl( contento::app::application& _app );
       void check_authority_signature( const check_authority_signature_params& args, check_authority_signature_result& result );
 
-      std::shared_ptr< steemit::plugin::auth_util::auth_util_plugin > get_plugin();
+      std::shared_ptr< contento::plugin::auth_util::auth_util_plugin > get_plugin();
 
-      steemit::app::application& app;
+      contento::app::application& app;
 };
 
-auth_util_api_impl::auth_util_api_impl( steemit::app::application& _app ) : app( _app )
+auth_util_api_impl::auth_util_api_impl( contento::app::application& _app ) : app( _app )
 {}
 
-std::shared_ptr< steemit::plugin::auth_util::auth_util_plugin > auth_util_api_impl::get_plugin()
+std::shared_ptr< contento::plugin::auth_util::auth_util_plugin > auth_util_api_impl::get_plugin()
 {
    return app.get_plugin< auth_util_plugin >( "auth_util" );
 }
@@ -80,7 +80,7 @@ void auth_util_api_impl::check_authority_signature( const check_authority_signat
 
 } // detail
 
-auth_util_api::auth_util_api( const steemit::app::api_context& ctx )
+auth_util_api::auth_util_api( const contento::app::api_context& ctx )
 {
    my = std::make_shared< detail::auth_util_api_impl >(ctx.app);
 }
@@ -94,4 +94,4 @@ check_authority_signature_result auth_util_api::check_authority_signature( check
    return result;
 }
 
-} } } // steemit::plugin::auth_util
+} } } // contento::plugin::auth_util

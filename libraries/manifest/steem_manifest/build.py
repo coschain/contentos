@@ -34,6 +34,8 @@ def build(template_dir="templates", output_dir=None, ctx=None, do_write=True, de
             target_path = os.path.join(output_dir, rpath)
             target_dir = os.path.dirname(target_path)
             os.makedirs(target_dir, exist_ok=True)
+            if f.startswith('.DS_Store'):
+                continue
             with open(fpath, "r") as infile:
                 infile_text = infile.read()
             if f.endswith(".j2"):

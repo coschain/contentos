@@ -22,22 +22,22 @@
  * THE SOFTWARE.
  */
 
-#include <steemit/private_message/private_message_evaluators.hpp>
-#include <steemit/private_message/private_message_operations.hpp>
-#include <steemit/private_message/private_message_plugin.hpp>
+#include <contento/private_message/private_message_evaluators.hpp>
+#include <contento/private_message/private_message_operations.hpp>
+#include <contento/private_message/private_message_plugin.hpp>
 
-#include <steemit/app/impacted.hpp>
+#include <contento/app/impacted.hpp>
 
-#include <steemit/protocol/config.hpp>
+#include <contento/protocol/config.hpp>
 
-#include <steemit/chain/database.hpp>
-#include <steemit/chain/index.hpp>
-#include <steemit/chain/generic_custom_operation_interpreter.hpp>
+#include <contento/chain/database.hpp>
+#include <contento/chain/index.hpp>
+#include <contento/chain/generic_custom_operation_interpreter.hpp>
 
 #include <fc/smart_ref_impl.hpp>
 #include <fc/thread/thread.hpp>
 
-namespace steemit { namespace private_message {
+namespace contento { namespace private_message {
 
 namespace detail
 {
@@ -48,20 +48,20 @@ class private_message_plugin_impl
       private_message_plugin_impl(private_message_plugin& _plugin);
       virtual ~private_message_plugin_impl();
 
-      steemit::chain::database& database()
+      contento::chain::database& database()
       {
          return _self.database();
       }
 
       private_message_plugin&                                                             _self;
-      std::shared_ptr< generic_custom_operation_interpreter< steemit::private_message::private_message_plugin_operation > >   _custom_operation_interpreter;
+      std::shared_ptr< generic_custom_operation_interpreter< contento::private_message::private_message_plugin_operation > >   _custom_operation_interpreter;
       flat_map<string,string>                                                             _tracked_accounts;
 };
 
 private_message_plugin_impl::private_message_plugin_impl( private_message_plugin& _plugin )
    : _self( _plugin )
 {
-   _custom_operation_interpreter = std::make_shared< generic_custom_operation_interpreter< steemit::private_message::private_message_plugin_operation > >( database() );
+   _custom_operation_interpreter = std::make_shared< generic_custom_operation_interpreter< contento::private_message::private_message_plugin_operation > >( database() );
 
    _custom_operation_interpreter->register_evaluator< private_message_evaluator >( &_self );
 
@@ -185,6 +185,6 @@ flat_map<string,string> private_message_plugin::tracked_accounts() const
 
 } }
 
-STEEMIT_DEFINE_PLUGIN( private_message, steemit::private_message::private_message_plugin )
+STEEMIT_DEFINE_PLUGIN( private_message, contento::private_message::private_message_plugin )
 
-DEFINE_OPERATION_TYPE( steemit::private_message::private_message_plugin_operation )
+DEFINE_OPERATION_TYPE( contento::private_message::private_message_plugin_operation )

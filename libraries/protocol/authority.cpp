@@ -1,6 +1,6 @@
-#include <steemit/protocol/authority.hpp>
+#include <contento/protocol/authority.hpp>
 
-namespace steemit { namespace protocol {
+namespace contento { namespace protocol {
 
 // authority methods
 void authority::add_authority( const public_key_type& k, weight_type w )
@@ -121,4 +121,4 @@ bool operator == ( const authority& a, const authority& b )
             ( a.key_auths      == b.key_auths );
 }
 
-} } // steemit::protocol
+} } // contento::protocol

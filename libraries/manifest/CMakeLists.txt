@@ -1,4 +1,4 @@
-file(GLOB HEADERS "include/steemit/manifest/*.hpp")
+file(GLOB HEADERS "include/contento/manifest/*.hpp")
 
 # helpful hints from
 # https://blog.kangz.net/posts/2016/05/26/integrating-a-code-generator-with-cmake/
@@ -43,6 +43,8 @@ add_custom_command(
 # Just like generating plugins.json, we use execute_process() to do dry runs
 # at configure time to figure out the dependencies and outputs.
 # Then we use add_custom_command() to execute at build time.
+message( STATUS "MANIFEST_DEPS: BEGIN" + ${CMAKE_CURRENT_SOURCE_DIR} )
+message( STATUS "MANIFEST_DEPS: BEGIN2" + ${CMAKE_CURRENT_BINARY_DIR} )
 
 execute_process(
    COMMAND ${CMAKE_COMMAND} -E env PYTHONPATH=${CMAKE_CURRENT_SOURCE_DIR}

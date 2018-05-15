@@ -1,26 +1,26 @@
-#include <steemit/protocol/steem_operations.hpp>
+#include <contento/protocol/steem_operations.hpp>
 
-#include <steemit/chain/block_summary_object.hpp>
-#include <steemit/chain/compound.hpp>
-#include <steemit/chain/custom_operation_interpreter.hpp>
-#include <steemit/chain/database.hpp>
-#include <steemit/chain/database_exceptions.hpp>
-#include <steemit/chain/db_with.hpp>
-#include <steemit/chain/evaluator_registry.hpp>
-#include <steemit/chain/global_property_object.hpp>
-#include <steemit/chain/history_object.hpp>
-#include <steemit/chain/index.hpp>
-#include <steemit/chain/steem_evaluator.hpp>
-#include <steemit/chain/steem_objects.hpp>
-#include <steemit/chain/transaction_object.hpp>
-#include <steemit/chain/shared_db_merkle.hpp>
-#include <steemit/chain/operation_notification.hpp>
-#include <steemit/chain/witness_schedule.hpp>
+#include <contento/chain/block_summary_object.hpp>
+#include <contento/chain/compound.hpp>
+#include <contento/chain/custom_operation_interpreter.hpp>
+#include <contento/chain/database.hpp>
+#include <contento/chain/database_exceptions.hpp>
+#include <contento/chain/db_with.hpp>
+#include <contento/chain/evaluator_registry.hpp>
+#include <contento/chain/global_property_object.hpp>
+#include <contento/chain/history_object.hpp>
+#include <contento/chain/index.hpp>
+#include <contento/chain/steem_evaluator.hpp>
+#include <contento/chain/steem_objects.hpp>
+#include <contento/chain/transaction_object.hpp>
+#include <contento/chain/shared_db_merkle.hpp>
+#include <contento/chain/operation_notification.hpp>
+#include <contento/chain/witness_schedule.hpp>
 
-#include <steemit/chain/util/asset.hpp>
-#include <steemit/chain/util/reward.hpp>
-#include <steemit/chain/util/uint256.hpp>
-#include <steemit/chain/util/reward.hpp>
+#include <contento/chain/util/asset.hpp>
+#include <contento/chain/util/reward.hpp>
+#include <contento/chain/util/uint256.hpp>
+#include <contento/chain/util/reward.hpp>
 
 #include <fc/smart_ref_impl.hpp>
 #include <fc/uint128.hpp>
@@ -34,7 +34,7 @@
 #include <fstream>
 #include <functional>
 
-namespace steemit { namespace chain {
+namespace contento { namespace chain {
 
 //namespace db2 = graphene::db2;
 
@@ -60,11 +60,11 @@ struct db_schema
 
 } }
 
-FC_REFLECT( steemit::chain::object_schema_repr, (space_type)(type) )
-FC_REFLECT( steemit::chain::operation_schema_repr, (id)(type) )
-FC_REFLECT( steemit::chain::db_schema, (types)(object_types)(operation_type)(custom_operation_types) )
+FC_REFLECT( contento::chain::object_schema_repr, (space_type)(type) )
+FC_REFLECT( contento::chain::operation_schema_repr, (id)(type) )
+FC_REFLECT( contento::chain::db_schema, (types)(object_types)(operation_type)(custom_operation_types) )
 
-namespace steemit { namespace chain {
+namespace contento { namespace chain {
 
 using boost::container::flat_set;
 
@@ -4246,4 +4246,4 @@ void database::retally_witness_vote_counts( bool force )
    }
 }
 
-} } //steemit::chain
+} } //contento::chain

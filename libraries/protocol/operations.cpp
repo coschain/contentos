@@ -1,8 +1,8 @@
-#include <steemit/protocol/operations.hpp>
+#include <contento/protocol/operations.hpp>
 
-#include <steemit/protocol/operation_util_impl.hpp>
+#include <contento/protocol/operation_util_impl.hpp>
 
-namespace steemit { namespace protocol {
+namespace contento { namespace protocol {
 
 struct is_market_op_visitor {
    typedef bool result_type;
@@ -53,6 +53,7 @@ bool is_admin_operation( const operation& op )
    return op.visit( is_admin_visitor() );
 }
 
-} } // steemit::protocol
+} } // contento::protocol
 
-DEFINE_OPERATION_TYPE( steemit::protocol::operation )
+
+DEFINE_OPERATION_TYPE( contento::protocol::operation )

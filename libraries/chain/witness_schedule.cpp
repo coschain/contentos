@@ -1,11 +1,11 @@
 
-#include <steemit/chain/database.hpp>
-#include <steemit/chain/witness_objects.hpp>
-#include <steemit/chain/witness_schedule.hpp>
+#include <contento/chain/database.hpp>
+#include <contento/chain/witness_objects.hpp>
+#include <contento/chain/witness_schedule.hpp>
 
-#include <steemit/protocol/config.hpp>
+#include <contento/protocol/config.hpp>
 
-namespace steemit { namespace chain {
+namespace contento { namespace chain {
 
 void reset_virtual_schedule_time( database& db )
 {
