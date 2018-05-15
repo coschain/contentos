@@ -1137,7 +1137,10 @@ namespace graphene { namespace net { namespace detail {
         for (const peer_connection_ptr& peer : _active_connections)
             if (peer->idle()){
             items_by_peer.insert(peer_and_items_to_fetch(peer));
+                dlog("peer is idle (${count} items to fetch)",("count", _items_to_fetch.size()));
           //       std::cerr<<"insert peer "<<" _items_to_fetch size:"<<_items_to_fetch.size()<<" time:"<<fc::time_point::now().sec_since_epoch()<<"\n";
+            } else {
+                dlog("peer is no idle (${count} items to fetch)",("count", _items_to_fetch.size()));
             }
 
         // now loop over all items we want to fetch
@@ -1148,7 +1151,7 @@ namespace graphene { namespace net { namespace detail {
             // this item has probably already fallen out of our peers' caches, we'll just ignore it.
             // this can happen during flooding, and the _items_to_fetch could otherwise get clogged
             // with a bunch of items that we'll never be able to request from any peer
-            wlog("Unable to fetch item ${item} before its likely expiration time, removing it from our list of items to fetch", ("item", item_iter->item));
+            dlog("Unable to fetch item ${item} before its likely expiration time, removing it from our list of items to fetch", ("item", item_iter->item));
             item_iter = _items_to_fetch.erase(item_iter);
              // std::cerr<<"Unable to fetch item too old "<<" _items_to_fetch size:"<<_items_to_fetch.size()<<" time:"<<fc::time_point::now().sec_since_epoch()<<"\n";
           }
@@ -1174,8 +1177,7 @@ namespace graphene { namespace net { namespace detail {
                 else
                 {
                     //std::cerr<<"push fetch item info list"<<" _items_to_fetch size:"<<_items_to_fetch.size()<<fc::time_point::now().sec_since_epoch()<<"\n";
-                  //dlog("requesting item ${hash} from peer ${endpoint}",
-                  //     ("hash", iter->item.item_hash)("endpoint", peer->get_remote_endpoint()));
+                    dlog("prepare for fetch and erase from _items_to_fetch");
                   item_id item_id_to_fetch = item_iter->item;
                   peer->items_requested_from_peer.insert(peer_connection::item_to_time_map_type::value_type(item_id_to_fetch, fc::time_point::now()));
                   item_iter = _items_to_fetch.erase(item_iter);
@@ -1185,6 +1187,8 @@ namespace graphene { namespace net { namespace detail {
                   });
                   break;
                 }
+              } else {
+                  dlog("can not requesting because ${count} items to fetch, peer's current fetch size:${size}",("count", _items_to_fetch.size())("size", peer_iter->item_ids.size()));
               }
             }
             if (!item_fetched)
