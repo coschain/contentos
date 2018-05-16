@@ -1,22 +1,22 @@
 #ifdef IS_TEST_NET
 #include <boost/test/unit_test.hpp>
 
-#include <steemit/chain/account_object.hpp>
-#include <steemit/chain/comment_object.hpp>
-#include <steemit/protocol/steem_operations.hpp>
+#include <contento/chain/account_object.hpp>
+#include <contento/chain/comment_object.hpp>
+#include <contento/protocol/steem_operations.hpp>
 
-#include <steemit/market_history/market_history_plugin.hpp>
+#include <contento/market_history/market_history_plugin.hpp>
 
 #include "../common/database_fixture.hpp"
 
-using namespace steemit::chain;
-using namespace steemit::protocol;
+using namespace contento::chain;
+using namespace contento::protocol;
 
 BOOST_FIXTURE_TEST_SUITE( market_history, clean_database_fixture )
 
 BOOST_AUTO_TEST_CASE( mh_test )
 {
-   using namespace steemit::market_history;
+   using namespace contento::market_history;
 
    try
    {

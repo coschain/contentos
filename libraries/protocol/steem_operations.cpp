@@ -1,13 +1,26 @@
-#include <steemit/protocol/steem_operations.hpp>
+#include <contento/protocol/steem_operations.hpp>
 #include <fc/io/json.hpp>
 
 #include <locale>
 
-namespace steemit { namespace protocol {
+namespace contento { namespace protocol {
 
    bool inline is_asset_type( asset asset, asset_symbol_type symbol )
    {
       return asset.symbol == symbol;
+   }
+
+   void admin_grant_operation::validate() const {
+      validate_councillor_name( creator );
+      validate_account_name( nominee );
+   }
+
+   void comment_report_operation::validate() const {
+      validate_account_name( reporter );
+      validate_account_name( author );
+      validate_permlink( permlink );
+      FC_ASSERT( is_asset_type( credit, STEEM_SYMBOL ), "report comment fee must be STEEM" );
+      FC_ASSERT( credit > asset( 0, STEEM_SYMBOL ), "report comment fee must be positive" );
    }
 
    void account_create_operation::validate() const
@@ -546,4 +559,4 @@ namespace steemit { namespace protocol {
       FC_ASSERT( vesting_shares >= asset( 0, VESTS_SYMBOL ), "Delegation cannot be negative" );
    }
 
-} } // steemit::protocol
+} } // contento::protocol

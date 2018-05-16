@@ -1,26 +1,26 @@
-#include <steemit/account_history/account_history_plugin.hpp>
+#include <contento/account_history/account_history_plugin.hpp>
 
-#include <steemit/app/impacted.hpp>
+#include <contento/app/impacted.hpp>
 
-#include <steemit/protocol/config.hpp>
+#include <contento/protocol/config.hpp>
 
-#include <steemit/chain/database.hpp>
-#include <steemit/chain/operation_notification.hpp>
-#include <steemit/chain/history_object.hpp>
+#include <contento/chain/database.hpp>
+#include <contento/chain/operation_notification.hpp>
+#include <contento/chain/history_object.hpp>
 
 #include <fc/smart_ref_impl.hpp>
 #include <fc/thread/thread.hpp>
 
 #include <boost/algorithm/string.hpp>
 
-#define STEEM_NAMESPACE_PREFIX "steemit::protocol::"
+#define STEEM_NAMESPACE_PREFIX "contento::protocol::"
 
-namespace steemit { namespace account_history {
+namespace contento { namespace account_history {
 
 namespace detail
 {
 
-using namespace steemit::protocol;
+using namespace contento::protocol;
 
 class account_history_plugin_impl
 {
@@ -30,7 +30,7 @@ class account_history_plugin_impl
       { }
       virtual ~account_history_plugin_impl();
 
-      steemit::chain::database& database()
+      contento::chain::database& database()
       {
          return _self.database();
       }
@@ -124,7 +124,7 @@ struct operation_visitor_filter : operation_visitor
 void account_history_plugin_impl::on_operation( const operation_notification& note )
 {
    flat_set<account_name_type> impacted;
-   steemit::chain::database& db = database();
+   contento::chain::database& db = database();
 
    const operation_object* new_obj = nullptr;
    app::operation_get_impacted_accounts( note.op, impacted );
@@ -262,4 +262,4 @@ flat_map< account_name_type, account_name_type > account_history_plugin::tracked
 
 } }
 
-STEEMIT_DEFINE_PLUGIN( account_history, steemit::account_history::account_history_plugin )
+STEEMIT_DEFINE_PLUGIN( account_history, contento::account_history::account_history_plugin )

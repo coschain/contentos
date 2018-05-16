@@ -1,8 +1,8 @@
-#include <steemit/chain/fork_database.hpp>
+#include <contento/chain/fork_database.hpp>
 
-#include <steemit/chain/database_exceptions.hpp>
+#include <contento/chain/database_exceptions.hpp>
 
-namespace steemit { namespace chain {
+namespace contento { namespace chain {
 
 fork_database::fork_database()
 {
@@ -240,4 +240,4 @@ void fork_database::remove(block_id_type id)
    _index.get<block_id>().erase(id);
 }
 
-} } // steemit::chain
+} } // contento::chain

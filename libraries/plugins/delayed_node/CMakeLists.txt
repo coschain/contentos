@@ -1,11 +1,12 @@
-file(GLOB HEADERS "include/steemit/delayed_node/*.hpp")
+file(GLOB HEADERS "include/contento/delayed_node/*.hpp")
 
-add_library( steemit_delayed_node
+add_library( contento_delayed_node
              delayed_node_plugin.cpp
-           )
+             ${HEADERS}
+            )
 
-target_link_libraries( steemit_delayed_node steemit_chain steemit_protocol steemit_app )
-target_include_directories( steemit_delayed_node
+target_link_libraries( contento_delayed_node contento_chain contento_protocol contento_app )
+target_include_directories( contento_delayed_node
                             PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" )
 
 if(MSVC)
@@ -13,7 +14,7 @@ if(MSVC)
 endif(MSVC)
 
 install( TARGETS
-   steemit_delayed_node
+   contento_delayed_node
 
    RUNTIME DESTINATION bin
    LIBRARY DESTINATION lib

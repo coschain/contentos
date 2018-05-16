@@ -1,6 +1,6 @@
-#include <steemit/protocol/authority.hpp>
+#include <contento/protocol/authority.hpp>
 
-namespace steemit { namespace protocol {
+namespace contento { namespace protocol {
 
 // authority methods
 void authority::add_authority( const public_key_type& k, weight_type w )
@@ -42,6 +42,11 @@ void authority::validate()const
    }
 }
 
+bool is_councillor(const string& name) {
+   return name.compare("councillor") == 0 || name.compare("councillor1") == 0 ||
+            name.compare("councillor2") == 0 || name.compare("councillor3") == 0 || 
+            name.compare("councillor4") == 0;
+}
 
 bool is_valid_account_name( const string& name )
 {
@@ -116,4 +121,4 @@ bool operator == ( const authority& a, const authority& b )
             ( a.key_auths      == b.key_auths );
 }
 
-} } // steemit::protocol
+} } // contento::protocol

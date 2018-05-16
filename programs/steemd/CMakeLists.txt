@@ -12,26 +12,26 @@ endif()
 if( STEEM_STATIC_BUILD )
    target_link_libraries( steemd PRIVATE
       "-static-libstdc++ -static-libgcc"
-      steemit_plugins
-      steemit_mf_plugins
-      steemit_app
-      steemit_witness
-      steemit_account_history
-      steemit_chain
-      steemit_protocol
+      contento_plugins
+      contento_mf_plugins
+      contento_app
+      contento_witness
+      contento_account_history
+      contento_chain
+      contento_protocol
       fc
       ${CMAKE_DL_LIBS}
       ${PLATFORM_SPECIFIC_LIBS}
    )
 else( STEEM_STATIC_BUILD )
    target_link_libraries( steemd PRIVATE
-      steemit_plugins
-      steemit_mf_plugins
-      steemit_app
-      steemit_witness
-      steemit_account_history
-      steemit_chain
-      steemit_protocol
+      contento_plugins
+      contento_mf_plugins
+      contento_app
+      contento_witness
+      contento_account_history
+      contento_chain
+      contento_protocol
       fc
       ${CMAKE_DL_LIBS}
       ${PLATFORM_SPECIFIC_LIBS}

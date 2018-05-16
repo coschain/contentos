@@ -1,20 +1,20 @@
-#include <steemit/blockchain_statistics/blockchain_statistics_api.hpp>
+#include <contento/blockchain_statistics/blockchain_statistics_api.hpp>
 
-#include <steemit/app/impacted.hpp>
-#include <steemit/chain/account_object.hpp>
-#include <steemit/chain/comment_object.hpp>
-#include <steemit/chain/history_object.hpp>
+#include <contento/app/impacted.hpp>
+#include <contento/chain/account_object.hpp>
+#include <contento/chain/comment_object.hpp>
+#include <contento/chain/history_object.hpp>
 
-#include <steemit/chain/database.hpp>
-#include <steemit/chain/index.hpp>
-#include <steemit/chain/operation_notification.hpp>
+#include <contento/chain/database.hpp>
+#include <contento/chain/index.hpp>
+#include <contento/chain/operation_notification.hpp>
 
-namespace steemit { namespace blockchain_statistics {
+namespace contento { namespace blockchain_statistics {
 
 namespace detail
 {
 
-using namespace steemit::protocol;
+using namespace contento::protocol;
 
 class blockchain_statistics_plugin_impl
 {
@@ -74,6 +74,10 @@ struct operation_process
       {
          b.paid_accounts_created++;
       });
+   }
+
+   void operator() ( const admin_grant_operation& op ) const {
+         
    }
 
    void operator()( const pow_operation& op )const
@@ -468,6 +472,6 @@ uint32_t blockchain_statistics_plugin::get_max_history_per_bucket() const
    return _my->_maximum_history_per_bucket_size;
 }
 
-} } // steemit::blockchain_statistics
+} } // contento::blockchain_statistics
 
-STEEMIT_DEFINE_PLUGIN( blockchain_statistics, steemit::blockchain_statistics::blockchain_statistics_plugin );
+STEEMIT_DEFINE_PLUGIN( blockchain_statistics, contento::blockchain_statistics::blockchain_statistics_plugin );

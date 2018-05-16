@@ -1,8 +1,8 @@
-#include <steemit/market_history/market_history_api.hpp>
+#include <contento/market_history/market_history_api.hpp>
 
-#include <steemit/chain/steem_objects.hpp>
+#include <contento/chain/steem_objects.hpp>
 
-namespace steemit { namespace market_history {
+namespace contento { namespace market_history {
 
 namespace detail
 {
@@ -10,7 +10,7 @@ namespace detail
 class market_history_api_impl
 {
    public:
-      market_history_api_impl( steemit::app::application& _app )
+      market_history_api_impl( contento::app::application& _app )
          :app( _app ) {}
 
       market_ticker get_ticker() const;
@@ -21,7 +21,7 @@ class market_history_api_impl
       vector< bucket_object > get_market_history( uint32_t bucket_seconds, time_point_sec start, time_point_sec end ) const;
       flat_set< uint32_t > get_market_history_buckets() const;
 
-      steemit::app::application& app;
+      contento::app::application& app;
 };
 
 market_ticker market_history_api_impl::get_ticker() const
@@ -83,7 +83,7 @@ order_book market_history_api_impl::get_order_book( uint32_t limit ) const
 {
    FC_ASSERT( limit <= 500 );
 
-   const auto& order_idx = app.chain_database()->get_index< steemit::chain::limit_order_index >().indices().get< steemit::chain::by_price >();
+   const auto& order_idx = app.chain_database()->get_index< contento::chain::limit_order_index >().indices().get< contento::chain::by_price >();
    auto itr = order_idx.lower_bound( price::max( SBD_SYMBOL, STEEM_SYMBOL ) );
 
    order_book result;
@@ -180,7 +180,7 @@ flat_set< uint32_t > market_history_api_impl::get_market_history_buckets() const
 
 } // detail
 
-market_history_api::market_history_api( const steemit::app::api_context& ctx )
+market_history_api::market_history_api( const contento::app::api_context& ctx )
 {
    my = std::make_shared< detail::market_history_api_impl >( ctx.app );
 }
@@ -243,4 +243,4 @@ flat_set< uint32_t > market_history_api::get_market_history_buckets() const
    });
 }
 
-} } // steemit::market_history
+} } // contento::market_history

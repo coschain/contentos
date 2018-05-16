@@ -1,11 +1,11 @@
-#include <steemit/chain/steem_evaluator.hpp>
-#include <steemit/chain/database.hpp>
-#include <steemit/chain/custom_operation_interpreter.hpp>
-#include <steemit/chain/steem_objects.hpp>
-#include <steemit/chain/witness_objects.hpp>
-#include <steemit/chain/block_summary_object.hpp>
+#include <contento/chain/steem_evaluator.hpp>
+#include <contento/chain/database.hpp>
+#include <contento/chain/custom_operation_interpreter.hpp>
+#include <contento/chain/steem_objects.hpp>
+#include <contento/chain/witness_objects.hpp>
+#include <contento/chain/block_summary_object.hpp>
 
-#include <steemit/chain/util/reward.hpp>
+#include <contento/chain/util/reward.hpp>
 
 #ifndef IS_LOW_MEM
 #include <diff_match_patch.h>
@@ -30,7 +30,7 @@ std::string wstring_to_utf8(const std::wstring& str)
 
 #include <limits>
 
-namespace steemit { namespace chain {
+namespace contento { namespace chain {
    using fc::uint128_t;
 
 inline void validate_permlink_0_1( const string& permlink )
@@ -103,6 +103,156 @@ void witness_update_evaluator::do_apply( const witness_update_operation& o )
          w.signing_key        = o.block_signing_key;
          w.created            = _db.head_block_time();
          w.props              = o.props;
+      });
+   }
+}
+
+void admin_grant_evaluator::do_apply( const admin_grant_operation& o ) 
+{
+    _db.get_account( o.creator );
+    _db.get_account( o.nominee );
+   
+    std::string c_name(o.creator);
+    int bitshift = (c_name.compare("councillor") == 0) ? 0 : (c_name.at(c_name.length()-1)-'0');
+    const admin_object* nominee = _db.find_admin( o.nominee );
+    if(nominee != nullptr)
+    {
+        _db.modify( *nominee, [&]( admin_object& c ){
+            if( !o.is_grant )
+            {
+                switch (o.type)
+                {
+                    case 0:
+                        c.comment_delete_nomination &= ~(uint128_t(1) << bitshift);
+                    default:
+                        c.commercial_nomination &= ~(uint128_t(1) << bitshift);
+                }
+                return;
+            }
+            switch (o.type)
+            {
+                case 0:
+                    c.comment_delete_nomination |= ~(uint128_t(1) << bitshift);
+                default:
+                    c.commercial_nomination |= ~(uint128_t(1) << bitshift);
+            }
+        });
+        return;
+    }
+
+    _db.create< admin_object >( [&]( admin_object& c ) {
+        c.name = o.nominee;
+        if( !o.is_grant )
+        {
+            switch (o.type)
+            {
+                case 0:
+                    c.comment_delete_nomination &= ~(uint128_t(1) << bitshift);
+                default:
+                    c.commercial_nomination &= ~(uint128_t(1) << bitshift);
+            }
+            return;
+        }
+        switch (o.type)
+        {
+            case 0:
+                c.comment_delete_nomination |= ~(uint128_t(1) << bitshift);
+            default:
+                c.commercial_nomination |= ~(uint128_t(1) << bitshift);
+        }
+    });
+}
+
+void delete_comment( const comment_object& co, database &db ) {
+    const auto& auth = db.get_account( co.author );
+    FC_ASSERT( !(auth.owner_challenged || auth.active_challenged ), "Operation cannot be processed because account is currently challenged." );
+
+    // delete all child comments
+    // TODO: bus error: 10
+    /*
+    const auto& by_root_idx = db.get_index<comment_index>().indices().get<by_root>();
+    auto child_itr = by_root_idx.lower_bound( comment_id_type(co.id) );
+    while( child_itr != by_root_idx.end() && child_itr->root_comment == co.id ) {
+        const auto& cur_child_comment = *child_itr;
+        ++child_itr;
+        delete_comment( cur_child_comment, db );
+    }*/
+
+    //FC_ASSERT( co.cashout_time != fc::time_point_sec::maximum() );
+    //FC_ASSERT( co.net_rshares <= 0, "Cannot delete a comment with net positive votes." );
+
+    // delete all votes for this comment
+    const auto& vote_idx = db.get_index<comment_vote_index>().indices().get<by_comment_voter>();
+    auto vote_itr = vote_idx.lower_bound( comment_id_type(co.id) );
+    while( vote_itr != vote_idx.end() && vote_itr->comment == co.id ) {
+        const auto& cur_vote = *vote_itr;
+        ++vote_itr;
+        db.remove(cur_vote);
+    }
+
+    /// this loop can be skiped for validate-only nodes as it is merely gathering stats for indicies
+    if( co.parent_author != STEEMIT_ROOT_POST_PARENT )
+    {
+        auto parent = &db.get_comment( co.parent_author, co.parent_permlink );
+        auto now = db.head_block_time();
+        while( parent )
+        {
+            db.modify( *parent, [&]( comment_object& p ){
+                p.children--;
+                p.active = now;
+            });
+        #ifndef IS_LOW_MEM
+            if( parent->parent_author != STEEMIT_ROOT_POST_PARENT )
+                parent = &db.get_comment( parent->parent_author, parent->parent_permlink );
+            else
+        #endif
+                parent = nullptr;
+        }
+    }
+
+    db.remove( co );
+}
+
+void comment_report_evaluator::do_apply( const comment_report_operation& o ) 
+{
+   const auto& comment = _db.get_comment( o.author, o.permlink );
+   const auto& by_comment_idx = _db.get_index< comment_report_index >().indices().get< by_comment >();
+   auto comment_report_itr = by_comment_idx.find( comment.id );
+   if( o.is_ack )
+   {
+      FC_ASSERT( comment_report_itr != by_comment_idx.end(), "cannot ack a non-existed report", 
+            ("comment_author", o.author)("comment_permlink", o.permlink));
+      
+      if( o.approved )
+      {
+         // report is approved. 1. delete corresponding comment_obj, comment_index.
+         // 2. start report reward process
+         delete_comment( comment, _db );
+      }
+      else
+      {
+         // all comment_reports of the comment is denied. start report punish process
+      }
+
+      // delete comment_report_object and comment_report_index anyway
+      _db.remove( *comment_report_itr );
+   }
+   else
+   {
+      // TODO: assert balance
+      if( comment_report_itr != by_comment_idx.end() )
+      {
+         _db.modify( *comment_report_itr, [&]( comment_report_object& c ) {
+            c.add_report(o.reporter, o.credit, o.tag);
+            c.last_update = _db.head_block_time();
+         });
+         return;
+      }
+        
+      _db.create< comment_report_object >( [&]( comment_report_object& c ) {
+         c.comment = comment.id;
+         c.add_report(o.reporter, o.credit, o.tag);
+         c.last_update = _db.head_block_time();
       });
    }
 }
@@ -506,16 +656,16 @@ void comment_evaluator::do_apply( const comment_operation& o )
       if( _db.has_hardfork( STEEMIT_HARDFORK_0_12__176 ) )
       {
          if( o.parent_author == STEEMIT_ROOT_POST_PARENT )
-             FC_ASSERT( ( now - auth.last_root_post ) > STEEMIT_MIN_ROOT_COMMENT_INTERVAL, "You may only post once every 5 minutes.", ("now",now)("last_root_post", auth.last_root_post) );
+             FC_ASSERT( ( now - auth.last_root_post ) >= STEEMIT_MIN_ROOT_COMMENT_INTERVAL, "You may only post once every 5 minutes.", ("now",now)("last_root_post", auth.last_root_post) );
          else
-             FC_ASSERT( (now - auth.last_post) > STEEMIT_MIN_REPLY_INTERVAL, "You may only comment once every 20 seconds.", ("now",now)("auth.last_post",auth.last_post) );
+             FC_ASSERT( (now - auth.last_post) >= STEEMIT_MIN_REPLY_INTERVAL, "You may only comment once every 20 seconds.", ("now",now)("auth.last_post",auth.last_post) );
       }
       else if( _db.has_hardfork( STEEMIT_HARDFORK_0_6__113 ) )
       {
          if( o.parent_author == STEEMIT_ROOT_POST_PARENT )
-             FC_ASSERT( (now - auth.last_post) > STEEMIT_MIN_ROOT_COMMENT_INTERVAL, "You may only post once every 5 minutes.", ("now",now)("auth.last_post",auth.last_post) );
+             FC_ASSERT( (now - auth.last_post) >= STEEMIT_MIN_ROOT_COMMENT_INTERVAL, "You may only post once every 5 minutes.", ("now",now)("auth.last_post",auth.last_post) );
          else
-             FC_ASSERT( (now - auth.last_post) > STEEMIT_MIN_REPLY_INTERVAL, "You may only comment once every 20 seconds.", ("now",now)("auth.last_post",auth.last_post) );
+             FC_ASSERT( (now - auth.last_post) >= STEEMIT_MIN_REPLY_INTERVAL, "You may only comment once every 20 seconds.", ("now",now)("auth.last_post",auth.last_post) );
       }
       else
       {
@@ -2260,4 +2410,4 @@ void delegate_vesting_shares_evaluator::do_apply( const delegate_vesting_shares_
    }
 }
 
-} } // steemit::chain
+} } // contento::chain

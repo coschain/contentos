@@ -2,15 +2,16 @@
 #include <graphene/utilities/key_conversion.hpp>
 #include <graphene/utilities/words.hpp>
 
-#include <steemit/app/api.hpp>
-#include <steemit/protocol/base.hpp>
-#include <steemit/follow/follow_operations.hpp>
-#include <steemit/private_message/private_message_operations.hpp>
-#include <steemit/wallet/wallet.hpp>
-#include <steemit/wallet/api_documentation.hpp>
-#include <steemit/wallet/reflect_util.hpp>
+#include <contento/app/api.hpp>
+#include <contento/protocol/base.hpp>
+#include <contento/protocol/config.hpp>
+#include <contento/follow/follow_operations.hpp>
+#include <contento/private_message/private_message_operations.hpp>
+#include <contento/wallet/wallet.hpp>
+#include <contento/wallet/api_documentation.hpp>
+#include <contento/wallet/reflect_util.hpp>
 
-#include <steemit/account_by_key/account_by_key_api.hpp>
+#include <contento/account_by_key/account_by_key_api.hpp>
 
 #include <algorithm>
 #include <cctype>
@@ -60,7 +61,7 @@
 
 #define BRAIN_KEY_WORD_COUNT 16
 
-namespace steemit { namespace wallet {
+namespace contento { namespace wallet {
 
 namespace detail {
 
@@ -388,7 +389,7 @@ public:
       fc::optional<fc::ecc::private_key> optional_private_key = wif_to_key(wif_key);
       if (!optional_private_key)
          FC_THROW("Invalid private key");
-      steemit::chain::public_key_type wif_pub_key = optional_private_key->get_public_key();
+      contento::chain::public_key_type wif_pub_key = optional_private_key->get_public_key();
 
       _keys[wif_pub_key] = wif_key;
       return true;
@@ -459,7 +460,7 @@ public:
       for (int key_index = 0; ; ++key_index)
       {
          fc::ecc::private_key derived_private_key = derive_private_key(key_to_wif(parent_key), key_index);
-         steemit::chain::public_key_type derived_public_key = derived_private_key.get_public_key();
+         contento::chain::public_key_type derived_public_key = derived_private_key.get_public_key();
          if( _keys.find(derived_public_key) == _keys.end() )
          {
             if (number_of_consecutive_unused_keys)
@@ -495,9 +496,9 @@ public:
          int memo_key_index = find_first_unused_derived_key_index(active_privkey);
          fc::ecc::private_key memo_privkey = derive_private_key( key_to_wif(active_privkey), memo_key_index);
 
-         steemit::chain::public_key_type owner_pubkey = owner_privkey.get_public_key();
-         steemit::chain::public_key_type active_pubkey = active_privkey.get_public_key();
-         steemit::chain::public_key_type memo_pubkey = memo_privkey.get_public_key();
+         contento::chain::public_key_type owner_pubkey = owner_privkey.get_public_key();
+         contento::chain::public_key_type active_pubkey = active_privkey.get_public_key();
+         contento::chain::public_key_type memo_pubkey = memo_privkey.get_public_key();
 
          account_create_operation account_create_op;
 
@@ -966,11 +967,11 @@ public:
    const string _wallet_filename_extension = ".wallet";
 };
 
-} } } // steemit::wallet::detail
+} } } // contento::wallet::detail
 
 
 
-namespace steemit { namespace wallet {
+namespace contento { namespace wallet {
 
 wallet_api::wallet_api(const wallet_data& initial_data, fc::api<login_api> rapi)
    : my(new detail::wallet_api_impl(*this, initial_data, rapi))
@@ -1274,6 +1275,75 @@ pair<public_key_type,string> wallet_api::get_private_key_from_password( string a
 }
 
 feed_history_api_obj wallet_api::get_feed_history()const { return my->_remote_db->get_feed_history(); }
+
+annotated_signed_transaction wallet_api::create_councillor ( bool broadcast ) {
+try {
+   FC_ASSERT( !is_locked() );
+   signed_transaction tx;
+   for (int i = 0; i < 5; i++) {
+      auto owner = suggest_brain_key();
+      auto active = suggest_brain_key();
+      auto posting = suggest_brain_key();
+      auto memo = suggest_brain_key();
+      import_key( owner.wif_priv_key );
+      import_key( active.wif_priv_key );
+      import_key( posting.wif_priv_key );
+      import_key( memo.wif_priv_key );
+      
+      account_create_operation op;
+      op.creator = STEEMIT_INIT_MINER_NAME;
+      op.new_account_name = "councillor" + (i == 0 ? "" : std::to_string(i));
+      op.owner = authority( 1, owner.pub_key, 1 );
+      op.active = authority( 1, active.pub_key, 1 );
+      op.posting = authority( 1, posting.pub_key, 1 );
+      op.memo_key = memo.pub_key;
+      //op.json_metadata = json_meta;
+      op.fee = my->_remote_db->get_chain_properties().account_creation_fee * 
+            asset( STEEMIT_CREATE_ACCOUNT_WITH_STEEM_MODIFIER, STEEM_SYMBOL );
+            
+      tx.operations.push_back(op);
+   }
+   tx.validate();
+   return my->sign_transaction( tx, broadcast );
+} FC_CAPTURE_AND_RETHROW( (broadcast) ) }
+
+annotated_signed_transaction wallet_api::grant_admin( string creator,
+      vector<string> targets, int type, bool is_grant, bool broadcast ) {
+try {
+   FC_ASSERT( !is_locked() && targets.size() );
+   signed_transaction tx;
+   for (auto target : targets) {
+      admin_grant_operation op;
+      op.creator = creator;
+      op.nominee = target;
+      op.is_grant = is_grant;
+      op.type = type;
+
+      tx.operations.push_back(op);
+   }
+   tx.validate();
+   return my->sign_transaction( tx, broadcast );
+} FC_CAPTURE_AND_RETHROW( (creator)(broadcast) ) }
+
+annotated_signed_transaction wallet_api::report_comment( string reporter,
+      int credit, string author, string permlink, string tag, 
+      bool is_ack, bool approved, bool broadcast) {
+try {
+   FC_ASSERT( !is_locked() );
+   comment_report_operation op;
+   op.reporter = reporter;
+   op.author = author;
+   op.permlink = permlink;
+   op.credit = asset( credit, STEEM_SYMBOL );
+   op.tag = tag;
+   op.is_ack = is_ack;
+   op.approved = approved;
+
+   signed_transaction tx;
+   tx.operations.push_back(op);
+   tx.validate();
+   return my->sign_transaction( tx, broadcast );
+} FC_CAPTURE_AND_RETHROW( (reporter)(author)(permlink)(broadcast) ) }
 
 /**
  * This method is used by faucets to create new accounts for other users which must
@@ -2468,5 +2538,5 @@ vector<extended_message_object>   wallet_api::get_outbox( string account, fc::ti
    return result;
 }
 
-} } // steemit::wallet
+} } // contento::wallet
 

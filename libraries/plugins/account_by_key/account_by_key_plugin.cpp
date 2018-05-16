@@ -1,15 +1,15 @@
-#include <steemit/account_by_key/account_by_key_plugin.hpp>
-#include <steemit/account_by_key/account_by_key_objects.hpp>
+#include <contento/account_by_key/account_by_key_plugin.hpp>
+#include <contento/account_by_key/account_by_key_objects.hpp>
 
-#include <steemit/chain/account_object.hpp>
-#include <steemit/chain/database.hpp>
-#include <steemit/chain/index.hpp>
-#include <steemit/chain/operation_notification.hpp>
+#include <contento/chain/account_object.hpp>
+#include <contento/chain/database.hpp>
+#include <contento/chain/index.hpp>
+#include <contento/chain/operation_notification.hpp>
 
 #include <graphene/schema/schema.hpp>
 #include <graphene/schema/schema_impl.hpp>
 
-namespace steemit { namespace account_by_key {
+namespace contento { namespace account_by_key {
 
 namespace detail
 {
@@ -19,7 +19,7 @@ class account_by_key_plugin_impl
    public:
       account_by_key_plugin_impl( account_by_key_plugin& _plugin ) : _self( _plugin ) {}
 
-      steemit::chain::database& database()
+      contento::chain::database& database()
       {
          return _self.database();
       }
@@ -48,6 +48,10 @@ struct pre_operation_visitor
    void operator()( const account_create_operation& op )const
    {
       _plugin.my->clear_cache();
+   }
+
+   void operator() ( const admin_grant_operation& op) const {
+
    }
 
    void operator()( const account_create_with_delegation_operation& op )const
@@ -106,6 +110,10 @@ struct post_operation_visitor
    {
       auto acct_itr = _plugin.database().find< account_authority_object, by_account >( op.new_account_name );
       if( acct_itr ) _plugin.my->update_key_lookup( *acct_itr );
+   }
+
+   void operator() ( const admin_grant_operation& op) const {
+         
    }
 
    void operator()( const account_create_with_delegation_operation& op )const
@@ -241,7 +249,7 @@ void account_by_key_plugin_impl::post_operation( const operation_notification& n
 
 } // detail
 
-account_by_key_plugin::account_by_key_plugin( steemit::app::application* app )
+account_by_key_plugin::account_by_key_plugin( contento::app::application* app )
    : plugin( app ), my( new detail::account_by_key_plugin_impl( *this ) ) {}
 
 void account_by_key_plugin::plugin_set_program_options(
@@ -269,6 +277,6 @@ void account_by_key_plugin::plugin_startup()
    app().register_api_factory< account_by_key_api >( "account_by_key_api" );
 }
 
-} } // steemit::account_by_key
+} } // contento::account_by_key
 
-STEEMIT_DEFINE_PLUGIN( account_by_key, steemit::account_by_key::account_by_key_plugin )
+STEEMIT_DEFINE_PLUGIN( account_by_key, contento::account_by_key::account_by_key_plugin )

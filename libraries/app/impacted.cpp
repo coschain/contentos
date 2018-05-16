@@ -22,16 +22,16 @@
  * THE SOFTWARE.
  */
 
-#include <steemit/protocol/authority.hpp>
+#include <contento/protocol/authority.hpp>
 
-#include <steemit/app/impacted.hpp>
+#include <contento/app/impacted.hpp>
 
 #include <fc/utility.hpp>
 
-namespace steemit { namespace app {
+namespace contento { namespace app {
 
 using namespace fc;
-using namespace steemit::protocol;
+using namespace contento::protocol;
 
 // TODO:  Review all of these, especially no-ops
 struct get_impacted_account_visitor
@@ -53,6 +53,14 @@ struct get_impacted_account_visitor
    {
       _impacted.insert( op.new_account_name );
       _impacted.insert( op.creator );
+   }
+
+   void operator() ( const admin_grant_operation& op ) {
+      //
+   }
+
+   void operator() ( const comment_report_operation& op) {
+
    }
 
    void operator()( const account_create_with_delegation_operation& op )

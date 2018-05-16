@@ -1,6 +1,6 @@
-file(GLOB HEADERS "include/steemit/app/*.hpp")
+file(GLOB HEADERS "include/contento/app/*.hpp")
 
-add_library( steemit_app
+add_library( contento_app
              database_api.cpp
              api.cpp
              application.cpp
@@ -9,8 +9,8 @@ add_library( steemit_app
              ${HEADERS}
            )
 
-target_link_libraries( steemit_app steemit_chain steemit_protocol steemit_tags steemit_follow steemit_witness steemit_mf_plugins fc graphene_net graphene_utilities )
-target_include_directories( steemit_app
+target_link_libraries( contento_app contento_chain contento_protocol contento_tags contento_follow contento_witness contento_mf_plugins fc graphene_net graphene_utilities )
+target_include_directories( contento_app
                             PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" )
 
 if(MSVC)
@@ -18,10 +18,10 @@ if(MSVC)
 endif(MSVC)
 
 INSTALL( TARGETS
-   steemit_app
+   contento_app
 
    RUNTIME DESTINATION bin
    LIBRARY DESTINATION lib
    ARCHIVE DESTINATION lib
 )
-INSTALL( FILES ${HEADERS} DESTINATION "include/steemit/app" )
+INSTALL( FILES ${HEADERS} DESTINATION "include/contento/app" )

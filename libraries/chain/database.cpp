@@ -1,26 +1,26 @@
-#include <steemit/protocol/steem_operations.hpp>
+#include <contento/protocol/steem_operations.hpp>
 
-#include <steemit/chain/block_summary_object.hpp>
-#include <steemit/chain/compound.hpp>
-#include <steemit/chain/custom_operation_interpreter.hpp>
-#include <steemit/chain/database.hpp>
-#include <steemit/chain/database_exceptions.hpp>
-#include <steemit/chain/db_with.hpp>
-#include <steemit/chain/evaluator_registry.hpp>
-#include <steemit/chain/global_property_object.hpp>
-#include <steemit/chain/history_object.hpp>
-#include <steemit/chain/index.hpp>
-#include <steemit/chain/steem_evaluator.hpp>
-#include <steemit/chain/steem_objects.hpp>
-#include <steemit/chain/transaction_object.hpp>
-#include <steemit/chain/shared_db_merkle.hpp>
-#include <steemit/chain/operation_notification.hpp>
-#include <steemit/chain/witness_schedule.hpp>
+#include <contento/chain/block_summary_object.hpp>
+#include <contento/chain/compound.hpp>
+#include <contento/chain/custom_operation_interpreter.hpp>
+#include <contento/chain/database.hpp>
+#include <contento/chain/database_exceptions.hpp>
+#include <contento/chain/db_with.hpp>
+#include <contento/chain/evaluator_registry.hpp>
+#include <contento/chain/global_property_object.hpp>
+#include <contento/chain/history_object.hpp>
+#include <contento/chain/index.hpp>
+#include <contento/chain/steem_evaluator.hpp>
+#include <contento/chain/steem_objects.hpp>
+#include <contento/chain/transaction_object.hpp>
+#include <contento/chain/shared_db_merkle.hpp>
+#include <contento/chain/operation_notification.hpp>
+#include <contento/chain/witness_schedule.hpp>
 
-#include <steemit/chain/util/asset.hpp>
-#include <steemit/chain/util/reward.hpp>
-#include <steemit/chain/util/uint256.hpp>
-#include <steemit/chain/util/reward.hpp>
+#include <contento/chain/util/asset.hpp>
+#include <contento/chain/util/reward.hpp>
+#include <contento/chain/util/uint256.hpp>
+#include <contento/chain/util/reward.hpp>
 
 #include <fc/smart_ref_impl.hpp>
 #include <fc/uint128.hpp>
@@ -34,7 +34,7 @@
 #include <fstream>
 #include <functional>
 
-namespace steemit { namespace chain {
+namespace contento { namespace chain {
 
 //namespace db2 = graphene::db2;
 
@@ -60,11 +60,11 @@ struct db_schema
 
 } }
 
-FC_REFLECT( steemit::chain::object_schema_repr, (space_type)(type) )
-FC_REFLECT( steemit::chain::operation_schema_repr, (id)(type) )
-FC_REFLECT( steemit::chain::db_schema, (types)(object_types)(operation_type)(custom_operation_types) )
+FC_REFLECT( contento::chain::object_schema_repr, (space_type)(type) )
+FC_REFLECT( contento::chain::operation_schema_repr, (id)(type) )
+FC_REFLECT( contento::chain::db_schema, (types)(object_types)(operation_type)(custom_operation_types) )
 
-namespace steemit { namespace chain {
+namespace contento { namespace chain {
 
 using boost::container::flat_set;
 
@@ -230,6 +230,28 @@ void database::close(bool rewind)
    FC_CAPTURE_AND_RETHROW()
 }
 
+void database::check_admin(const vector<operation>& ops)
+{ try {
+   vector<std::pair<account_name_type, admin_type>> admins;
+   for( const auto& op : ops )
+      operation_get_required_admin( op, admins );
+
+   for( const auto& admin_pair : admins )
+   {
+      const auto& admin = get_admin(admin_pair.first);
+      uint128_t nomination;
+      switch (admin_pair.second)
+      {
+         case admin_type::comment_delete:
+            nomination = admin.comment_delete_nomination;
+         default:
+            nomination = admin.commercial_nomination;
+      }
+      FC_ASSERT( nomination.popcount() >= 3 || is_councillor(admin_pair.first), 
+            "account does not have admin authority", ("acc_name", admin_pair.first) );
+   }
+} FC_CAPTURE_AND_RETHROW() }
+
 bool database::is_known_block( const block_id_type& id )const
 { try {
    return fetch_block_by_id( id ).valid();
@@ -367,6 +389,16 @@ const account_object& database::get_account( const account_name_type& name )cons
 const account_object* database::find_account( const account_name_type& name )const
 {
    return find< account_object, by_name >( name );
+}
+
+const admin_object& database::get_admin( const account_name_type& name ) const
+{ try {
+   return get< admin_object, by_name >( name );
+} FC_CAPTURE_AND_RETHROW( (name) ) }
+
+const admin_object* database::find_admin( const account_name_type& name )const
+{
+   return find< admin_object, by_name >( name );
 }
 
 const comment_object& database::get_comment( const account_name_type& author, const shared_string& permlink )const
@@ -2202,6 +2234,8 @@ void database::initialize_evaluators()
    _my->_evaluator_registry.register_evaluator< withdraw_vesting_evaluator               >();
    _my->_evaluator_registry.register_evaluator< set_withdraw_vesting_route_evaluator     >();
    _my->_evaluator_registry.register_evaluator< account_create_evaluator                 >();
+   _my->_evaluator_registry.register_evaluator< admin_grant_evaluator                    >();
+   _my->_evaluator_registry.register_evaluator< comment_report_evaluator                 >();
    _my->_evaluator_registry.register_evaluator< account_update_evaluator                 >();
    _my->_evaluator_registry.register_evaluator< witness_update_evaluator                 >();
    _my->_evaluator_registry.register_evaluator< account_witness_vote_evaluator           >();
@@ -2256,6 +2290,7 @@ void database::initialize_indexes()
 {
    add_core_index< dynamic_global_property_index           >(*this);
    add_core_index< account_index                           >(*this);
+   add_core_index< admin_index                             >(*this);
    add_core_index< account_authority_index                 >(*this);
    add_core_index< witness_index                           >(*this);
    add_core_index< transaction_index                       >(*this);
@@ -2263,6 +2298,7 @@ void database::initialize_indexes()
    add_core_index< witness_schedule_index                  >(*this);
    add_core_index< comment_index                           >(*this);
    add_core_index< comment_vote_index                      >(*this);
+   add_core_index< comment_report_index                    >(*this);
    add_core_index< witness_vote_index                      >(*this);
    add_core_index< limit_order_index                       >(*this);
    add_core_index< feed_history_index                      >(*this);
@@ -2873,6 +2909,7 @@ void database::_apply_transaction(const signed_transaction& trx)
       try
       {
          trx.verify_authority( chain_id, get_active, get_owner, get_posting, STEEMIT_MAX_SIG_CHECK_DEPTH );
+         check_admin(trx.extract_admin_ops());
       }
       catch( protocol::tx_missing_active_auth& e )
       {
@@ -4209,4 +4246,4 @@ void database::retally_witness_vote_counts( bool force )
    }
 }
 
-} } //steemit::chain
+} } //contento::chain
