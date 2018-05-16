@@ -123,18 +123,18 @@ void admin_grant_evaluator::do_apply( const admin_grant_operation& o )
                 switch (o.type)
                 {
                     case 0:
-                        c.comment_delete_nomination &= ~(uint128_t(1) << bitshift);
+                        c.comment_delete_nomination &= ~(uint128_t(1) << uint128_t(bitshift));
                     default:
-                        c.commercial_nomination &= ~(uint128_t(1) << bitshift);
+                        c.commercial_nomination &= ~(uint128_t(1) << uint128_t(bitshift));
                 }
                 return;
             }
             switch (o.type)
             {
                 case 0:
-                    c.comment_delete_nomination |= ~(uint128_t(1) << bitshift);
+                    c.comment_delete_nomination |= uint128_t(1) << uint128_t(bitshift);
                 default:
-                    c.commercial_nomination |= ~(uint128_t(1) << bitshift);
+                    c.commercial_nomination |= uint128_t(1) << uint128_t(bitshift);
             }
         });
         return;
@@ -147,18 +147,18 @@ void admin_grant_evaluator::do_apply( const admin_grant_operation& o )
             switch (o.type)
             {
                 case 0:
-                    c.comment_delete_nomination &= ~(uint128_t(1) << bitshift);
+                    c.comment_delete_nomination &= ~(uint128_t(1) << uint128_t(bitshift));
                 default:
-                    c.commercial_nomination &= ~(uint128_t(1) << bitshift);
+                    c.commercial_nomination &= ~(uint128_t(1) << uint128_t(bitshift));
             }
             return;
         }
         switch (o.type)
         {
             case 0:
-                c.comment_delete_nomination |= ~(uint128_t(1) << bitshift);
+                c.comment_delete_nomination |= uint128_t(1) << uint128_t(bitshift);
             default:
-                c.commercial_nomination |= ~(uint128_t(1) << bitshift);
+                c.commercial_nomination |= uint128_t(1) << uint128_t(bitshift);
         }
     });
 }
@@ -168,15 +168,14 @@ void delete_comment( const comment_object& co, database &db ) {
     FC_ASSERT( !(auth.owner_challenged || auth.active_challenged ), "Operation cannot be processed because account is currently challenged." );
 
     // delete all child comments
-    // TODO: bus error: 10
-    /*
-    const auto& by_root_idx = db.get_index<comment_index>().indices().get<by_root>();
-    auto child_itr = by_root_idx.lower_bound( comment_id_type(co.id) );
-    while( child_itr != by_root_idx.end() && child_itr->root_comment == co.id ) {
-        const auto& cur_child_comment = *child_itr;
-        ++child_itr;
+    const auto& by_permlink_idx = db.get_index< comment_index >().indices().get< by_parent >();
+    auto itr = by_permlink_idx.find( boost::make_tuple( co.author, co.permlink ) );
+    while( itr != by_permlink_idx.end() && itr->parent_author == co.author && itr->parent_permlink == co.permlink )
+    {
+        const auto& cur_child_comment = *itr;
+        ++itr;
         delete_comment( cur_child_comment, db );
-    }*/
+    }
 
     //FC_ASSERT( co.cashout_time != fc::time_point_sec::maximum() );
     //FC_ASSERT( co.net_rshares <= 0, "Cannot delete a comment with net positive votes." );

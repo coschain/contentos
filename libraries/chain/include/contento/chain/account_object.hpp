@@ -140,8 +140,8 @@ namespace contento { namespace chain {
          id_type              id;
          account_name_type    name;
          
-         uint128_t            comment_delete_nomination = 0;
-         uint128_t            commercial_nomination = 0;
+         uint128_t            comment_delete_nomination;
+         uint128_t            commercial_nomination;
    };
 
    class account_authority_object : public object< account_authority_object_type, account_authority_object >
