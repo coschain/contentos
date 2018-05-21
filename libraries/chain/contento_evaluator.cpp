@@ -1,7 +1,7 @@
-#include <contento/chain/steem_evaluator.hpp>
+#include <contento/chain/contento_evaluator.hpp>
 #include <contento/chain/database.hpp>
 #include <contento/chain/custom_operation_interpreter.hpp>
-#include <contento/chain/steem_objects.hpp>
+#include <contento/chain/contento_objects.hpp>
 #include <contento/chain/witness_objects.hpp>
 #include <contento/chain/block_summary_object.hpp>
 

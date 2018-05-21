@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <contento/chain/steem_object_types.hpp>
+#include <contento/chain/contento_object_types.hpp>
 
 #include <fc/api.hpp>
 

@@ -3,7 +3,7 @@
 
 #include <contento/chain/account_object.hpp>
 #include <contento/chain/comment_object.hpp>
-#include <contento/protocol/steem_operations.hpp>
+#include <contento/protocol/contento_operations.hpp>
 
 #include <contento/market_history/market_history_plugin.hpp>
 

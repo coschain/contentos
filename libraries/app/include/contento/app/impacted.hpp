@@ -26,7 +26,7 @@
 #include <fc/container/flat.hpp>
 #include <contento/protocol/operations.hpp>
 #include <contento/protocol/transaction.hpp>
-#include <contento/chain/steem_object_types.hpp>
+#include <contento/chain/contento_object_types.hpp>
 
 #include <fc/string.hpp>
 

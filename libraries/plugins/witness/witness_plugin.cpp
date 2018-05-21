@@ -30,7 +30,7 @@
 #include <contento/chain/database_exceptions.hpp>
 #include <contento/chain/generic_custom_operation_interpreter.hpp>
 #include <contento/chain/index.hpp>
-#include <contento/chain/steem_objects.hpp>
+#include <contento/chain/contento_objects.hpp>
 
 #include <fc/time.hpp>
 

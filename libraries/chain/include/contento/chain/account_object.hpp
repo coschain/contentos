@@ -2,9 +2,9 @@
 #include <fc/fixed_string.hpp>
 
 #include <contento/protocol/authority.hpp>
-#include <contento/protocol/steem_operations.hpp>
+#include <contento/protocol/contento_operations.hpp>
 
-#include <contento/chain/steem_object_types.hpp>
+#include <contento/chain/contento_object_types.hpp>
 #include <contento/chain/witness_objects.hpp>
 #include <contento/chain/shared_authority.hpp>
 

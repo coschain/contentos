@@ -4,7 +4,7 @@
 #include <contento/chain/comment_object.hpp>
 #include <contento/chain/global_property_object.hpp>
 #include <contento/chain/history_object.hpp>
-#include <contento/chain/steem_objects.hpp>
+#include <contento/chain/contento_objects.hpp>
 #include <contento/chain/transaction_object.hpp>
 #include <contento/chain/witness_objects.hpp>
 

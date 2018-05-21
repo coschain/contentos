@@ -6,7 +6,7 @@
 #include <contento/chain/database.hpp>
 #include <contento/chain/database_exceptions.hpp>
 #include <contento/chain/hardfork.hpp>
-#include <contento/chain/steem_objects.hpp>
+#include <contento/chain/contento_objects.hpp>
 
 #include <contento/chain/util/reward.hpp>
 

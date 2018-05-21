@@ -1,4 +1,4 @@
-#include <contento/protocol/steem_operations.hpp>
+#include <contento/protocol/contento_operations.hpp>
 
 #include <contento/chain/block_summary_object.hpp>
 #include <contento/chain/compound.hpp>
@@ -10,8 +10,8 @@
 #include <contento/chain/global_property_object.hpp>
 #include <contento/chain/history_object.hpp>
 #include <contento/chain/index.hpp>
-#include <contento/chain/steem_evaluator.hpp>
-#include <contento/chain/steem_objects.hpp>
+#include <contento/chain/contento_evaluator.hpp>
+#include <contento/chain/contento_objects.hpp>
 #include <contento/chain/transaction_object.hpp>
 #include <contento/chain/shared_db_merkle.hpp>
 #include <contento/chain/operation_notification.hpp>

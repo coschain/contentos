@@ -1,9 +1,9 @@
 #pragma once
 
 #include <contento/protocol/authority.hpp>
-#include <contento/protocol/steem_operations.hpp>
+#include <contento/protocol/contento_operations.hpp>
 
-#include <contento/chain/steem_object_types.hpp>
+#include <contento/chain/contento_object_types.hpp>
 
 #include <boost/multi_index/composite_key.hpp>
 #include <boost/multiprecision/cpp_int.hpp>

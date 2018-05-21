@@ -1,7 +1,7 @@
 #pragma once
 
 #include <contento/chain/util/asset.hpp>
-#include <contento/chain/steem_objects.hpp>
+#include <contento/chain/contento_objects.hpp>
 
 #include <contento/protocol/asset.hpp>
 #include <contento/protocol/config.hpp>

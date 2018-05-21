@@ -26,8 +26,8 @@
 #include <contento/app/application.hpp>
 #include <contento/app/plugin.hpp>
 
-#include <contento/chain/steem_objects.hpp>
-#include <contento/chain/steem_object_types.hpp>
+#include <contento/chain/contento_objects.hpp>
+#include <contento/chain/contento_object_types.hpp>
 #include <contento/chain/database_exceptions.hpp>
 
 #include <fc/time.hpp>

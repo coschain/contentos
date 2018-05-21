@@ -3,7 +3,7 @@
 
 #include <graphene/utilities/tempdir.hpp>
 
-#include <contento/chain/steem_objects.hpp>
+#include <contento/chain/contento_objects.hpp>
 #include <contento/chain/history_object.hpp>
 #include <contento/account_history/account_history_plugin.hpp>
 #include <contento/witness/witness_plugin.hpp>

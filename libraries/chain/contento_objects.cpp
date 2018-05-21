@@ -1,5 +1,5 @@
 
-#include <contento/chain/steem_objects.hpp>
+#include <contento/chain/contento_objects.hpp>
 
 #include <fc/uint128.hpp>
 

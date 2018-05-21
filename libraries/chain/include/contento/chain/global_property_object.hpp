@@ -1,7 +1,7 @@
 #pragma once
 #include <fc/uint128.hpp>
 
-#include <contento/chain/steem_object_types.hpp>
+#include <contento/chain/contento_object_types.hpp>
 
 #include <contento/protocol/asset.hpp>
 
