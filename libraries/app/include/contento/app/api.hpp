@@ -170,10 +170,10 @@ namespace contento { namespace app {
          application& _app;
    };
 
-   struct steem_version_info
+   struct contento_version_info
    {
-      steem_version_info() {}
-      steem_version_info( fc::string bc_v, fc::string s_v, fc::string fc_v )
+      contento_version_info() {}
+      contento_version_info( fc::string bc_v, fc::string s_v, fc::string fc_v )
          :blockchain_version( bc_v ), steem_revision( s_v ), fc_revision( fc_v ) {}
 
       fc::string blockchain_version;
@@ -205,7 +205,7 @@ namespace contento { namespace app {
 
          fc::api_ptr get_api_by_name( const string& api_name )const;
 
-         steem_version_info get_version();
+         contento_version_info get_version();
 
          /// internal method, not exposed via JSON RPC
          void on_api_startup();
@@ -218,7 +218,7 @@ namespace contento { namespace app {
 
 FC_REFLECT( contento::app::network_broadcast_api::transaction_confirmation,
         (id)(block_num)(trx_num)(expired) )
-FC_REFLECT( contento::app::steem_version_info, (blockchain_version)(steem_revision)(fc_revision) )
+FC_REFLECT( contento::app::contento_version_info, (blockchain_version)(steem_revision)(fc_revision) )
 //FC_REFLECT_TYPENAME( fc::ecc::compact_signature );
 //FC_REFLECT_TYPENAME( fc::ecc::commitment_type );
 

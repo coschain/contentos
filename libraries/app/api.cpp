@@ -115,9 +115,9 @@ namespace contento { namespace app {
        return it->second;
     }
 
-    steem_version_info login_api::get_version()
+    contento_version_info login_api::get_version()
     {
-       return steem_version_info(
+       return contento_version_info(
          fc::string( STEEMIT_BLOCKCHAIN_VERSION ),
          fc::string( graphene::utilities::git_revision_sha ),
          fc::string( fc::git_revision_sha ) );
