@@ -391,7 +391,7 @@ struct operation_visitor
 
    void operator()( const transfer_operation& op )const
    {
-      if( op.to == STEEMIT_NULL_ACCOUNT && op.amount.symbol == SBD_SYMBOL )
+      if( op.to == CONTENTO_NULL_ACCOUNT && op.amount.symbol == SBD_SYMBOL )
       {
          vector<string> part; part.reserve(4);
          auto path = op.memo;
@@ -535,4 +535,4 @@ void tags_plugin::plugin_startup()
 
 } } /// contento::tags
 
-STEEMIT_DEFINE_PLUGIN( tags, contento::tags::tags_plugin )
+CONTENTO_DEFINE_PLUGIN( tags, contento::tags::tags_plugin )

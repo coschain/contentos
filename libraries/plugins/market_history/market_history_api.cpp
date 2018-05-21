@@ -34,8 +34,8 @@ market_ticker market_history_api_impl::get_ticker() const
 
    if( itr != bucket_idx.end() )
    {
-      auto open = ( asset( itr->open_sbd, SBD_SYMBOL ) / asset( itr->open_steem, STEEM_SYMBOL ) ).to_real();
-      result.latest = ( asset( itr->close_sbd, SBD_SYMBOL ) / asset( itr->close_steem, STEEM_SYMBOL ) ).to_real();
+      auto open = ( asset( itr->open_sbd, SBD_SYMBOL ) / asset( itr->open_steem, COC_SYMBOL ) ).to_real();
+      result.latest = ( asset( itr->close_sbd, SBD_SYMBOL ) / asset( itr->close_steem, COC_SYMBOL ) ).to_real();
       result.percent_change = ( ( result.latest - open ) / open ) * 100;
    }
    else
@@ -84,7 +84,7 @@ order_book market_history_api_impl::get_order_book( uint32_t limit ) const
    FC_ASSERT( limit <= 500 );
 
    const auto& order_idx = app.chain_database()->get_index< contento::chain::limit_order_index >().indices().get< contento::chain::by_price >();
-   auto itr = order_idx.lower_bound( price::max( SBD_SYMBOL, STEEM_SYMBOL ) );
+   auto itr = order_idx.lower_bound( price::max( SBD_SYMBOL, COC_SYMBOL ) );
 
    order_book result;
 
@@ -98,14 +98,14 @@ order_book market_history_api_impl::get_order_book( uint32_t limit ) const
       ++itr;
    }
 
-   itr = order_idx.lower_bound( price::max( STEEM_SYMBOL, SBD_SYMBOL ) );
+   itr = order_idx.lower_bound( price::max( COC_SYMBOL, SBD_SYMBOL ) );
 
-   while( itr != order_idx.end() && itr->sell_price.base.symbol == STEEM_SYMBOL && result.asks.size() < limit )
+   while( itr != order_idx.end() && itr->sell_price.base.symbol == COC_SYMBOL && result.asks.size() < limit )
    {
       order cur;
       cur.price = itr->sell_price.quote.to_real() / itr->sell_price.base.to_real();
       cur.steem = itr->for_sale;
-      cur.sbd = ( asset( itr->for_sale, STEEM_SYMBOL ) * itr->sell_price ).amount;
+      cur.sbd = ( asset( itr->for_sale, COC_SYMBOL ) * itr->sell_price ).amount;
       result.asks.push_back( cur );
       ++itr;
    }

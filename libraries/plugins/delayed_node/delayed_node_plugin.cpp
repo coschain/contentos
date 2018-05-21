@@ -165,4 +165,4 @@ void delayed_node_plugin::connection_failed()
 
 } }
 
-STEEMIT_DEFINE_PLUGIN( delayed_node, contento::delayed_node::delayed_node_plugin )
+CONTENTO_DEFINE_PLUGIN( delayed_node, contento::delayed_node::delayed_node_plugin )

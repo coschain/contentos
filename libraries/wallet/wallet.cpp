@@ -298,7 +298,7 @@ public:
       result["participation"] = (100*dynamic_props.recent_slots_filled.popcount()) / 128.0;
       result["median_sbd_price"] = _remote_db->get_current_median_history_price();
       result["account_creation_fee"] = _remote_db->get_chain_properties().account_creation_fee;
-      result["post_reward_fund"] = fc::variant(_remote_db->get_reward_fund( STEEMIT_POST_REWARD_FUND_NAME )).get_object();
+      result["post_reward_fund"] = fc::variant(_remote_db->get_reward_fund( CONTENTO_POST_REWARD_FUND_NAME )).get_object();
       return result;
    }
 
@@ -310,7 +310,7 @@ public:
          client_version = client_version.substr( pos + 1 );
 
       fc::mutable_variant_object result;
-      result["blockchain_version"]       = STEEMIT_BLOCKCHAIN_VERSION;
+      result["blockchain_version"]       = CONTENTO_BLOCKCHAIN_VERSION;
       result["client_version"]           = client_version;
       result["steem_revision"]           = graphene::utilities::git_revision_sha;
       result["steem_revision_age"]       = fc::get_approximate_relative_time_string( fc::time_point_sec( graphene::utilities::git_revision_unix_timestamp ) );
@@ -544,7 +544,7 @@ public:
 
    void set_transaction_expiration( uint32_t tx_expiration_seconds )
    {
-      FC_ASSERT( tx_expiration_seconds < STEEMIT_MAX_TIME_UNTIL_EXPIRATION );
+      FC_ASSERT( tx_expiration_seconds < CONTENTO_MAX_TIME_UNTIL_EXPIRATION );
       _tx_expiration_seconds = tx_expiration_seconds;
    }
 
@@ -675,7 +675,7 @@ public:
       }
 
       auto minimal_signing_keys = tx.minimize_required_signatures(
-         STEEMIT_CHAIN_ID,
+         CONTENTO_CHAIN_ID,
          available_keys,
          [&]( const string& account_name ) -> const authority&
          { return (get_account_from_lut( account_name ).active); },
@@ -683,14 +683,14 @@ public:
          { return (get_account_from_lut( account_name ).owner); },
          [&]( const string& account_name ) -> const authority&
          { return (get_account_from_lut( account_name ).posting); },
-         STEEMIT_MAX_SIG_CHECK_DEPTH
+         CONTENTO_MAX_SIG_CHECK_DEPTH
          );
 
       for( const public_key_type& k : minimal_signing_keys )
       {
          auto it = available_private_keys.find(k);
          FC_ASSERT( it != available_private_keys.end() );
-         tx.sign( it->second, STEEMIT_CHAIN_ID );
+         tx.sign( it->second, CONTENTO_CHAIN_ID );
       }
 
       if( broadcast ) {
@@ -781,7 +781,7 @@ public:
              ss << ' ' << setw( 10 ) << o.orderid;
              ss << ' ' << setw( 10 ) << o.real_price;
              ss << ' ' << setw( 10 ) << fc::variant( asset( o.for_sale, o.sell_price.base.symbol ) ).as_string();
-             ss << ' ' << setw( 10 ) << (o.sell_price.base.symbol == STEEM_SYMBOL ? "SELL" : "BUY");
+             ss << ' ' << setw( 10 ) << (o.sell_price.base.symbol == COC_SYMBOL ? "SELL" : "BUY");
              ss << "\n";
           }
           return ss.str();
@@ -815,7 +815,7 @@ public:
                ss
                   << ' ' << setw( spacing ) << bid_sum.to_string()
                   << ' ' << setw( spacing ) << asset( orders.bids[i].sbd, SBD_SYMBOL ).to_string()
-                  << ' ' << setw( spacing ) << asset( orders.bids[i].steem, STEEM_SYMBOL ).to_string()
+                  << ' ' << setw( spacing ) << asset( orders.bids[i].steem, COC_SYMBOL ).to_string()
                   << ' ' << setw( spacing ) << orders.bids[i].real_price; //(~orders.bids[i].order_price).to_real();
             }
             else
@@ -830,7 +830,7 @@ public:
                ask_sum += asset( orders.asks[i].sbd, SBD_SYMBOL );
                //ss << ' ' << setw( spacing ) << (~orders.asks[i].order_price).to_real()
                ss << ' ' << setw( spacing ) << orders.asks[i].real_price
-                  << ' ' << setw( spacing ) << asset( orders.asks[i].steem, STEEM_SYMBOL ).to_string()
+                  << ' ' << setw( spacing ) << asset( orders.asks[i].steem, COC_SYMBOL ).to_string()
                   << ' ' << setw( spacing ) << asset( orders.asks[i].sbd, SBD_SYMBOL ).to_string()
                   << ' ' << setw( spacing ) << ask_sum.to_string();
             }
@@ -1291,7 +1291,7 @@ try {
       import_key( memo.wif_priv_key );
       
       account_create_operation op;
-      op.creator = STEEMIT_INIT_MINER_NAME;
+      op.creator = CONTENTO_INIT_MINER_NAME;
       op.new_account_name = "councillor" + (i == 0 ? "" : std::to_string(i));
       op.owner = authority( 1, owner.pub_key, 1 );
       op.active = authority( 1, active.pub_key, 1 );
@@ -1299,7 +1299,7 @@ try {
       op.memo_key = memo.pub_key;
       //op.json_metadata = json_meta;
       op.fee = my->_remote_db->get_chain_properties().account_creation_fee * 
-            asset( STEEMIT_CREATE_ACCOUNT_WITH_STEEM_MODIFIER, STEEM_SYMBOL );
+            asset( CONTENTO_CREATE_ACCOUNT_WITH_STEEM_MODIFIER, COC_SYMBOL );
             
       tx.operations.push_back(op);
    }
@@ -1334,7 +1334,7 @@ try {
    op.reporter = reporter;
    op.author = author;
    op.permlink = permlink;
-   op.credit = asset( credit, STEEM_SYMBOL );
+   op.credit = asset( credit, COC_SYMBOL );
    op.tag = tag;
    op.is_ack = is_ack;
    op.approved = approved;
@@ -1368,7 +1368,7 @@ annotated_signed_transaction wallet_api::create_account_with_keys( string creato
    op.posting = authority( 1, posting, 1 );
    op.memo_key = memo;
    op.json_metadata = json_meta;
-   op.fee = my->_remote_db->get_chain_properties().account_creation_fee * asset( STEEMIT_CREATE_ACCOUNT_WITH_STEEM_MODIFIER, STEEM_SYMBOL );
+   op.fee = my->_remote_db->get_chain_properties().account_creation_fee * asset( CONTENTO_CREATE_ACCOUNT_WITH_STEEM_MODIFIER, COC_SYMBOL );
 
    signed_transaction tx;
    tx.operations.push_back(op);
@@ -2345,7 +2345,7 @@ annotated_signed_transaction wallet_api::vote( string voter, string author, stri
    op.voter = voter;
    op.author = author;
    op.permlink = permlink;
-   op.weight = weight * STEEMIT_1_PERCENT;
+   op.weight = weight * CONTENTO_1_PERCENT;
 
    signed_transaction tx;
    tx.operations.push_back( op );
@@ -2431,7 +2431,7 @@ annotated_signed_transaction      wallet_api::send_private_message( string from,
 
    custom_operation op;
    op.required_auths.insert(from);
-   op.id = STEEMIT_PRIVATE_MESSAGE_COP_ID;
+   op.id = CONTENTO_PRIVATE_MESSAGE_COP_ID;
 
 
    private_message_operation pmo;

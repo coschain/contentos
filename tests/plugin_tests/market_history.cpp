@@ -42,12 +42,12 @@ BOOST_AUTO_TEST_CASE( mh_test )
 
       vote_operation vote;
       vote.voter = "alice";
-      vote.weight = STEEMIT_100_PERCENT;
+      vote.weight = CONTENTO_100_PERCENT;
       vote.author = "alice";
       vote.permlink = "test";
       tx.operations.push_back( vote );
 
-      tx.set_expiration( db.head_block_time() + STEEMIT_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db.head_block_time() + CONTENTO_MAX_TIME_UNTIL_EXPIRATION );
       tx.sign( alice_private_key, db.get_chain_id() );
       db.push_transaction( tx, 0 );
 
@@ -71,7 +71,7 @@ BOOST_AUTO_TEST_CASE( mh_test )
       op.amount_to_sell = ASSET( "1.000 TBD" );
       op.min_to_receive = ASSET( "2.000 TESTS" );
       tx.operations.push_back( op );
-      tx.set_expiration( db.head_block_time() + STEEMIT_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db.head_block_time() + CONTENTO_MAX_TIME_UNTIL_EXPIRATION );
       tx.sign( alice_private_key, db.get_chain_id() );
       db.push_transaction( tx,  0 );
 
@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE( mh_test )
       op.amount_to_sell = ASSET( "1.000 TESTS" );
       op.min_to_receive = ASSET( "0.500 TBD" );
       tx.operations.push_back( op );
-      tx.set_expiration( db.head_block_time() + STEEMIT_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db.head_block_time() + CONTENTO_MAX_TIME_UNTIL_EXPIRATION );
       tx.sign( sam_private_key, db.get_chain_id() );
       db.push_transaction( tx, 0 );
 
@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE( mh_test )
       op.amount_to_sell = ASSET( "0.500 TBD" );
       op.min_to_receive = ASSET( "0.900 TESTS" );
       tx.operations.push_back( op );
-      tx.set_expiration( db.head_block_time() + STEEMIT_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db.head_block_time() + CONTENTO_MAX_TIME_UNTIL_EXPIRATION );
       tx.sign( alice_private_key, db.get_chain_id() );
       db.push_transaction( tx, 0 );
 
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE( mh_test )
       op.amount_to_sell = ASSET( "0.450 TESTS" );
       op.min_to_receive = ASSET( "0.250 TBD" );
       tx.operations.push_back( op );
-      tx.set_expiration( db.head_block_time() + STEEMIT_MAX_TIME_UNTIL_EXPIRATION );
+      tx.set_expiration( db.head_block_time() + CONTENTO_MAX_TIME_UNTIL_EXPIRATION );
       tx.sign( bob_private_key, db.get_chain_id() );
       db.push_transaction( tx, 0 );
       validate_database();
@@ -270,7 +270,7 @@ BOOST_AUTO_TEST_CASE( mh_test )
       bucket++;
 
       BOOST_REQUIRE( bucket->seconds == 86400 );
-      BOOST_REQUIRE( bucket->open == STEEMIT_GENESIS_TIME );
+      BOOST_REQUIRE( bucket->open == CONTENTO_GENESIS_TIME );
       BOOST_REQUIRE( bucket->high_steem == ASSET( "0.450 TESTS " ).amount );
       BOOST_REQUIRE( bucket->high_sbd == ASSET( "0.250 TBD" ).amount );
       BOOST_REQUIRE( bucket->low_steem == ASSET( "1.500 TESTS" ).amount );

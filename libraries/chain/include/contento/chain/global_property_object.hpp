@@ -49,22 +49,22 @@ namespace contento { namespace chain {
           */
          uint32_t num_pow_witnesses = 0;
 
-         asset       virtual_supply             = asset( 0, STEEM_SYMBOL );
-         asset       current_supply             = asset( 0, STEEM_SYMBOL );
-         asset       confidential_supply        = asset( 0, STEEM_SYMBOL ); ///< total asset held in confidential balances
+         asset       virtual_supply             = asset( 0, COC_SYMBOL );
+         asset       current_supply             = asset( 0, COC_SYMBOL );
+         asset       confidential_supply        = asset( 0, COC_SYMBOL ); ///< total asset held in confidential balances
          asset       current_sbd_supply         = asset( 0, SBD_SYMBOL );
          asset       confidential_sbd_supply    = asset( 0, SBD_SYMBOL ); ///< total asset held in confidential balances
-         asset       total_vesting_fund_steem   = asset( 0, STEEM_SYMBOL );
+         asset       total_vesting_fund_steem   = asset( 0, COC_SYMBOL );
          asset       total_vesting_shares       = asset( 0, VESTS_SYMBOL );
-         asset       total_reward_fund_steem    = asset( 0, STEEM_SYMBOL );
+         asset       total_reward_fund_steem    = asset( 0, COC_SYMBOL );
          fc::uint128 total_reward_shares2; ///< the running total of REWARD^2
          asset       pending_rewarded_vesting_shares = asset( 0, VESTS_SYMBOL );
-         asset       pending_rewarded_vesting_steem = asset( 0, STEEM_SYMBOL );
+         asset       pending_rewarded_vesting_steem = asset( 0, COC_SYMBOL );
 
          price       get_vesting_share_price() const
          {
             if ( total_vesting_fund_steem.amount == 0 || total_vesting_shares.amount == 0 )
-               return price ( asset( 1000, STEEM_SYMBOL ), asset( 1000000, VESTS_SYMBOL ) );
+               return price ( asset( 1000, COC_SYMBOL ), asset( 1000000, VESTS_SYMBOL ) );
 
             return price( total_vesting_shares, total_vesting_fund_steem );
          }
@@ -80,7 +80,7 @@ namespace contento { namespace chain {
           */
          uint16_t sbd_interest_rate = 0;
 
-         uint16_t sbd_print_rate = STEEMIT_100_PERCENT;
+         uint16_t sbd_print_rate = CONTENTO_100_PERCENT;
 
          /**
           *  Maximum block size is decided by the set of active witnesses which change every round.

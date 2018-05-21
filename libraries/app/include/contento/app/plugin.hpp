@@ -142,7 +142,7 @@ if( options.count(name) ) { \
 
 } } //contento::app
 
-#define STEEMIT_DEFINE_PLUGIN( plugin_name, plugin_class ) \
+#define CONTENTO_DEFINE_PLUGIN( plugin_name, plugin_class ) \
    namespace contento { namespace plugin { \
    std::shared_ptr< contento::app::abstract_plugin > create_ ## plugin_name ## _plugin( app::application* app )  \
    { return std::make_shared< plugin_class >( app ); } \

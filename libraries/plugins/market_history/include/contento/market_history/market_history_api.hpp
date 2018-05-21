@@ -26,13 +26,13 @@ struct market_ticker
    double      lowest_ask = 0;
    double      highest_bid = 0;
    double      percent_change = 0;
-   asset       steem_volume = asset( 0 , STEEM_SYMBOL );
+   asset       steem_volume = asset( 0 , COC_SYMBOL );
    asset       sbd_volume = asset( 0, SBD_SYMBOL );
 };
 
 struct market_volume
 {
-   asset       steem_volume = asset( 0, STEEM_SYMBOL );
+   asset       steem_volume = asset( 0, COC_SYMBOL );
    asset       sbd_volume = asset( 0, SBD_SYMBOL );
 };
 

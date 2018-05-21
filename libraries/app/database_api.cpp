@@ -739,7 +739,7 @@ vector<extended_limit_order> database_api::get_open_orders( string owner )const
       while( itr != idx.end() && itr->seller == owner ) {
          result.push_back( *itr );
 
-         if( itr->sell_price.base.symbol == STEEM_SYMBOL )
+         if( itr->sell_price.base.symbol == COC_SYMBOL )
             result.back().real_price = (~result.back().sell_price).to_real();
          else
             result.back().real_price = (result.back().sell_price).to_real();
@@ -754,8 +754,8 @@ order_book database_api_impl::get_order_book( uint32_t limit )const
    FC_ASSERT( limit <= 1000 );
    order_book result;
 
-   auto max_sell = price::max( SBD_SYMBOL, STEEM_SYMBOL );
-   auto max_buy = price::max( STEEM_SYMBOL, SBD_SYMBOL );
+   auto max_sell = price::max( SBD_SYMBOL, COC_SYMBOL );
+   auto max_buy = price::max( COC_SYMBOL, SBD_SYMBOL );
 
    const auto& limit_price_idx = _db.get_index<limit_order_index>().indices().get<by_price>();
    auto sell_itr = limit_price_idx.lower_bound(max_sell);
@@ -777,14 +777,14 @@ order_book database_api_impl::get_order_book( uint32_t limit )const
       result.bids.push_back( cur );
       ++sell_itr;
    }
-   while(  buy_itr != end && buy_itr->sell_price.base.symbol == STEEM_SYMBOL && result.asks.size() < limit )
+   while(  buy_itr != end && buy_itr->sell_price.base.symbol == COC_SYMBOL && result.asks.size() < limit )
    {
       auto itr = buy_itr;
       order cur;
       cur.order_price = itr->sell_price;
       cur.real_price  = (~cur.order_price).to_real();
       cur.steem   = itr->for_sale;
-      cur.sbd     = ( asset( itr->for_sale, STEEM_SYMBOL ) * cur.order_price ).amount;
+      cur.sbd     = ( asset( itr->for_sale, COC_SYMBOL ) * cur.order_price ).amount;
       cur.created = itr->created;
       result.asks.push_back( cur );
       ++buy_itr;
@@ -870,12 +870,12 @@ set<public_key_type> database_api::get_required_signatures( const signed_transac
 set<public_key_type> database_api_impl::get_required_signatures( const signed_transaction& trx, const flat_set<public_key_type>& available_keys )const
 {
 //   wdump((trx)(available_keys));
-   auto result = trx.get_required_signatures( STEEMIT_CHAIN_ID,
+   auto result = trx.get_required_signatures( CONTENTO_CHAIN_ID,
                                               available_keys,
                                               [&]( string account_name ){ return authority( _db.get< account_authority_object, by_account >( account_name ).active  ); },
                                               [&]( string account_name ){ return authority( _db.get< account_authority_object, by_account >( account_name ).owner   ); },
                                               [&]( string account_name ){ return authority( _db.get< account_authority_object, by_account >( account_name ).posting ); },
-                                              STEEMIT_MAX_SIG_CHECK_DEPTH );
+                                              CONTENTO_MAX_SIG_CHECK_DEPTH );
 //   wdump((result));
    return result;
 }
@@ -893,7 +893,7 @@ set<public_key_type> database_api_impl::get_potential_signatures( const signed_t
 //   wdump((trx));
    set<public_key_type> result;
    trx.get_required_signatures(
-      STEEMIT_CHAIN_ID,
+      CONTENTO_CHAIN_ID,
       flat_set<public_key_type>(),
       [&]( account_name_type account_name )
       {
@@ -916,7 +916,7 @@ set<public_key_type> database_api_impl::get_potential_signatures( const signed_t
             result.insert(k);
          return authority( auth );
       },
-      STEEMIT_MAX_SIG_CHECK_DEPTH
+      CONTENTO_MAX_SIG_CHECK_DEPTH
    );
 
 //   wdump((result));
@@ -933,11 +933,11 @@ bool database_api::verify_authority( const signed_transaction& trx ) const
 
 bool database_api_impl::verify_authority( const signed_transaction& trx )const
 {
-   trx.verify_authority( STEEMIT_CHAIN_ID,
+   trx.verify_authority( CONTENTO_CHAIN_ID,
                          [&]( string account_name ){ return authority( _db.get< account_authority_object, by_account >( account_name ).active  ); },
                          [&]( string account_name ){ return authority( _db.get< account_authority_object, by_account >( account_name ).owner   ); },
                          [&]( string account_name ){ return authority( _db.get< account_authority_object, by_account >( account_name ).posting ); },
-                         STEEMIT_MAX_SIG_CHECK_DEPTH );
+                         CONTENTO_MAX_SIG_CHECK_DEPTH );
    return true;
 }
 
@@ -1080,7 +1080,7 @@ void database_api::set_pending_payout( discussion& d )const
    const auto& hist  = my->_db.get_feed_history();
 
    asset pot;
-   if( my->_db.has_hardfork( STEEMIT_HARDFORK_0_17__774 ) )
+   if( my->_db.has_hardfork( CONTENTO_HARDFORK_0_17__774 ) )
       pot = my->_db.get_reward_fund( my->_db.get_comment( d.author, d.permlink ) ).reward_balance;
    else
       pot = props.total_reward_fund_steem;
@@ -1088,7 +1088,7 @@ void database_api::set_pending_payout( discussion& d )const
    if( !hist.current_median_history.is_null() ) pot = pot * hist.current_median_history;
 
    u256 total_r2 = 0;
-   if( my->_db.has_hardfork( STEEMIT_HARDFORK_0_17__774 ) )
+   if( my->_db.has_hardfork( CONTENTO_HARDFORK_0_17__774 ) )
       total_r2 = to256( my->_db.get_reward_fund( my->_db.get_comment( d.author, d.permlink ) ).recent_claims );
    else
       total_r2 = to256( props.total_reward_shares2 );
@@ -1096,7 +1096,7 @@ void database_api::set_pending_payout( discussion& d )const
    if( total_r2 > 0 )
    {
       uint128_t vshares;
-      if( my->_db.has_hardfork( STEEMIT_HARDFORK_0_17__774 ) )
+      if( my->_db.has_hardfork( CONTENTO_HARDFORK_0_17__774 ) )
       {
          const auto& rf = my->_db.get_reward_fund( my->_db.get_comment( d.author, d.permlink ) );
          vshares = d.net_rshares.value > 0 ? contento::chain::util::evaluate_reward_curve( d.net_rshares.value, rf.author_reward_curve, rf.content_constant ) : 0;
@@ -1116,7 +1116,7 @@ void database_api::set_pending_payout( discussion& d )const
       }
    }
 
-   if( d.parent_author != STEEMIT_ROOT_POST_PARENT )
+   if( d.parent_author != CONTENTO_ROOT_POST_PARENT )
       d.cashout_time = my->_db.calculate_discussion_payout_time( my->_db.get< comment_object >( d.id ) );
 
    if( d.body.size() > 1024*128 )
@@ -1446,7 +1446,7 @@ vector<discussion> database_api::get_discussions_by_promoted( const discussion_q
       auto parent = get_parent( query );
 
       const auto& tidx = my->_db.get_index<tags::tag_index>().indices().get<tags::by_parent_promoted>();
-      auto tidx_itr = tidx.lower_bound( boost::make_tuple( tag, parent, share_type(STEEMIT_MAX_SHARE_SUPPLY) )  );
+      auto tidx_itr = tidx.lower_bound( boost::make_tuple( tag, parent, share_type(CONTENTO_MAX_SHARE_SUPPLY) )  );
 
       return get_discussions( query, tag, parent, tidx, tidx_itr, query.truncate_body, filter_default, exit_default, []( const tags::tag_object& t ){ return t.promoted_balance == 0; }  );
    });

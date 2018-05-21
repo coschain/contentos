@@ -49,7 +49,7 @@ using app::application;
 #define PRIVATE_MESSAGE_SPACE_ID 6
 #endif
 
-#define STEEMIT_PRIVATE_MESSAGE_COP_ID 777
+#define CONTENTO_PRIVATE_MESSAGE_COP_ID 777
 
 enum private_message_object_type
 {
