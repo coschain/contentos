@@ -1,7 +1,7 @@
 #pragma once
 #include <contento/protocol/transaction.hpp>
 
-#include <contento/chain/steem_object_types.hpp>
+#include <contento/chain/contento_object_types.hpp>
 
 #include <boost/multi_index/hashed_index.hpp>
 

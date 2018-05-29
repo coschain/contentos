@@ -1,7 +1,7 @@
 #pragma once
 
 #include <contento/app/application.hpp>
-#include <contento/app/steem_api_objects.hpp>
+#include <contento/app/contento_api_objects.hpp>
 
 #include <contento/follow/follow_objects.hpp>
 

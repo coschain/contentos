@@ -48,4 +48,4 @@ FC_REFLECT( contento::chain::hardfork_property_object,
    (next_hardfork)(next_hardfork_time) )
 CHAINBASE_SET_INDEX_TYPE( contento::chain::hardfork_property_object, contento::chain::hardfork_property_index )
 
-#define STEEMIT_NUM_HARDFORKS 19
+#define CONTENTO_NUM_HARDFORKS 19

@@ -1,8 +1,8 @@
 #pragma once
 
 #include <contento/protocol/operation_util.hpp>
-#include <contento/protocol/steem_operations.hpp>
-#include <contento/protocol/steem_virtual_operations.hpp>
+#include <contento/protocol/contento_operations.hpp>
+#include <contento/protocol/contento_virtual_operations.hpp>
 
 namespace contento { namespace protocol {
 

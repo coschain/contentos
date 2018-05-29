@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 #include <contento/protocol/protocol.hpp>
-#include <contento/chain/steem_objects.hpp>
+#include <contento/chain/contento_objects.hpp>
 #include <fc/smart_ref_impl.hpp>
 #include <iostream>
 

@@ -27,7 +27,7 @@
 #include <contento/chain/database.hpp>
 #include <contento/protocol/protocol.hpp>
 
-#include <contento/protocol/steem_operations.hpp>
+#include <contento/protocol/contento_operations.hpp>
 
 #include <fc/crypto/digest.hpp>
 #include <fc/crypto/hex.hpp>

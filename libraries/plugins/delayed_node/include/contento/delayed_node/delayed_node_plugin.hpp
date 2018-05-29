@@ -24,7 +24,7 @@
 #pragma once
 
 #include <contento/app/plugin.hpp>
-#include <contento/chain/steem_objects.hpp>
+#include <contento/chain/contento_objects.hpp>
 
 namespace contento { namespace delayed_node {
 namespace detail { struct delayed_node_plugin_impl; }

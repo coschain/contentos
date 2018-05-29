@@ -391,6 +391,6 @@ void follow_plugin::plugin_startup()
 
 } } // contento::follow
 
-STEEMIT_DEFINE_PLUGIN( follow, contento::follow::follow_plugin )
+CONTENTO_DEFINE_PLUGIN( follow, contento::follow::follow_plugin )
 
 //DEFINE_OPERATION_TYPE( contento::follow::follow_plugin_operation )

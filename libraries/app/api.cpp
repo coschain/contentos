@@ -31,7 +31,7 @@
 #include <contento/protocol/get_config.hpp>
 
 #include <contento/chain/database.hpp>
-#include <contento/chain/steem_objects.hpp>
+#include <contento/chain/contento_objects.hpp>
 #include <contento/chain/transaction_object.hpp>
 #include <fc/time.hpp>
 
@@ -115,10 +115,10 @@ namespace contento { namespace app {
        return it->second;
     }
 
-    steem_version_info login_api::get_version()
+    contento_version_info login_api::get_version()
     {
-       return steem_version_info(
-         fc::string( STEEMIT_BLOCKCHAIN_VERSION ),
+       return contento_version_info(
+         fc::string( CONTENTO_BLOCKCHAIN_VERSION ),
          fc::string( graphene::utilities::git_revision_sha ),
          fc::string( fc::git_revision_sha ) );
     }

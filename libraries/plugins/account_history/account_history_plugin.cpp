@@ -262,4 +262,4 @@ flat_map< account_name_type, account_name_type > account_history_plugin::tracked
 
 } }
 
-STEEMIT_DEFINE_PLUGIN( account_history, contento::account_history::account_history_plugin )
+CONTENTO_DEFINE_PLUGIN( account_history, contento::account_history::account_history_plugin )

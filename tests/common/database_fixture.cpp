@@ -3,7 +3,7 @@
 
 #include <graphene/utilities/tempdir.hpp>
 
-#include <contento/chain/steem_objects.hpp>
+#include <contento/chain/contento_objects.hpp>
 #include <contento/chain/history_object.hpp>
 #include <contento/account_history/account_history_plugin.hpp>
 #include <contento/witness/witness_plugin.hpp>
@@ -19,7 +19,7 @@
 
 //using namespace contento::chain::test;
 
-uint32_t STEEMIT_TESTING_GENESIS_TIMESTAMP = 1431700000;
+uint32_t CONTENTO_TESTING_GENESIS_TIMESTAMP = 1431700000;
 
 namespace contento { namespace chain {
 
@@ -54,7 +54,7 @@ clean_database_fixture::clean_database_fixture()
    open_database();
 
    generate_block();
-   db.set_hardfork( STEEMIT_NUM_HARDFORKS );
+   db.set_hardfork( CONTENTO_NUM_HARDFORKS );
    generate_block();
 
    //ahplugin->plugin_startup();
@@ -62,11 +62,11 @@ clean_database_fixture::clean_database_fixture()
    vest( "initminer", 10000 );
 
    // Fill up the rest of the required miners
-   for( int i = STEEMIT_NUM_INIT_MINERS; i < STEEMIT_MAX_WITNESSES; i++ )
+   for( int i = CONTENTO_NUM_INIT_MINERS; i < CONTENTO_MAX_WITNESSES; i++ )
    {
-      account_create( STEEMIT_INIT_MINER_NAME + fc::to_string( i ), init_account_pub_key );
-      fund( STEEMIT_INIT_MINER_NAME + fc::to_string( i ), STEEMIT_MIN_PRODUCER_REWARD.amount.value );
-      witness_create( STEEMIT_INIT_MINER_NAME + fc::to_string( i ), init_account_priv_key, "foo.bar", init_account_pub_key, STEEMIT_MIN_PRODUCER_REWARD.amount );
+      account_create( CONTENTO_INIT_MINER_NAME + fc::to_string( i ), init_account_pub_key );
+      fund( CONTENTO_INIT_MINER_NAME + fc::to_string( i ), CONTENTO_MIN_PRODUCER_REWARD.amount.value );
+      witness_create( CONTENTO_INIT_MINER_NAME + fc::to_string( i ), init_account_priv_key, "foo.bar", init_account_pub_key, CONTENTO_MIN_PRODUCER_REWARD.amount );
    }
 
    validate_database();
@@ -114,17 +114,17 @@ void clean_database_fixture::resize_shared_mem( uint64_t size )
 
 
    generate_block();
-   db.set_hardfork( STEEMIT_NUM_HARDFORKS );
+   db.set_hardfork( CONTENTO_NUM_HARDFORKS );
    generate_block();
 
    vest( "initminer", 10000 );
 
    // Fill up the rest of the required miners
-   for( int i = STEEMIT_NUM_INIT_MINERS; i < STEEMIT_MAX_WITNESSES; i++ )
+   for( int i = CONTENTO_NUM_INIT_MINERS; i < CONTENTO_MAX_WITNESSES; i++ )
    {
-      account_create( STEEMIT_INIT_MINER_NAME + fc::to_string( i ), init_account_pub_key );
-      fund( STEEMIT_INIT_MINER_NAME + fc::to_string( i ), STEEMIT_MIN_PRODUCER_REWARD.amount.value );
-      witness_create( STEEMIT_INIT_MINER_NAME + fc::to_string( i ), init_account_priv_key, "foo.bar", init_account_pub_key, STEEMIT_MIN_PRODUCER_REWARD.amount );
+      account_create( CONTENTO_INIT_MINER_NAME + fc::to_string( i ), init_account_pub_key );
+      fund( CONTENTO_INIT_MINER_NAME + fc::to_string( i ), CONTENTO_MIN_PRODUCER_REWARD.amount.value );
+      witness_create( CONTENTO_INIT_MINER_NAME + fc::to_string( i ), init_account_priv_key, "foo.bar", init_account_pub_key, CONTENTO_MIN_PRODUCER_REWARD.amount );
    }
 
    validate_database();
@@ -208,7 +208,7 @@ void database_fixture::generate_blocks( uint32_t block_count )
 void database_fixture::generate_blocks(fc::time_point_sec timestamp, bool miss_intermediate_blocks)
 {
    db_plugin->debug_generate_blocks_until( debug_key, timestamp, miss_intermediate_blocks, default_skip );
-   BOOST_REQUIRE( ( db.head_block_time() - timestamp ).to_seconds() < STEEMIT_BLOCK_INTERVAL );
+   BOOST_REQUIRE( ( db.head_block_time() - timestamp ).to_seconds() < CONTENTO_BLOCK_INTERVAL );
 }
 
 const account_object& database_fixture::account_create(
@@ -223,12 +223,12 @@ const account_object& database_fixture::account_create(
 {
    try
    {
-      if( db.has_hardfork( STEEMIT_HARDFORK_0_17 ) )
+      if( db.has_hardfork( CONTENTO_HARDFORK_0_17 ) )
       {
          account_create_with_delegation_operation op;
          op.new_account_name = name;
          op.creator = creator;
-         op.fee = asset( fee, STEEM_SYMBOL );
+         op.fee = asset( fee, COC_SYMBOL );
          op.delegation = asset( 0, VESTS_SYMBOL );
          op.owner = authority( 1, key, 1 );
          op.active = authority( 1, key, 1 );
@@ -243,7 +243,7 @@ const account_object& database_fixture::account_create(
          account_create_operation op;
          op.new_account_name = name;
          op.creator = creator;
-         op.fee = asset( fee, STEEM_SYMBOL );
+         op.fee = asset( fee, COC_SYMBOL );
          op.owner = authority( 1, key, 1 );
          op.active = authority( 1, key, 1 );
          op.posting = authority( 1, post_key, 1 );
@@ -253,7 +253,7 @@ const account_object& database_fixture::account_create(
          trx.operations.push_back( op );
       }
 
-      trx.set_expiration( db.head_block_time() + STEEMIT_MAX_TIME_UNTIL_EXPIRATION );
+      trx.set_expiration( db.head_block_time() + CONTENTO_MAX_TIME_UNTIL_EXPIRATION );
       trx.sign( creator_key, db.get_chain_id() );
       trx.validate();
       db.push_transaction( trx, 0 );
@@ -277,9 +277,9 @@ const account_object& database_fixture::account_create(
    {
       return account_create(
          name,
-         STEEMIT_INIT_MINER_NAME,
+         CONTENTO_INIT_MINER_NAME,
          init_account_priv_key,
-         std::max( db.get_witness_schedule_object().median_props.account_creation_fee.amount * STEEMIT_CREATE_ACCOUNT_WITH_STEEM_MODIFIER, share_type( 100 ) ),
+         std::max( db.get_witness_schedule_object().median_props.account_creation_fee.amount * CONTENTO_CREATE_ACCOUNT_WITH_STEEM_MODIFIER, share_type( 100 ) ),
          key,
          post_key,
          "" );
@@ -308,10 +308,10 @@ const witness_object& database_fixture::witness_create(
       op.owner = owner;
       op.url = url;
       op.block_signing_key = signing_key;
-      op.fee = asset( fee, STEEM_SYMBOL );
+      op.fee = asset( fee, COC_SYMBOL );
 
       trx.operations.push_back( op );
-      trx.set_expiration( db.head_block_time() + STEEMIT_MAX_TIME_UNTIL_EXPIRATION );
+      trx.set_expiration( db.head_block_time() + CONTENTO_MAX_TIME_UNTIL_EXPIRATION );
       trx.sign( owner_key, db.get_chain_id() );
       trx.validate();
       db.push_transaction( trx, 0 );
@@ -330,7 +330,7 @@ void database_fixture::fund(
 {
    try
    {
-      transfer( STEEMIT_INIT_MINER_NAME, account_name, amount );
+      transfer( CONTENTO_INIT_MINER_NAME, account_name, amount );
 
    } FC_CAPTURE_AND_RETHROW( (account_name)(amount) )
 }
@@ -346,7 +346,7 @@ void database_fixture::fund(
       {
          db.modify( db.get_account( account_name ), [&]( account_object& a )
          {
-            if( amount.symbol == STEEM_SYMBOL )
+            if( amount.symbol == COC_SYMBOL )
                a.balance += amount;
             else if( amount.symbol == SBD_SYMBOL )
             {
@@ -357,7 +357,7 @@ void database_fixture::fund(
 
          db.modify( db.get_dynamic_global_properties(), [&]( dynamic_global_property_object& gpo )
          {
-            if( amount.symbol == STEEM_SYMBOL )
+            if( amount.symbol == COC_SYMBOL )
                gpo.current_supply += amount;
             else if( amount.symbol == SBD_SYMBOL )
                gpo.current_sbd_supply += amount;
@@ -369,7 +369,7 @@ void database_fixture::fund(
             if( median_feed.current_median_history.is_null() )
                db.modify( median_feed, [&]( feed_history_object& f )
                {
-                  f.current_median_history = price( asset( 1, SBD_SYMBOL ), asset( 1, STEEM_SYMBOL ) );
+                  f.current_median_history = price( asset( 1, SBD_SYMBOL ), asset( 1, COC_SYMBOL ) );
                });
          }
 
@@ -388,7 +388,7 @@ void database_fixture::convert(
       const account_object& account = db.get_account( account_name );
 
 
-      if ( amount.symbol == STEEM_SYMBOL )
+      if ( amount.symbol == COC_SYMBOL )
       {
          db.adjust_balance( account, -amount );
          db.adjust_balance( account, db.to_sbd( amount ) );
@@ -418,7 +418,7 @@ void database_fixture::transfer(
       op.amount = amount;
 
       trx.operations.push_back( op );
-      trx.set_expiration( db.head_block_time() + STEEMIT_MAX_TIME_UNTIL_EXPIRATION );
+      trx.set_expiration( db.head_block_time() + CONTENTO_MAX_TIME_UNTIL_EXPIRATION );
       trx.validate();
       db.push_transaction( trx, ~0 );
       trx.operations.clear();
@@ -432,10 +432,10 @@ void database_fixture::vest( const string& from, const share_type& amount )
       transfer_to_vesting_operation op;
       op.from = from;
       op.to = "";
-      op.amount = asset( amount, STEEM_SYMBOL );
+      op.amount = asset( amount, COC_SYMBOL );
 
       trx.operations.push_back( op );
-      trx.set_expiration( db.head_block_time() + STEEMIT_MAX_TIME_UNTIL_EXPIRATION );
+      trx.set_expiration( db.head_block_time() + CONTENTO_MAX_TIME_UNTIL_EXPIRATION );
       trx.validate();
       db.push_transaction( trx, ~0 );
       trx.operations.clear();
@@ -444,7 +444,7 @@ void database_fixture::vest( const string& from, const share_type& amount )
 
 void database_fixture::vest( const string& account, const asset& amount )
 {
-   if( amount.symbol != STEEM_SYMBOL )
+   if( amount.symbol != COC_SYMBOL )
       return;
 
    db_plugin->debug_update( [=]( database& db )
@@ -480,16 +480,16 @@ void database_fixture::set_price_feed( const price& new_price )
       for ( int i = 1; i < 8; i++ )
       {
          feed_publish_operation op;
-         op.publisher = STEEMIT_INIT_MINER_NAME + fc::to_string( i );
+         op.publisher = CONTENTO_INIT_MINER_NAME + fc::to_string( i );
          op.exchange_rate = new_price;
          trx.operations.push_back( op );
-         trx.set_expiration( db.head_block_time() + STEEMIT_MAX_TIME_UNTIL_EXPIRATION );
+         trx.set_expiration( db.head_block_time() + CONTENTO_MAX_TIME_UNTIL_EXPIRATION );
          db.push_transaction( trx, ~0 );
          trx.operations.clear();
       }
    } FC_CAPTURE_AND_RETHROW( (new_price) )
 
-   generate_blocks( STEEMIT_BLOCKS_PER_HOUR );
+   generate_blocks( CONTENTO_BLOCKS_PER_HOUR );
    BOOST_REQUIRE(
 #ifdef IS_TEST_NET
       !db.skip_price_feed_limit_check ||

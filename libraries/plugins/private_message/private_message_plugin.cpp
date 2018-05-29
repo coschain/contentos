@@ -185,6 +185,6 @@ flat_map<string,string> private_message_plugin::tracked_accounts() const
 
 } }
 
-STEEMIT_DEFINE_PLUGIN( private_message, contento::private_message::private_message_plugin )
+CONTENTO_DEFINE_PLUGIN( private_message, contento::private_message::private_message_plugin )
 
 DEFINE_OPERATION_TYPE( contento::private_message::private_message_plugin_operation )

@@ -1,6 +1,6 @@
 #pragma once
 #include <contento/protocol/types.hpp>
-#include <contento/chain/steem_object_types.hpp>
+#include <contento/chain/contento_object_types.hpp>
 #include <boost/interprocess/managed_mapped_file.hpp>
 
 namespace contento { namespace chain {

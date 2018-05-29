@@ -30,4 +30,4 @@ void auth_util_plugin::plugin_shutdown()
 
 } } } // contento::plugin::auth_util
 
-STEEMIT_DEFINE_PLUGIN( auth_util, contento::plugin::auth_util::auth_util_plugin )
+CONTENTO_DEFINE_PLUGIN( auth_util, contento::plugin::auth_util::auth_util_plugin )

@@ -1,7 +1,7 @@
 #pragma once
 #include <contento/app/plugin.hpp>
 
-#include <contento/chain/steem_object_types.hpp>
+#include <contento/chain/contento_object_types.hpp>
 
 #include <boost/multi_index/composite_key.hpp>
 
@@ -84,8 +84,8 @@ struct bucket_object : public object< bucket_object_type, bucket_object >
    share_type           steem_volume;
    share_type           sbd_volume;
 
-   price high()const { return asset( high_sbd, SBD_SYMBOL ) / asset( high_steem, STEEM_SYMBOL ); }
-   price low()const { return asset( low_sbd, SBD_SYMBOL ) / asset( low_steem, STEEM_SYMBOL ); }
+   price high()const { return asset( high_sbd, SBD_SYMBOL ) / asset( high_steem, COC_SYMBOL ); }
+   price low()const { return asset( low_sbd, SBD_SYMBOL ) / asset( low_steem, COC_SYMBOL ); }
 };
 
 typedef oid< bucket_object > bucket_id_type;

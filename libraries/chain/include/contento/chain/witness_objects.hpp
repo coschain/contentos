@@ -1,9 +1,9 @@
 #pragma once
 
 #include <contento/protocol/authority.hpp>
-#include <contento/protocol/steem_operations.hpp>
+#include <contento/protocol/contento_operations.hpp>
 
-#include <contento/chain/steem_object_types.hpp>
+#include <contento/chain/contento_object_types.hpp>
 
 #include <boost/multi_index/composite_key.hpp>
 
@@ -115,7 +115,7 @@ namespace contento { namespace chain {
          version           running_version;
 
          hardfork_version  hardfork_version_vote;
-         time_point_sec    hardfork_time_vote = STEEMIT_GENESIS_TIME;
+         time_point_sec    hardfork_time_vote = CONTENTO_GENESIS_TIME;
    };
 
 
@@ -151,7 +151,7 @@ namespace contento { namespace chain {
 
          fc::uint128                                                       current_virtual_time;
          uint32_t                                                          next_shuffle_block_num = 1;
-         fc::array< account_name_type, STEEMIT_MAX_WITNESSES >             current_shuffled_witnesses;
+         fc::array< account_name_type, CONTENTO_MAX_WITNESSES >             current_shuffled_witnesses;
          uint8_t                                                           num_scheduled_witnesses = 1;
          uint8_t                                                           top19_weight = 1;
          uint8_t                                                           timeshare_weight = 5;
@@ -160,10 +160,10 @@ namespace contento { namespace chain {
          chain_properties                                                  median_props;
          version                                                           majority_version;
 
-         uint8_t max_voted_witnesses            = STEEMIT_MAX_VOTED_WITNESSES_HF0;
-         uint8_t max_miner_witnesses            = STEEMIT_MAX_MINER_WITNESSES_HF0;
-         uint8_t max_runner_witnesses           = STEEMIT_MAX_RUNNER_WITNESSES_HF0;
-         uint8_t hardfork_required_witnesses    = STEEMIT_HARDFORK_REQUIRED_WITNESSES;
+         uint8_t max_voted_witnesses            = CONTENTO_MAX_VOTED_WITNESSES_HF0;
+         uint8_t max_miner_witnesses            = CONTENTO_MAX_MINER_WITNESSES_HF0;
+         uint8_t max_runner_witnesses           = CONTENTO_MAX_RUNNER_WITNESSES_HF0;
+         uint8_t hardfork_required_witnesses    = CONTENTO_HARDFORK_REQUIRED_WITNESSES;
    };
 
 

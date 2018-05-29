@@ -86,7 +86,7 @@ private:
 
    boost::program_options::variables_map _options;
    bool _production_enabled = false;
-   uint32_t _required_witness_participation = 33 * STEEMIT_1_PERCENT;
+   uint32_t _required_witness_participation = 33 * CONTENTO_1_PERCENT;
    uint32_t _production_skip_flags = contento::chain::database::skip_nothing;
 
    block_id_type    _head_block_id        = block_id_type();
