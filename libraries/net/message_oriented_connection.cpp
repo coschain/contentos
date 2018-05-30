@@ -156,18 +156,19 @@ namespace graphene { namespace net {
         while( true )
         {
           char buffer[BUFFER_SIZE];
-          _sock.read(buffer, BUFFER_SIZE);
+          _sock.read(buffer, BUFFER_SIZE);//先读取header
           _bytes_received += BUFFER_SIZE;
           memcpy((char*)&m, buffer, sizeof(message_header));
 
-          //FC_ASSERT( m.size <= MAX_MESSAGE_SIZE, "", ("m.size",m.size)("MAX_MESSAGE_SIZE",MAX_MESSAGE_SIZE) );
-
+          FC_ASSERT( m.size <= MAX_MESSAGE_SIZE, "", ("m.size",m.size)("MAX_MESSAGE_SIZE",MAX_MESSAGE_SIZE) );
+            
+          //remaining_bytes_with_padding是整个message的大小
           size_t remaining_bytes_with_padding = 16 * ((m.size - LEFTOVER + 15) / 16);
           m.data.resize(LEFTOVER + remaining_bytes_with_padding); //give extra 16 bytes to allow for padding added in send call
           std::copy(buffer + sizeof(message_header), buffer + sizeof(buffer), m.data.begin());
           if (remaining_bytes_with_padding)
           {
-            _sock.read(&m.data[LEFTOVER], remaining_bytes_with_padding);
+            _sock.read(&m.data[LEFTOVER], remaining_bytes_with_padding);//再读取body
             _bytes_received += remaining_bytes_with_padding;
           }
           m.data.resize(m.size); // truncate off the padding bytes

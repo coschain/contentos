@@ -703,6 +703,7 @@ public:
             //rtrx.block_num = result.get_object()["block_num"].as_uint64();
             //rtrx.transaction_num = result.get_object()["trx_num"].as_uint64();
             //return rtrx;
+             std::cerr<<" @@@ broadcast finish time:"<<fc::time_point::now().time_since_epoch().count()<<"\n";
              return tx;
          }
          catch (const fc::exception& e)
@@ -1688,6 +1689,7 @@ annotated_signed_transaction wallet_api::delegate_vesting_shares( string delegat
  */
 annotated_signed_transaction wallet_api::create_account( string creator, string new_account_name, string json_meta, bool broadcast )
 { try {
+    std::cerr<<" @@@ start create time:"<<fc::time_point::now().time_since_epoch().count()<<"\n";
    FC_ASSERT( !is_locked() );
    auto owner = suggest_brain_key();
    auto active = suggest_brain_key();

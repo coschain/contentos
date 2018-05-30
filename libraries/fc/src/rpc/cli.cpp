@@ -59,8 +59,9 @@ void cli::send_notice( uint64_t callback_id, variants args /* = variants() */ )
    FC_ASSERT(false);
 }
 
-void cli::start(bool clean,bool binit,int file_suffix)
+    void cli::start(bool clean,bool binit,int file_suffix,std::string account_name)
 {
+    _account_name = account_name;
     _clean = clean;
     _binit = binit;
     _file_suffix = file_suffix;
@@ -99,6 +100,10 @@ void cli::run()
     string c4 = "create_account \"initminer\" \"test\" \"\" true";
     string c5 = "batch_post_comment \"test\" 100";
     
+    // for write loop
+    string c6 = "create_account \"initminer\" ";
+    string c7 = " \"\" true";
+    
    while( !_run_complete.canceled() )
    {
       try
@@ -115,7 +120,23 @@ void cli::run()
          {
             break;
          }
-          if(!_clean){
+          if(!_clean && _account_name != ""){
+              if (step == 1 && _binit)
+              {
+                  line = c1;
+              } else if (step == 2){
+                  line = c2;
+              } else if (step == 3){
+                  line = c3;
+              } else if (step >= 5){
+                  std::string trail = std::to_string(step);
+                  line = c6 + _account_name+trail + c7;
+                  step++;
+              } else {
+                  step++;
+                  continue;
+              }
+          } else if (!_clean && _account_name == ""){
               if (step == 1 && _binit)
               {
                   line = c1;
@@ -134,7 +155,7 @@ void cli::run()
                   continue;
               }
           }
-         std::cout << line << "\n";
+          std::cout << "cmd:" << line << "\n";
          line += char(EOF);
          fc::variants args = fc::json::variants_from_string(line);;
          if( args.size() == 0 )
