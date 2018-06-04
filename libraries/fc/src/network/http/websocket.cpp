@@ -10,12 +10,15 @@
 #include <fc/variant.hpp>
 #include <fc/thread/thread.hpp>
 #include <fc/asio.hpp>
+#include <fc/interprocess/signals.hpp>
+
+#include <boost/thread.hpp>
 
 #ifdef DEFAULT_LOGGER
 # undef DEFAULT_LOGGER
 #endif
 #define DEFAULT_LOGGER "rpc"
-
+static int rpc_count = 0;
 namespace fc { namespace http {
 
    namespace detail {
@@ -173,24 +176,68 @@ namespace fc { namespace http {
 
       typedef websocketpp::lib::shared_ptr<boost::asio::ssl::context> context_ptr;
 
+       struct wb_work_thread_group
+       {
+           std::vector<boost::thread*>       wb_work_threads;
+           fc::thread*       fc_work_threads[4];
+           
+           wb_work_thread_group()
+           {
+               for( int i = 0; i < 4; ++i ) {
+                   wb_work_threads.push_back( new boost::thread( [=]()
+                 {
+                     fc::thread::current().set_name("wb_work_thread");
+                     fc_work_threads[i] = &fc::thread::current();
+                     //???
+                        fc::promise<int>::ptr exit_promise = new fc::promise<int>("UNIX Signal Handler");
+                     
+                        fc::set_signal_handler([&exit_promise](int signal) {
+                        elog( "Caught SIGINT attempting to exit cleanly" );
+                        exit_promise->set_value(signal);
+                        }, SIGINT);
+                     
+                        fc::set_signal_handler([&exit_promise](int signal) {
+                        elog( "Caught SIGTERM attempting to exit cleanly" );
+                        exit_promise->set_value(signal);
+                        }, SIGTERM);
+                     
+                        exit_promise->wait();
+                 }) );
+               }
+           }
+           fc::thread& get_one() {
+               //random i
+               int i = rand()%4;
+               std::cout<<"wb thread:"<<i<<"\n";
+               return *fc_work_threads[i];
+           }
+       };
+           
       class websocket_server_impl
       {
          public:
+          
             websocket_server_impl()
-            :_server_thread( fc::thread::current() )
+            //:_server_thread( fc::thread::current() )
             {
-
+                srand (time(NULL));
                _server.clear_access_channels( websocketpp::log::alevel::all );
                _server.init_asio(&fc::asio::default_io_service());
                _server.set_reuse_addr(true);
                _server.set_open_handler( [&]( connection_hdl hdl ){
-                    _server_thread.async( [&](){
+                   
+                   static wb_work_thread_group wb_work_thread;
+                   fc::thread& tmp_fc_thread = wb_work_thread.get_one();
+                   
+                    tmp_fc_thread.async( [&](){
                        auto new_con = std::make_shared<websocket_connection_impl<websocket_server_type::connection_ptr>>( _server.get_con_from_hdl(hdl) );
                        _on_connection( _connections[hdl] = new_con );
                     }).wait();
                });
                _server.set_message_handler( [&]( connection_hdl hdl, websocket_server_type::message_ptr msg ){
-                    _server_thread.async( [&](){
+                   static wb_work_thread_group wb_work_thread;
+                   fc::thread& tmp_fc_thread = wb_work_thread.get_one();
+                   tmp_fc_thread.async( [&](){
                        auto current_con = _connections.find(hdl);
                        assert( current_con != _connections.end() );
                        wdump(("server")(msg->get_payload()));
@@ -210,17 +257,27 @@ namespace fc { namespace http {
                } );
 
                _server.set_http_handler( [&]( connection_hdl hdl ){
-                    _server_thread.async( [&](){
+                   /*auto s_ptr = _server.get_con_from_hdl(hdl);
+                   auto con_pointer = s_ptr.get();
+                    intptr_t thatvalue = 1;
+                   thatvalue = reinterpret_cast<intptr_t>(con_pointer);
+                   thatvalue = thatvalue >> 16;
+                   std::cout << "real pointer:"<<con_pointer<<" mod:"<<thatvalue%4<<"\n";*/
+                   
+                   static wb_work_thread_group wb_work_thread;
+                   fc::thread& tmp_fc_thread = wb_work_thread.get_one();
+                    tmp_fc_thread.async( [&](){//都在_server_thread处理请求
                        auto current_con = std::make_shared<websocket_connection_impl<websocket_server_type::connection_ptr>>( _server.get_con_from_hdl(hdl) );
-                       _on_connection( current_con );
+                       _on_connection( current_con );//这里create database_api,初始化websocket_api_connection，设置current_con的on_http回调
 
                        auto con = _server.get_con_from_hdl(hdl);
                        con->defer_http_response();
                        std::string request_body = con->get_request_body();
                        wdump(("server")(request_body));
-
-                       fc::async([current_con, request_body, con] {
-                          std::string response = current_con->on_http(request_body);
+                        rpc_count++;
+std::cout<<"@@@rpc:"<< rpc_count <<"\n";
+                       fc::async([current_con, request_body, con] {//当前已经进入_server_thread，再次async一个任务
+                          std::string response = current_con->on_http(request_body);//on_http最终调用到rpc处理逻辑
                           con->set_body( response );
                           con->set_status( websocketpp::http::status_code::ok );
                           con->send_http_response();
@@ -230,7 +287,9 @@ namespace fc { namespace http {
                });
 
                _server.set_close_handler( [&]( connection_hdl hdl ){
-                    _server_thread.async( [&](){
+                   static wb_work_thread_group wb_work_thread;
+                   fc::thread& tmp_fc_thread = wb_work_thread.get_one();
+                    tmp_fc_thread.async( [&](){
                        if( _connections.find(hdl) != _connections.end() )
                        {
                           _connections[hdl]->closed();
@@ -248,7 +307,9 @@ namespace fc { namespace http {
                _server.set_fail_handler( [&]( connection_hdl hdl ){
                     if( _server.is_listening() )
                     {
-                       _server_thread.async( [&](){
+                        static wb_work_thread_group wb_work_thread;
+                        fc::thread& tmp_fc_thread = wb_work_thread.get_one();
+                       tmp_fc_thread.async( [&](){
                           if( _connections.find(hdl) != _connections.end() )
                           {
                              _connections[hdl]->closed();
@@ -282,7 +343,7 @@ namespace fc { namespace http {
             typedef std::map<connection_hdl, websocket_connection_ptr,std::owner_less<connection_hdl> > con_map;
 
             con_map                  _connections;
-            fc::thread&              _server_thread;
+            //fc::thread&              _server_thread;
             websocket_server_type    _server;
             on_connection_handler    _on_connection;
             fc::promise<void>::ptr   _closed;

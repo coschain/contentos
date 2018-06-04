@@ -29,6 +29,7 @@ class database_api_impl;
 class database_api_impl : public std::enable_shared_from_this<database_api_impl>
 {
    public:
+    int mutable rpc_count = 0;
       database_api_impl( const steemit::app::api_context& ctx  );
       ~database_api_impl();
 
