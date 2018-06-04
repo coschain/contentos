@@ -1109,6 +1109,7 @@ private:
     void log_err(log::level l, char const * msg, error_type const & ec) {
         std::stringstream s;
         s << msg << " error: " << ec << " (" << ec.message() << ")";
+        std::cout << "handle_read_handshake" << " error: " << ec << " ##(" << ec.message() << ")##";
         m_elog->write(l,s.str());
     }
 

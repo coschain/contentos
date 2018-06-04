@@ -21,7 +21,7 @@ namespace fc {
     define_self;
     return self->exchange(locked, boost::memory_order_acquire)!=locked;
   }
-
+ 
   bool spin_yield_lock::try_lock_for( const fc::microseconds& us ) {
     return try_lock_until( fc::time_point::now() + us );
   }

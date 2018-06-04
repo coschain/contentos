@@ -836,6 +836,7 @@ void connection<config>::handle_read_handshake(lib::error_code const & ec,
         }
         
         log_err(log::elevel::rerror,"handle_read_handshake",ecm);
+        std::cout << "handle_read_handshake" << " error: " << ec << " ##@(" << ec.message() << ")##@";
         this->terminate(ecm);
         return;
     }
