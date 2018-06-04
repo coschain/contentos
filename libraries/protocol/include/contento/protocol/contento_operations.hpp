@@ -128,21 +128,20 @@ namespace contento { namespace protocol {
    };
 
 
-   struct comment_operation : public base_operation
-   {
-      account_name_type parent_author;
-      string            parent_permlink;
+    struct comment_operation : public base_operation
+    {
+        account_name_type parent_author;
+        string            parent_permlink;
+        string            category;
+        account_name_type author;
+        string            permlink;
+        string            title;
+        string            body;
+        string            json_metadata;
+        void validate()const;
+        void get_required_posting_authorities( flat_set<account_name_type>& a )const{ a.insert(author); }
+    };
 
-      account_name_type author;
-      string            permlink;
-
-      string            title;
-      string            body;
-      string            json_metadata;
-
-      void validate()const;
-      void get_required_posting_authorities( flat_set<account_name_type>& a )const{ a.insert(author); }
-   };
 
    struct beneficiary_route_type
    {
@@ -1069,7 +1068,7 @@ FC_REFLECT( contento::protocol::set_withdraw_vesting_route_operation, (from_acco
 FC_REFLECT( contento::protocol::witness_update_operation, (owner)(url)(block_signing_key)(props)(fee) )
 FC_REFLECT( contento::protocol::account_witness_vote_operation, (account)(witness)(approve) )
 FC_REFLECT( contento::protocol::account_witness_proxy_operation, (account)(proxy) )
-FC_REFLECT( contento::protocol::comment_operation, (parent_author)(parent_permlink)(author)(permlink)(title)(body)(json_metadata) )
+FC_REFLECT( contento::protocol::comment_operation, (parent_author)(parent_permlink)(category)(author)(permlink)(title)(body)(json_metadata) )
 FC_REFLECT( contento::protocol::vote_operation, (voter)(author)(permlink)(weight) )
 FC_REFLECT( contento::protocol::custom_operation, (required_auths)(id)(data) )
 FC_REFLECT( contento::protocol::custom_json_operation, (required_auths)(required_posting_auths)(id)(json) )

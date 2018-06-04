@@ -43,6 +43,17 @@ namespace contento { namespace protocol {
       string            permlink;
       asset             payout;
    };
+    
+    struct subject_reward_operation : public virtual_operation
+    {
+        subject_reward_operation(){}
+        subject_reward_operation( const account_name_type& a, const string& pl, const asset& p )
+        :author(a), permlink(pl), payout(p){}
+        
+        account_name_type author;
+        string            permlink;
+        asset             payout;
+    };
 
 
    struct liquidity_reward_operation : public virtual_operation
@@ -144,6 +155,15 @@ namespace contento { namespace protocol {
       account_name_type author;
       string            permlink;
    };
+    
+    struct subject_payout_update_operation : public virtual_operation
+    {
+        subject_payout_update_operation() {}
+        subject_payout_update_operation( const account_name_type& a, const string& p ) : author( a ), permlink( p ) {}
+        
+        account_name_type author;
+        string            permlink;
+    };
 
    struct return_vesting_delegation_operation : public virtual_operation
    {
@@ -181,6 +201,7 @@ namespace contento { namespace protocol {
 FC_REFLECT( contento::protocol::author_reward_operation, (author)(permlink)(sbd_payout)(steem_payout)(vesting_payout) )
 FC_REFLECT( contento::protocol::curation_reward_operation, (curator)(reward)(comment_author)(comment_permlink) )
 FC_REFLECT( contento::protocol::comment_reward_operation, (author)(permlink)(payout) )
+FC_REFLECT( contento::protocol::subject_reward_operation, (author)(permlink)(payout) )
 FC_REFLECT( contento::protocol::fill_convert_request_operation, (owner)(requestid)(amount_in)(amount_out) )
 FC_REFLECT( contento::protocol::liquidity_reward_operation, (owner)(payout) )
 FC_REFLECT( contento::protocol::interest_operation, (owner)(interest) )
@@ -190,6 +211,7 @@ FC_REFLECT( contento::protocol::fill_order_operation, (current_owner)(current_or
 FC_REFLECT( contento::protocol::fill_transfer_from_savings_operation, (from)(to)(amount)(request_id)(memo) )
 FC_REFLECT( contento::protocol::hardfork_operation, (hardfork_id) )
 FC_REFLECT( contento::protocol::comment_payout_update_operation, (author)(permlink) )
+FC_REFLECT( contento::protocol::subject_payout_update_operation, (author)(permlink) )
 FC_REFLECT( contento::protocol::return_vesting_delegation_operation, (account)(vesting_shares) )
 FC_REFLECT( contento::protocol::comment_benefactor_reward_operation, (benefactor)(author)(permlink)(reward) )
 FC_REFLECT( contento::protocol::producer_reward_operation, (producer)(vesting_shares) )

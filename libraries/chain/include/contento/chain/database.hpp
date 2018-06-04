@@ -149,6 +149,7 @@ namespace contento { namespace chain {
          const savings_withdraw_object* find_savings_withdraw( const account_name_type& owner, uint32_t request_id )const;
 
          const dynamic_global_property_object&  get_dynamic_global_properties()const;
+         const dynamic_global_reward_property_object& get_dynamic_global_reward_properties()const;
          const node_property_object&            get_node_properties()const;
          const feed_history_object&             get_feed_history()const;
          const witness_schedule_object&         get_witness_schedule_object()const;
@@ -294,7 +295,7 @@ namespace contento { namespace chain {
 
          /** @return the sbd created and deposited to_account, may return STEEM if there is no median feed */
          std::pair< asset, asset > create_sbd( const account_object& to_account, asset steem, bool to_reward_balance=false );
-         asset create_vesting( const account_object& to_account, asset steem, bool to_reward_balance=false );
+         asset create_vesting( const account_object& to_account, asset coc);
          void adjust_total_payout( const comment_object& a, const asset& sbd, const asset& curator_sbd_value, const asset& beneficiary_value );
 
          void        adjust_liquidity_reward( const account_object& owner, const asset& volume, bool is_bid );
@@ -330,7 +331,7 @@ namespace contento { namespace chain {
          void clear_witness_votes( const account_object& a );
          void process_vesting_withdrawals();
          share_type pay_curators( const comment_object& c, share_type& max_rewards );
-         share_type cashout_comment_helper( util::comment_reward_context& ctx, const comment_object& comment );
+         share_type cashout_comment_helper( util::comment_reward_context& ctx, const comment_object& comment, bool is_subject );
          void process_comment_cashout();
          void process_funds();
          void process_conversions();

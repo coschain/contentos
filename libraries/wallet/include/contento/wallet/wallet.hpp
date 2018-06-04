@@ -860,8 +860,9 @@ class wallet_api
        *  @param json the json metadata of the comment
        *  @param broadcast true if you wish to broadcast the transaction
        */
-      annotated_signed_transaction post_comment( string author, string permlink, string parent_author, string parent_permlink, string title, string body, string json, bool broadcast );
+      annotated_signed_transaction post_comment( string author, string permlink, string parent_author, string parent_permlink, string body, string json, bool broadcast );
 
+      annotated_signed_transaction post_subject( string author, string permlink, string category, string title, string body, string json, bool broadcast);
       annotated_signed_transaction      send_private_message( string from, string to, string subject, string body, bool broadcast );
       vector<extended_message_object>   get_inbox( string account, fc::time_point newest, uint32_t limit );
       vector<extended_message_object>   get_outbox( string account, fc::time_point newest, uint32_t limit );

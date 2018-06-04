@@ -42,7 +42,7 @@ uint64_t get_rshare_reward( const comment_reward_context& ctx )
    FC_ASSERT( ctx.rshares > 0 );
    FC_ASSERT( ctx.total_reward_shares2 > 0 );
 
-   u256 rf(ctx.total_reward_fund_steem.amount.value);
+   u256 rf(ctx.total_reward_fund_coc.amount.value);
    u256 total_claims = to256( ctx.total_reward_shares2 );
 
    //idump( (ctx) );
@@ -54,12 +54,12 @@ uint64_t get_rshare_reward( const comment_reward_context& ctx )
    FC_ASSERT( payout_u256 <= u256( uint64_t( std::numeric_limits<int64_t>::max() ) ) );
    uint64_t payout = static_cast< uint64_t >( payout_u256 );
 
-   if( is_comment_payout_dust( ctx.current_steem_price, payout ) )
-      payout = 0;
+//   if( is_comment_payout_dust( ctx.current_steem_price, payout ) )
+//      payout = 0;
 
-   asset max_steem = to_steem( ctx.current_steem_price, ctx.max_sbd );
+//   asset max_steem = to_steem( ctx.current_steem_price, ctx.max_sbd );
 
-   payout = std::min( payout, uint64_t( max_steem.amount.value ) );
+//   payout = std::min( payout, uint64_t( max_steem.amount.value ) );
 
    return payout;
    } FC_CAPTURE_AND_RETHROW( (ctx) )

@@ -69,6 +69,7 @@ namespace contento { namespace protocol {
             author_reward_operation,
             curation_reward_operation,
             comment_reward_operation,
+            subject_reward_operation,
             liquidity_reward_operation,
             interest_operation,
             fill_vesting_withdraw_operation,
@@ -77,6 +78,7 @@ namespace contento { namespace protocol {
             fill_transfer_from_savings_operation,
             hardfork_operation,
             comment_payout_update_operation,
+            subject_payout_update_operation,
             return_vesting_delegation_operation,
             comment_benefactor_reward_operation,
             producer_reward_operation
