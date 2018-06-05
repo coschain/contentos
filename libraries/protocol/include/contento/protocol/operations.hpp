@@ -23,8 +23,6 @@ namespace contento { namespace protocol {
             feed_publish_operation,
             convert_operation,
 
-            admin_grant_operation,
-            comment_report_operation,
             account_create_operation,
             account_update_operation,
 
@@ -63,6 +61,9 @@ namespace contento { namespace protocol {
             claim_reward_balance_operation,
             delegate_vesting_shares_operation,
             account_create_with_delegation_operation,
+
+            admin_grant_operation,
+            comment_report_operation,
 
             /// virtual operations below this point
             fill_convert_request_operation,
