@@ -35,6 +35,10 @@
 #include <fstream>
 #include <functional>
 
+#ifndef CONTENTO_ASA
+#define CONTENTO_ASA
+#endif
+
 namespace contento { namespace chain {
 
 //namespace db2 = graphene::db2;
@@ -3289,35 +3293,35 @@ void database::adjust_balance( const account_object& a, const asset& delta )
          case COC_SYMBOL:
             acnt.balance += delta;
             break;
-         case SBD_SYMBOL:
-            if( a.sbd_seconds_last_update != head_block_time() )
-            {
-               acnt.sbd_seconds += fc::uint128_t(a.sbd_balance.amount.value) * (head_block_time() - a.sbd_seconds_last_update).to_seconds();
-               acnt.sbd_seconds_last_update = head_block_time();
-
-               if( acnt.sbd_seconds > 0 &&
-                   (acnt.sbd_seconds_last_update - acnt.sbd_last_interest_payment).to_seconds() > CONTENTO_SBD_INTEREST_COMPOUND_INTERVAL_SEC )
-               {
-                  auto interest = acnt.sbd_seconds / CONTENTO_SECONDS_PER_YEAR;
-                  interest *= get_dynamic_global_properties().sbd_interest_rate;
-                  interest /= CONTENTO_100_PERCENT;
-                  asset interest_paid(interest.to_uint64(), SBD_SYMBOL);
-                  acnt.sbd_balance += interest_paid;
-                  acnt.sbd_seconds = 0;
-                  acnt.sbd_last_interest_payment = head_block_time();
-
-                  if(interest > 0)
-                     push_virtual_operation( interest_operation( a.name, interest_paid ) );
-
-                  modify( get_dynamic_global_properties(), [&]( dynamic_global_property_object& props)
-                  {
-                     props.current_sbd_supply += interest_paid;
-                     props.virtual_supply += interest_paid * get_feed_history().current_median_history;
-                  } );
-               }
-            }
-            acnt.sbd_balance += delta;
-            break;
+//         case SBD_SYMBOL:
+//            if( a.sbd_seconds_last_update != head_block_time() )
+//            {
+//               acnt.sbd_seconds += fc::uint128_t(a.sbd_balance.amount.value) * (head_block_time() - a.sbd_seconds_last_update).to_seconds();
+//               acnt.sbd_seconds_last_update = head_block_time();
+//
+//               if( acnt.sbd_seconds > 0 &&
+//                   (acnt.sbd_seconds_last_update - acnt.sbd_last_interest_payment).to_seconds() > CONTENTO_SBD_INTEREST_COMPOUND_INTERVAL_SEC )
+//               {
+//                  auto interest = acnt.sbd_seconds / CONTENTO_SECONDS_PER_YEAR;
+//                  interest *= get_dynamic_global_properties().sbd_interest_rate;
+//                  interest /= CONTENTO_100_PERCENT;
+//                  asset interest_paid(interest.to_uint64(), SBD_SYMBOL);
+//                  acnt.sbd_balance += interest_paid;
+//                  acnt.sbd_seconds = 0;
+//                  acnt.sbd_last_interest_payment = head_block_time();
+//
+//                  if(interest > 0)
+//                     push_virtual_operation( interest_operation( a.name, interest_paid ) );
+//
+//                  modify( get_dynamic_global_properties(), [&]( dynamic_global_property_object& props)
+//                  {
+//                     props.current_sbd_supply += interest_paid;
+//                     props.virtual_supply += interest_paid * get_feed_history().current_median_history;
+//                  } );
+//               }
+//            }
+//            acnt.sbd_balance += delta;
+//            break;
          default:
             FC_ASSERT( false, "invalid symbol" );
       }

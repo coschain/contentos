@@ -19,7 +19,7 @@
 #define CONTENTO_SYMBOL                          "TEST"
 #define CONTENTO_ADDRESS_PREFIX                  "TST"
 
-#define CONTENTO_ASA
+#define CONTENTO_ASA                             1
 
 #define CONTENTO_GENESIS_TIME                    (fc::time_point_sec(1451606400))
 #define CONTENTO_MINING_TIME                     (fc::time_point_sec(1451606400))

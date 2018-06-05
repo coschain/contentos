@@ -11,6 +11,10 @@
 #include <diff_match_patch.h>
 #include <boost/locale/encoding_utf.hpp>
 
+#ifndef CONTENTO_ASA
+#define CONTENTO_ASA
+#endif
+
 using boost::locale::conv::utf_to_utf;
 
 std::wstring utf8_to_wstring(const std::string& str)
@@ -215,6 +219,8 @@ void delete_comment( const comment_object& co, database &db ) {
 void comment_report_evaluator::do_apply( const comment_report_operation& o ) 
 {
    const auto& comment = _db.get_comment( o.author, o.permlink );
+   FC_ASSERT( comment.allow_report, "cannot report this comment",
+              ("author", o.author)("permlink", o.permlink));
    const auto& by_comment_idx = _db.get_index< comment_report_index >().indices().get< by_comment >();
    auto comment_report_itr = by_comment_idx.find( comment.id );
    if( o.is_ack )
@@ -226,19 +232,28 @@ void comment_report_evaluator::do_apply( const comment_report_operation& o )
       {
          // report is approved. 1. delete corresponding comment_obj, comment_index.
          // 2. start report reward process
-         delete_comment( comment, _db );
+          _db.modify( *comment_report_itr, [&]( comment_report_object& c ) {
+              c.cashout_time = _db.head_block_time();
+          });
       }
       else
       {
          // all comment_reports of the comment is denied. start report punish process
+           _db.remove( *comment_report_itr );
       }
 
       // delete comment_report_object and comment_report_index anyway
-      _db.remove( *comment_report_itr );
+       _db.modify(comment, [&]( comment_object& c){
+           c.allow_report = false;
+       });
    }
    else
    {
-      // TODO: assert balance
+       const auto& reporter = _db.get_account(o.author);
+       const auto& balance = reporter.balance;
+       FC_ASSERT( balance > o.credit, "balance credit not enough",
+                 ("balance", balance)("credit", o.credit));
+       _db.adjust_balance(reporter, -o.credit);
       if( comment_report_itr != by_comment_idx.end() )
       {
          _db.modify( *comment_report_itr, [&]( comment_report_object& c ) {
@@ -252,6 +267,7 @@ void comment_report_evaluator::do_apply( const comment_report_operation& o )
          c.comment = comment.id;
          c.add_report(o.reporter, o.credit, o.tag);
          c.last_update = _db.head_block_time();
+          c.cashout_time = fc::time_point_sec::maximum();
       });
    }
 }
@@ -508,22 +524,19 @@ void account_update_evaluator::do_apply( const account_update_operation& o )
  */
 void delete_comment_evaluator::do_apply( const delete_comment_operation& o )
 {
-   if( _db.has_hardfork( CONTENTO_HARDFORK_0_10 ) )
-   {
+
       const auto& auth = _db.get_account( o.author );
       FC_ASSERT( !(auth.owner_challenged || auth.active_challenged ), "Operation cannot be processed because account is currently challenged." );
-   }
 
    const auto& comment = _db.get_comment( o.author, o.permlink );
    FC_ASSERT( comment.children == 0, "Cannot delete a comment with replies." );
 
-   if( _db.has_hardfork( CONTENTO_HARDFORK_0_19__876 ) )
       FC_ASSERT( comment.cashout_time != fc::time_point_sec::maximum() );
+//
+//   if( _db.has_hardfork( CONTENTO_HARDFORK_0_19__977 ) )
+//      FC_ASSERT( comment.net_rshares <= 0, "Cannot delete a comment with net positive votes." );
 
-   if( _db.has_hardfork( CONTENTO_HARDFORK_0_19__977 ) )
-      FC_ASSERT( comment.net_rshares <= 0, "Cannot delete a comment with net positive votes." );
-
-   if( comment.net_rshares > 0 ) return;
+//   if( comment.net_rshares > 0 ) return;
 
    const auto& vote_idx = _db.get_index<comment_vote_index>().indices().get<by_comment_voter>();
 
@@ -535,7 +548,7 @@ void delete_comment_evaluator::do_apply( const delete_comment_operation& o )
    }
 
    /// this loop can be skiped for validate-only nodes as it is merely gathering stats for indicies
-   if( _db.has_hardfork( CONTENTO_HARDFORK_0_6__80 ) && comment.parent_author != CONTENTO_ROOT_POST_PARENT )
+   if(comment.parent_author != CONTENTO_ROOT_POST_PARENT )
    {
       auto parent = &_db.get_comment( comment.parent_author, comment.parent_permlink );
       auto now = _db.head_block_time();
@@ -684,49 +697,56 @@ void comment_evaluator::do_apply( const comment_operation& o )
             a.post_count++;
         });
         const auto& new_comment = _db.create< comment_object >( [&]( comment_object& com )
-                                                               {
-                                                                   validate_permlink_0_1( o.parent_permlink );
-                                                                   validate_permlink_0_1( o.permlink );
-                                                                   com.author = o.author;
-                                                                   from_string( com.permlink, o.permlink );
-                                                                   com.last_update = _db.head_block_time();
-                                                                   com.created = com.last_update;
-                                                                   com.active = com.last_update;
-                                                                   com.last_payout = fc::time_point_sec::min();
-                                                                   com.max_cashout_time = fc::time_point_sec::maximum();
-                                                                   com.reward_weight = reward_weight;
-                                                                   // subject
-                                                                   if ( o.parent_author == CONTENTO_ROOT_POST_PARENT )
-                                                                   {
-                                                                       com.parent_author = "";
-                                                                       from_string( com.parent_permlink, o.parent_permlink );
-                                                                       from_string( com.category, o.category );
-                                                                       com.root_comment = com.id;
-                                                                       com.cashout_time = com.created + CONTENTO_CASHOUT_WINDOW_SECONDS;
-                                                                   }
-                                                                   else
-                                                                   {
-                                                                       com.parent_author = parent->author;
-                                                                       com.parent_permlink = parent->permlink;
-                                                                       com.depth = parent->depth + 1;
-                                                                       com.category = parent->category;
-                                                                       com.root_comment = parent->root_comment;
-                                                                       // 如果 parent 已经结算，那么 comment 就不应该继续结算
-                                                                       if(parent->cashout_time == fc::time_point_sec::maximum())
-                                                                           com.cashout_time = fc::time_point_sec::maximum();
-                                                                       else
-                                                                           com.cashout_time = com.created + CONTENTO_CASHOUT_WINDOW_SECONDS;
-                                                                   }
-                                                                   from_string( com.title, o.title );
-                                                                   if( o.body.size() < 1024*1024*128 )
-                                                                   {
-                                                                       from_string( com.body, o.body );
-                                                                   }
-                                                                   if( fc::is_utf8( o.json_metadata ) )
-                                                                       from_string( com.json_metadata, o.json_metadata );
-                                                                   else
-                                                                       wlog( "Comment ${a}/${p} contains invalid UTF-8 metadata", ("a", o.author)("p", o.permlink) );
-                                                               });
+        {
+           if ( o.parent_author == CONTENTO_ROOT_POST_PARENT )
+           {
+               validate_permlink_0_1( o.permlink );
+           }
+           else {
+                validate_permlink_0_1( o.parent_permlink );
+                validate_permlink_0_1( o.permlink );
+           }
+
+           com.author = o.author;
+           from_string( com.permlink, o.permlink );
+           com.last_update = _db.head_block_time();
+           com.created = com.last_update;
+           com.active = com.last_update;
+           com.last_payout = fc::time_point_sec::min();
+           com.max_cashout_time = fc::time_point_sec::maximum();
+           com.reward_weight = reward_weight;
+           // subject
+           if ( o.parent_author == CONTENTO_ROOT_POST_PARENT )
+           {
+               com.parent_author = "";
+               from_string( com.parent_permlink, o.parent_permlink );
+               from_string( com.category, o.category );
+               com.root_comment = com.id;
+               com.cashout_time = com.created + CONTENTO_CASHOUT_WINDOW_SECONDS;
+           }
+           else
+           {
+               com.parent_author = parent->author;
+               com.parent_permlink = parent->permlink;
+               com.depth = parent->depth + 1;
+               com.category = parent->category;
+               com.root_comment = parent->root_comment;
+               // 如果 parent 已经结算，那么 comment 就不应该继续结算
+               if(parent->cashout_time == fc::time_point_sec::maximum())
+                   com.cashout_time = fc::time_point_sec::maximum();
+               else
+                   com.cashout_time = com.created + CONTENTO_CASHOUT_WINDOW_SECONDS;
+           }
+           from_string( com.title, o.title );
+           if( o.body.size() < 1024*1024*128 )
+           {
+               from_string( com.body, o.body );
+           }
+           if( fc::is_utf8( o.json_metadata ) )
+               from_string( com.json_metadata, o.json_metadata );
+           else
+               wlog( "Comment ${a}/${p} contains invalid UTF-8 metadata", ("a", o.author)("p", o.permlink) );
+       });
         id = new_comment.id;
         /// this loop can be skiped for validate-only nodes as it is merely gathering stats for indicies
         // 重复找到根，然后累加
@@ -1241,16 +1261,14 @@ void vote_evaluator::do_apply( const vote_operation& o )
    const auto& comment = _db.get_comment( o.author, o.permlink );
    const auto& voter   = _db.get_account( o.voter );
 
-   if( _db.has_hardfork( CONTENTO_HARDFORK_0_10 ) )
-      FC_ASSERT( !(voter.owner_challenged || voter.active_challenged ), "Operation cannot be processed because the account is currently challenged." );
+   FC_ASSERT( !(voter.owner_challenged || voter.active_challenged ), "Operation cannot be processed because the account is currently challenged." );
 
    FC_ASSERT( voter.can_vote, "Voter has declined their voting rights." );
 
    if( o.weight > 0 ) FC_ASSERT( comment.allow_votes, "Votes are not allowed on the comment." );
 
-   if( _db.has_hardfork( CONTENTO_HARDFORK_0_12__177 ) && _db.calculate_discussion_payout_time( comment ) == fc::time_point_sec::maximum() )
+   if( comment.cashout_time == fc::time_point_sec::maximum() )
    {
-#ifndef CLEAR_VOTES
       const auto& comment_vote_idx = _db.get_index< comment_vote_index >().indices().get< by_comment_voter >();
       auto itr = comment_vote_idx.find( std::make_tuple( comment.id, voter.id ) );
 
@@ -1259,16 +1277,15 @@ void vote_evaluator::do_apply( const vote_operation& o )
          {
             cvo.voter = voter.id;
             cvo.comment = comment.id;
-            cvo.vote_percent = o.weight;
+//            cvo.vote_percent = o.weight;
             cvo.last_update = _db.head_block_time();
          });
       else
          _db.modify( *itr, [&]( comment_vote_object& cvo )
          {
-            cvo.vote_percent = o.weight;
+//            cvo.vote_percent = o.weight;
             cvo.last_update = _db.head_block_time();
          });
-#endif
       return;
    }
 
@@ -1277,7 +1294,6 @@ void vote_evaluator::do_apply( const vote_operation& o )
 
    int64_t elapsed_seconds   = (_db.head_block_time() - voter.last_vote_time).to_seconds();
 
-   if( _db.has_hardfork( CONTENTO_HARDFORK_0_11 ) )
       FC_ASSERT( elapsed_seconds >= CONTENTO_MIN_VOTE_INTERVAL_SEC, "Can only vote once every 3 seconds." );
 
    int64_t regenerated_power = (CONTENTO_100_PERCENT * elapsed_seconds) / CONTENTO_VOTE_REGENERATION_SECONDS;
@@ -1305,29 +1321,34 @@ void vote_evaluator::do_apply( const vote_operation& o )
    }
    FC_ASSERT( used_power <= current_power, "Account does not have enough power to vote." );
 
-   int64_t abs_rshares    = ((uint128_t(voter.effective_vesting_shares().amount.value) * used_power) / (CONTENTO_100_PERCENT)).to_uint64();
-   if( !_db.has_hardfork( CONTENTO_HARDFORK_0_14__259 ) && abs_rshares == 0 ) abs_rshares = 1;
+//   int64_t abs_rshares    = ((uint128_t(voter.effective_vesting_shares().amount.value) * used_power) / (CONTENTO_100_PERCENT)).to_uint64();
+#ifdef CONTENTO_ASA
+    int64_t abs_rshares = (uint128_t(voter.balance.amount.value * used_power) / (CONTENTO_100_PERCENT)).to_uint64();
+#else
+    int64_t abs_rshares = (uint128_t(voter.vesting_shares.amount.value * used_power) / (CONTENTO_100_PERCENT)).to_uint64();
+#endif
+    
+    
 
-   if( _db.has_hardfork( CONTENTO_HARDFORK_0_14__259 ) )
-   {
-      FC_ASSERT( abs_rshares > CONTENTO_VOTE_DUST_THRESHOLD || o.weight == 0, "Voting weight is too small, please accumulate more voting power or steem power." );
-   }
-   else if( _db.has_hardfork( CONTENTO_HARDFORK_0_13__248 ) )
-   {
-      FC_ASSERT( abs_rshares > CONTENTO_VOTE_DUST_THRESHOLD || abs_rshares == 1, "Voting weight is too small, please accumulate more voting power or steem power." );
-   }
+//   if( _db.has_hardfork( CONTENTO_HARDFORK_0_14__259 ) )
+//   {
+//      FC_ASSERT( abs_rshares > CONTENTO_VOTE_DUST_THRESHOLD || o.weight == 0, "Voting weight is too small, please accumulate more voting power or steem power." );
+//   }
+//   else if( _db.has_hardfork( CONTENTO_HARDFORK_0_13__248 ) )
+//   {
+//      FC_ASSERT( abs_rshares > CONTENTO_VOTE_DUST_THRESHOLD || abs_rshares == 1, "Voting weight is too small, please accumulate more voting power or steem power." );
+//   }
 
 
-
-   // Lazily delete vote
-   if( itr != comment_vote_idx.end() && itr->num_changes == -1 )
-   {
-      if( _db.has_hardfork( CONTENTO_HARDFORK_0_12__177 ) )
-         FC_ASSERT( false, "Cannot vote again on a comment after payout." );
-
-      _db.remove( *itr );
-      itr = comment_vote_idx.end();
-   }
+//   // Lazily delete vote
+//   if( itr != comment_vote_idx.end() && itr->num_changes == -1 )
+//   {
+//      if( _db.has_hardfork( CONTENTO_HARDFORK_0_12__177 ) )
+//         FC_ASSERT( false, "Cannot vote again on a comment after payout." );
+//
+//      _db.remove( *itr );
+//      itr = comment_vote_idx.end();
+//   }
 
    if( itr == comment_vote_idx.end() )
    {
@@ -1335,16 +1356,12 @@ void vote_evaluator::do_apply( const vote_operation& o )
       /// this is the rshares voting for or against the post
       int64_t rshares        = o.weight < 0 ? -abs_rshares : abs_rshares;
 
+#ifndef CONTENTO_ASA
       if( rshares > 0 )
       {
-         if( _db.has_hardfork( CONTENTO_HARDFORK_0_17__900 ) )
-            FC_ASSERT( _db.head_block_time() < comment.cashout_time - CONTENTO_UPVOTE_LOCKOUT_HF17, "Cannot increase payout within last twelve hours before payout." );
-         else if( _db.has_hardfork( CONTENTO_HARDFORK_0_7 ) )
-            FC_ASSERT( _db.head_block_time() < _db.calculate_discussion_payout_time( comment ) - CONTENTO_UPVOTE_LOCKOUT_HF7, "Cannot increase payout within last minute before payout." );
+        FC_ASSERT( _db.head_block_time() < comment.cashout_time - CONTENTO_UPVOTE_LOCKOUT_HF17, "Cannot increase payout within last twelve hours before payout." );
       }
-
-      //used_power /= (50*7); /// a 100% vote means use .28% of voting power which should force users to spread their votes around over 50+ posts day for a week
-      //if( used_power == 0 ) used_power = 1;
+#endif
 
       _db.modify( voter, [&]( account_object& a ){
          a.voting_power = current_power - used_power;
@@ -1352,24 +1369,24 @@ void vote_evaluator::do_apply( const vote_operation& o )
       });
 
       /// if the current net_rshares is less than 0, the post is getting 0 rewards so it is not factored into total rshares^2
-      fc::uint128_t old_rshares = std::max(comment.net_rshares.value, int64_t(0));
-      const auto& root = _db.get( comment.root_comment );
-      auto old_root_abs_rshares = root.children_abs_rshares.value;
+//      fc::uint128_t old_rshares = std::max(comment.net_rshares.value, int64_t(0));
+//      const auto& root = _db.get( comment.root_comment );
+//      auto old_root_abs_rshares = root.children_abs_rshares.value;
 
       fc::uint128_t avg_cashout_sec;
 
-      if( !_db.has_hardfork( CONTENTO_HARDFORK_0_17__769 ) )
-      {
-         fc::uint128_t cur_cashout_time_sec = _db.calculate_discussion_payout_time( comment ).sec_since_epoch();
-         fc::uint128_t new_cashout_time_sec;
-
-         if( _db.has_hardfork( CONTENTO_HARDFORK_0_12__177 ) && !_db.has_hardfork( CONTENTO_HARDFORK_0_13__257)  )
-            new_cashout_time_sec = _db.head_block_time().sec_since_epoch() + CONTENTO_CASHOUT_WINDOW_SECONDS_PRE_HF17;
-         else
-            new_cashout_time_sec = _db.head_block_time().sec_since_epoch() + CONTENTO_CASHOUT_WINDOW_SECONDS_PRE_HF12;
-
-         avg_cashout_sec = ( cur_cashout_time_sec * old_root_abs_rshares + new_cashout_time_sec * abs_rshares ) / ( old_root_abs_rshares + abs_rshares );
-      }
+//      if( !_db.has_hardfork( CONTENTO_HARDFORK_0_17__769 ) )
+//      {
+//         fc::uint128_t cur_cashout_time_sec = _db.calculate_discussion_payout_time( comment ).sec_since_epoch();
+//         fc::uint128_t new_cashout_time_sec;
+//
+//         if( _db.has_hardfork( CONTENTO_HARDFORK_0_12__177 ) && !_db.has_hardfork( CONTENTO_HARDFORK_0_13__257)  )
+//            new_cashout_time_sec = _db.head_block_time().sec_since_epoch() + CONTENTO_CASHOUT_WINDOW_SECONDS_PRE_HF17;
+//         else
+//            new_cashout_time_sec = _db.head_block_time().sec_since_epoch() + CONTENTO_CASHOUT_WINDOW_SECONDS_PRE_HF12;
+//
+//         avg_cashout_sec = ( cur_cashout_time_sec * old_root_abs_rshares + new_cashout_time_sec * abs_rshares ) / ( old_root_abs_rshares + abs_rshares );
+//      }
 
       FC_ASSERT( abs_rshares > 0, "Cannot vote with 0 rshares." );
 
@@ -1384,30 +1401,30 @@ void vote_evaluator::do_apply( const vote_operation& o )
             c.net_votes++;
          else
             c.net_votes--;
-         if( !_db.has_hardfork( CONTENTO_HARDFORK_0_6__114 ) && c.net_rshares == -c.abs_rshares) FC_ASSERT( c.net_votes < 0, "Comment has negative net votes?" );
+//         if( !_db.has_hardfork( CONTENTO_HARDFORK_0_6__114 ) && c.net_rshares == -c.abs_rshares) FC_ASSERT( c.net_votes < 0, "Comment has negative net votes?" );
       });
 
-      _db.modify( root, [&]( comment_object& c )
-      {
-         c.children_abs_rshares += abs_rshares;
+//      _db.modify( root, [&]( comment_object& c )
+//      {
+//         c.children_abs_rshares += abs_rshares;
+//
+//         if( !_db.has_hardfork( CONTENTO_HARDFORK_0_17__769 ) )
+//         {
+//            if( _db.has_hardfork( CONTENTO_HARDFORK_0_12__177 ) && c.last_payout > fc::time_point_sec::min() )
+//               c.cashout_time = c.last_payout + CONTENTO_SECOND_CASHOUT_WINDOW;
+//            else
+//               c.cashout_time = fc::time_point_sec( std::min( uint32_t( avg_cashout_sec.to_uint64() ), c.max_cashout_time.sec_since_epoch() ) );
+//
+//            if( c.max_cashout_time == fc::time_point_sec::maximum() )
+//               c.max_cashout_time = _db.head_block_time() + fc::seconds( CONTENTO_MAX_CASHOUT_WINDOW_SECONDS );
+//         }
+//      });
 
-         if( !_db.has_hardfork( CONTENTO_HARDFORK_0_17__769 ) )
-         {
-            if( _db.has_hardfork( CONTENTO_HARDFORK_0_12__177 ) && c.last_payout > fc::time_point_sec::min() )
-               c.cashout_time = c.last_payout + CONTENTO_SECOND_CASHOUT_WINDOW;
-            else
-               c.cashout_time = fc::time_point_sec( std::min( uint32_t( avg_cashout_sec.to_uint64() ), c.max_cashout_time.sec_since_epoch() ) );
-
-            if( c.max_cashout_time == fc::time_point_sec::maximum() )
-               c.max_cashout_time = _db.head_block_time() + fc::seconds( CONTENTO_MAX_CASHOUT_WINDOW_SECONDS );
-         }
-      });
-
-      fc::uint128_t new_rshares = std::max( comment.net_rshares.value, int64_t(0));
-
-      /// calculate rshares2 value
-      new_rshares = util::evaluate_reward_curve( new_rshares );
-      old_rshares = util::evaluate_reward_curve( old_rshares );
+//      fc::uint128_t new_rshares = std::max( comment.net_rshares.value, int64_t(0));
+//
+//      /// calculate rshares2 value
+//      new_rshares = util::evaluate_reward_curve( new_rshares );
+//      old_rshares = util::evaluate_reward_curve( old_rshares );
 
       uint64_t max_vote_weight = 0;
 
@@ -1433,101 +1450,98 @@ void vote_evaluator::do_apply( const vote_operation& o )
          cv.voter   = voter.id;
          cv.comment = comment.id;
          cv.rshares = rshares;
-         cv.vote_percent = o.weight;
+//         cv.vote_percent = o.weight;
          cv.last_update = _db.head_block_time();
 
-         bool curation_reward_eligible = rshares > 0 && (comment.last_payout == fc::time_point_sec()) && comment.allow_curation_rewards;
+//         bool curation_reward_eligible = rshares > 0 && (comment.last_payout == fc::time_point_sec()) && comment.allow_curation_rewards;
+//
+//         if( curation_reward_eligible && _db.has_hardfork( CONTENTO_HARDFORK_0_17__774 ) )
+//            curation_reward_eligible = _db.get_curation_rewards_percent( comment ) > 0;
+//
+//         if( curation_reward_eligible )
+//         {
+//            if( comment.created < fc::time_point_sec(CONTENTO_HARDFORK_0_6_REVERSE_AUCTION_TIME) ) {
+//               u512 rshares3(rshares);
+//               u256 total2( comment.abs_rshares.value );
+//
+//               if( !_db.has_hardfork( CONTENTO_HARDFORK_0_1 ) )
+//               {
+//                  rshares3 *= 1000000;
+//                  total2 *= 1000000;
+//               }
+//
+//               rshares3 = rshares3 * rshares3 * rshares3;
+//
+//               total2 *= total2;
+//               cv.weight = static_cast<uint64_t>( rshares3 / total2 );
+//            } else {// cv.weight = W(R_1) - W(R_0)
+//               const uint128_t two_s = 2 * util::get_content_constant_s();
+//               if( _db.has_hardfork( CONTENTO_HARDFORK_0_17__774 ) )
+//               {
+//                  const auto& reward_fund = _db.get_reward_fund( comment );
+//                  auto curve = !_db.has_hardfork( CONTENTO_HARDFORK_0_19__1052 ) && comment.created > CONTENTO_HF_19_SQRT_PRE_CALC
+//                                 ? curve_id::square_root : reward_fund.curation_reward_curve;
+//                  uint64_t old_weight = util::evaluate_reward_curve( old_vote_rshares.value, curve, reward_fund.content_constant ).to_uint64();
+//                  uint64_t new_weight = util::evaluate_reward_curve( comment.vote_rshares.value, curve, reward_fund.content_constant ).to_uint64();
+//                  cv.weight = new_weight - old_weight;
+//               }
+//               else if ( _db.has_hardfork( CONTENTO_HARDFORK_0_1 ) )
+//               {
+//                  uint64_t old_weight = ( ( std::numeric_limits< uint64_t >::max() * fc::uint128_t( old_vote_rshares.value ) ) / ( two_s + old_vote_rshares.value ) ).to_uint64();
+//                  uint64_t new_weight = ( ( std::numeric_limits< uint64_t >::max() * fc::uint128_t( comment.vote_rshares.value ) ) / ( two_s + comment.vote_rshares.value ) ).to_uint64();
+//                  cv.weight = new_weight - old_weight;
+//               }
+//               else
+//               {
+//                  uint64_t old_weight = ( ( std::numeric_limits< uint64_t >::max() * fc::uint128_t( 1000000 * old_vote_rshares.value ) ) / ( two_s + ( 1000000 * old_vote_rshares.value ) ) ).to_uint64();
+//                  uint64_t new_weight = ( ( std::numeric_limits< uint64_t >::max() * fc::uint128_t( 1000000 * comment.vote_rshares.value ) ) / ( two_s + ( 1000000 * comment.vote_rshares.value ) ) ).to_uint64();
+//                  cv.weight = new_weight - old_weight;
+//               }
+//            }
+//
+//            max_vote_weight = cv.weight;
+//
+//            if( _db.head_block_time() > fc::time_point_sec(CONTENTO_HARDFORK_0_6_REVERSE_AUCTION_TIME) )  /// start enforcing this prior to the hardfork
+//            {
+//               /// discount weight by time
+//               uint128_t w(max_vote_weight);
+//               uint64_t delta_t = std::min( uint64_t((cv.last_update - comment.created).to_seconds()), uint64_t(CONTENTO_REVERSE_AUCTION_WINDOW_SECONDS) );
+//
+//               w *= delta_t;
+//               w /= CONTENTO_REVERSE_AUCTION_WINDOW_SECONDS;
+//               cv.weight = w.to_uint64();
+//            }
+//         }
+//         else
+//         {
+//            cv.weight = 0;
+//         }
+        });
 
-         if( curation_reward_eligible && _db.has_hardfork( CONTENTO_HARDFORK_0_17__774 ) )
-            curation_reward_eligible = _db.get_curation_rewards_percent( comment ) > 0;
-
-         if( curation_reward_eligible )
-         {
-            if( comment.created < fc::time_point_sec(CONTENTO_HARDFORK_0_6_REVERSE_AUCTION_TIME) ) {
-               u512 rshares3(rshares);
-               u256 total2( comment.abs_rshares.value );
-
-               if( !_db.has_hardfork( CONTENTO_HARDFORK_0_1 ) )
-               {
-                  rshares3 *= 1000000;
-                  total2 *= 1000000;
-               }
-
-               rshares3 = rshares3 * rshares3 * rshares3;
-
-               total2 *= total2;
-               cv.weight = static_cast<uint64_t>( rshares3 / total2 );
-            } else {// cv.weight = W(R_1) - W(R_0)
-               const uint128_t two_s = 2 * util::get_content_constant_s();
-               if( _db.has_hardfork( CONTENTO_HARDFORK_0_17__774 ) )
-               {
-                  const auto& reward_fund = _db.get_reward_fund( comment );
-                  auto curve = !_db.has_hardfork( CONTENTO_HARDFORK_0_19__1052 ) && comment.created > CONTENTO_HF_19_SQRT_PRE_CALC
-                                 ? curve_id::square_root : reward_fund.curation_reward_curve;
-                  uint64_t old_weight = util::evaluate_reward_curve( old_vote_rshares.value, curve, reward_fund.content_constant ).to_uint64();
-                  uint64_t new_weight = util::evaluate_reward_curve( comment.vote_rshares.value, curve, reward_fund.content_constant ).to_uint64();
-                  cv.weight = new_weight - old_weight;
-               }
-               else if ( _db.has_hardfork( CONTENTO_HARDFORK_0_1 ) )
-               {
-                  uint64_t old_weight = ( ( std::numeric_limits< uint64_t >::max() * fc::uint128_t( old_vote_rshares.value ) ) / ( two_s + old_vote_rshares.value ) ).to_uint64();
-                  uint64_t new_weight = ( ( std::numeric_limits< uint64_t >::max() * fc::uint128_t( comment.vote_rshares.value ) ) / ( two_s + comment.vote_rshares.value ) ).to_uint64();
-                  cv.weight = new_weight - old_weight;
-               }
-               else
-               {
-                  uint64_t old_weight = ( ( std::numeric_limits< uint64_t >::max() * fc::uint128_t( 1000000 * old_vote_rshares.value ) ) / ( two_s + ( 1000000 * old_vote_rshares.value ) ) ).to_uint64();
-                  uint64_t new_weight = ( ( std::numeric_limits< uint64_t >::max() * fc::uint128_t( 1000000 * comment.vote_rshares.value ) ) / ( two_s + ( 1000000 * comment.vote_rshares.value ) ) ).to_uint64();
-                  cv.weight = new_weight - old_weight;
-               }
-            }
-
-            max_vote_weight = cv.weight;
-
-            if( _db.head_block_time() > fc::time_point_sec(CONTENTO_HARDFORK_0_6_REVERSE_AUCTION_TIME) )  /// start enforcing this prior to the hardfork
-            {
-               /// discount weight by time
-               uint128_t w(max_vote_weight);
-               uint64_t delta_t = std::min( uint64_t((cv.last_update - comment.created).to_seconds()), uint64_t(CONTENTO_REVERSE_AUCTION_WINDOW_SECONDS) );
-
-               w *= delta_t;
-               w /= CONTENTO_REVERSE_AUCTION_WINDOW_SECONDS;
-               cv.weight = w.to_uint64();
-            }
-         }
-         else
-         {
-            cv.weight = 0;
-         }
-      });
-
-      if( max_vote_weight ) // Optimization
-      {
-         _db.modify( comment, [&]( comment_object& c )
-         {
-            c.total_vote_weight += max_vote_weight;
-         });
-      }
-      if( !_db.has_hardfork( CONTENTO_HARDFORK_0_17__774) )
-         _db.adjust_rshares2( comment, old_rshares, new_rshares );
+//      if( max_vote_weight ) // Optimization
+//      {
+//         _db.modify( comment, [&]( comment_object& c )
+//         {
+//            c.total_vote_weight += max_vote_weight;
+//         });
+//      }
+//      if( !_db.has_hardfork( CONTENTO_HARDFORK_0_17__774) )
+//         _db.adjust_rshares2( comment, old_rshares, new_rshares );
    }
    else
    {
       FC_ASSERT( itr->num_changes < CONTENTO_MAX_VOTE_CHANGES, "Voter has used the maximum number of vote changes on this comment." );
 
-      if( _db.has_hardfork( CONTENTO_HARDFORK_0_6__112 ) )
-         FC_ASSERT( itr->vote_percent != o.weight, "You have already voted in a similar way." );
+//      if( _db.has_hardfork( CONTENTO_HARDFORK_0_6__112 ) )
+//         FC_ASSERT( itr->vote_percent != o.weight, "You have already voted in a similar way." );
 
       /// this is the rshares voting for or against the post
-      int64_t rshares        = o.weight < 0 ? -abs_rshares : abs_rshares;
+      int64_t rshares        =   o.weight < 0 ? -abs_rshares : abs_rshares;
 
-      if( itr->rshares < rshares )
-      {
-         if( _db.has_hardfork( CONTENTO_HARDFORK_0_17__900 ) )
-            FC_ASSERT( _db.head_block_time() < comment.cashout_time - CONTENTO_UPVOTE_LOCKOUT_HF17, "Cannot increase payout within last twelve hours before payout." );
-         else if( _db.has_hardfork( CONTENTO_HARDFORK_0_7 ) )
-            FC_ASSERT( _db.head_block_time() < _db.calculate_discussion_payout_time( comment ) - CONTENTO_UPVOTE_LOCKOUT_HF7, "Cannot increase payout within last minute before payout." );
-      }
+//      if( itr->rshares < rshares )
+//      {
+//        FC_ASSERT( _db.head_block_time() < comment.cashout_time - CONTENTO_UPVOTE_LOCKOUT_HF17, "Cannot increase payout within last twelve hours before payout." );
+//      }
 
       _db.modify( voter, [&]( account_object& a ){
          a.voting_power = current_power - used_power;
@@ -1535,27 +1549,27 @@ void vote_evaluator::do_apply( const vote_operation& o )
       });
 
       /// if the current net_rshares is less than 0, the post is getting 0 rewards so it is not factored into total rshares^2
-      fc::uint128_t old_rshares = std::max(comment.net_rshares.value, int64_t(0));
-      const auto& root = _db.get( comment.root_comment );
-      auto old_root_abs_rshares = root.children_abs_rshares.value;
+//      fc::uint128_t old_rshares = std::max(comment.net_rshares.value, int64_t(0));
+//      const auto& root = _db.get( comment.root_comment );
+//      auto old_root_abs_rshares = root.children_abs_rshares.value;
 
-      fc::uint128_t avg_cashout_sec;
+//      fc::uint128_t avg_cashout_sec;
 
-      if( !_db.has_hardfork( CONTENTO_HARDFORK_0_17__769 ) )
-      {
-         fc::uint128_t cur_cashout_time_sec = _db.calculate_discussion_payout_time( comment ).sec_since_epoch();
-         fc::uint128_t new_cashout_time_sec;
-
-         if( _db.has_hardfork( CONTENTO_HARDFORK_0_12__177 ) && ! _db.has_hardfork( CONTENTO_HARDFORK_0_13__257 )  )
-            new_cashout_time_sec = _db.head_block_time().sec_since_epoch() + CONTENTO_CASHOUT_WINDOW_SECONDS_PRE_HF17;
-         else
-            new_cashout_time_sec = _db.head_block_time().sec_since_epoch() + CONTENTO_CASHOUT_WINDOW_SECONDS_PRE_HF12;
-
-         if( _db.has_hardfork( CONTENTO_HARDFORK_0_14__259 ) && abs_rshares == 0 )
-            avg_cashout_sec = cur_cashout_time_sec;
-         else
-            avg_cashout_sec = ( cur_cashout_time_sec * old_root_abs_rshares + new_cashout_time_sec * abs_rshares ) / ( old_root_abs_rshares + abs_rshares );
-      }
+//      if( !_db.has_hardfork( CONTENTO_HARDFORK_0_17__769 ) )
+//      {
+//         fc::uint128_t cur_cashout_time_sec = _db.calculate_discussion_payout_time( comment ).sec_since_epoch();
+//         fc::uint128_t new_cashout_time_sec;
+//
+//         if( _db.has_hardfork( CONTENTO_HARDFORK_0_12__177 ) && ! _db.has_hardfork( CONTENTO_HARDFORK_0_13__257 )  )
+//            new_cashout_time_sec = _db.head_block_time().sec_since_epoch() + CONTENTO_CASHOUT_WINDOW_SECONDS_PRE_HF17;
+//         else
+//            new_cashout_time_sec = _db.head_block_time().sec_since_epoch() + CONTENTO_CASHOUT_WINDOW_SECONDS_PRE_HF12;
+//
+//         if( _db.has_hardfork( CONTENTO_HARDFORK_0_14__259 ) && abs_rshares == 0 )
+//            avg_cashout_sec = cur_cashout_time_sec;
+//         else
+//            avg_cashout_sec = ( cur_cashout_time_sec * old_root_abs_rshares + new_cashout_time_sec * abs_rshares ) / ( old_root_abs_rshares + abs_rshares );
+//      }
 
       _db.modify( comment, [&]( comment_object& c )
       {
@@ -1578,33 +1592,33 @@ void vote_evaluator::do_apply( const vote_operation& o )
             c.net_votes -= 2;
       });
 
-      _db.modify( root, [&]( comment_object& c )
-      {
-         c.children_abs_rshares += abs_rshares;
+//      _db.modify( root, [&]( comment_object& c )
+//      {
+//         c.children_abs_rshares += abs_rshares;
+//
+//         if( !_db.has_hardfork( CONTENTO_HARDFORK_0_17__769 ) )
+//         {
+//            if( _db.has_hardfork( CONTENTO_HARDFORK_0_12__177 ) && c.last_payout > fc::time_point_sec::min() )
+//               c.cashout_time = c.last_payout + CONTENTO_SECOND_CASHOUT_WINDOW;
+//            else
+//               c.cashout_time = fc::time_point_sec( std::min( uint32_t( avg_cashout_sec.to_uint64() ), c.max_cashout_time.sec_since_epoch() ) );
+//
+//            if( c.max_cashout_time == fc::time_point_sec::maximum() )
+//               c.max_cashout_time = _db.head_block_time() + fc::seconds( CONTENTO_MAX_CASHOUT_WINDOW_SECONDS );
+//         }
+//      });
 
-         if( !_db.has_hardfork( CONTENTO_HARDFORK_0_17__769 ) )
-         {
-            if( _db.has_hardfork( CONTENTO_HARDFORK_0_12__177 ) && c.last_payout > fc::time_point_sec::min() )
-               c.cashout_time = c.last_payout + CONTENTO_SECOND_CASHOUT_WINDOW;
-            else
-               c.cashout_time = fc::time_point_sec( std::min( uint32_t( avg_cashout_sec.to_uint64() ), c.max_cashout_time.sec_since_epoch() ) );
-
-            if( c.max_cashout_time == fc::time_point_sec::maximum() )
-               c.max_cashout_time = _db.head_block_time() + fc::seconds( CONTENTO_MAX_CASHOUT_WINDOW_SECONDS );
-         }
-      });
-
-      fc::uint128_t new_rshares = std::max( comment.net_rshares.value, int64_t(0));
-
-      /// calculate rshares2 value
-      new_rshares = util::evaluate_reward_curve( new_rshares );
-      old_rshares = util::evaluate_reward_curve( old_rshares );
-
-
-      _db.modify( comment, [&]( comment_object& c )
-      {
-         c.total_vote_weight -= itr->weight;
-      });
+//      fc::uint128_t new_rshares = std::max( comment.net_rshares.value, int64_t(0));
+//
+//      /// calculate rshares2 value
+//      new_rshares = util::evaluate_reward_curve( new_rshares );
+//      old_rshares = util::evaluate_reward_curve( old_rshares );
+//
+//
+//      _db.modify( comment, [&]( comment_object& c )
+//      {
+//         c.total_vote_weight -= itr->weight;
+//      });
 
       _db.modify( *itr, [&]( comment_vote_object& cv )
       {
@@ -1615,8 +1629,8 @@ void vote_evaluator::do_apply( const vote_operation& o )
          cv.num_changes += 1;
       });
 
-      if( !_db.has_hardfork( CONTENTO_HARDFORK_0_17__774) )
-         _db.adjust_rshares2( comment, old_rshares, new_rshares );
+//      if( !_db.has_hardfork( CONTENTO_HARDFORK_0_17__774) )
+//         _db.adjust_rshares2( comment, old_rshares, new_rshares );
    }
 
 } FC_CAPTURE_AND_RETHROW( (o)) }

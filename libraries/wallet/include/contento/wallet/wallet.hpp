@@ -1068,6 +1068,7 @@ FC_API( contento::wallet::wallet_api,
         (create_order)
         (cancel_order)
         (post_comment)
+        (post_subject)
         (vote)
         (set_transaction_expiration)
         (challenge)

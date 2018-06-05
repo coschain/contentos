@@ -99,6 +99,7 @@ namespace contento { namespace chain {
          bool              allow_replies = true;      /// allows a post to disable replies.
          bool              allow_votes   = true;      /// allows a post to receive votes;
          bool              allow_curation_rewards = true;
+          bool              allow_report = true;
 
          bip::vector< beneficiary_route_type, allocator< beneficiary_route_type > > beneficiaries;
    };
@@ -127,6 +128,7 @@ namespace contento { namespace chain {
          id_type              id;
          comment_id_type      comment;
          time_point_sec       last_update;
+         time_point_sec       cashout_time;
          shared_report_info   reports;
 
    };
