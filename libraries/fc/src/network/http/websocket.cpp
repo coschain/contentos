@@ -214,6 +214,12 @@ namespace fc { namespace http {
                }
                return fc_work_threads[i];
            }
+           
+           fc::thread* select_one(int index) {
+               //random i
+               assert( index < 4 );
+               return fc_work_threads[index];
+           }
        };
            
       class websocket_server_impl
@@ -231,8 +237,9 @@ namespace fc { namespace http {
                _server.set_open_handler( [&]( connection_hdl hdl ){
                    
                    
+                   //int index = get_index(hdl);
+                   //fc::thread* tmp_fc_thread = _wb_work_thread.select_one(index);
                    fc::thread* tmp_fc_thread = _wb_work_thread.get_one();
-                   
                     tmp_fc_thread->async( [&](){
                        auto new_con = std::make_shared<websocket_connection_impl<websocket_server_type::connection_ptr>>( _server.get_con_from_hdl(hdl) );
                        _on_connection( _connections[hdl] = new_con );
@@ -240,6 +247,8 @@ namespace fc { namespace http {
                });
                _server.set_message_handler( [&]( connection_hdl hdl, websocket_server_type::message_ptr msg ){
                    
+                   //int index = get_index(hdl);
+                   //fc::thread* tmp_fc_thread = _wb_work_thread.select_one(index);
                    fc::thread* tmp_fc_thread = _wb_work_thread.get_one();
                    tmp_fc_thread->async( [&](){
                        auto current_con = _connections.find(hdl);
@@ -265,10 +274,14 @@ namespace fc { namespace http {
                    auto con_pointer = s_ptr.get();
                     intptr_t thatvalue = 1;
                    thatvalue = reinterpret_cast<intptr_t>(con_pointer);
-                   thatvalue = thatvalue >> 16;
-                   std::cout << "real pointer:"<<con_pointer<<" mod:"<<thatvalue%4<<"\n";*/
+                   thatvalue = thatvalue >> 12;
+                   int mod = thatvalue%4;
+                   std::stringstream s;
+                   s << "real pointer:"<<thatvalue<<" mod:"<<mod<<"\n";
+                   std::cout << s.str() << "\n";*/
                    
-                   
+                   //int index = get_index(hdl);
+                   //fc::thread* tmp_fc_thread = _wb_work_thread.select_one(index);
                    fc::thread* tmp_fc_thread = _wb_work_thread.get_one();
                     tmp_fc_thread->async( [&](){//都在_server_thread处理请求
                        auto current_con = std::make_shared<websocket_connection_impl<websocket_server_type::connection_ptr>>( _server.get_con_from_hdl(hdl) );
@@ -278,8 +291,12 @@ namespace fc { namespace http {
                        con->defer_http_response();
                        std::string request_body = con->get_request_body();
                        wdump(("server")(request_body));
+                        
                         rpc_count++;
-std::cout<<"@@@rpc:"<< rpc_count <<"\n";
+                        std::stringstream s;
+                        s << "thread:"<<&fc::thread::current()<<"@@@rpc:"<< rpc_count<<"\n";
+                        std::cout << s.str() << "\n";
+                        
                        fc::async([current_con, request_body, con] {//当前已经进入_server_thread，再次async一个任务
                           std::string response = current_con->on_http(request_body);//on_http最终调用到rpc处理逻辑
                           con->set_body( response );
@@ -292,6 +309,8 @@ std::cout<<"@@@rpc:"<< rpc_count <<"\n";
 
                _server.set_close_handler( [&]( connection_hdl hdl ){
                    
+                   //int index = get_index(hdl);
+                   //fc::thread* tmp_fc_thread = _wb_work_thread.select_one(index);
                    fc::thread* tmp_fc_thread = _wb_work_thread.get_one();
                     tmp_fc_thread->async( [&](){
                        if( _connections.find(hdl) != _connections.end() )
@@ -312,6 +331,8 @@ std::cout<<"@@@rpc:"<< rpc_count <<"\n";
                     if( _server.is_listening() )
                     {
                         
+                        //int index = get_index(hdl);
+                        //fc::thread* tmp_fc_thread = _wb_work_thread.select_one(index);
                         fc::thread* tmp_fc_thread = _wb_work_thread.get_one();
                        tmp_fc_thread->async( [&](){
                           if( _connections.find(hdl) != _connections.end() )
@@ -329,6 +350,14 @@ std::cout<<"@@@rpc:"<< rpc_count <<"\n";
                     }
                });
             }
+          int get_index(connection_hdl& hdl){
+              auto s_ptr = _server.get_con_from_hdl(hdl);
+              auto con_pointer = s_ptr.get();
+              intptr_t thatvalue = 1;
+              thatvalue = reinterpret_cast<intptr_t>(con_pointer);
+              thatvalue = thatvalue >> 12;
+              return thatvalue%4;
+          }
             ~websocket_server_impl()
             {
                if( _server.is_listening() )
