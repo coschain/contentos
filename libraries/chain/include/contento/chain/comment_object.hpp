@@ -200,10 +200,14 @@ namespace contento { namespace chain {
    struct by_comment;
    struct by_total_credit;
    struct by_last_update;
+    struct by_cashout_time;
    typedef multi_index_container<
       comment_report_object,
       indexed_by<
          ordered_unique< tag< by_id >, member< comment_report_object, comment_report_id_type, &comment_report_object::id > >,
+         ordered_unique< tag< by_cashout_time >,
+            member< comment_report_object, time_point_sec, &comment_report_object::cashout_time>
+         >,
          ordered_unique< tag< by_comment >,
             member< comment_report_object, comment_id_type, &comment_report_object::comment >
          >,

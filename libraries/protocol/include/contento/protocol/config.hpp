@@ -19,7 +19,9 @@
 #define CONTENTO_SYMBOL                          "TEST"
 #define CONTENTO_ADDRESS_PREFIX                  "TST"
 
-#define CONTENTO_ASA                             1
+#define CONTENTO_ASA
+
+
 
 #define CONTENTO_GENESIS_TIME                    (fc::time_point_sec(1451606400))
 #define CONTENTO_MINING_TIME                     (fc::time_point_sec(1451606400))
@@ -135,6 +137,8 @@
 #define CONTENTO_CREATOR_REWARD_PERCENT          (70*CONTENTO_1_PERCENT)
 #define CONTENTO_COMMENTER_REWARD_PERCENT        (15*CONTENTO_1_PERCENT)
 #define CONTENTO_OTHER_REWARD_PERCENT            (5*CONTENTO_1_PERCENT)
+
+#define OTHER_REWARD_CASHOUT_INTERVAL            1000
 
 #define CONTENTO_INFLATION_RATE_START_PERCENT    (978) // Fixes block 7,000,000 to 9.5%
 #define CONTENTO_INFLATION_RATE_STOP_PERCENT     (95) // 0.95%

@@ -1789,6 +1789,66 @@ void database::process_funds()
     const auto& producer_reward = create_vesting( get_account( cwit.owner ), asset( witness_reward, COC_SYMBOL ) );
     push_virtual_operation( producer_reward_operation( cwit.owner, producer_reward ) );
 }
+    
+void database::process_other_cashout()
+{
+    const auto& rpo = get_dynamic_global_reward_properties();
+    if(rpo.tick % OTHER_REWARD_CASHOUT_INTERVAL == 0){
+        // 查举报
+        const auto& report_idx = get_index< comment_report_index >().indices().get< by_cashout_time >();
+        auto current = report_idx.begin();
+        
+        auto reward_balance = rpo.other_reward_balance;
+        std::vector<account_name_type> reporters;
+        
+        while (current != report_idx.end() && current->cashout_time <= head_block_time()){
+            reward_balance += current -> total_credit();
+            auto& itr = current -> reports.account_reports;
+            for(auto c = itr.begin();c != itr.end();++c){
+                reporters.push_back(c -> first);
+            }
+            modify( *current, [&]( comment_report_object& c ) {
+                c.cashout_time = fc::time_point_sec::maximum();
+            });
+        }
+        
+        auto size = reporters.size();
+        
+        auto creator_reward = reward_balance.amount / 2;
+        auto commenter_reward = reward_balance.amount - creator_reward;
+        if(size > 0){
+            // 这里有个问题，size 如果太多，这个就会是 0 我在考虑要不要精确到两位小数
+            // 先这样吧
+            auto amount = reward_balance.amount / size;
+            auto total = amount * size;
+            
+            creator_reward = (amount - total) / 2;
+            commenter_reward = amount - total - creator_reward;
+            
+            for(auto iter=reporters.begin(); iter != reporters.end();++current){
+                const auto& account = get_account(*iter);
+                adjust_balance(account, asset(amount, COC_SYMBOL));
+            }
+        }
+        
+        
+        // accumulate new coc into reward balance
+        modify( rpo, [&](dynamic_global_reward_property_object& r)
+               {
+                   r.subject_reward_balance += asset(creator_reward, COC_SYMBOL);
+                   r.comment_reward_balance += asset(commenter_reward, COC_SYMBOL);
+                   r.other_reward_balance = asset(0, COC_SYMBOL);
+                   r.tick = 1;
+               });
+        
+    }
+    else{
+        modify(rpo, [&](dynamic_global_reward_property_object &r){
+            r.tick ++;
+        });
+    }
+}
+
 
 void database::process_savings_withdraws()
 {

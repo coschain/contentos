@@ -334,6 +334,7 @@ namespace contento { namespace chain {
          share_type cashout_comment_helper( util::comment_reward_context& ctx, const comment_object& comment, bool is_subject );
          void process_comment_cashout();
          void process_funds();
+         void process_other_cashout();
          void process_conversions();
          void process_savings_withdraws();
          void account_recovery_processing();
