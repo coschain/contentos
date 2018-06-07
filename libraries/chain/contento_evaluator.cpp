@@ -280,20 +280,12 @@ void account_create_evaluator::do_apply( const account_create_operation& o )
 
    FC_ASSERT( creator.balance >= o.fee, "Insufficient balance to create account.", ( "creator.balance", creator.balance )( "required", o.fee ) );
 
-   if( _db.has_hardfork( CONTENTO_HARDFORK_0_19__987) )
-   {
-      const witness_schedule_object& wso = _db.get_witness_schedule_object();
-      FC_ASSERT( o.fee >= asset( wso.median_props.account_creation_fee.amount * CONTENTO_CREATE_ACCOUNT_WITH_STEEM_MODIFIER, COC_SYMBOL ), "Insufficient Fee: ${f} required, ${p} provided.",
-                 ("f", wso.median_props.account_creation_fee * asset( CONTENTO_CREATE_ACCOUNT_WITH_STEEM_MODIFIER, COC_SYMBOL ) )
-                 ("p", o.fee) );
-   }
-   else if( _db.has_hardfork( CONTENTO_HARDFORK_0_1 ) )
-   {
-      const witness_schedule_object& wso = _db.get_witness_schedule_object();
-      FC_ASSERT( o.fee >= wso.median_props.account_creation_fee, "Insufficient Fee: ${f} required, ${p} provided.",
-                 ("f", wso.median_props.account_creation_fee)
-                 ("p", o.fee) );
-   }
+
+//      const witness_schedule_object& wso = _db.get_witness_schedule_object();
+//      FC_ASSERT( o.fee >= asset( wso.median_props.account_creation_fee.amount * CONTENTO_CREATE_ACCOUNT_WITH_STEEM_MODIFIER, COC_SYMBOL ), "Insufficient Fee: ${f} required, ${p} provided.",
+//                 ("f", wso.median_props.account_creation_fee * asset( CONTENTO_CREATE_ACCOUNT_WITH_STEEM_MODIFIER, COC_SYMBOL ) )
+//                 ("p", o.fee) );
+
 
    if( _db.has_hardfork( CONTENTO_HARDFORK_0_15__465 ) )
    {
@@ -325,10 +317,7 @@ void account_create_evaluator::do_apply( const account_create_operation& o )
       acc.last_vote_time = props.time;
       acc.mined = false;
 
-      if( !_db.has_hardfork( CONTENTO_HARDFORK_0_11__169 ) )
-         acc.recovery_account = "steem";
-      else
-         acc.recovery_account = o.creator;
+    acc.recovery_account = o.creator;
 
 
       #ifndef IS_LOW_MEM
