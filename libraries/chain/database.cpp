@@ -1813,6 +1813,7 @@ void database::process_other_cashout()
             modify( *current, [&]( comment_report_object& c ) {
                 c.cashout_time = fc::time_point_sec::maximum();
             });
+            ++current;
         }
         
         auto size = reporters.size();
@@ -1825,10 +1826,11 @@ void database::process_other_cashout()
             auto amount = reward_balance.amount / size;
             auto total = amount * size;
             
-            creator_reward = (amount - total) / 2;
-            commenter_reward = amount - total - creator_reward;
+            // 有可能还有剩
+            creator_reward = (reward_balance.amount - total) / 2;
+            commenter_reward = reward_balance.amount - total - creator_reward;
             
-            for(auto iter=reporters.begin(); iter != reporters.end();++current){
+            for(auto iter=reporters.begin(); iter != reporters.end();++iter){
                 const auto& account = get_account(*iter);
                 create_vesting(account, asset(amount, COC_SYMBOL));
             }

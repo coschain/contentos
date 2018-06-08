@@ -716,7 +716,8 @@ void comment_evaluator::do_apply( const comment_operation& o )
            }
            else
            {
-               com.parent_author = parent->author;
+               com
+               .parent_author = parent->author;
                com.parent_permlink = parent->permlink;
                com.depth = parent->depth + 1;
                com.category = parent->category;
