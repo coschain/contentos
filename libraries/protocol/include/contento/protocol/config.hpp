@@ -3,6 +3,8 @@
  */
 #pragma once
 
+#define CONTENTO_ASA
+
 #define CONTENTO_BLOCKCHAIN_VERSION              ( version(0, 19, 2) )
 #define CONTENTO_BLOCKCHAIN_HARDFORK_VERSION     ( hardfork_version( CONTENTO_BLOCKCHAIN_VERSION ) )
 
@@ -19,7 +21,7 @@
 #define CONTENTO_SYMBOL                          "TEST"
 #define CONTENTO_ADDRESS_PREFIX                  "TST"
 
-#define CONTENTO_ASA
+
 
 
 
@@ -67,7 +69,13 @@
 #define CONTENTO_MINING_TIME                     (fc::time_point_sec(1458838800))
 #define CONTENTO_CASHOUT_WINDOW_SECONDS_PRE_HF12 (60*60*24)    /// 1 day
 #define CONTENTO_CASHOUT_WINDOW_SECONDS_PRE_HF17 (60*60*12)    /// 12 hours
+
+#ifndef CONTENTO_ASA
 #define CONTENTO_CASHOUT_WINDOW_SECONDS          (60*60*24*7)  /// 7 days
+#else
+#define CONTENTO_CASHOUT_WINDOW_SECONDS          (60*10) // 10 min
+#endif
+
 #define CONTENTO_SECOND_CASHOUT_WINDOW           (60*60*24*30) /// 30 days
 #define CONTENTO_MAX_CASHOUT_WINDOW_SECONDS      (60*60*24*14) /// 2 weeks
 #define CONTENTO_VOTE_CHANGE_LOCKOUT_PERIOD      (60*60*2)     /// 2 hours
