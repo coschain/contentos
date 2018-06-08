@@ -1658,12 +1658,12 @@ void database::process_comment_cashout()
     // 去掉 price feed 机制
     // ctx.current_steem_price = get_feed_history().current_median_history;
     modify( grpo, [&]( dynamic_global_reward_property_object& dcpo )
-           {
-               fc::microseconds decay_rate;
-               decay_rate = CONTENTO_RECENT_RSHARES_DECAY_RATE_HF17;
-               dcpo.comment_recent_claims -= ( dcpo.comment_recent_claims * ( head_block_time() - dcpo.comment_last_update ).to_seconds() ) / decay_rate.to_seconds();
-               dcpo.comment_last_update = head_block_time();
-           });
+       {
+           fc::microseconds decay_rate;
+           decay_rate = CONTENTO_RECENT_RSHARES_DECAY_RATE_HF17;
+           dcpo.comment_recent_claims -= ( dcpo.comment_recent_claims * ( head_block_time() - dcpo.comment_last_update ).to_seconds() ) / decay_rate.to_seconds();
+           dcpo.comment_last_update = head_block_time();
+       });
     reward_fund_context subject_rf_ctx, comment_rf_ctx;
     subject_rf_ctx.recent_claims = grpo.subject_recent_claims;
     subject_rf_ctx.reward_balance = grpo.subject_reward_balance;
@@ -1735,14 +1735,14 @@ void database::process_comment_cashout()
             comment_rf_ctx.coc_awarded += cashout_comment_helper( c_ctx, *current, false );
         }
         // current = cidx.begin();
+        modify( grpo, [&]( dynamic_global_reward_property_object& dcpo )
+       {
+           dcpo.subject_recent_claims = subject_rf_ctx.recent_claims;
+           dcpo.subject_reward_balance -= subject_rf_ctx.coc_awarded;
+           dcpo.comment_recent_claims = comment_rf_ctx.recent_claims;
+           dcpo.comment_reward_balance -= comment_rf_ctx.coc_awarded;
+       });
     }
-    modify( grpo, [&]( dynamic_global_reward_property_object& dcpo )
-    {
-       dcpo.subject_recent_claims = subject_rf_ctx.recent_claims;
-       dcpo.subject_reward_balance -= subject_rf_ctx.coc_awarded;
-       dcpo.comment_recent_claims = comment_rf_ctx.recent_claims;
-       dcpo.comment_reward_balance -= comment_rf_ctx.coc_awarded;
-    });
 }
 /**
  *  Overall the network has an inflation rate of 102% of virtual steem per year

@@ -235,6 +235,7 @@ void comment_report_evaluator::do_apply( const comment_report_operation& o )
           _db.modify( *comment_report_itr, [&]( comment_report_object& c ) {
               c.cashout_time = _db.head_block_time();
           });
+          delete_comment(comment, _db);
       }
       else
       {
