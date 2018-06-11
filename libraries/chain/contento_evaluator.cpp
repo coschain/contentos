@@ -172,15 +172,22 @@ void delete_comment( const comment_object& co, database &db ) {
     FC_ASSERT( !(auth.owner_challenged || auth.active_challenged ), "Operation cannot be processed because account is currently challenged." );
 
     // delete all child comments
+//    const auto& by_permlink_idx = db.get_index< comment_index >().indices().get< by_parent >();
     const auto& by_permlink_idx = db.get_index< comment_index >().indices().get< by_parent >();
     auto itr = by_permlink_idx.find( boost::make_tuple( co.author, co.permlink ) );
-    while( itr != by_permlink_idx.end() && itr->parent_author == co.author && itr->parent_permlink == co.permlink )
+//    while( itr != by_permlink_idx.end() && itr->parent_author == co.author && itr->parent_permlink == co.permlink )
+//    {
+//        const auto& cur_child_comment = *itr;
+//        ++itr;
+//        delete_comment( cur_child_comment, db );
+//    }
+    
+    while( itr != by_permlink_idx.end() && itr->parent_author == co.author && itr->parent_permlink == co.permlink)
     {
         const auto& cur_child_comment = *itr;
         ++itr;
         delete_comment( cur_child_comment, db );
     }
-
     //FC_ASSERT( co.cashout_time != fc::time_point_sec::maximum() );
     //FC_ASSERT( co.net_rshares <= 0, "Cannot delete a comment with net positive votes." );
 
@@ -241,12 +248,11 @@ void comment_report_evaluator::do_apply( const comment_report_operation& o )
       {
          // all comment_reports of the comment is denied. start report punish process
            _db.remove( *comment_report_itr );
+          _db.modify(comment, [&]( comment_object& c){
+              c.allow_report = false;
+          });
       }
 
-      // delete comment_report_object and comment_report_index anyway
-       _db.modify(comment, [&]( comment_object& c){
-           c.allow_report = false;
-       });
    }
    else
    {
@@ -716,8 +722,7 @@ void comment_evaluator::do_apply( const comment_operation& o )
            }
            else
            {
-               com
-               .parent_author = parent->author;
+               com.parent_author = parent->author;
                com.parent_permlink = parent->permlink;
                com.depth = parent->depth + 1;
                com.category = parent->category;

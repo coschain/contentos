@@ -1677,14 +1677,17 @@ void database::process_comment_cashout()
     //  add all rshares about to be cashed out to the reward funds. This ensures equal satoshi per rshare payment
     // 就只有 cashout 的时候会累加进 recent_claims
 
+#ifdef CONTENTO_ASA
     while( current != cidx.end())
     {
         std::cout << current -> permlink << "\n";
+        std::cout << current -> parent_permlink << "\n";
         std::cout << current->cashout_time.sec_since_epoch() << "\n";
         std::cout << head_block_time().sec_since_epoch() << "\n";
         ++current;
     }
     current = cidx.begin();
+#endif
 
     while( current != cidx.end() && current->cashout_time <= head_block_time() )
     {
@@ -1810,9 +1813,10 @@ void database::process_other_cashout()
             for(auto c = itr.begin();c != itr.end();++c){
                 reporters.push_back(c -> first);
             }
-            modify( *current, [&]( comment_report_object& c ) {
-                c.cashout_time = fc::time_point_sec::maximum();
-            });
+//            modify( *current, [&]( comment_report_object& c ) {
+//                c.cashout_time = fc::time_point_sec::maximum();
+//            });
+            remove( *current );
             ++current;
         }
         

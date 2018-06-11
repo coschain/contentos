@@ -270,6 +270,7 @@ namespace contento { namespace chain {
                member< comment_object, comment_id_type, &comment_object::id >
             >,
             composite_key_compare< std::less< account_name_type >, strcmp_less, std::less< comment_id_type > >
+//              composite_key_compare< std::less< account_name_type >, strcmp_less >
          >
          /// NON_CONSENSUS INDICIES - used by APIs
 #ifndef IS_LOW_MEM
