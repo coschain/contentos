@@ -69,7 +69,7 @@ void update_median_witness_props( database& db )
    db.modify( db.get_dynamic_global_properties(), [&]( dynamic_global_property_object& _dgpo )
    {
       _dgpo.maximum_block_size = median_maximum_block_size;
-      _dgpo.sbd_interest_rate  = median_sbd_interest_rate;
+//      _dgpo.sbd_interest_rate  = median_sbd_interest_rate;
    } );
 }
 

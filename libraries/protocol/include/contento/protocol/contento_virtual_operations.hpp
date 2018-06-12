@@ -66,14 +66,14 @@ namespace contento { namespace protocol {
    };
 
 
-   struct interest_operation : public virtual_operation
-   {
-      interest_operation( const string& o = "", const asset& i = asset(0,SBD_SYMBOL) )
-         :owner(o),interest(i){}
-
-      account_name_type owner;
-      asset             interest;
-   };
+//   struct interest_operation : public virtual_operation
+//   {
+//      interest_operation( const string& o = "", const asset& i = asset(0,SBD_SYMBOL) )
+//         :owner(o),interest(i){}
+//
+//      account_name_type owner;
+//      asset             interest;
+//   };
 
 
    struct fill_convert_request_operation : public virtual_operation
@@ -204,7 +204,7 @@ FC_REFLECT( contento::protocol::comment_reward_operation, (author)(permlink)(pay
 FC_REFLECT( contento::protocol::subject_reward_operation, (author)(permlink)(payout) )
 FC_REFLECT( contento::protocol::fill_convert_request_operation, (owner)(requestid)(amount_in)(amount_out) )
 FC_REFLECT( contento::protocol::liquidity_reward_operation, (owner)(payout) )
-FC_REFLECT( contento::protocol::interest_operation, (owner)(interest) )
+//FC_REFLECT( contento::protocol::interest_operation, (owner)(interest) )
 FC_REFLECT( contento::protocol::fill_vesting_withdraw_operation, (from_account)(to_account)(withdrawn)(deposited) )
 FC_REFLECT( contento::protocol::shutdown_witness_operation, (owner) )
 FC_REFLECT( contento::protocol::fill_order_operation, (current_owner)(current_orderid)(current_pays)(open_owner)(open_orderid)(open_pays) )

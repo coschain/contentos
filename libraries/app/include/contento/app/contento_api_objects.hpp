@@ -82,12 +82,12 @@ struct comment_api_obj
       total_vote_weight( o.total_vote_weight ),
       reward_weight( o.reward_weight ),
       total_payout_value( o.total_payout_value ),
-      curator_payout_value( o.curator_payout_value ),
+//      curator_payout_value( o.curator_payout_value ),
       author_rewards( o.author_rewards ),
       net_votes( o.net_votes ),
       root_comment( o.root_comment ),
-      max_accepted_payout( o.max_accepted_payout ),
-      percent_steem_dollars( o.percent_steem_dollars ),
+//      max_accepted_payout( o.max_accepted_payout ),
+//      percent_steem_dollars( o.percent_steem_dollars ),
       allow_replies( o.allow_replies ),
       allow_votes( o.allow_votes ),
       allow_curation_rewards( o.allow_curation_rewards )
@@ -130,7 +130,7 @@ struct comment_api_obj
    uint16_t          reward_weight = 0;
 
    asset             total_payout_value;
-   asset             curator_payout_value;
+//   asset             curator_payout_value;
 
    share_type        author_rewards;
 
@@ -138,8 +138,8 @@ struct comment_api_obj
 
    comment_id_type   root_comment;
 
-   asset             max_accepted_payout;
-   uint16_t          percent_steem_dollars = 0;
+//   asset             max_accepted_payout;
+//   uint16_t          percent_steem_dollars = 0;
    bool              allow_replies = false;
    bool              allow_votes = false;
    bool              allow_curation_rewards = false;
@@ -192,16 +192,16 @@ struct account_api_obj
       last_vote_time( a.last_vote_time ),
       balance( a.balance ),
       savings_balance( a.savings_balance ),
-      sbd_balance( a.sbd_balance ),
-      sbd_seconds( a.sbd_seconds ),
-      sbd_seconds_last_update( a.sbd_seconds_last_update ),
-      sbd_last_interest_payment( a.sbd_last_interest_payment ),
-      savings_sbd_balance( a.savings_sbd_balance ),
-      savings_sbd_seconds( a.savings_sbd_seconds ),
-      savings_sbd_seconds_last_update( a.savings_sbd_seconds_last_update ),
-      savings_sbd_last_interest_payment( a.savings_sbd_last_interest_payment ),
+//      sbd_balance( a.sbd_balance ),
+//      sbd_seconds( a.sbd_seconds ),
+//      sbd_seconds_last_update( a.sbd_seconds_last_update ),
+//      sbd_last_interest_payment( a.sbd_last_interest_payment ),
+//      savings_sbd_balance( a.savings_sbd_balance ),
+//      savings_sbd_seconds( a.savings_sbd_seconds ),
+//      savings_sbd_seconds_last_update( a.savings_sbd_seconds_last_update ),
+//      savings_sbd_last_interest_payment( a.savings_sbd_last_interest_payment ),
       savings_withdraw_requests( a.savings_withdraw_requests ),
-      reward_sbd_balance( a.reward_sbd_balance ),
+//      reward_sbd_balance( a.reward_sbd_balance ),
       reward_steem_balance( a.reward_steem_balance ),
       reward_vesting_balance( a.reward_vesting_balance ),
       reward_vesting_steem( a.reward_vesting_steem ),
@@ -514,8 +514,11 @@ FC_REFLECT( contento::app::comment_api_obj,
              (depth)(children)
              (net_rshares)(abs_rshares)(vote_rshares)
              (children_abs_rshares)(cashout_time)(max_cashout_time)
-             (total_vote_weight)(reward_weight)(total_payout_value)(curator_payout_value)(author_rewards)(net_votes)(root_comment)
-             (max_accepted_payout)(percent_steem_dollars)(allow_replies)(allow_votes)(allow_curation_rewards)
+             (total_vote_weight)(reward_weight)(total_payout_value)
+//             (curator_payout_value)
+             (author_rewards)(net_votes)(root_comment)
+//             (max_accepted_payout)(percent_steem_dollars)
+             (allow_replies)(allow_votes)(allow_curation_rewards)
              (beneficiaries)
           )
 
@@ -526,9 +529,11 @@ FC_REFLECT( contento::app::account_api_obj,
              (comment_count)(lifetime_vote_count)(post_count)(can_vote)(voting_power)(last_vote_time)
              (balance)
              (savings_balance)
-             (sbd_balance)(sbd_seconds)(sbd_seconds_last_update)(sbd_last_interest_payment)
-             (savings_sbd_balance)(savings_sbd_seconds)(savings_sbd_seconds_last_update)(savings_sbd_last_interest_payment)(savings_withdraw_requests)
-             (reward_sbd_balance)(reward_steem_balance)(reward_vesting_balance)(reward_vesting_steem)
+//             (sbd_balance)(sbd_seconds)(sbd_seconds_last_update)(sbd_last_interest_payment)
+//             (savings_sbd_balance)(savings_sbd_seconds)(savings_sbd_seconds_last_update)(savings_sbd_last_interest_payment)
+           (savings_withdraw_requests)
+//             (reward_sbd_balance)
+           (reward_steem_balance)(reward_vesting_balance)(reward_vesting_steem)
              (vesting_shares)(delegated_vesting_shares)(received_vesting_shares)(vesting_withdraw_rate)(next_vesting_withdrawal)(withdrawn)(to_withdraw)(withdraw_routes)
              (curation_rewards)
              (posting_rewards)

@@ -71,7 +71,7 @@ namespace contento { namespace protocol {
             comment_reward_operation,
             subject_reward_operation,
             liquidity_reward_operation,
-            interest_operation,
+//            interest_operation,
             fill_vesting_withdraw_operation,
             fill_order_operation,
             shutdown_witness_operation,

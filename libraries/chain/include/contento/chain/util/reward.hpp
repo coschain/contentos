@@ -38,10 +38,10 @@ inline uint128_t get_content_constant_s()
 
 uint128_t evaluate_reward_curve( const uint128_t& rshares, const curve_id& curve = quadratic, const uint128_t& content_constant = CONTENTO_CONTENT_CONSTANT_HF0 );
 
-inline bool is_comment_payout_dust( const price& p, uint64_t steem_payout )
-{
-   return to_sbd( p, asset( steem_payout, COC_SYMBOL ) ) < CONTENTO_MIN_PAYOUT_SBD;
-}
+//inline bool is_comment_payout_dust( const price& p, uint64_t steem_payout )
+//{
+//   return to_sbd( p, asset( steem_payout, COC_SYMBOL ) ) < CONTENTO_MIN_PAYOUT_SBD;
+//}
 
 } } } // contento::chain::util
 
