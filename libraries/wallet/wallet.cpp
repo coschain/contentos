@@ -1935,117 +1935,117 @@ annotated_signed_transaction wallet_api::transfer(string from, string to, asset 
    return my->sign_transaction( tx, broadcast );
 } FC_CAPTURE_AND_RETHROW( (from)(to)(amount)(memo)(broadcast) ) }
 
-annotated_signed_transaction wallet_api::escrow_transfer(
-      string from,
-      string to,
-      string agent,
-      uint32_t escrow_id,
-      asset sbd_amount,
-      asset steem_amount,
-      asset fee,
-      time_point_sec ratification_deadline,
-      time_point_sec escrow_expiration,
-      string json_meta,
-      bool broadcast
-   )
-{
-   FC_ASSERT( !is_locked() );
-   escrow_transfer_operation op;
-   op.from = from;
-   op.to = to;
-   op.agent = agent;
-   op.escrow_id = escrow_id;
-   op.sbd_amount = sbd_amount;
-   op.steem_amount = steem_amount;
-   op.fee = fee;
-   op.ratification_deadline = ratification_deadline;
-   op.escrow_expiration = escrow_expiration;
-   op.json_meta = json_meta;
+//annotated_signed_transaction wallet_api::escrow_transfer(
+//      string from,
+//      string to,
+//      string agent,
+//      uint32_t escrow_id,
+//      asset sbd_amount,
+//      asset steem_amount,
+//      asset fee,
+//      time_point_sec ratification_deadline,
+//      time_point_sec escrow_expiration,
+//      string json_meta,
+//      bool broadcast
+//   )
+//{
+//   FC_ASSERT( !is_locked() );
+//   escrow_transfer_operation op;
+//   op.from = from;
+//   op.to = to;
+//   op.agent = agent;
+//   op.escrow_id = escrow_id;
+//   op.sbd_amount = sbd_amount;
+//   op.steem_amount = steem_amount;
+//   op.fee = fee;
+//   op.ratification_deadline = ratification_deadline;
+//   op.escrow_expiration = escrow_expiration;
+//   op.json_meta = json_meta;
+//
+//   signed_transaction tx;
+//   tx.operations.push_back( op );
+//   tx.validate();
+//
+//   return my->sign_transaction( tx, broadcast );
+//}
+//
+//annotated_signed_transaction wallet_api::escrow_approve(
+//      string from,
+//      string to,
+//      string agent,
+//      string who,
+//      uint32_t escrow_id,
+//      bool approve,
+//      bool broadcast
+//   )
+//{
+//   FC_ASSERT( !is_locked() );
+//   escrow_approve_operation op;
+//   op.from = from;
+//   op.to = to;
+//   op.agent = agent;
+//   op.who = who;
+//   op.escrow_id = escrow_id;
+//
+//   signed_transaction tx;
+//   tx.operations.push_back( op );
+//   tx.validate();
+//
+//   return my->sign_transaction( tx, broadcast );
+//}
+//
+//annotated_signed_transaction wallet_api::escrow_dispute(
+//      string from,
+//      string to,
+//      string agent,
+//      string who,
+//      uint32_t escrow_id,
+//      bool broadcast
+//   )
+//{
+//   FC_ASSERT( !is_locked() );
+//   escrow_dispute_operation op;
+//   op.from = from;
+//   op.to = to;
+//   op.agent = agent;
+//   op.who = who;
+//   op.escrow_id = escrow_id;
+//
+//   signed_transaction tx;
+//   tx.operations.push_back( op );
+//   tx.validate();
+//
+//   return my->sign_transaction( tx, broadcast );
+//}
 
-   signed_transaction tx;
-   tx.operations.push_back( op );
-   tx.validate();
-
-   return my->sign_transaction( tx, broadcast );
-}
-
-annotated_signed_transaction wallet_api::escrow_approve(
-      string from,
-      string to,
-      string agent,
-      string who,
-      uint32_t escrow_id,
-      bool approve,
-      bool broadcast
-   )
-{
-   FC_ASSERT( !is_locked() );
-   escrow_approve_operation op;
-   op.from = from;
-   op.to = to;
-   op.agent = agent;
-   op.who = who;
-   op.escrow_id = escrow_id;
-
-   signed_transaction tx;
-   tx.operations.push_back( op );
-   tx.validate();
-
-   return my->sign_transaction( tx, broadcast );
-}
-
-annotated_signed_transaction wallet_api::escrow_dispute(
-      string from,
-      string to,
-      string agent,
-      string who,
-      uint32_t escrow_id,
-      bool broadcast
-   )
-{
-   FC_ASSERT( !is_locked() );
-   escrow_dispute_operation op;
-   op.from = from;
-   op.to = to;
-   op.agent = agent;
-   op.who = who;
-   op.escrow_id = escrow_id;
-
-   signed_transaction tx;
-   tx.operations.push_back( op );
-   tx.validate();
-
-   return my->sign_transaction( tx, broadcast );
-}
-
-annotated_signed_transaction wallet_api::escrow_release(
-   string from,
-   string to,
-   string agent,
-   string who,
-   string receiver,
-   uint32_t escrow_id,
-   asset sbd_amount,
-   asset steem_amount,
-   bool broadcast
-)
-{
-   FC_ASSERT( !is_locked() );
-   escrow_release_operation op;
-   op.from = from;
-   op.to = to;
-   op.agent = agent;
-   op.who = who;
-   op.receiver = receiver;
-   op.escrow_id = escrow_id;
-   op.sbd_amount = sbd_amount;
-   op.steem_amount = steem_amount;
-
-   signed_transaction tx;
-   tx.operations.push_back( op );
-   tx.validate();
-   return my->sign_transaction( tx, broadcast );
-}
+//annotated_signed_transaction wallet_api::escrow_release(
+//   string from,
+//   string to,
+//   string agent,
+//   string who,
+//   string receiver,
+//   uint32_t escrow_id,
+//   asset sbd_amount,
+//   asset steem_amount,
+//   bool broadcast
+//)
+//{
+//   FC_ASSERT( !is_locked() );
+//   escrow_release_operation op;
+//   op.from = from;
+//   op.to = to;
+//   op.agent = agent;
+//   op.who = who;
+//   op.receiver = receiver;
+//   op.escrow_id = escrow_id;
+//   op.sbd_amount = sbd_amount;
+//   op.steem_amount = steem_amount;
+//
+//   signed_transaction tx;
+//   tx.operations.push_back( op );
+//   tx.validate();
+//   return my->sign_transaction( tx, broadcast );
+//}
 
 /**
  *  Transfers into savings happen immediately, transfers from savings take 72 hours
@@ -2276,46 +2276,46 @@ vector< withdraw_route > wallet_api::get_withdraw_routes( string account, withdr
    return my->_remote_db->get_withdraw_routes( account, type );
 }
 
-order_book wallet_api::get_order_book( uint32_t limit )
-{
-   FC_ASSERT( limit <= 1000 );
-   return my->_remote_db->get_order_book( limit );
-}
-vector<extended_limit_order> wallet_api::get_open_orders( string owner )
-{
-   return my->_remote_db->get_open_orders( owner );
-}
+//order_book wallet_api::get_order_book( uint32_t limit )
+//{
+//   FC_ASSERT( limit <= 1000 );
+//   return my->_remote_db->get_order_book( limit );
+//}
+//vector<extended_limit_order> wallet_api::get_open_orders( string owner )
+//{
+//   return my->_remote_db->get_open_orders( owner );
+//}
 
-annotated_signed_transaction wallet_api::create_order(  string owner, uint32_t order_id, asset amount_to_sell, asset min_to_receive, bool fill_or_kill, uint32_t expiration_sec, bool broadcast )
-{
-   FC_ASSERT( !is_locked() );
-   limit_order_create_operation op;
-   op.owner = owner;
-   op.orderid = order_id;
-   op.amount_to_sell = amount_to_sell;
-   op.min_to_receive = min_to_receive;
-   op.fill_or_kill = fill_or_kill;
-   op.expiration = expiration_sec ? (fc::time_point::now() + fc::seconds(expiration_sec)) : fc::time_point::maximum();
-
-   signed_transaction tx;
-   tx.operations.push_back( op );
-   tx.validate();
-
-   return my->sign_transaction( tx, broadcast );
-}
-
-annotated_signed_transaction wallet_api::cancel_order( string owner, uint32_t orderid, bool broadcast ) {
-   FC_ASSERT( !is_locked() );
-   limit_order_cancel_operation op;
-   op.owner = owner;
-   op.orderid = orderid;
-
-   signed_transaction tx;
-   tx.operations.push_back( op );
-   tx.validate();
-
-   return my->sign_transaction( tx, broadcast );
-}
+//annotated_signed_transaction wallet_api::create_order(  string owner, uint32_t order_id, asset amount_to_sell, asset min_to_receive, bool fill_or_kill, uint32_t expiration_sec, bool broadcast )
+//{
+//   FC_ASSERT( !is_locked() );
+//   limit_order_create_operation op;
+//   op.owner = owner;
+//   op.orderid = order_id;
+//   op.amount_to_sell = amount_to_sell;
+//   op.min_to_receive = min_to_receive;
+//   op.fill_or_kill = fill_or_kill;
+//   op.expiration = expiration_sec ? (fc::time_point::now() + fc::seconds(expiration_sec)) : fc::time_point::maximum();
+//
+//   signed_transaction tx;
+//   tx.operations.push_back( op );
+//   tx.validate();
+//
+//   return my->sign_transaction( tx, broadcast );
+//}
+//
+//annotated_signed_transaction wallet_api::cancel_order( string owner, uint32_t orderid, bool broadcast ) {
+//   FC_ASSERT( !is_locked() );
+//   limit_order_cancel_operation op;
+//   op.owner = owner;
+//   op.orderid = orderid;
+//
+//   signed_transaction tx;
+//   tx.operations.push_back( op );
+//   tx.validate();
+//
+//   return my->sign_transaction( tx, broadcast );
+//}
 
 annotated_signed_transaction wallet_api::post_subject( string author, string permlink, string category, string title, string body, string json, bool broadcast)
 {

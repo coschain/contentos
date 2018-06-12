@@ -285,15 +285,15 @@ class database_api
        * @breif Gets the current order book for STEEM:SBD market
        * @param limit Maximum number of orders for each side of the spread to return -- Must not exceed 1000
        */
-      order_book get_order_book( uint32_t limit = 1000 )const;
-      vector<extended_limit_order> get_open_orders( string owner )const;
+      // order_book get_order_book( uint32_t limit = 1000 )const;
+      // vector<extended_limit_order> get_open_orders( string owner )const;
 
       /**
        * @breif Gets the current liquidity reward queue.
        * @param start_account The account to start the list from, or "" to get the head of the queue
        * @param limit Maxmimum number of accounts to return -- Must not exceed 1000
        */
-      vector< liquidity_balance > get_liquidity_queue( string start_account, uint32_t limit = 1000 )const;
+      // vector< liquidity_balance > get_liquidity_queue( string start_account, uint32_t limit = 1000 )const;
 
       ////////////////////////////
       // Authority / validation //
@@ -508,9 +508,9 @@ FC_API(contento::app::database_api,
    (get_expiring_vesting_delegations)
 
    // Market
-   (get_order_book)
-   (get_open_orders)
-   (get_liquidity_queue)
+//   (get_order_book)
+//   (get_open_orders)
+//   (get_liquidity_queue)
 
    // Authority / validation
    (get_transaction_hex)

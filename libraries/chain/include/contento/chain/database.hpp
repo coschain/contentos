@@ -298,7 +298,7 @@ namespace contento { namespace chain {
          asset create_vesting( const account_object& to_account, asset coc);
          //void adjust_total_payout( const comment_object& a, const asset& sbd, const asset& curator_sbd_value, const asset& beneficiary_value );
 
-         void        adjust_liquidity_reward( const account_object& owner, const asset& volume, bool is_bid );
+         // void        adjust_liquidity_reward( const account_object& owner, const asset& volume, bool is_bid );
          void        adjust_balance( const account_object& a, const asset& delta );
          void        adjust_savings_balance( const account_object& a, const asset& delta );
          void        adjust_reward_balance( const account_object& a, const asset& delta );
@@ -390,10 +390,10 @@ namespace contento { namespace chain {
          std::deque< signed_transaction >       _popped_tx;
 
 
-         bool apply_order( const limit_order_object& new_order_object );
-         bool fill_order( const limit_order_object& order, const asset& pays, const asset& receives );
-         void cancel_order( const limit_order_object& obj );
-         int  match( const limit_order_object& bid, const limit_order_object& ask, const price& trade_price );
+         // bool apply_order( const limit_order_object& new_order_object );
+         // bool fill_order( const limit_order_object& order, const asset& pays, const asset& receives );
+         // void cancel_order( const limit_order_object& obj );
+         // int  match( const limit_order_object& bid, const limit_order_object& ask, const price& trade_price );
 
          void perform_vesting_share_split( uint32_t magnitude );
          void retally_comment_children();
@@ -451,8 +451,8 @@ namespace contento { namespace chain {
          void update_global_dynamic_data( const signed_block& b );
          void update_signing_witness(const witness_object& signing_witness, const signed_block& new_block);
          void update_last_irreversible_block();
-         void clear_expired_transactions();
-         void clear_expired_orders();
+         // void clear_expired_transactions();
+         // void clear_expired_orders();
          void clear_expired_delegations();
          void process_header_extensions( const signed_block& next_block );
 

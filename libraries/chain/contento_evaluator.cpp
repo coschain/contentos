@@ -816,183 +816,183 @@ void comment_evaluator::do_apply( const comment_operation& o )
     } // end EDIT case
 } FC_CAPTURE_AND_RETHROW( (o) ) }
 
-void escrow_transfer_evaluator::do_apply( const escrow_transfer_operation& o )
-{
-   try
-   {
-      const auto& from_account = _db.get_account(o.from);
-      _db.get_account(o.to);
-      _db.get_account(o.agent);
-
-      FC_ASSERT( o.ratification_deadline > _db.head_block_time(), "The escorw ratification deadline must be after head block time." );
-      FC_ASSERT( o.escrow_expiration > _db.head_block_time(), "The escrow expiration must be after head block time." );
-
-      asset steem_spent = o.steem_amount;
-      asset sbd_spent = o.sbd_amount;
-      if( o.fee.symbol == COC_SYMBOL )
-         steem_spent += o.fee;
-      else
-         sbd_spent += o.fee;
-
-      FC_ASSERT( from_account.balance >= steem_spent, "Account cannot cover STEEM costs of escrow. Required: ${r} Available: ${a}", ("r",steem_spent)("a",from_account.balance) );
-//      FC_ASSERT( from_account.sbd_balance >= sbd_spent, "Account cannot cover SBD costs of escrow. Required: ${r} Available: ${a}", ("r",sbd_spent)("a",from_account.sbd_balance) );
-
-      _db.adjust_balance( from_account, -steem_spent );
-      _db.adjust_balance( from_account, -sbd_spent );
-
-      _db.create<escrow_object>([&]( escrow_object& esc )
-      {
-         esc.escrow_id              = o.escrow_id;
-         esc.from                   = o.from;
-         esc.to                     = o.to;
-         esc.agent                  = o.agent;
-         esc.ratification_deadline  = o.ratification_deadline;
-         esc.escrow_expiration      = o.escrow_expiration;
-         esc.sbd_balance            = o.sbd_amount;
-         esc.steem_balance          = o.steem_amount;
-         esc.pending_fee            = o.fee;
-      });
-   }
-   FC_CAPTURE_AND_RETHROW( (o) )
-}
-
-void escrow_approve_evaluator::do_apply( const escrow_approve_operation& o )
-{
-   try
-   {
-
-      const auto& escrow = _db.get_escrow( o.from, o.escrow_id );
-
-      FC_ASSERT( escrow.to == o.to, "Operation 'to' (${o}) does not match escrow 'to' (${e}).", ("o", o.to)("e", escrow.to) );
-      FC_ASSERT( escrow.agent == o.agent, "Operation 'agent' (${a}) does not match escrow 'agent' (${e}).", ("o", o.agent)("e", escrow.agent) );
-      FC_ASSERT( escrow.ratification_deadline >= _db.head_block_time(), "The escrow ratification deadline has passed. Escrow can no longer be ratified." );
-
-      bool reject_escrow = !o.approve;
-
-      if( o.who == o.to )
-      {
-         FC_ASSERT( !escrow.to_approved, "Account 'to' (${t}) has already approved the escrow.", ("t", o.to) );
-
-         if( !reject_escrow )
-         {
-            _db.modify( escrow, [&]( escrow_object& esc )
-            {
-               esc.to_approved = true;
-            });
-         }
-      }
-      if( o.who == o.agent )
-      {
-         FC_ASSERT( !escrow.agent_approved, "Account 'agent' (${a}) has already approved the escrow.", ("a", o.agent) );
-
-         if( !reject_escrow )
-         {
-            _db.modify( escrow, [&]( escrow_object& esc )
-            {
-               esc.agent_approved = true;
-            });
-         }
-      }
-
-      if( reject_escrow )
-      {
-         const auto& from_account = _db.get_account( o.from );
-         _db.adjust_balance( from_account, escrow.steem_balance );
-         _db.adjust_balance( from_account, escrow.sbd_balance );
-         _db.adjust_balance( from_account, escrow.pending_fee );
-
-         _db.remove( escrow );
-      }
-      else if( escrow.to_approved && escrow.agent_approved )
-      {
-         const auto& agent_account = _db.get_account( o.agent );
-         _db.adjust_balance( agent_account, escrow.pending_fee );
-
-         _db.modify( escrow, [&]( escrow_object& esc )
-         {
-            esc.pending_fee.amount = 0;
-         });
-      }
-   }
-   FC_CAPTURE_AND_RETHROW( (o) )
-}
-
-void escrow_dispute_evaluator::do_apply( const escrow_dispute_operation& o )
-{
-   try
-   {
-      _db.get_account( o.from ); // Verify from account exists
-
-      const auto& e = _db.get_escrow( o.from, o.escrow_id );
-      FC_ASSERT( _db.head_block_time() < e.escrow_expiration, "Disputing the escrow must happen before expiration." );
-      FC_ASSERT( e.to_approved && e.agent_approved, "The escrow must be approved by all parties before a dispute can be raised." );
-      FC_ASSERT( !e.disputed, "The escrow is already under dispute." );
-      FC_ASSERT( e.to == o.to, "Operation 'to' (${o}) does not match escrow 'to' (${e}).", ("o", o.to)("e", e.to) );
-      FC_ASSERT( e.agent == o.agent, "Operation 'agent' (${a}) does not match escrow 'agent' (${e}).", ("o", o.agent)("e", e.agent) );
-
-      _db.modify( e, [&]( escrow_object& esc )
-      {
-         esc.disputed = true;
-      });
-   }
-   FC_CAPTURE_AND_RETHROW( (o) )
-}
-
-void escrow_release_evaluator::do_apply( const escrow_release_operation& o )
-{
-   try
-   {
-      _db.get_account(o.from); // Verify from account exists
-      const auto& receiver_account = _db.get_account(o.receiver);
-
-      const auto& e = _db.get_escrow( o.from, o.escrow_id );
-      FC_ASSERT( e.steem_balance >= o.steem_amount, "Release amount exceeds escrow balance. Amount: ${a}, Balance: ${b}", ("a", o.steem_amount)("b", e.steem_balance) );
-      FC_ASSERT( e.sbd_balance >= o.sbd_amount, "Release amount exceeds escrow balance. Amount: ${a}, Balance: ${b}", ("a", o.sbd_amount)("b", e.sbd_balance) );
-      FC_ASSERT( e.to == o.to, "Operation 'to' (${o}) does not match escrow 'to' (${e}).", ("o", o.to)("e", e.to) );
-      FC_ASSERT( e.agent == o.agent, "Operation 'agent' (${a}) does not match escrow 'agent' (${e}).", ("o", o.agent)("e", e.agent) );
-      FC_ASSERT( o.receiver == e.from || o.receiver == e.to, "Funds must be released to 'from' (${f}) or 'to' (${t})", ("f", e.from)("t", e.to) );
-      FC_ASSERT( e.to_approved && e.agent_approved, "Funds cannot be released prior to escrow approval." );
-
-      // If there is a dispute regardless of expiration, the agent can release funds to either party
-      if( e.disputed )
-      {
-         FC_ASSERT( o.who == e.agent, "Only 'agent' (${a}) can release funds in a disputed escrow.", ("a", e.agent) );
-      }
-      else
-      {
-         FC_ASSERT( o.who == e.from || o.who == e.to, "Only 'from' (${f}) and 'to' (${t}) can release funds from a non-disputed escrow", ("f", e.from)("t", e.to) );
-
-         if( e.escrow_expiration > _db.head_block_time() )
-         {
-            // If there is no dispute and escrow has not expired, either party can release funds to the other.
-            if( o.who == e.from )
-            {
-               FC_ASSERT( o.receiver == e.to, "Only 'from' (${f}) can release funds to 'to' (${t}).", ("f", e.from)("t", e.to) );
-            }
-            else if( o.who == e.to )
-            {
-               FC_ASSERT( o.receiver == e.from, "Only 'to' (${t}) can release funds to 'from' (${t}).", ("f", e.from)("t", e.to) );
-            }
-         }
-      }
-      // If escrow expires and there is no dispute, either party can release funds to either party.
-
-      _db.adjust_balance( receiver_account, o.steem_amount );
-      _db.adjust_balance( receiver_account, o.sbd_amount );
-
-      _db.modify( e, [&]( escrow_object& esc )
-      {
-         esc.steem_balance -= o.steem_amount;
-         esc.sbd_balance -= o.sbd_amount;
-      });
-
-      if( e.steem_balance.amount == 0 && e.sbd_balance.amount == 0 )
-      {
-         _db.remove( e );
-      }
-   }
-   FC_CAPTURE_AND_RETHROW( (o) )
-}
+//void escrow_transfer_evaluator::do_apply( const escrow_transfer_operation& o )
+//{
+//   try
+//   {
+//      const auto& from_account = _db.get_account(o.from);
+//      _db.get_account(o.to);
+//      _db.get_account(o.agent);
+//
+//      FC_ASSERT( o.ratification_deadline > _db.head_block_time(), "The escorw ratification deadline must be after head block time." );
+//      FC_ASSERT( o.escrow_expiration > _db.head_block_time(), "The escrow expiration must be after head block time." );
+//
+//      asset steem_spent = o.steem_amount;
+//      asset sbd_spent = o.sbd_amount;
+//      if( o.fee.symbol == COC_SYMBOL )
+//         steem_spent += o.fee;
+//      else
+//         sbd_spent += o.fee;
+//
+//      FC_ASSERT( from_account.balance >= steem_spent, "Account cannot cover STEEM costs of escrow. Required: ${r} Available: ${a}", ("r",steem_spent)("a",from_account.balance) );
+////      FC_ASSERT( from_account.sbd_balance >= sbd_spent, "Account cannot cover SBD costs of escrow. Required: ${r} Available: ${a}", ("r",sbd_spent)("a",from_account.sbd_balance) );
+//
+//      _db.adjust_balance( from_account, -steem_spent );
+//      _db.adjust_balance( from_account, -sbd_spent );
+//
+//      _db.create<escrow_object>([&]( escrow_object& esc )
+//      {
+//         esc.escrow_id              = o.escrow_id;
+//         esc.from                   = o.from;
+//         esc.to                     = o.to;
+//         esc.agent                  = o.agent;
+//         esc.ratification_deadline  = o.ratification_deadline;
+//         esc.escrow_expiration      = o.escrow_expiration;
+//         esc.sbd_balance            = o.sbd_amount;
+//         esc.steem_balance          = o.steem_amount;
+//         esc.pending_fee            = o.fee;
+//      });
+//   }
+//   FC_CAPTURE_AND_RETHROW( (o) )
+//}
+//
+//void escrow_approve_evaluator::do_apply( const escrow_approve_operation& o )
+//{
+//   try
+//   {
+//
+//      const auto& escrow = _db.get_escrow( o.from, o.escrow_id );
+//
+//      FC_ASSERT( escrow.to == o.to, "Operation 'to' (${o}) does not match escrow 'to' (${e}).", ("o", o.to)("e", escrow.to) );
+//      FC_ASSERT( escrow.agent == o.agent, "Operation 'agent' (${a}) does not match escrow 'agent' (${e}).", ("o", o.agent)("e", escrow.agent) );
+//      FC_ASSERT( escrow.ratification_deadline >= _db.head_block_time(), "The escrow ratification deadline has passed. Escrow can no longer be ratified." );
+//
+//      bool reject_escrow = !o.approve;
+//
+//      if( o.who == o.to )
+//      {
+//         FC_ASSERT( !escrow.to_approved, "Account 'to' (${t}) has already approved the escrow.", ("t", o.to) );
+//
+//         if( !reject_escrow )
+//         {
+//            _db.modify( escrow, [&]( escrow_object& esc )
+//            {
+//               esc.to_approved = true;
+//            });
+//         }
+//      }
+//      if( o.who == o.agent )
+//      {
+//         FC_ASSERT( !escrow.agent_approved, "Account 'agent' (${a}) has already approved the escrow.", ("a", o.agent) );
+//
+//         if( !reject_escrow )
+//         {
+//            _db.modify( escrow, [&]( escrow_object& esc )
+//            {
+//               esc.agent_approved = true;
+//            });
+//         }
+//      }
+//
+//      if( reject_escrow )
+//      {
+//         const auto& from_account = _db.get_account( o.from );
+//         _db.adjust_balance( from_account, escrow.steem_balance );
+//         _db.adjust_balance( from_account, escrow.sbd_balance );
+//         _db.adjust_balance( from_account, escrow.pending_fee );
+//
+//         _db.remove( escrow );
+//      }
+//      else if( escrow.to_approved && escrow.agent_approved )
+//      {
+//         const auto& agent_account = _db.get_account( o.agent );
+//         _db.adjust_balance( agent_account, escrow.pending_fee );
+//
+//         _db.modify( escrow, [&]( escrow_object& esc )
+//         {
+//            esc.pending_fee.amount = 0;
+//         });
+//      }
+//   }
+//   FC_CAPTURE_AND_RETHROW( (o) )
+//}
+//
+//void escrow_dispute_evaluator::do_apply( const escrow_dispute_operation& o )
+//{
+//   try
+//   {
+//      _db.get_account( o.from ); // Verify from account exists
+//
+//      const auto& e = _db.get_escrow( o.from, o.escrow_id );
+//      FC_ASSERT( _db.head_block_time() < e.escrow_expiration, "Disputing the escrow must happen before expiration." );
+//      FC_ASSERT( e.to_approved && e.agent_approved, "The escrow must be approved by all parties before a dispute can be raised." );
+//      FC_ASSERT( !e.disputed, "The escrow is already under dispute." );
+//      FC_ASSERT( e.to == o.to, "Operation 'to' (${o}) does not match escrow 'to' (${e}).", ("o", o.to)("e", e.to) );
+//      FC_ASSERT( e.agent == o.agent, "Operation 'agent' (${a}) does not match escrow 'agent' (${e}).", ("o", o.agent)("e", e.agent) );
+//
+//      _db.modify( e, [&]( escrow_object& esc )
+//      {
+//         esc.disputed = true;
+//      });
+//   }
+//   FC_CAPTURE_AND_RETHROW( (o) )
+//}
+//
+//void escrow_release_evaluator::do_apply( const escrow_release_operation& o )
+//{
+//   try
+//   {
+//      _db.get_account(o.from); // Verify from account exists
+//      const auto& receiver_account = _db.get_account(o.receiver);
+//
+//      const auto& e = _db.get_escrow( o.from, o.escrow_id );
+//      FC_ASSERT( e.steem_balance >= o.steem_amount, "Release amount exceeds escrow balance. Amount: ${a}, Balance: ${b}", ("a", o.steem_amount)("b", e.steem_balance) );
+//      FC_ASSERT( e.sbd_balance >= o.sbd_amount, "Release amount exceeds escrow balance. Amount: ${a}, Balance: ${b}", ("a", o.sbd_amount)("b", e.sbd_balance) );
+//      FC_ASSERT( e.to == o.to, "Operation 'to' (${o}) does not match escrow 'to' (${e}).", ("o", o.to)("e", e.to) );
+//      FC_ASSERT( e.agent == o.agent, "Operation 'agent' (${a}) does not match escrow 'agent' (${e}).", ("o", o.agent)("e", e.agent) );
+//      FC_ASSERT( o.receiver == e.from || o.receiver == e.to, "Funds must be released to 'from' (${f}) or 'to' (${t})", ("f", e.from)("t", e.to) );
+//      FC_ASSERT( e.to_approved && e.agent_approved, "Funds cannot be released prior to escrow approval." );
+//
+//      // If there is a dispute regardless of expiration, the agent can release funds to either party
+//      if( e.disputed )
+//      {
+//         FC_ASSERT( o.who == e.agent, "Only 'agent' (${a}) can release funds in a disputed escrow.", ("a", e.agent) );
+//      }
+//      else
+//      {
+//         FC_ASSERT( o.who == e.from || o.who == e.to, "Only 'from' (${f}) and 'to' (${t}) can release funds from a non-disputed escrow", ("f", e.from)("t", e.to) );
+//
+//         if( e.escrow_expiration > _db.head_block_time() )
+//         {
+//            // If there is no dispute and escrow has not expired, either party can release funds to the other.
+//            if( o.who == e.from )
+//            {
+//               FC_ASSERT( o.receiver == e.to, "Only 'from' (${f}) can release funds to 'to' (${t}).", ("f", e.from)("t", e.to) );
+//            }
+//            else if( o.who == e.to )
+//            {
+//               FC_ASSERT( o.receiver == e.from, "Only 'to' (${t}) can release funds to 'from' (${t}).", ("f", e.from)("t", e.to) );
+//            }
+//         }
+//      }
+//      // If escrow expires and there is no dispute, either party can release funds to either party.
+//
+//      _db.adjust_balance( receiver_account, o.steem_amount );
+//      _db.adjust_balance( receiver_account, o.sbd_amount );
+//
+//      _db.modify( e, [&]( escrow_object& esc )
+//      {
+//         esc.steem_balance -= o.steem_amount;
+//         esc.sbd_balance -= o.sbd_amount;
+//      });
+//
+//      if( e.steem_balance.amount == 0 && e.sbd_balance.amount == 0 )
+//      {
+//         _db.remove( e );
+//      }
+//   }
+//   FC_CAPTURE_AND_RETHROW( (o) )
+//}
 
 void transfer_evaluator::do_apply( const transfer_operation& o )
 {
@@ -1904,60 +1904,60 @@ void convert_evaluator::do_apply( const convert_operation& o )
 
 }
 
-void limit_order_create_evaluator::do_apply( const limit_order_create_operation& o )
-{
-   FC_ASSERT( o.expiration > _db.head_block_time(), "Limit order has to expire after head block time." );
+//void limit_order_create_evaluator::do_apply( const limit_order_create_operation& o )
+//{
+//   FC_ASSERT( o.expiration > _db.head_block_time(), "Limit order has to expire after head block time." );
+//
+//   const auto& owner = _db.get_account( o.owner );
+//
+//   FC_ASSERT( _db.get_balance( owner, o.amount_to_sell.symbol ) >= o.amount_to_sell, "Account does not have sufficient funds for limit order." );
+//
+//   _db.adjust_balance( owner, -o.amount_to_sell );
+//
+//   const auto& order = _db.create<limit_order_object>( [&]( limit_order_object& obj )
+//   {
+//       obj.created    = _db.head_block_time();
+//       obj.seller     = o.owner;
+//       obj.orderid    = o.orderid;
+//       obj.for_sale   = o.amount_to_sell.amount;
+//       obj.sell_price = o.get_price();
+//       obj.expiration = o.expiration;
+//   });
+//
+//   bool filled = _db.apply_order( order );
+//
+//   if( o.fill_or_kill ) FC_ASSERT( filled, "Cancelling order because it was not filled." );
+//}
 
-   const auto& owner = _db.get_account( o.owner );
+//void limit_order_create2_evaluator::do_apply( const limit_order_create2_operation& o )
+//{
+//   FC_ASSERT( o.expiration > _db.head_block_time(), "Limit order has to expire after head block time." );
+//
+//   const auto& owner = _db.get_account( o.owner );
+//
+//   FC_ASSERT( _db.get_balance( owner, o.amount_to_sell.symbol ) >= o.amount_to_sell, "Account does not have sufficient funds for limit order." );
+//
+//   _db.adjust_balance( owner, -o.amount_to_sell );
+//
+//   const auto& order = _db.create<limit_order_object>( [&]( limit_order_object& obj )
+//   {
+//       obj.created    = _db.head_block_time();
+//       obj.seller     = o.owner;
+//       obj.orderid    = o.orderid;
+//       obj.for_sale   = o.amount_to_sell.amount;
+//       obj.sell_price = o.exchange_rate;
+//       obj.expiration = o.expiration;
+//   });
+//
+//   bool filled = _db.apply_order( order );
+//
+//   if( o.fill_or_kill ) FC_ASSERT( filled, "Cancelling order because it was not filled." );
+//}
 
-   FC_ASSERT( _db.get_balance( owner, o.amount_to_sell.symbol ) >= o.amount_to_sell, "Account does not have sufficient funds for limit order." );
-
-   _db.adjust_balance( owner, -o.amount_to_sell );
-
-   const auto& order = _db.create<limit_order_object>( [&]( limit_order_object& obj )
-   {
-       obj.created    = _db.head_block_time();
-       obj.seller     = o.owner;
-       obj.orderid    = o.orderid;
-       obj.for_sale   = o.amount_to_sell.amount;
-       obj.sell_price = o.get_price();
-       obj.expiration = o.expiration;
-   });
-
-   bool filled = _db.apply_order( order );
-
-   if( o.fill_or_kill ) FC_ASSERT( filled, "Cancelling order because it was not filled." );
-}
-
-void limit_order_create2_evaluator::do_apply( const limit_order_create2_operation& o )
-{
-   FC_ASSERT( o.expiration > _db.head_block_time(), "Limit order has to expire after head block time." );
-
-   const auto& owner = _db.get_account( o.owner );
-
-   FC_ASSERT( _db.get_balance( owner, o.amount_to_sell.symbol ) >= o.amount_to_sell, "Account does not have sufficient funds for limit order." );
-
-   _db.adjust_balance( owner, -o.amount_to_sell );
-
-   const auto& order = _db.create<limit_order_object>( [&]( limit_order_object& obj )
-   {
-       obj.created    = _db.head_block_time();
-       obj.seller     = o.owner;
-       obj.orderid    = o.orderid;
-       obj.for_sale   = o.amount_to_sell.amount;
-       obj.sell_price = o.exchange_rate;
-       obj.expiration = o.expiration;
-   });
-
-   bool filled = _db.apply_order( order );
-
-   if( o.fill_or_kill ) FC_ASSERT( filled, "Cancelling order because it was not filled." );
-}
-
-void limit_order_cancel_evaluator::do_apply( const limit_order_cancel_operation& o )
-{
-   _db.cancel_order( _db.get_limit_order( o.owner, o.orderid ) );
-}
+//void limit_order_cancel_evaluator::do_apply( const limit_order_cancel_operation& o )
+//{
+//   _db.cancel_order( _db.get_limit_order( o.owner, o.orderid ) );
+//}
 
 void report_over_production_evaluator::do_apply( const report_over_production_operation& o )
 {

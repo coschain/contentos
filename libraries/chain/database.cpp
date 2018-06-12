@@ -2206,18 +2206,18 @@ void database::initialize_evaluators()
    _my->_evaluator_registry.register_evaluator< report_over_production_evaluator         >();
    _my->_evaluator_registry.register_evaluator< feed_publish_evaluator                   >();
    _my->_evaluator_registry.register_evaluator< convert_evaluator                        >();
-   _my->_evaluator_registry.register_evaluator< limit_order_create_evaluator             >();
-   _my->_evaluator_registry.register_evaluator< limit_order_create2_evaluator            >();
-   _my->_evaluator_registry.register_evaluator< limit_order_cancel_evaluator             >();
+//   _my->_evaluator_registry.register_evaluator< limit_order_create_evaluator             >();
+//   _my->_evaluator_registry.register_evaluator< limit_order_create2_evaluator            >();
+//   _my->_evaluator_registry.register_evaluator< limit_order_cancel_evaluator             >();
    _my->_evaluator_registry.register_evaluator< challenge_authority_evaluator            >();
    _my->_evaluator_registry.register_evaluator< prove_authority_evaluator                >();
    _my->_evaluator_registry.register_evaluator< request_account_recovery_evaluator       >();
    _my->_evaluator_registry.register_evaluator< recover_account_evaluator                >();
    _my->_evaluator_registry.register_evaluator< change_recovery_account_evaluator        >();
-   _my->_evaluator_registry.register_evaluator< escrow_transfer_evaluator                >();
-   _my->_evaluator_registry.register_evaluator< escrow_approve_evaluator                 >();
-   _my->_evaluator_registry.register_evaluator< escrow_dispute_evaluator                 >();
-   _my->_evaluator_registry.register_evaluator< escrow_release_evaluator                 >();
+//   _my->_evaluator_registry.register_evaluator< escrow_transfer_evaluator                >();
+//   _my->_evaluator_registry.register_evaluator< escrow_approve_evaluator                 >();
+//   _my->_evaluator_registry.register_evaluator< escrow_dispute_evaluator                 >();
+//   _my->_evaluator_registry.register_evaluator< escrow_release_evaluator                 >();
    _my->_evaluator_registry.register_evaluator< transfer_to_savings_evaluator            >();
    _my->_evaluator_registry.register_evaluator< transfer_from_savings_evaluator          >();
    _my->_evaluator_registry.register_evaluator< cancel_transfer_from_savings_evaluator   >();
@@ -2693,8 +2693,8 @@ void database::_apply_block( const signed_block& next_block )
    update_last_irreversible_block();
 
    create_block_summary(next_block);
-   clear_expired_transactions();
-   clear_expired_orders();
+//   clear_expired_transactions();
+//   clear_expired_orders();
    clear_expired_delegations();
    update_witness_schedule(*this);
 
@@ -3146,197 +3146,197 @@ void database::update_last_irreversible_block()
 } FC_CAPTURE_AND_RETHROW() }
 
 
-bool database::apply_order( const limit_order_object& new_order_object )
-{
-   auto order_id = new_order_object.id;
+//bool database::apply_order( const limit_order_object& new_order_object )
+//{
+//   auto order_id = new_order_object.id;
+//
+//   const auto& limit_price_idx = get_index<limit_order_index>().indices().get<by_price>();
+//
+//   auto max_price = ~new_order_object.sell_price;
+//   auto limit_itr = limit_price_idx.lower_bound(max_price.max());
+//   auto limit_end = limit_price_idx.upper_bound(max_price);
+//
+//   bool finished = false;
+//   while( !finished && limit_itr != limit_end )
+//   {
+//      auto old_limit_itr = limit_itr;
+//      ++limit_itr;
+//      // match returns 2 when only the old order was fully filled. In this case, we keep matching; otherwise, we stop.
+//      finished = ( match(new_order_object, *old_limit_itr, old_limit_itr->sell_price) & 0x1 );
+//   }
+//
+//   return find< limit_order_object >( order_id ) == nullptr;
+//}
+//
+//int database::match( const limit_order_object& new_order, const limit_order_object& old_order, const price& match_price )
+//{
+//   assert( new_order.sell_price.quote.symbol == old_order.sell_price.base.symbol );
+//   assert( new_order.sell_price.base.symbol  == old_order.sell_price.quote.symbol );
+//   assert( new_order.for_sale > 0 && old_order.for_sale > 0 );
+//   assert( match_price.quote.symbol == new_order.sell_price.base.symbol );
+//   assert( match_price.base.symbol == old_order.sell_price.base.symbol );
+//
+//   auto new_order_for_sale = new_order.amount_for_sale();
+//   auto old_order_for_sale = old_order.amount_for_sale();
+//
+//   asset new_order_pays, new_order_receives, old_order_pays, old_order_receives;
+//
+//   if( new_order_for_sale <= old_order_for_sale * match_price )
+//   {
+//      old_order_receives = new_order_for_sale;
+//      new_order_receives  = new_order_for_sale * match_price;
+//   }
+//   else
+//   {
+//      //This line once read: assert( old_order_for_sale < new_order_for_sale * match_price );
+//      //This assert is not always true -- see trade_amount_equals_zero in operation_tests.cpp
+//      //Although new_order_for_sale is greater than old_order_for_sale * match_price, old_order_for_sale == new_order_for_sale * match_price
+//      //Removing the assert seems to be safe -- apparently no asset is created or destroyed.
+//      new_order_receives = old_order_for_sale;
+//      old_order_receives = old_order_for_sale * match_price;
+//   }
+//
+//   old_order_pays = new_order_receives;
+//   new_order_pays = old_order_receives;
+//
+//   assert( new_order_pays == new_order.amount_for_sale() ||
+//           old_order_pays == old_order.amount_for_sale() );
+//
+//   auto age = head_block_time() - old_order.created;
+//   if( !has_hardfork( CONTENTO_HARDFORK_0_12__178 ) &&
+//       ( (age >= CONTENTO_MIN_LIQUIDITY_REWARD_PERIOD_SEC && !has_hardfork( CONTENTO_HARDFORK_0_10__149)) ||
+//       (age >= CONTENTO_MIN_LIQUIDITY_REWARD_PERIOD_SEC_HF10 && has_hardfork( CONTENTO_HARDFORK_0_10__149) ) ) )
+//   {
+//      if( old_order_receives.symbol == COC_SYMBOL )
+//      {
+//         adjust_liquidity_reward( get_account( old_order.seller ), old_order_receives, false );
+//         adjust_liquidity_reward( get_account( new_order.seller ), -old_order_receives, false );
+//      }
+//      else
+//      {
+//         adjust_liquidity_reward( get_account( old_order.seller ), new_order_receives, true );
+//         adjust_liquidity_reward( get_account( new_order.seller ), -new_order_receives, true );
+//      }
+//   }
+//
+//   push_virtual_operation( fill_order_operation( new_order.seller, new_order.orderid, new_order_pays, old_order.seller, old_order.orderid, old_order_pays ) );
+//
+//   int result = 0;
+//   result |= fill_order( new_order, new_order_pays, new_order_receives );
+//   result |= fill_order( old_order, old_order_pays, old_order_receives ) << 1;
+//   assert( result != 0 );
+//   return result;
+//}
+//
+//
+//void database::adjust_liquidity_reward( const account_object& owner, const asset& volume, bool is_sdb )
+//{
+//   const auto& ridx = get_index< liquidity_reward_balance_index >().indices().get< by_owner >();
+//   auto itr = ridx.find( owner.id );
+//   if( itr != ridx.end() )
+//   {
+//      modify<liquidity_reward_balance_object>( *itr, [&]( liquidity_reward_balance_object& r )
+//      {
+//         if( head_block_time() - r.last_update >= CONTENTO_LIQUIDITY_TIMEOUT_SEC )
+//         {
+//            r.sbd_volume = 0;
+//            r.steem_volume = 0;
+//            r.weight = 0;
+//         }
+//
+//         if( is_sdb )
+//            r.sbd_volume += volume.amount.value;
+//         else
+//            r.steem_volume += volume.amount.value;
+//
+//         r.update_weight( has_hardfork( CONTENTO_HARDFORK_0_10__141 ) );
+//         r.last_update = head_block_time();
+//      } );
+//   }
+//   else
+//   {
+//      create<liquidity_reward_balance_object>( [&](liquidity_reward_balance_object& r )
+//      {
+//         r.owner = owner.id;
+//         if( is_sdb )
+//            r.sbd_volume = volume.amount.value;
+//         else
+//            r.steem_volume = volume.amount.value;
+//
+//         r.update_weight( has_hardfork( CONTENTO_HARDFORK_0_9__141 ) );
+//         r.last_update = head_block_time();
+//      } );
+//   }
+//}
+//
+//
+//bool database::fill_order( const limit_order_object& order, const asset& pays, const asset& receives )
+//{
+//   try
+//   {
+//      FC_ASSERT( order.amount_for_sale().symbol == pays.symbol );
+//      FC_ASSERT( pays.symbol != receives.symbol );
+//
+//      const account_object& seller = get_account( order.seller );
+//
+//      adjust_balance( seller, receives );
+//
+//      if( pays == order.amount_for_sale() )
+//      {
+//         remove( order );
+//         return true;
+//      }
+//      else
+//      {
+//         modify( order, [&]( limit_order_object& b )
+//         {
+//            b.for_sale -= pays.amount;
+//         } );
+//         /**
+//          *  There are times when the AMOUNT_FOR_SALE * SALE_PRICE == 0 which means that we
+//          *  have hit the limit where the seller is asking for nothing in return.  When this
+//          *  happens we must refund any balance back to the seller, it is too small to be
+//          *  sold at the sale price.
+//          */
+//         if( order.amount_to_receive().amount == 0 )
+//         {
+//            cancel_order(order);
+//            return true;
+//         }
+//         return false;
+//      }
+//   }
+//   FC_CAPTURE_AND_RETHROW( (order)(pays)(receives) )
+//}
 
-   const auto& limit_price_idx = get_index<limit_order_index>().indices().get<by_price>();
-
-   auto max_price = ~new_order_object.sell_price;
-   auto limit_itr = limit_price_idx.lower_bound(max_price.max());
-   auto limit_end = limit_price_idx.upper_bound(max_price);
-
-   bool finished = false;
-   while( !finished && limit_itr != limit_end )
-   {
-      auto old_limit_itr = limit_itr;
-      ++limit_itr;
-      // match returns 2 when only the old order was fully filled. In this case, we keep matching; otherwise, we stop.
-      finished = ( match(new_order_object, *old_limit_itr, old_limit_itr->sell_price) & 0x1 );
-   }
-
-   return find< limit_order_object >( order_id ) == nullptr;
-}
-
-int database::match( const limit_order_object& new_order, const limit_order_object& old_order, const price& match_price )
-{
-   assert( new_order.sell_price.quote.symbol == old_order.sell_price.base.symbol );
-   assert( new_order.sell_price.base.symbol  == old_order.sell_price.quote.symbol );
-   assert( new_order.for_sale > 0 && old_order.for_sale > 0 );
-   assert( match_price.quote.symbol == new_order.sell_price.base.symbol );
-   assert( match_price.base.symbol == old_order.sell_price.base.symbol );
-
-   auto new_order_for_sale = new_order.amount_for_sale();
-   auto old_order_for_sale = old_order.amount_for_sale();
-
-   asset new_order_pays, new_order_receives, old_order_pays, old_order_receives;
-
-   if( new_order_for_sale <= old_order_for_sale * match_price )
-   {
-      old_order_receives = new_order_for_sale;
-      new_order_receives  = new_order_for_sale * match_price;
-   }
-   else
-   {
-      //This line once read: assert( old_order_for_sale < new_order_for_sale * match_price );
-      //This assert is not always true -- see trade_amount_equals_zero in operation_tests.cpp
-      //Although new_order_for_sale is greater than old_order_for_sale * match_price, old_order_for_sale == new_order_for_sale * match_price
-      //Removing the assert seems to be safe -- apparently no asset is created or destroyed.
-      new_order_receives = old_order_for_sale;
-      old_order_receives = old_order_for_sale * match_price;
-   }
-
-   old_order_pays = new_order_receives;
-   new_order_pays = old_order_receives;
-
-   assert( new_order_pays == new_order.amount_for_sale() ||
-           old_order_pays == old_order.amount_for_sale() );
-
-   auto age = head_block_time() - old_order.created;
-   if( !has_hardfork( CONTENTO_HARDFORK_0_12__178 ) &&
-       ( (age >= CONTENTO_MIN_LIQUIDITY_REWARD_PERIOD_SEC && !has_hardfork( CONTENTO_HARDFORK_0_10__149)) ||
-       (age >= CONTENTO_MIN_LIQUIDITY_REWARD_PERIOD_SEC_HF10 && has_hardfork( CONTENTO_HARDFORK_0_10__149) ) ) )
-   {
-      if( old_order_receives.symbol == COC_SYMBOL )
-      {
-         adjust_liquidity_reward( get_account( old_order.seller ), old_order_receives, false );
-         adjust_liquidity_reward( get_account( new_order.seller ), -old_order_receives, false );
-      }
-      else
-      {
-         adjust_liquidity_reward( get_account( old_order.seller ), new_order_receives, true );
-         adjust_liquidity_reward( get_account( new_order.seller ), -new_order_receives, true );
-      }
-   }
-
-   push_virtual_operation( fill_order_operation( new_order.seller, new_order.orderid, new_order_pays, old_order.seller, old_order.orderid, old_order_pays ) );
-
-   int result = 0;
-   result |= fill_order( new_order, new_order_pays, new_order_receives );
-   result |= fill_order( old_order, old_order_pays, old_order_receives ) << 1;
-   assert( result != 0 );
-   return result;
-}
-
-
-void database::adjust_liquidity_reward( const account_object& owner, const asset& volume, bool is_sdb )
-{
-   const auto& ridx = get_index< liquidity_reward_balance_index >().indices().get< by_owner >();
-   auto itr = ridx.find( owner.id );
-   if( itr != ridx.end() )
-   {
-      modify<liquidity_reward_balance_object>( *itr, [&]( liquidity_reward_balance_object& r )
-      {
-         if( head_block_time() - r.last_update >= CONTENTO_LIQUIDITY_TIMEOUT_SEC )
-         {
-            r.sbd_volume = 0;
-            r.steem_volume = 0;
-            r.weight = 0;
-         }
-
-         if( is_sdb )
-            r.sbd_volume += volume.amount.value;
-         else
-            r.steem_volume += volume.amount.value;
-
-         r.update_weight( has_hardfork( CONTENTO_HARDFORK_0_10__141 ) );
-         r.last_update = head_block_time();
-      } );
-   }
-   else
-   {
-      create<liquidity_reward_balance_object>( [&](liquidity_reward_balance_object& r )
-      {
-         r.owner = owner.id;
-         if( is_sdb )
-            r.sbd_volume = volume.amount.value;
-         else
-            r.steem_volume = volume.amount.value;
-
-         r.update_weight( has_hardfork( CONTENTO_HARDFORK_0_9__141 ) );
-         r.last_update = head_block_time();
-      } );
-   }
-}
-
-
-bool database::fill_order( const limit_order_object& order, const asset& pays, const asset& receives )
-{
-   try
-   {
-      FC_ASSERT( order.amount_for_sale().symbol == pays.symbol );
-      FC_ASSERT( pays.symbol != receives.symbol );
-
-      const account_object& seller = get_account( order.seller );
-
-      adjust_balance( seller, receives );
-
-      if( pays == order.amount_for_sale() )
-      {
-         remove( order );
-         return true;
-      }
-      else
-      {
-         modify( order, [&]( limit_order_object& b )
-         {
-            b.for_sale -= pays.amount;
-         } );
-         /**
-          *  There are times when the AMOUNT_FOR_SALE * SALE_PRICE == 0 which means that we
-          *  have hit the limit where the seller is asking for nothing in return.  When this
-          *  happens we must refund any balance back to the seller, it is too small to be
-          *  sold at the sale price.
-          */
-         if( order.amount_to_receive().amount == 0 )
-         {
-            cancel_order(order);
-            return true;
-         }
-         return false;
-      }
-   }
-   FC_CAPTURE_AND_RETHROW( (order)(pays)(receives) )
-}
-
-void database::cancel_order( const limit_order_object& order )
-{
-   adjust_balance( get_account(order.seller), order.amount_for_sale() );
-   remove(order);
-}
-
-
-void database::clear_expired_transactions()
-{
-   //Look for expired transactions in the deduplication list, and remove them.
-   //Transactions must have expired by at least two forking windows in order to be removed.
-   auto& transaction_idx = get_index< transaction_index >();
-   const auto& dedupe_index = transaction_idx.indices().get< by_expiration >();
-   while( ( !dedupe_index.empty() ) && ( head_block_time() > dedupe_index.begin()->expiration ) )
-      remove( *dedupe_index.begin() );
-}
-
-void database::clear_expired_orders()
-{
-   auto now = head_block_time();
-   const auto& orders_by_exp = get_index<limit_order_index>().indices().get<by_expiration>();
-   auto itr = orders_by_exp.begin();
-   while( itr != orders_by_exp.end() && itr->expiration < now )
-   {
-      cancel_order( *itr );
-      itr = orders_by_exp.begin();
-   }
-}
+//void database::cancel_order( const limit_order_object& order )
+//{
+//   adjust_balance( get_account(order.seller), order.amount_for_sale() );
+//   remove(order);
+//}
+//
+//
+//void database::clear_expired_transactions()
+//{
+//   //Look for expired transactions in the deduplication list, and remove them.
+//   //Transactions must have expired by at least two forking windows in order to be removed.
+//   auto& transaction_idx = get_index< transaction_index >();
+//   const auto& dedupe_index = transaction_idx.indices().get< by_expiration >();
+//   while( ( !dedupe_index.empty() ) && ( head_block_time() > dedupe_index.begin()->expiration ) )
+//      remove( *dedupe_index.begin() );
+//}
+//
+//void database::clear_expired_orders()
+//{
+//   auto now = head_block_time();
+//   const auto& orders_by_exp = get_index<limit_order_index>().indices().get<by_expiration>();
+//   auto itr = orders_by_exp.begin();
+//   while( itr != orders_by_exp.end() && itr->expiration < now )
+//   {
+//      cancel_order( *itr );
+//      itr = orders_by_exp.begin();
+//   }
+//}
 
 void database::clear_expired_delegations()
 {

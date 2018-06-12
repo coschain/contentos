@@ -823,8 +823,8 @@ class wallet_api
        *
        * @param limit Maximum number of orders to return for bids and asks. Max is 1000.
        */
-      order_book  get_order_book( uint32_t limit = 1000 );
-      vector<extended_limit_order>  get_open_orders( string accountname );
+      // order_book  get_order_book( uint32_t limit = 1000 );
+      // vector<extended_limit_order>  get_open_orders( string accountname );
 
       /**
        *  Creates a limit order at the price amount_to_sell / min_to_receive and will deduct amount_to_sell from account
@@ -837,7 +837,7 @@ class wallet_api
        *  @param expiration the time the order should expire if it has not been filled
        *  @param broadcast true if you wish to broadcast the transaction
        */
-      annotated_signed_transaction create_order( string owner, uint32_t order_id, asset amount_to_sell, asset min_to_receive, bool fill_or_kill, uint32_t expiration, bool broadcast );
+      // annotated_signed_transaction create_order( string owner, uint32_t order_id, asset amount_to_sell, asset min_to_receive, bool fill_or_kill, uint32_t expiration, bool broadcast );
 
       /**
        * Cancel an order created with create_order
@@ -846,7 +846,7 @@ class wallet_api
        * @param orderid The unique identifier assigned to the order by its creator
        * @param broadcast true if you wish to broadcast the transaction
        */
-      annotated_signed_transaction cancel_order( string owner, uint32_t orderid, bool broadcast );
+      // annotated_signed_transaction cancel_order( string owner, uint32_t orderid, bool broadcast );
 
       /**
        *  Post or update a comment.
