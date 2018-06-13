@@ -1030,22 +1030,22 @@ void withdraw_vesting_evaluator::do_apply( const withdraw_vesting_operation& o )
    FC_ASSERT( account.vesting_shares >= asset( 0, VESTS_SYMBOL ), "Account does not have sufficient Steem Power for withdraw." );
    FC_ASSERT( account.vesting_shares - account.delegated_vesting_shares >= o.vesting_shares, "Account does not have sufficient Steem Power for withdraw." );
 
-   if( !account.mined && _db.has_hardfork( CONTENTO_HARDFORK_0_1 ) )
-   {
-      const auto& props = _db.get_dynamic_global_properties();
-      const witness_schedule_object& wso = _db.get_witness_schedule_object();
-
-      asset min_vests = wso.median_props.account_creation_fee * props.get_vesting_share_price();
-      min_vests.amount.value *= 10;
-
-      FC_ASSERT( account.vesting_shares > min_vests || ( _db.has_hardfork( CONTENTO_HARDFORK_0_16__562 ) && o.vesting_shares.amount == 0 ),
-                 "Account registered by another account requires 10x account creation fee worth of Steem Power before it can be powered down." );
-   }
+//   if( !account.mined && _db.has_hardfork( CONTENTO_HARDFORK_0_1 ) )
+//   {
+//      const auto& props = _db.get_dynamic_global_properties();
+//      const witness_schedule_object& wso = _db.get_witness_schedule_object();
+//
+//      asset min_vests = wso.median_props.account_creation_fee * props.get_vesting_share_price();
+//      min_vests.amount.value *= 10;
+//
+//      FC_ASSERT( account.vesting_shares > min_vests || ( _db.has_hardfork( CONTENTO_HARDFORK_0_16__562 ) && o.vesting_shares.amount == 0 ),
+//                 "Account registered by another account requires 10x account creation fee worth of Steem Power before it can be powered down." );
+//   }
 
    if( o.vesting_shares.amount == 0 )
    {
-      if( _db.has_hardfork( CONTENTO_HARDFORK_0_5__57 ) )
-         FC_ASSERT( account.vesting_withdraw_rate.amount  != 0, "This operation would not change the vesting withdraw rate." );
+//      if( _db.has_hardfork( CONTENTO_HARDFORK_0_5__57 ) )
+     FC_ASSERT( account.vesting_withdraw_rate.amount  != 0, "This operation would not change the vesting withdraw rate." );
 
       _db.modify( account, [&]( account_object& a ) {
          a.vesting_withdraw_rate = asset( 0, VESTS_SYMBOL );
@@ -1056,9 +1056,9 @@ void withdraw_vesting_evaluator::do_apply( const withdraw_vesting_operation& o )
    }
    else
    {
-      int vesting_withdraw_intervals = CONTENTO_VESTING_WITHDRAW_INTERVALS_PRE_HF_16;
-      if( _db.has_hardfork( CONTENTO_HARDFORK_0_16__551 ) )
-         vesting_withdraw_intervals = CONTENTO_VESTING_WITHDRAW_INTERVALS; /// 13 weeks = 1 quarter of a year
+//      int vesting_withdraw_intervals = CONTENTO_VESTING_WITHDRAW_INTERVALS_PRE_HF_16;
+//      if( _db.has_hardfork( CONTENTO_HARDFORK_0_16__551 ) )
+      int vesting_withdraw_intervals = CONTENTO_VESTING_WITHDRAW_INTERVALS; /// 13 weeks = 1 quarter of a year
 
       _db.modify( account, [&]( account_object& a )
       {
@@ -1067,8 +1067,8 @@ void withdraw_vesting_evaluator::do_apply( const withdraw_vesting_operation& o )
          if( new_vesting_withdraw_rate.amount == 0 )
             new_vesting_withdraw_rate.amount = 1;
 
-         if( _db.has_hardfork( CONTENTO_HARDFORK_0_5__57 ) )
-            FC_ASSERT( account.vesting_withdraw_rate  != new_vesting_withdraw_rate, "This operation would not change the vesting withdraw rate." );
+//         if( _db.has_hardfork( CONTENTO_HARDFORK_0_5__57 ) )
+         FC_ASSERT( account.vesting_withdraw_rate  != new_vesting_withdraw_rate, "This operation would not change the vesting withdraw rate." );
 
          a.vesting_withdraw_rate = new_vesting_withdraw_rate;
          a.next_vesting_withdrawal = _db.head_block_time() + fc::seconds(CONTENTO_VESTING_WITHDRAW_INTERVAL_SECONDS);

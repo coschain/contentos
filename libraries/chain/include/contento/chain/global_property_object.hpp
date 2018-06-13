@@ -51,15 +51,11 @@ namespace contento { namespace chain {
 
          asset       virtual_supply             = asset( 0, COC_SYMBOL );
          asset       current_supply             = asset( 0, COC_SYMBOL );
-//         asset       confidential_supply        = asset( 0, COC_SYMBOL ); ///< total asset held in confidential balances
-//         asset       current_sbd_supply         = asset( 0, SBD_SYMBOL );
-//         asset       confidential_sbd_supply    = asset( 0, SBD_SYMBOL ); ///< total asset held in confidential balances
          asset       total_vesting_fund_coc   = asset( 0, COC_SYMBOL );
          asset       total_vesting_shares       = asset( 0, VESTS_SYMBOL );
          asset       total_reward_fund_steem    = asset( 0, COC_SYMBOL );
          fc::uint128 total_reward_shares2; ///< the running total of REWARD^2
-//         asset       pending_rewarded_vesting_shares = asset( 0, VESTS_SYMBOL );
-//         asset       pending_rewarded_vesting_steem = asset( 0, COC_SYMBOL );
+
 
        price get_vesting_share_price() const
        {

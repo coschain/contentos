@@ -1021,55 +1021,6 @@ uint32_t database::get_slot_at_time(fc::time_point_sec when)const
    return (when - first_slot_time).to_seconds() / CONTENTO_BLOCK_INTERVAL + 1;
 }
 
-/**
- *  Converts STEEM into sbd and adds it to to_account while reducing the STEEM supply
- *  by STEEM and increasing the sbd supply by the specified amount.
- */
-//std::pair< asset, asset > database::create_sbd( const account_object& to_account, asset steem, bool to_reward_balance )
-//{
-//   std::pair< asset, asset > assets( asset( 0, SBD_SYMBOL ), asset( 0, COC_SYMBOL ) );
-//
-//   try
-//   {
-//      if( steem.amount == 0 )
-//         return assets;
-//
-//      const auto& median_price = get_feed_history().current_median_history;
-//      const auto& gpo = get_dynamic_global_properties();
-//
-//      if( !median_price.is_null() )
-//      {
-//         auto to_sbd = ( gpo.sbd_print_rate * steem.amount ) / CONTENTO_100_PERCENT;
-//         auto to_steem = steem.amount - to_sbd;
-//
-//         auto sbd = asset( to_sbd, COC_SYMBOL ) * median_price;
-//
-//         if( to_reward_balance )
-//         {
-//            adjust_reward_balance( to_account, sbd );
-//            adjust_reward_balance( to_account, asset( to_steem, COC_SYMBOL ) );
-//         }
-//         else
-//         {
-//            adjust_balance( to_account, sbd );
-//            adjust_balance( to_account, asset( to_steem, COC_SYMBOL ) );
-//         }
-//
-//         adjust_supply( asset( -to_sbd, COC_SYMBOL ) );
-//         adjust_supply( sbd );
-//         assets.first = sbd;
-//         assets.second = to_steem;
-//      }
-//      else
-//      {
-//         adjust_balance( to_account, steem );
-//         assets.second = steem;
-//      }
-//   }
-//   FC_CAPTURE_LOG_AND_RETHROW( (to_account.name)(steem) )
-//
-//   return assets;
-//}
 
 /**
  * @param to_account - the account to receive the new vesting shares
@@ -1260,7 +1211,6 @@ void database::clear_null_account_balance()
 
    const auto& null_account = get_account( CONTENTO_NULL_ACCOUNT );
    asset total_steem( 0, COC_SYMBOL );
-//   asset total_sbd( 0, SBD_SYMBOL );
 
    if( null_account.balance.amount > 0 )
    {
@@ -2016,60 +1966,6 @@ share_type database::pay_reward_funds( share_type reward )
    return used_rewards;
 }
 
-/**
- *  Iterates over all conversion requests with a conversion date before
- *  the head block time and then converts them to/from steem/sbd at the
- *  current median price feed history price times the premium
- */
-//void database::process_conversions()
-//{
-//   auto now = head_block_time();
-//   const auto& request_by_date = get_index< convert_request_index >().indices().get< by_conversion_date >();
-//   auto itr = request_by_date.begin();
-//
-//   const auto& fhistory = get_feed_history();
-//   if( fhistory.current_median_history.is_null() )
-//      return;
-//
-////   asset net_sbd( 0, SBD_SYMBOL );
-//   asset net_steem( 0, COC_SYMBOL );
-//
-//   while( itr != request_by_date.end() && itr->conversion_date <= now )
-//   {
-//      const auto& user = get_account( itr->owner );
-//      auto amount_to_issue = itr->amount * fhistory.current_median_history;
-//
-//      adjust_balance( user, amount_to_issue );
-//
-//      net_sbd   += itr->amount;
-//      net_steem += amount_to_issue;
-//
-//      push_virtual_operation( fill_convert_request_operation ( user.name, itr->requestid, itr->amount, amount_to_issue ) );
-//
-//      remove( *itr );
-//      itr = request_by_date.begin();
-//   }
-//
-//   const auto& props = get_dynamic_global_properties();
-//   modify( props, [&]( dynamic_global_property_object& p )
-//   {
-//       p.current_supply += net_steem;
-////       p.current_sbd_supply -= net_sbd;
-//       p.virtual_supply += net_steem;
-////       p.virtual_supply -= net_sbd * get_feed_history().current_median_history;
-//   } );
-//}
-
-//asset database::to_sbd( const asset& steem )const
-//{
-//   return util::to_sbd( get_feed_history().current_median_history, steem );
-//}
-
-asset database::to_steem( const asset& sbd )const
-{
-   return util::to_steem( get_feed_history().current_median_history, sbd );
-}
-
 void database::account_recovery_processing()
 {
    // Clear expired recovery requests
@@ -2712,7 +2608,7 @@ void database::_apply_block( const signed_block& next_block )
    update_virtual_supply();
 
    account_recovery_processing();
-   expire_escrow_ratification();
+   // expire_escrow_ratification();
    process_decline_voting_rights();
 
    process_hardforks();
@@ -2831,14 +2727,6 @@ try {
             if( skip_price_feed_limit_check )
                return;
 #endif
-//            if( has_hardfork( CONTENTO_HARDFORK_0_14__230 ) )
-//            {
-//               const auto& gpo = get_dynamic_global_properties();
-//               price min_price( asset( 9 * gpo.current_sbd_supply.amount, SBD_SYMBOL ), gpo.current_supply ); // This price limits SBD to 10% market cap
-//
-//               if( min_price > fho.current_median_history )
-//                  fho.current_median_history = min_price;
-//            }
          }
       });
    }
@@ -3366,35 +3254,6 @@ void database::adjust_balance( const account_object& a, const asset& delta )
          case COC_SYMBOL:
             acnt.balance += delta;
             break;
-//         case SBD_SYMBOL:
-//            if( a.sbd_seconds_last_update != head_block_time() )
-//            {
-//               acnt.sbd_seconds += fc::uint128_t(a.sbd_balance.amount.value) * (head_block_time() - a.sbd_seconds_last_update).to_seconds();
-//               acnt.sbd_seconds_last_update = head_block_time();
-//
-//               if( acnt.sbd_seconds > 0 &&
-//                   (acnt.sbd_seconds_last_update - acnt.sbd_last_interest_payment).to_seconds() > CONTENTO_SBD_INTEREST_COMPOUND_INTERVAL_SEC )
-//               {
-//                  auto interest = acnt.sbd_seconds / CONTENTO_SECONDS_PER_YEAR;
-//                  interest *= get_dynamic_global_properties().sbd_interest_rate;
-//                  interest /= CONTENTO_100_PERCENT;
-//                  asset interest_paid(interest.to_uint64(), SBD_SYMBOL);
-//                  acnt.sbd_balance += interest_paid;
-//                  acnt.sbd_seconds = 0;
-//                  acnt.sbd_last_interest_payment = head_block_time();
-//
-//                  if(interest > 0)
-//                     push_virtual_operation( interest_operation( a.name, interest_paid ) );
-//
-//                  modify( get_dynamic_global_properties(), [&]( dynamic_global_property_object& props)
-//                  {
-//                     props.current_sbd_supply += interest_paid;
-//                     props.virtual_supply += interest_paid * get_feed_history().current_median_history;
-//                  } );
-//               }
-//            }
-//            acnt.sbd_balance += delta;
-//            break;
          default:
             FC_ASSERT( false, "invalid symbol" );
       }
@@ -3411,35 +3270,6 @@ void database::adjust_savings_balance( const account_object& a, const asset& del
          case COC_SYMBOL:
             acnt.savings_balance += delta;
             break;
-//         case SBD_SYMBOL:
-//            if( a.savings_sbd_seconds_last_update != head_block_time() )
-//            {
-//               acnt.savings_sbd_seconds += fc::uint128_t(a.savings_sbd_balance.amount.value) * (head_block_time() - a.savings_sbd_seconds_last_update).to_seconds();
-//               acnt.savings_sbd_seconds_last_update = head_block_time();
-//
-//               if( acnt.savings_sbd_seconds > 0 &&
-//                   (acnt.savings_sbd_seconds_last_update - acnt.savings_sbd_last_interest_payment).to_seconds() > CONTENTO_SBD_INTEREST_COMPOUND_INTERVAL_SEC )
-//               {
-//                  auto interest = acnt.savings_sbd_seconds / CONTENTO_SECONDS_PER_YEAR;
-//                  interest *= get_dynamic_global_properties().sbd_interest_rate;
-//                  interest /= CONTENTO_100_PERCENT;
-//                  asset interest_paid(interest.to_uint64(), SBD_SYMBOL);
-//                  acnt.savings_sbd_balance += interest_paid;
-//                  acnt.savings_sbd_seconds = 0;
-//                  acnt.savings_sbd_last_interest_payment = head_block_time();
-//
-//                  if(interest > 0)
-//                     push_virtual_operation( interest_operation( a.name, interest_paid ) );
-//
-//                  modify( get_dynamic_global_properties(), [&]( dynamic_global_property_object& props)
-//                  {
-//                     props.current_sbd_supply += interest_paid;
-//                     props.virtual_supply += interest_paid * get_feed_history().current_median_history;
-//                  } );
-//               }
-//            }
-//            acnt.savings_sbd_balance += delta;
-//            break;
          default:
             FC_ASSERT( !"invalid symbol" );
       }
@@ -3456,9 +3286,6 @@ void database::adjust_reward_balance( const account_object& a, const asset& delt
          case COC_SYMBOL:
             acnt.reward_steem_balance += delta;
             break;
-//         case SBD_SYMBOL:
-//            acnt.reward_sbd_balance += delta;
-//            break;
          default:
             FC_ASSERT( false, "invalid symbol" );
       }
@@ -3486,11 +3313,6 @@ void database::adjust_supply( const asset& delta, bool adjust_vesting )
             assert( props.current_supply.amount.value >= 0 );
             break;
          }
-//         case SBD_SYMBOL:
-//            props.current_sbd_supply += delta;
-//            props.virtual_supply = props.current_sbd_supply * get_feed_history().current_median_history + props.current_supply;
-//            assert( props.current_sbd_supply.amount.value >= 0 );
-//            break;
          default:
             FC_ASSERT( false, "invalid symbol" );
       }
@@ -3504,8 +3326,6 @@ asset database::get_balance( const account_object& a, asset_symbol_type symbol )
    {
       case COC_SYMBOL:
          return a.balance;
-//      case SBD_SYMBOL:
-//         return a.sbd_balance;
       default:
          FC_ASSERT( false, "invalid symbol" );
    }
@@ -3517,8 +3337,6 @@ asset database::get_savings_balance( const account_object& a, asset_symbol_type 
    {
       case COC_SYMBOL:
          return a.savings_balance;
-//      case SBD_SYMBOL:
-//         return a.savings_sbd_balance;
       default:
          FC_ASSERT( !"invalid symbol" );
    }

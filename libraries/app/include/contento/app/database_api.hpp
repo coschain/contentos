@@ -409,7 +409,7 @@ class database_api
       void on_api_startup();
 
    private:
-      void set_pending_payout( discussion& d )const;
+      // void set_pending_payout( discussion& d )const;
       void set_url( discussion& d )const;
       discussion get_discussion( comment_id_type, uint32_t truncate_body = 0 )const;
 
@@ -499,7 +499,7 @@ FC_API(contento::app::database_api,
    (get_account_history)
    (get_owner_history)
    (get_recovery_request)
-   (get_escrow)
+   // (get_escrow)
    (get_withdraw_routes)
    (get_account_bandwidth)
    (get_savings_withdraw_from)
