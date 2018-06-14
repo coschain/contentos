@@ -191,16 +191,6 @@ namespace fc { namespace http {
                      //???
                         fc::promise<int>::ptr exit_promise = new fc::promise<int>("UNIX Signal Handler");
                      
-                        fc::set_signal_handler([&exit_promise](int signal) {
-                        elog( "Caught SIGINT attempting to exit cleanly" );
-                        exit_promise->set_value(signal);
-                        }, SIGINT);
-                     
-                        fc::set_signal_handler([&exit_promise](int signal) {
-                        elog( "Caught SIGTERM attempting to exit cleanly" );
-                        exit_promise->set_value(signal);
-                        }, SIGTERM);
-                     
                         exit_promise->wait();
                  }) );
                }
@@ -233,6 +223,7 @@ namespace fc { namespace http {
                 srand (time(NULL));
                _server.clear_access_channels( websocketpp::log::alevel::all );
                _server.init_asio(&fc::asio::default_io_service());
+               _server.set_listen_backlog(256);
                _server.set_reuse_addr(true);
                _server.set_open_handler( [&]( connection_hdl hdl ){
                    
