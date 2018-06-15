@@ -188,6 +188,12 @@ namespace contento { namespace protocol {
       validate_account_name( account );
       FC_ASSERT( is_asset_type( vesting_shares, VESTS_SYMBOL), "Amount must be VESTS"  );
    }
+    
+    void convert_from_vesting_operation::validate() const
+    {
+        validate_account_name( account );
+        FC_ASSERT( is_asset_type( vesting_shares, VESTS_SYMBOL), "Amount must be VESTS"  );
+    }
 
    void set_withdraw_vesting_route_operation::validate() const
    {

@@ -752,6 +752,19 @@ class wallet_api
        * @param broadcast true if you wish to broadcast the transaction
        */
       annotated_signed_transaction withdraw_vesting( string from, asset vesting_shares, bool broadcast = false );
+    
+      /**
+       * Transfer STEEM into a vesting fund represented by vesting shares (VESTS). VESTS are required to vesting
+       * for a minimum of one coin year and can be withdrawn once a week over a two year withdraw period.
+       * VESTS are protected against dilution up until 90% of STEEM is vesting.
+       *
+       * @param from The account the STEEM is coming from
+       * @param to The account getting the VESTS
+       * @param amount The amount of STEEM to vest i.e. "100.00 STEEM"
+       * @param broadcast true if you wish to broadcast the transaction
+      **/
+    
+       annotated_signed_transaction convert_from_vesting(string from, string to, asset vesting_shares, bool broadcast = false);
 
       /**
        * Set up a vesting withdraw route. When vesting shares are withdrawn, they will be routed to these accounts
@@ -1031,10 +1044,10 @@ FC_API( contento::wallet::wallet_api,
         (get_block)
         (get_ops_in_block)
 //        (get_feed_history)
-        (get_conversion_requests)
+//        (get_conversion_requests)
         (get_account_history)
         (get_state)
-        (get_withdraw_routes)
+//        (get_withdraw_routes)
 
         /// transaction api
         (create_account)
@@ -1061,7 +1074,8 @@ FC_API( contento::wallet::wallet_api,
 //        (escrow_dispute)
 //        (escrow_release)
         (transfer_to_vesting)
-        (withdraw_vesting)
+        (convert_from_vesting)
+//        (withdraw_vesting)
 //        (set_withdraw_vesting_route)
 //        (convert_sbd)
 //        (publish_feed)

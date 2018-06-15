@@ -230,6 +230,24 @@ namespace contento { namespace chain {
          uint16_t          percent = 0;
          bool              auto_vest = false;
    };
+    
+    
+    class withdraw_vesting_object: public object< withdraw_vesting_object_type, withdraw_vesting_object>
+    {
+        public:
+            template< typename Constructor, typename Allocator >
+            withdraw_vesting_object( Constructor&& c, allocator< Allocator > a )
+            {
+                c( *this );
+            }
+        
+            withdraw_vesting_object(){}
+        
+            id_type  id;
+        
+            account_id_type   account;
+            asset             vesting_shares;
+    };
 
 
    class decline_voting_rights_request_object : public object< decline_voting_rights_request_object_type, decline_voting_rights_request_object >
@@ -376,6 +394,15 @@ namespace contento { namespace chain {
       >,
       allocator< withdraw_vesting_route_object >
    > withdraw_vesting_route_index;
+    
+    typedef multi_index_container<
+        withdraw_vesting_object,
+        indexed_by<
+            ordered_unique< tag< by_id >, member< withdraw_vesting_object, withdraw_vesting_id_type, &withdraw_vesting_object::id > >,
+            ordered_unique< tag< by_account >, member< withdraw_vesting_object, account_id_type, &withdraw_vesting_object::account > >
+        >,
+        allocator< withdraw_vesting_object >
+    > withdraw_vesting_index;
 
    struct by_from_id;
    struct by_to;
@@ -495,6 +522,10 @@ FC_REFLECT_ENUM( contento::chain::curve_id,
 FC_REFLECT( contento::chain::limit_order_object,
              (id)(created)(expiration)(seller)(orderid)(for_sale)(sell_price) )
 CHAINBASE_SET_INDEX_TYPE( contento::chain::limit_order_object, contento::chain::limit_order_index )
+
+FC_REFLECT( contento::chain::withdraw_vesting_object,
+           (id)(account)(vesting_shares))
+CHAINBASE_SET_INDEX_TYPE( contento::chain::withdraw_vesting_object, contento::chain::withdraw_vesting_index )
 
 FC_REFLECT( contento::chain::feed_history_object,
              (id)(current_median_history)(price_history) )

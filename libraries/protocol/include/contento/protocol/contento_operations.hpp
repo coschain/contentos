@@ -285,6 +285,16 @@ namespace contento { namespace protocol {
       void validate()const;
       void get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert(from); }
    };
+    
+
+    struct convert_from_vesting_operation: public base_operation
+    {
+        account_name_type account;
+        asset             vesting_shares;
+        
+        void validate() const;
+        void get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert(account); }
+    };
 
 
    /**
@@ -958,6 +968,7 @@ FC_REFLECT( contento::protocol::account_update_operation,
 FC_REFLECT( contento::protocol::transfer_operation, (from)(to)(amount)(memo) )
 FC_REFLECT( contento::protocol::transfer_to_vesting_operation, (from)(to)(amount) )
 FC_REFLECT( contento::protocol::withdraw_vesting_operation, (account)(vesting_shares) )
+FC_REFLECT( contento::protocol::convert_from_vesting_operation, (account)(vesting_shares))
 FC_REFLECT( contento::protocol::set_withdraw_vesting_route_operation, (from_account)(to_account)(percent)(auto_vest) )
 FC_REFLECT( contento::protocol::witness_update_operation, (owner)(url)(block_signing_key)(props)(fee) )
 FC_REFLECT( contento::protocol::account_witness_vote_operation, (account)(witness)(approve) )

@@ -35,10 +35,6 @@
 #include <fstream>
 #include <functional>
 
-#ifndef CONTENTO_ASA
-#define CONTENTO_ASA
-#endif
-
 namespace contento { namespace chain {
 
 //namespace db2 = graphene::db2;
@@ -1328,17 +1324,21 @@ void database::update_owner_authority( const account_object& account, const auth
    });
 }
 
+    
+// 这个函数我会改掉，原来可以允许一个账号 power down 到另一个账户，这个逻辑有点微妙。
+// 新的处理函数只允许到自己账户
 void database::process_vesting_withdrawals()
 {
-   const auto& widx = get_index< account_index >().indices().get< by_next_vesting_withdrawal >();
-   const auto& didx = get_index< withdraw_vesting_route_index >().indices().get< by_withdraw_route >();
+    const auto& widx = get_index< account_index >().indices().get< by_next_vesting_withdrawal >();
+//    const auto& didx = get_index< withdraw_vesting_route_index >().indices().get< by_withdraw_route >();
+   const auto& didx = get_index< withdraw_vesting_index>().indices().get<by_account>();
    auto current = widx.begin();
 
    const auto& cprops = get_dynamic_global_properties();
 
    while( current != widx.end() && current->next_vesting_withdrawal <= head_block_time() )
    {
-      const auto& from_account = *current; ++current;
+      const auto& account = *current; ++current;
 
       /**
       *  Let T = total tokens in vesting fund
@@ -1347,83 +1347,45 @@ void database::process_vesting_withdrawals()
       *
       *  The user may withdraw  vT / V tokens
       */
-      share_type to_withdraw;
-      if ( from_account.to_withdraw - from_account.withdrawn < from_account.vesting_withdraw_rate.amount )
-         to_withdraw = std::min( from_account.vesting_shares.amount, from_account.to_withdraw % from_account.vesting_withdraw_rate.amount ).value;
+      share_type withdraw_quota;
+       
+       // vesting_withdraw_rate 在提交 withdraw 请求时被计算，为 总的 vesting_withdraw / interval
+
+      if ( account.to_withdraw - account.withdrawn < account.vesting_withdraw_rate.amount )
+         withdraw_quota = std::min( account.vesting_shares.amount, account.to_withdraw % account.vesting_withdraw_rate.amount ).value;
       else
-         to_withdraw = std::min( from_account.vesting_shares.amount, from_account.vesting_withdraw_rate.amount ).value;
+         withdraw_quota = std::min( account.vesting_shares.amount, account.vesting_withdraw_rate.amount ).value;
+       
+      share_type vests_converted_as_coc = 0;
+      asset total_coc_converted = asset( 0, COC_SYMBOL );
+       
+       
+       // 我考虑了一下，这里还是做成一个 for 循环，虽然实际上这里也只有一个 withdraw_vesting objet 而已
+       // 当然这里显然可以优化，后面我试试
+       for (auto itr = didx.lower_bound(account.id); itr != didx.end() && itr -> account == account.id; ++itr )
+       {
+           if (withdraw_quota > 0) {
+               share_type to_convert = withdraw_quota < itr -> vesting_shares.amount? withdraw_quota: itr -> vesting_shares.amount;
+               withdraw_quota -= to_convert;
+               vests_converted_as_coc += to_convert;
+               auto converted_coc = asset( to_convert, VESTS_SYMBOL ) * cprops.get_vesting_share_price();
+               total_coc_converted += converted_coc;
+           }
+       }
+       
+       // 如果已经没有足够的 vesting_shares，删掉 vest 计划
+       if(account.vesting_shares.amount - vests_converted_as_coc <= 0) {
+           for (auto itr = didx.lower_bound(account.id); itr != didx.end() && itr -> account == account.id; ++itr )
+           {
+               remove(*itr);
+           }
+       }
 
-      share_type vests_deposited_as_steem = 0;
-      share_type vests_deposited_as_vests = 0;
-      asset total_steem_converted = asset( 0, COC_SYMBOL );
-
-      // Do two passes, the first for vests, the second for steem. Try to maintain as much accuracy for vests as possible.
-      for( auto itr = didx.upper_bound( boost::make_tuple( from_account.id, account_id_type() ) );
-           itr != didx.end() && itr->from_account == from_account.id;
-           ++itr )
+      modify( account, [&]( account_object& a )
       {
-         if( itr->auto_vest )
-         {
-            share_type to_deposit = ( ( fc::uint128_t ( to_withdraw.value ) * itr->percent ) / CONTENTO_100_PERCENT ).to_uint64();
-            vests_deposited_as_vests += to_deposit;
-
-            if( to_deposit > 0 )
-            {
-               const auto& to_account = get(itr->to_account);
-
-               modify( to_account, [&]( account_object& a )
-               {
-                  a.vesting_shares.amount += to_deposit;
-               });
-
-               adjust_proxied_witness_votes( to_account, to_deposit );
-
-               push_virtual_operation( fill_vesting_withdraw_operation( from_account.name, to_account.name, asset( to_deposit, VESTS_SYMBOL ), asset( to_deposit, VESTS_SYMBOL ) ) );
-            }
-         }
-      }
-
-      for( auto itr = didx.upper_bound( boost::make_tuple( from_account.id, account_id_type() ) );
-           itr != didx.end() && itr->from_account == from_account.id;
-           ++itr )
-      {
-         if( !itr->auto_vest )
-         {
-            const auto& to_account = get(itr->to_account);
-
-            share_type to_deposit = ( ( fc::uint128_t ( to_withdraw.value ) * itr->percent ) / CONTENTO_100_PERCENT ).to_uint64();
-            vests_deposited_as_steem += to_deposit;
-            auto converted_steem = asset( to_deposit, VESTS_SYMBOL ) * cprops.get_vesting_share_price();
-            total_steem_converted += converted_steem;
-
-            if( to_deposit > 0 )
-            {
-               modify( to_account, [&]( account_object& a )
-               {
-                  a.balance += converted_steem;
-               });
-
-               modify( cprops, [&]( dynamic_global_property_object& o )
-               {
-                  o.total_vesting_fund_coc -= converted_steem;
-                  o.total_vesting_shares.amount -= to_deposit;
-               });
-
-               push_virtual_operation( fill_vesting_withdraw_operation( from_account.name, to_account.name, asset( to_deposit, VESTS_SYMBOL), converted_steem ) );
-            }
-         }
-      }
-
-      share_type to_convert = to_withdraw - vests_deposited_as_steem - vests_deposited_as_vests;
-      FC_ASSERT( to_convert >= 0, "Deposited more vests than were supposed to be withdrawn" );
-
-      auto converted_steem = asset( to_convert, VESTS_SYMBOL ) * cprops.get_vesting_share_price();
-
-      modify( from_account, [&]( account_object& a )
-      {
-         a.vesting_shares.amount -= to_withdraw;
-         a.balance += converted_steem;
-         a.withdrawn += to_withdraw;
+         a.vesting_shares.amount -= vests_converted_as_coc;
+         a.balance += total_coc_converted;
+         a.withdrawn += total_coc_converted.amount;
 
          if( a.withdrawn >= a.to_withdraw || a.vesting_shares.amount == 0 )
          {
@@ -1438,14 +1400,11 @@ void database::process_vesting_withdrawals()
 
       modify( cprops, [&]( dynamic_global_property_object& o )
       {
-         o.total_vesting_fund_coc -= converted_steem;
-         o.total_vesting_shares.amount -= to_convert;
+         o.total_vesting_fund_coc -= total_coc_converted;
+         o.total_vesting_shares.amount -= vests_converted_as_coc;
       });
 
-      if( to_withdraw > 0 )
-         adjust_proxied_witness_votes( from_account, -to_withdraw );
-
-      push_virtual_operation( fill_vesting_withdraw_operation( from_account.name, from_account.name, asset( to_withdraw, VESTS_SYMBOL ), converted_steem ) );
+      push_virtual_operation( fill_vesting_withdraw_operation( account.name, account.name, asset( vests_converted_as_coc, VESTS_SYMBOL ), total_coc_converted ) );
    }
 }
 
@@ -2163,6 +2122,7 @@ void database::initialize_indexes()
    add_core_index< account_history_index                   >(*this);
    add_core_index< hardfork_property_index                 >(*this);
    add_core_index< withdraw_vesting_route_index            >(*this);
+   add_core_index< withdraw_vesting_index                  >(*this);
    add_core_index< owner_authority_history_index           >(*this);
    add_core_index< account_recovery_request_index          >(*this);
    add_core_index< change_recovery_account_request_index   >(*this);
@@ -2603,7 +2563,7 @@ void database::_apply_block( const signed_block& next_block )
    process_comment_cashout();
    process_other_cashout();
    process_vesting_withdrawals();
-   process_savings_withdraws();
+   //process_savings_withdraws();
    // pay_liquidity_reward();
    update_virtual_supply();
 

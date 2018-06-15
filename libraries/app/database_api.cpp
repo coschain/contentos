@@ -1810,6 +1810,7 @@ state database_api::get_state( string path )const
                switch( item.second.op.which() ) {
                   case operation::tag<transfer_to_vesting_operation>::value:
                   case operation::tag<withdraw_vesting_operation>::value:
+                   case operation::tag<convert_from_vesting_operation>::value:
 //                  case operation::tag<interest_operation>::value:
                   case operation::tag<transfer_operation>::value:
                   case operation::tag<liquidity_reward_operation>::value:

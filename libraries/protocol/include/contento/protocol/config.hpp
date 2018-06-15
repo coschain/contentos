@@ -3,7 +3,7 @@
  */
 #pragma once
 
-#define CONTENTO_ASA
+// #define CONTENTO_ASA
 
 #define CONTENTO_BLOCKCHAIN_VERSION              ( version(0, 19, 2) )
 #define CONTENTO_BLOCKCHAIN_HARDFORK_VERSION     ( hardfork_version( CONTENTO_BLOCKCHAIN_VERSION ) )

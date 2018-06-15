@@ -16,6 +16,7 @@ namespace contento { namespace protocol {
             transfer_operation,
             transfer_to_vesting_operation,
             withdraw_vesting_operation,
+            convert_from_vesting_operation,
 
             limit_order_create_operation,
             limit_order_cancel_operation,

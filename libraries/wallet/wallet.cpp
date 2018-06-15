@@ -733,16 +733,16 @@ public:
          for( const auto& a : accounts ) {
             total_steem += a.balance;
             total_vest  += a.vesting_shares;
-            total_sbd  += a.sbd_balance;
+//            total_sbd  += a.sbd_balance;
             out << std::left << std::setw( 17 ) << std::string(a.name)
                 << std::right << std::setw(18) << fc::variant(a.balance).as_string() <<" "
-                << std::right << std::setw(26) << fc::variant(a.vesting_shares).as_string() <<" "
+             << std::right << std::setw(26) << fc::variant(a.vesting_shares).as_string() <<"\n";
 //                << std::right << std::setw(16) << fc::variant(a.sbd_balance).as_string() <<"\n";
          }
          out << "-------------------------------------------------------------------------\n";
             out << std::left << std::setw( 17 ) << "TOTAL"
                 << std::right << std::setw(18) << fc::variant(total_steem).as_string() <<" "
-                << std::right << std::setw(26) << fc::variant(total_vest).as_string() <<" "
+          << std::right << std::setw(26) << fc::variant(total_vest).as_string() <<"\n";
 //                << std::right << std::setw(16) << fc::variant(total_sbd).as_string() <<"\n";
          return out.str();
       };
@@ -2132,6 +2132,21 @@ annotated_signed_transaction wallet_api::withdraw_vesting(string from, asset ves
     tx.validate();
 
    return my->sign_transaction( tx, broadcast );
+}
+    
+annotated_signed_transaction wallet_api::convert_from_vesting(string from, string to, asset vesting_shares, bool broadcast)
+{
+    FC_ASSERT( !is_locked() );
+    convert_from_vesting_operation op;
+    op.from = from;
+    op.to = (to == from ? "" : to);
+    op.vesting_shares = vesting_shares;
+    
+    signed_transaction tx;
+    tx.operations.push_back( op );
+    tx.validate();
+    
+    return my->sign_transaction( tx, broadcast );
 }
 
 annotated_signed_transaction wallet_api::set_withdraw_vesting_route( string from, string to, uint16_t percent, bool auto_vest, bool broadcast )

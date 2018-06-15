@@ -1022,6 +1022,57 @@ void transfer_to_vesting_evaluator::do_apply( const transfer_to_vesting_operatio
    _db.adjust_balance( from_account, -o.amount );
    _db.create_vesting( to_account, o.amount );
 }
+    
+void convert_from_vesting_evaluator::do_apply(const convert_from_vesting_operation & o)
+{
+    const auto& account = _db.get_account(o.account);
+    FC_ASSERT(o.vesting_shares > asset(0, VESTS_SYMBOL), "Could not convert from negative or zero");
+    FC_ASSERT( account.vesting_shares >= asset( 0, VESTS_SYMBOL ), "Account does not have sufficient Steem Power for withdraw." );
+    FC_ASSERT( account.vesting_shares - account.delegated_vesting_shares >= o.vesting_shares, "Account does not have sufficient Steem Power for withdraw." );
+    FC_ASSERT(account.next_vesting_withdrawal == time_point_sec::maximum(), "Could not convert vestings as last request is processing.");
+    
+    
+    int vesting_withdraw_intervals = CONTENTO_VESTING_WITHDRAW_INTERVALS; /// 13 weeks = 1 quarter of a year
+    
+    auto new_vesting_withdraw_rate = asset( o.vesting_shares.amount / vesting_withdraw_intervals, VESTS_SYMBOL );
+    
+    // 向下取整导致的确可能为 0
+    if (new_vesting_withdraw_rate.amount == 0)
+        new_vesting_withdraw_rate.amount = 1;
+    
+    const auto& wd_idx = _db.get_index< withdraw_vesting_index >().indices().get< by_account >();
+
+    _db.modify( account, [&]( account_object& a )
+    {
+       FC_ASSERT( account.vesting_withdraw_rate  != new_vesting_withdraw_rate, "This operation would not change the vesting withdraw rate." );
+       
+       a.vesting_withdraw_rate = new_vesting_withdraw_rate;
+       a.next_vesting_withdrawal = _db.head_block_time() + fc::seconds(CONTENTO_VESTING_WITHDRAW_INTERVAL_SECONDS);
+       a.to_withdraw = o.vesting_shares.amount;
+       a.withdrawn = 0;
+    });
+        
+    auto itr = wd_idx.find( account.id );
+
+    if( itr == wd_idx.end() )
+    {
+        _db.create< withdraw_vesting_object >( [&]( withdraw_vesting_object& wvo )
+        {
+            wvo.account = account.id;
+            wvo.vesting_shares = new_vesting_withdraw_rate;
+        });
+        
+    }
+    else
+    {
+        _db.modify( *itr, [&]( withdraw_vesting_object& wvo )
+       {
+           wvo.account = account.id;
+           wvo.vesting_shares = new_vesting_withdraw_rate;
+       });
+    }
+    
+}
 
 void withdraw_vesting_evaluator::do_apply( const withdraw_vesting_operation& o )
 {
