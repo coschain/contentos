@@ -18,7 +18,6 @@
 # undef DEFAULT_LOGGER
 #endif
 #define DEFAULT_LOGGER "rpc"
-static int rpc_count = 0;
 namespace fc { namespace http {
 
    namespace detail {
@@ -198,7 +197,6 @@ namespace fc { namespace http {
            fc::thread* get_one() {
                //random i
                int i = rand()%4;
-               std::cout<<"wb thread:"<<i<<"\n";
                if(fc_work_threads[i] == NULL) {
                    std::cout<<"NULL"<<"\n";
                }
@@ -282,11 +280,6 @@ namespace fc { namespace http {
                        con->defer_http_response();
                        std::string request_body = con->get_request_body();
                        wdump(("server")(request_body));
-                        
-                        rpc_count++;
-                        std::stringstream s;
-                        s << "thread:"<<&fc::thread::current()<<"@@@rpc:"<< rpc_count<<"\n";
-                        std::cout << s.str() << "\n";
                         
                        fc::async([current_con, request_body, con] {//当前已经进入_server_thread，再次async一个任务
                           std::string response = current_con->on_http(request_body);//on_http最终调用到rpc处理逻辑
