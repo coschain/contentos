@@ -2134,12 +2134,11 @@ annotated_signed_transaction wallet_api::withdraw_vesting(string from, asset ves
    return my->sign_transaction( tx, broadcast );
 }
     
-annotated_signed_transaction wallet_api::convert_from_vesting(string from, string to, asset vesting_shares, bool broadcast)
+annotated_signed_transaction wallet_api::convert_from_vesting(string account, asset vesting_shares, bool broadcast)
 {
     FC_ASSERT( !is_locked() );
     convert_from_vesting_operation op;
-    op.from = from;
-    op.to = (to == from ? "" : to);
+    op.account = account;
     op.vesting_shares = vesting_shares;
     
     signed_transaction tx;

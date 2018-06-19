@@ -764,7 +764,7 @@ class wallet_api
        * @param broadcast true if you wish to broadcast the transaction
       **/
     
-       annotated_signed_transaction convert_from_vesting(string from, string to, asset vesting_shares, bool broadcast = false);
+       annotated_signed_transaction convert_from_vesting(string account, asset vesting_shares, bool broadcast = false);
 
       /**
        * Set up a vesting withdraw route. When vesting shares are withdrawn, they will be routed to these accounts
