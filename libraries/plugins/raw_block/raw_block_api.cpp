@@ -36,6 +36,7 @@ raw_block_api::raw_block_api( const contento::app::api_context& ctx )
 
 get_raw_block_result raw_block_api::get_raw_block( get_raw_block_args args )
 {
+   CONTENTOS_API_CLOSE_ASSERT();
    get_raw_block_result result;
    std::shared_ptr< contento::chain::database > db = my->app.chain_database();
 
@@ -55,6 +56,7 @@ get_raw_block_result raw_block_api::get_raw_block( get_raw_block_args args )
 
 void raw_block_api::push_raw_block( std::string block_b64 )
 {
+   CONTENTOS_API_CLOSE_ASSERT();
    std::shared_ptr< contento::chain::database > db = my->app.chain_database();
 
    std::string block_bin = fc::base64_decode( block_b64 );
