@@ -334,6 +334,7 @@ reward_fund_api_obj database_api::get_reward_fund( string name )const
 
 vector<set<string>> database_api::get_key_references( vector<public_key_type> key )const
 {
+   CONTENTOS_API_CLOSE_ASSERT();
    return my->_db.with_read_lock( [&]()
    {
       return my->get_key_references( key );
@@ -420,6 +421,7 @@ vector<account_id_type> database_api_impl::get_account_references( account_id_ty
 
 vector<optional<account_api_obj>> database_api::lookup_account_names(const vector<string>& account_names)const
 {
+   CONTENTOS_API_CLOSE_ASSERT();
    return my->_db.with_read_lock( [&]()
    {
       return my->lookup_account_names( account_names );
@@ -450,6 +452,7 @@ vector<optional<account_api_obj>> database_api_impl::lookup_account_names(const 
 
 set<string> database_api::lookup_accounts(const string& lower_bound_name, uint32_t limit)const
 {
+   CONTENTOS_API_CLOSE_ASSERT();
    return my->_db.with_read_lock( [&]()
    {
       return my->lookup_accounts( lower_bound_name, limit );
@@ -487,6 +490,7 @@ uint64_t database_api_impl::get_account_count()const
 
 vector< owner_authority_history_api_obj > database_api::get_owner_history( string account )const
 {
+   CONTENTOS_API_CLOSE_ASSERT();
    return my->_db.with_read_lock( [&]()
    {
       vector< owner_authority_history_api_obj > results;
@@ -522,6 +526,7 @@ optional< account_recovery_request_api_obj > database_api::get_recovery_request(
 
 optional< escrow_api_obj > database_api::get_escrow( string from, uint32_t escrow_id )const
 {
+   CONTENTOS_API_CLOSE_ASSERT();
    return my->_db.with_read_lock( [&]()
    {
       optional< escrow_api_obj > result;
@@ -538,6 +543,7 @@ optional< escrow_api_obj > database_api::get_escrow( string from, uint32_t escro
 
 vector< withdraw_route > database_api::get_withdraw_routes( string account, withdraw_route_type type )const
 {
+   CONTENTOS_API_CLOSE_ASSERT();
    return my->_db.with_read_lock( [&]()
    {
       vector< withdraw_route > result;
@@ -588,6 +594,7 @@ vector< withdraw_route > database_api::get_withdraw_routes( string account, with
 
 optional< account_bandwidth_api_obj > database_api::get_account_bandwidth( string account, witness::bandwidth_type type )const
 {
+   CONTENTOS_API_CLOSE_ASSERT();
    optional< account_bandwidth_api_obj > result;
 
    if( my->_db.has_index< witness::account_bandwidth_index >() )
@@ -723,6 +730,7 @@ uint64_t database_api_impl::get_witness_count()const
 
 order_book database_api::get_order_book( uint32_t limit )const
 {
+   CONTENTOS_API_CLOSE_ASSERT();
    return my->_db.with_read_lock( [&]()
    {
       return my->get_order_book( limit );
@@ -731,6 +739,7 @@ order_book database_api::get_order_book( uint32_t limit )const
 
 vector<extended_limit_order> database_api::get_open_orders( string owner )const
 {
+   CONTENTOS_API_CLOSE_ASSERT();
    return my->_db.with_read_lock( [&]()
    {
       vector<extended_limit_order> result;
@@ -796,6 +805,7 @@ order_book database_api_impl::get_order_book( uint32_t limit )const
 
 vector< liquidity_balance > database_api::get_liquidity_queue( string start_account, uint32_t limit )const
 {
+   CONTENTOS_API_CLOSE_ASSERT();
    return my->_db.with_read_lock( [&]()
    {
       return my->get_liquidity_queue( start_account, limit );
@@ -966,6 +976,7 @@ bool database_api_impl::verify_account_authority( const string& name, const flat
 
 vector<convert_request_api_obj> database_api::get_conversion_requests( const string& account )const
 {
+   CONTENTOS_API_CLOSE_ASSERT();
    return my->_db.with_read_lock( [&]()
    {
       const auto& idx = my->_db.get_index< convert_request_index >().indices().get< by_owner >();
@@ -1794,6 +1805,7 @@ void database_api::recursively_fetch_content( state& _state, discussion& root, s
 
 vector<account_name_type> database_api::get_miner_queue()const
 {
+   CONTENTOS_API_CLOSE_ASSERT();
    return my->_db.with_read_lock( [&]()
    {
       vector<account_name_type> result;
@@ -1870,6 +1882,7 @@ vector<discussion>  database_api::get_discussions_by_author_before_date(
 
 vector< savings_withdraw_api_obj > database_api::get_savings_withdraw_from( string account )const
 {
+   CONTENTOS_API_CLOSE_ASSERT();
    return my->_db.with_read_lock( [&]()
    {
       vector<savings_withdraw_api_obj> result;
@@ -1885,6 +1898,7 @@ vector< savings_withdraw_api_obj > database_api::get_savings_withdraw_from( stri
 }
 vector< savings_withdraw_api_obj > database_api::get_savings_withdraw_to( string account )const
 {
+   CONTENTOS_API_CLOSE_ASSERT();
    return my->_db.with_read_lock( [&]()
    {
       vector<savings_withdraw_api_obj> result;

@@ -832,6 +832,7 @@ void comment_evaluator::do_apply( const comment_operation& o )
 
 void escrow_transfer_evaluator::do_apply( const escrow_transfer_operation& o )
 {
+   CONTENTOS_OP_CLOSE_ASSERT();
    try
    {
       const auto& from_account = _db.get_account(o.from);
@@ -872,6 +873,7 @@ void escrow_transfer_evaluator::do_apply( const escrow_transfer_operation& o )
 
 void escrow_approve_evaluator::do_apply( const escrow_approve_operation& o )
 {
+   CONTENTOS_OP_CLOSE_ASSERT();
    try
    {
 
@@ -933,6 +935,7 @@ void escrow_approve_evaluator::do_apply( const escrow_approve_operation& o )
 
 void escrow_dispute_evaluator::do_apply( const escrow_dispute_operation& o )
 {
+   CONTENTOS_OP_CLOSE_ASSERT();
    try
    {
       _db.get_account( o.from ); // Verify from account exists
@@ -954,6 +957,7 @@ void escrow_dispute_evaluator::do_apply( const escrow_dispute_operation& o )
 
 void escrow_release_evaluator::do_apply( const escrow_release_operation& o )
 {
+   CONTENTOS_OP_CLOSE_ASSERT();
    try
    {
       _db.get_account(o.from); // Verify from account exists
@@ -1029,6 +1033,7 @@ void transfer_evaluator::do_apply( const transfer_operation& o )
 
 void transfer_to_vesting_evaluator::do_apply( const transfer_to_vesting_operation& o )
 {
+   CONTENTOS_OP_CLOSE_ASSERT();
    const auto& from_account = _db.get_account(o.from);
    const auto& to_account = o.to.size() ? _db.get_account(o.to) : from_account;
 
@@ -1039,6 +1044,7 @@ void transfer_to_vesting_evaluator::do_apply( const transfer_to_vesting_operatio
 
 void withdraw_vesting_evaluator::do_apply( const withdraw_vesting_operation& o )
 {
+   CONTENTOS_OP_CLOSE_ASSERT();
    const auto& account = _db.get_account( o.account );
 
    FC_ASSERT( account.vesting_shares >= asset( 0, VESTS_SYMBOL ), "Account does not have sufficient Steem Power for withdraw." );
@@ -1094,6 +1100,7 @@ void withdraw_vesting_evaluator::do_apply( const withdraw_vesting_operation& o )
 
 void set_withdraw_vesting_route_evaluator::do_apply( const set_withdraw_vesting_route_operation& o )
 {
+   CONTENTOS_OP_CLOSE_ASSERT();
    try
    {
    const auto& from_account = _db.get_account( o.from_account );
@@ -1797,6 +1804,7 @@ void pow_apply( database& db, Operation o )
 }
 
 void pow_evaluator::do_apply( const pow_operation& o ) {
+   CONTENTOS_OP_CLOSE_ASSERT();
    FC_ASSERT( !db().has_hardfork( CONTENTO_HARDFORK_0_13__256 ), "pow is deprecated. Use pow2 instead" );
    pow_apply( db(), o );
 }
@@ -1804,6 +1812,7 @@ void pow_evaluator::do_apply( const pow_operation& o ) {
 
 void pow2_evaluator::do_apply( const pow2_operation& o )
 {
+   CONTENTOS_OP_CLOSE_ASSERT();
    database& db = this->db();
    FC_ASSERT( !db.has_hardfork( CONTENTO_HARDFORK_0_17__770 ), "mining is now disabled" );
 
@@ -1893,6 +1902,7 @@ void pow2_evaluator::do_apply( const pow2_operation& o )
 
 void feed_publish_evaluator::do_apply( const feed_publish_operation& o )
 {
+  CONTENTOS_OP_CLOSE_ASSERT();
   const auto& witness = _db.get_witness( o.publisher );
   _db.modify( witness, [&]( witness_object& w ){
       w.sbd_exchange_rate = o.exchange_rate;
@@ -1926,6 +1936,7 @@ void convert_evaluator::do_apply( const convert_operation& o )
 
 void limit_order_create_evaluator::do_apply( const limit_order_create_operation& o )
 {
+   CONTENTOS_OP_CLOSE_ASSERT();
    FC_ASSERT( o.expiration > _db.head_block_time(), "Limit order has to expire after head block time." );
 
    const auto& owner = _db.get_account( o.owner );
@@ -1951,6 +1962,7 @@ void limit_order_create_evaluator::do_apply( const limit_order_create_operation&
 
 void limit_order_create2_evaluator::do_apply( const limit_order_create2_operation& o )
 {
+   CONTENTOS_OP_CLOSE_ASSERT();
    FC_ASSERT( o.expiration > _db.head_block_time(), "Limit order has to expire after head block time." );
 
    const auto& owner = _db.get_account( o.owner );
@@ -1976,6 +1988,7 @@ void limit_order_create2_evaluator::do_apply( const limit_order_create2_operatio
 
 void limit_order_cancel_evaluator::do_apply( const limit_order_cancel_operation& o )
 {
+   CONTENTOS_OP_CLOSE_ASSERT();
    _db.cancel_order( _db.get_limit_order( o.owner, o.orderid ) );
 }
 
@@ -1986,6 +1999,7 @@ void report_over_production_evaluator::do_apply( const report_over_production_op
 
 void challenge_authority_evaluator::do_apply( const challenge_authority_operation& o )
 {
+   CONTENTOS_OP_CLOSE_ASSERT();
    if( _db.has_hardfork( CONTENTO_HARDFORK_0_14__307 ) ) FC_ASSERT( false, "Challenge authority operation is currently disabled." );
    const auto& challenged = _db.get_account( o.challenged );
    const auto& challenger = _db.get_account( o.challenger );
@@ -2023,6 +2037,7 @@ void challenge_authority_evaluator::do_apply( const challenge_authority_operatio
 
 void prove_authority_evaluator::do_apply( const prove_authority_operation& o )
 {
+   CONTENTOS_OP_CLOSE_ASSERT();
    const auto& challenged = _db.get_account( o.challenged );
    FC_ASSERT( challenged.owner_challenged || challenged.active_challenged, "Account is not challeneged. No need to prove authority." );
 
@@ -2040,6 +2055,7 @@ void prove_authority_evaluator::do_apply( const prove_authority_operation& o )
 
 void request_account_recovery_evaluator::do_apply( const request_account_recovery_operation& o )
 {
+   CONTENTOS_OP_CLOSE_ASSERT();
    const auto& account_to_recover = _db.get_account( o.account_to_recover );
 
    if ( account_to_recover.recovery_account.length() )   // Make sure recovery matches expected recovery account
@@ -2098,6 +2114,7 @@ void request_account_recovery_evaluator::do_apply( const request_account_recover
 
 void recover_account_evaluator::do_apply( const recover_account_operation& o )
 {
+   CONTENTOS_OP_CLOSE_ASSERT();
    const auto& account = _db.get_account( o.account_to_recover );
 
    if( _db.has_hardfork( CONTENTO_HARDFORK_0_12 ) )
@@ -2132,6 +2149,7 @@ void recover_account_evaluator::do_apply( const recover_account_operation& o )
 
 void change_recovery_account_evaluator::do_apply( const change_recovery_account_operation& o )
 {
+   CONTENTOS_OP_CLOSE_ASSERT();
    _db.get_account( o.new_recovery_account ); // Simply validate account exists
    const auto& account_to_recover = _db.get_account( o.account_to_recover );
 
@@ -2163,6 +2181,7 @@ void change_recovery_account_evaluator::do_apply( const change_recovery_account_
 
 void transfer_to_savings_evaluator::do_apply( const transfer_to_savings_operation& op )
 {
+   CONTENTOS_OP_CLOSE_ASSERT();
    const auto& from = _db.get_account( op.from );
    const auto& to   = _db.get_account(op.to);
    FC_ASSERT( _db.get_balance( from, op.amount.symbol ) >= op.amount, "Account does not have sufficient funds to transfer to savings." );
@@ -2173,6 +2192,7 @@ void transfer_to_savings_evaluator::do_apply( const transfer_to_savings_operatio
 
 void transfer_from_savings_evaluator::do_apply( const transfer_from_savings_operation& op )
 {
+   CONTENTOS_OP_CLOSE_ASSERT();
    const auto& from = _db.get_account( op.from );
    _db.get_account(op.to); // Verify to account exists
 
@@ -2199,6 +2219,7 @@ void transfer_from_savings_evaluator::do_apply( const transfer_from_savings_oper
 
 void cancel_transfer_from_savings_evaluator::do_apply( const cancel_transfer_from_savings_operation& op )
 {
+   CONTENTOS_OP_CLOSE_ASSERT();
    const auto& swo = _db.get_savings_withdraw( op.from, op.request_id );
    _db.adjust_savings_balance( _db.get_account( swo.from ), swo.amount );
    _db.remove( swo );
@@ -2268,6 +2289,7 @@ void set_reset_account_evaluator::do_apply( const set_reset_account_operation& o
 
 void claim_reward_balance_evaluator::do_apply( const claim_reward_balance_operation& op )
 {
+   CONTENTOS_OP_CLOSE_ASSERT();
    const auto& acnt = _db.get_account( op.account );
 
    FC_ASSERT( op.reward_steem <= acnt.reward_steem_balance, "Cannot claim that much STEEM. Claim: ${c} Actual: ${a}",
