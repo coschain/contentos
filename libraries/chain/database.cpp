@@ -3455,7 +3455,7 @@ void database::apply_hardfork( uint32_t hardfork )
    switch( hardfork )
    {
       case CONTENTO_HARDFORK_0_1:
-         perform_vesting_share_split( 1000000 );
+         // perform_vesting_share_split( 1000000 );
 #ifdef IS_TEST_NET
          {
             custom_operation test_op;
@@ -3738,11 +3738,11 @@ void database::validate_invariants()const
    try
    {
       const auto& account_idx = get_index<account_index>().indices().get<by_name>();
-      asset total_supply = asset( 0, COC_SYMBOL );
+      asset total_coc = asset( 0, COC_SYMBOL );
 //      asset total_sbd = asset( 0, SBD_SYMBOL );
       asset total_vesting = asset( 0, VESTS_SYMBOL );
-      asset pending_vesting_steem = asset( 0, COC_SYMBOL );
-      share_type total_vsf_votes = share_type( 0 );
+      // asset pending_vesting_steem = asset( 0, COC_SYMBOL );
+      // share_type total_vsf_votes = share_type( 0 );
 
       auto gpo = get_dynamic_global_properties();
       auto grpo = get_dynamic_global_reward_properties();
@@ -3754,7 +3754,7 @@ void database::validate_invariants()const
 
       for( auto itr = account_idx.begin(); itr != account_idx.end(); ++itr )
       {
-         total_supply += itr->balance;
+         total_coc += itr->balance;
 //         total_supply += itr->savings_balance;
 //         total_supply += itr->reward_steem_balance;
 //         total_sbd += itr->sbd_balance;
@@ -3849,7 +3849,7 @@ void database::validate_invariants()const
        
 // 测试环境下，这个算法是不对的。我的测试环境所有的币都是入 balance，所以 total_vesting_fund_coc 这个变量不能代表 vesting_fund 的折算，这是个问题
 #ifdef CONTENTO_ASA
-       total_supply += grpo.subject_reward_balance + grpo.comment_reward_balance + grpo.other_reward_balance;
+       total_coc += grpo.subject_reward_balance + grpo.comment_reward_balance + grpo.other_reward_balance;
 
 
       FC_ASSERT( gpo.current_supply == total_supply, "", ("gpo.current_supply",gpo.current_supply)("total_supply",total_supply) );
@@ -3869,9 +3869,13 @@ void database::validate_invariants()const
     //total_supply += grpo.subject_reward_balance + grpo.comment_reward_balance + grpo.other_reward_balance;
     //FC_ASSERT( gpo.current_supply == total_supply, "", ("gpo.current_supply",gpo.current_supply)("total_supply",total_supply) );
     //total_supply += gpo.total_vesting_fund_coc;
+    total_coc += grpo.subject_reward_balance + grpo.comment_reward_balance + grpo.other_reward_balance;
     FC_ASSERT(gpo.total_vesting_shares == total_vesting , "",
               ("gpo.total_vesting_shares", gpo.total_vesting_shares)
               ("total_vesting", total_vesting));
+    FC_ASSERT(gpo.current_supply == total_coc + total_vesting * gpo.get_vesting_share_price(), "",
+              ("gpo.total_vesting_fund_coc", gpo.total_vesting_fund_coc)
+              ("total_coc", total_coc + total_vesting * gpo.get_vesting_share_price()));
 //    FC_ASSERT(gpo.virtual_supply ==  , "", ("gpo.virtual_supply", gpo.virtual_supply)("total_supply", total_supply));
 #endif
    }
