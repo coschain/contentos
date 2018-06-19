@@ -3,7 +3,7 @@
  */
 #pragma once
 
-#define STEEMIT_BLOCKCHAIN_VERSION              ( version(0, 19, 2) )
+#define STEEMIT_BLOCKCHAIN_VERSION              ( version(0, 0, 1) )
 #define STEEMIT_BLOCKCHAIN_HARDFORK_VERSION     ( hardfork_version( STEEMIT_BLOCKCHAIN_VERSION ) )
 
 #ifdef IS_TEST_NET
@@ -57,8 +57,8 @@
 #define STEEMIT_SYMBOL                          "STEEM"
 #define STEEMIT_ADDRESS_PREFIX                  "STM"
 
-#define STEEMIT_GENESIS_TIME                    (fc::time_point_sec(1458835200))
-#define STEEMIT_MINING_TIME                     (fc::time_point_sec(1458838800))
+#define STEEMIT_GENESIS_TIME                    (fc::time_point_sec(1526560970))
+#define STEEMIT_MINING_TIME                     (fc::time_point_sec(1526560971))
 #define STEEMIT_CASHOUT_WINDOW_SECONDS_PRE_HF12 (60*60*24)    /// 1 day
 #define STEEMIT_CASHOUT_WINDOW_SECONDS_PRE_HF17 (60*60*12)    /// 12 hours
 #define STEEMIT_CASHOUT_WINDOW_SECONDS          (60*60*24*7)  /// 7 days
@@ -79,7 +79,7 @@
 #define STEEMIT_MIN_ROOT_COMMENT_INTERVAL       (fc::seconds(60*5)) // 5 minutes
 #define STEEMIT_MIN_REPLY_INTERVAL              (fc::seconds(20)) // 20 seconds
 
-#define STEEMIT_INIT_SUPPLY                     int64_t(0)
+#define STEEMIT_INIT_SUPPLY                     int64_t(1000000)
 
 #endif
 
