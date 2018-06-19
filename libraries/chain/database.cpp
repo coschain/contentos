@@ -1054,14 +1054,13 @@ asset database::create_vesting( const account_object& to_account, asset coc)
 #endif
               } );
        
-#ifdef CONTENTO_ASA
+
        modify( cprops, [&]( dynamic_global_property_object& props )
               {
                   props.total_vesting_fund_coc += coc;
                   props.total_vesting_shares += new_vesting;
                   
               } );
-#endif
 
         return new_vesting;
    }
@@ -1708,6 +1707,7 @@ void database::process_funds()
     modify( props, [&]( dynamic_global_property_object& p )
            {
                p.total_vesting_fund_coc += asset( new_coc - witness_reward, COC_SYMBOL);
+               // 其实因为奖励全是以 vesting 形式存在，所以 current_supply 其实没有意义
                p.current_supply           += asset( new_coc, COC_SYMBOL );
                p.virtual_supply           += asset( new_coc, COC_SYMBOL );
            });
@@ -3866,10 +3866,13 @@ void database::validate_invariants()const
 //      }
        
 #else
-    total_supply += grpo.subject_reward_balance + grpo.comment_reward_balance + grpo.other_reward_balance;
-    FC_ASSERT( gpo.current_supply == total_supply, "", ("gpo.current_supply",gpo.current_supply)("total_supply",total_supply) );
-    total_supply += gpo.total_vesting_fund_coc;
-    FC_ASSERT(gpo.virtual_supply == total_supply , "", ("gpo.virtual_supply", gpo.virtual_supply)("total_supply", total_supply));
+    //total_supply += grpo.subject_reward_balance + grpo.comment_reward_balance + grpo.other_reward_balance;
+    //FC_ASSERT( gpo.current_supply == total_supply, "", ("gpo.current_supply",gpo.current_supply)("total_supply",total_supply) );
+    //total_supply += gpo.total_vesting_fund_coc;
+    FC_ASSERT(gpo.total_vesting_shares == total_vesting , "",
+              ("gpo.total_vesting_shares", gpo.total_vesting_shares)
+              ("total_vesting", total_vesting));
+//    FC_ASSERT(gpo.virtual_supply ==  , "", ("gpo.virtual_supply", gpo.virtual_supply)("total_supply", total_supply));
 #endif
    }
    FC_CAPTURE_LOG_AND_RETHROW( (head_block_num()) );
