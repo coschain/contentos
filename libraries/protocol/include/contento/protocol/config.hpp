@@ -70,10 +70,10 @@
 #define CONTENTO_CASHOUT_WINDOW_SECONDS_PRE_HF12 (60*60*24)    /// 1 day
 #define CONTENTO_CASHOUT_WINDOW_SECONDS_PRE_HF17 (60*60*12)    /// 12 hours
 
-#ifndef CONTENTO_ASA
-#define CONTENTO_CASHOUT_WINDOW_SECONDS          (60*60*24*7)  /// 7 days
-#else
+#ifdef CONTENTO_ASA
 #define CONTENTO_CASHOUT_WINDOW_SECONDS          (60*10) // 10 min
+#else
+#define CONTENTO_CASHOUT_WINDOW_SECONDS          (60*60*24*7)  /// 7 days
 #endif
 
 #define CONTENTO_SECOND_CASHOUT_WINDOW           (60*60*24*30) /// 30 days
@@ -117,18 +117,22 @@
 #define CONTENTO_MAX_MINER_WITNESSES_HF17        0
 #define CONTENTO_MAX_RUNNER_WITNESSES_HF17       1
 
+#ifdef CONTENTO_ASA
 #define CONTENTO_HARDFORK_REQUIRED_WITNESSES     0 // 17 of the 21 dpos witnesses (20 elected and 1 virtual time) required for hardfork. This guarantees 75% participation on all subsequent rounds.
+#else
+#define CONTENTO_HARDFORK_REQUIRED_WITNESSES     17
+#endif
 #define CONTENTO_MAX_TIME_UNTIL_EXPIRATION       (60*60) // seconds,  aka: 1 hour
 #define CONTENTO_MAX_MEMO_SIZE                   2048
 #define CONTENTO_MAX_PROXY_RECURSION_DEPTH       4
 #define CONTENTO_VESTING_WITHDRAW_INTERVALS_PRE_HF_16 104
 #define CONTENTO_VESTING_WITHDRAW_INTERVALS      13
 
-//#ifndef CONTENTO_ASA
-//#define CONTENTO_VESTING_WITHDRAW_INTERVAL_SECONDS (60*60*24*7) /// 1 week per interval
-//#else
+#ifndef CONTENTO_ASA
+#define CONTENTO_VESTING_WITHDRAW_INTERVAL_SECONDS (60*60*24*7) /// 1 week per interval
+#else
 #define CONTENTO_VESTING_WITHDRAW_INTERVAL_SECONDS (60) // 1 minutes
-//#endif
+#endif
 #define CONTENTO_MAX_WITHDRAW_ROUTES             10
 #define CONTENTO_SAVINGS_WITHDRAW_TIME        	(fc::days(3))
 #define CONTENTO_SAVINGS_WITHDRAW_REQUEST_LIMIT  100
