@@ -75,7 +75,6 @@ void blockchain_statistics_api::on_api_startup() {}
 
 statistics blockchain_statistics_api::get_stats_for_time( fc::time_point_sec open, uint32_t interval )const
 {
-   CONTENTOS_API_CLOSE_ASSERT();
    return my->_app.chain_database()->with_read_lock( [&]()
    {
       return my->get_stats_for_time( open, interval );
@@ -84,7 +83,6 @@ statistics blockchain_statistics_api::get_stats_for_time( fc::time_point_sec ope
 
 statistics blockchain_statistics_api::get_stats_for_interval( fc::time_point_sec start, fc::time_point_sec end )const
 {
-   CONTENTOS_API_CLOSE_ASSERT();
    return my->_app.chain_database()->with_read_lock( [&]()
    {
       return my->get_stats_for_interval( start, end );
@@ -93,7 +91,6 @@ statistics blockchain_statistics_api::get_stats_for_interval( fc::time_point_sec
 
 statistics blockchain_statistics_api::get_lifetime_stats()const
 {
-   CONTENTOS_API_CLOSE_ASSERT();
    return my->_app.chain_database()->with_read_lock( [&]()
    {
       return my->get_lifetime_stats();

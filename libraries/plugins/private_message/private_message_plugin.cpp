@@ -78,7 +78,6 @@ private_message_plugin_impl::~private_message_plugin_impl()
 
 void private_message_evaluator::do_apply( const private_message_operation& pm )
 {
-   CONTENTOS_OP_CLOSE_ASSERT();
    database& d = db();
 
    const flat_map<string, string>& tracked_accounts = _plugin->my->_tracked_accounts;
@@ -148,7 +147,6 @@ void private_message_plugin::plugin_initialize(const boost::program_options::var
 }
 
 vector< message_api_obj > private_message_api::get_inbox( string to, time_point newest, uint16_t limit )const {
-   CONTENTOS_API_CLOSE_ASSERT();
    FC_ASSERT( limit <= 100 );
    vector< message_api_obj > result;
    const auto& idx = _app->chain_database()->get_index< message_index >().indices().get< by_to_date >();
@@ -163,7 +161,6 @@ vector< message_api_obj > private_message_api::get_inbox( string to, time_point 
 }
 
 vector< message_api_obj > private_message_api::get_outbox( string from, time_point newest, uint16_t limit )const {
-   CONTENTOS_API_CLOSE_ASSERT();
    FC_ASSERT( limit <= 100 );
    vector< message_api_obj > result;
    const auto& idx = _app->chain_database()->get_index< message_index >().indices().get< by_from_date >();

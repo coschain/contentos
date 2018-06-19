@@ -9,10 +9,6 @@
       FC_THROW_EXCEPTION( exc_type, FORMAT, __VA_ARGS__ );            \
    FC_MULTILINE_MACRO_END
 
-
-#define CONTENTOS_API_CLOSE_ASSERT() FC_ASSERT(NULL, "current api is closed")
-#define CONTENTOS_OP_CLOSE_ASSERT() FC_ASSERT(NULL, "current operation is closed")
-
 namespace contento { namespace protocol {
 
    FC_DECLARE_EXCEPTION( transaction_exception, 3000000, "transaction exception" )

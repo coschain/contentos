@@ -189,7 +189,6 @@ void market_history_api::on_api_startup() {}
 
 market_ticker market_history_api::get_ticker() const
 {
-   CONTENTOS_API_CLOSE_ASSERT();
    return my->app.chain_database()->with_read_lock( [&]()
    {
       return my->get_ticker();
@@ -198,7 +197,6 @@ market_ticker market_history_api::get_ticker() const
 
 market_volume market_history_api::get_volume() const
 {
-   CONTENTOS_API_CLOSE_ASSERT();
    return my->app.chain_database()->with_read_lock( [&]()
    {
       return my->get_volume();
@@ -207,7 +205,6 @@ market_volume market_history_api::get_volume() const
 
 order_book market_history_api::get_order_book( uint32_t limit ) const
 {
-   CONTENTOS_API_CLOSE_ASSERT();
    return my->app.chain_database()->with_read_lock( [&]()
    {
       return my->get_order_book( limit );
@@ -216,7 +213,6 @@ order_book market_history_api::get_order_book( uint32_t limit ) const
 
 std::vector< market_trade > market_history_api::get_trade_history( time_point_sec start, time_point_sec end, uint32_t limit ) const
 {
-   CONTENTOS_API_CLOSE_ASSERT();
    return my->app.chain_database()->with_read_lock( [&]()
    {
       return my->get_trade_history( start, end, limit );
@@ -225,7 +221,6 @@ std::vector< market_trade > market_history_api::get_trade_history( time_point_se
 
 std::vector< market_trade > market_history_api::get_recent_trades( uint32_t limit ) const
 {
-   CONTENTOS_API_CLOSE_ASSERT();
    return my->app.chain_database()->with_read_lock( [&]()
    {
       return my->get_recent_trades( limit );
@@ -234,7 +229,6 @@ std::vector< market_trade > market_history_api::get_recent_trades( uint32_t limi
 
 std::vector< bucket_object > market_history_api::get_market_history( uint32_t bucket_seconds, time_point_sec start, time_point_sec end ) const
 {
-   CONTENTOS_API_CLOSE_ASSERT();
    return my->app.chain_database()->with_read_lock( [&]()
    {
       return my->get_market_history( bucket_seconds, start, end );
@@ -243,7 +237,6 @@ std::vector< bucket_object > market_history_api::get_market_history( uint32_t bu
 
 flat_set< uint32_t > market_history_api::get_market_history_buckets() const
 {
-   CONTENTOS_API_CLOSE_ASSERT();
    return my->app.chain_database()->with_read_lock( [&]()
    {
       return my->get_market_history_buckets();
