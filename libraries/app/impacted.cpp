@@ -94,33 +94,33 @@ struct get_impacted_account_visitor
       _impacted.insert( op.to );
    }
 
-   void operator()( const escrow_transfer_operation& op )
-   {
-      _impacted.insert( op.from );
-      _impacted.insert( op.to );
-      _impacted.insert( op.agent );
-   }
-
-   void operator()( const escrow_approve_operation& op )
-   {
-      _impacted.insert( op.from );
-      _impacted.insert( op.to );
-      _impacted.insert( op.agent );
-   }
-
-   void operator()( const escrow_dispute_operation& op )
-   {
-      _impacted.insert( op.from );
-      _impacted.insert( op.to );
-      _impacted.insert( op.agent );
-   }
-
-   void operator()( const escrow_release_operation& op )
-   {
-      _impacted.insert( op.from );
-      _impacted.insert( op.to );
-      _impacted.insert( op.agent );
-   }
+//   void operator()( const escrow_transfer_operation& op )
+//   {
+//      _impacted.insert( op.from );
+//      _impacted.insert( op.to );
+//      _impacted.insert( op.agent );
+//   }
+//
+//   void operator()( const escrow_approve_operation& op )
+//   {
+//      _impacted.insert( op.from );
+//      _impacted.insert( op.to );
+//      _impacted.insert( op.agent );
+//   }
+//
+//   void operator()( const escrow_dispute_operation& op )
+//   {
+//      _impacted.insert( op.from );
+//      _impacted.insert( op.to );
+//      _impacted.insert( op.agent );
+//   }
+//
+//   void operator()( const escrow_release_operation& op )
+//   {
+//      _impacted.insert( op.from );
+//      _impacted.insert( op.to );
+//      _impacted.insert( op.agent );
+//   }
 
    void operator()( const transfer_to_vesting_operation& op )
    {
@@ -230,10 +230,10 @@ struct get_impacted_account_visitor
       _impacted.insert( op.owner );
    }
 
-   void operator()( const interest_operation& op )
-   {
-      _impacted.insert( op.owner );
-   }
+//   void operator()( const interest_operation& op )
+//   {
+//      _impacted.insert( op.owner );
+//   }
 
    void operator()( const fill_convert_request_operation& op )
    {

@@ -3,6 +3,8 @@
  */
 #pragma once
 
+// #define CONTENTO_ASA
+
 #define CONTENTO_BLOCKCHAIN_VERSION              ( version(0, 19, 2) )
 #define CONTENTO_BLOCKCHAIN_HARDFORK_VERSION     ( hardfork_version( CONTENTO_BLOCKCHAIN_VERSION ) )
 
@@ -12,12 +14,16 @@
 #define CONTENTO_CHAIN_ID                        (fc::sha256::hash("testnet"))
 
 #define VESTS_SYMBOL  (uint64_t(6) | (uint64_t('V') << 8) | (uint64_t('E') << 16) | (uint64_t('S') << 24) | (uint64_t('T') << 32) | (uint64_t('S') << 40)) ///< VESTS with 6 digits of precision
-#define COC_SYMBOL  (uint64_t(3) | (uint64_t('T') << 8) | (uint64_t('E') << 16) | (uint64_t('S') << 24) | (uint64_t('T') << 32) | (uint64_t('S') << 40)) ///< STEEM with 3 digits of precision
+#define COC_SYMBOL (uint64_t(4) | (uint64_t('C') << 8) | (uint64_t('O') << 16) | (uint64_t('C') << 24))
 #define SBD_SYMBOL    (uint64_t(3) | (uint64_t('T') << 8) | (uint64_t('B') << 16) | (uint64_t('D') << 24) ) ///< Test Backed Dollars with 3 digits of precision
 #define STMD_SYMBOL   (uint64_t(3) | (uint64_t('T') << 8) | (uint64_t('S') << 16) | (uint64_t('T') << 24) | (uint64_t('D') << 32) ) ///< Test Dollars with 3 digits of precision
 
 #define CONTENTO_SYMBOL                          "TEST"
 #define CONTENTO_ADDRESS_PREFIX                  "TST"
+
+
+
+
 
 #define CONTENTO_GENESIS_TIME                    (fc::time_point_sec(1451606400))
 #define CONTENTO_MINING_TIME                     (fc::time_point_sec(1451606400))
@@ -50,8 +56,10 @@
 #define CONTENTO_ONLINE_INIT_PRIVATE_KEY                (fc::ecc::private_key::regenerate(fc::sha256::hash(std::string("contento"))))
 #define CONTENTO_INIT_PUBLIC_KEY_STR             (std::string( contento::protocol::public_key_type(CONTENTO_ONLINE_INIT_PRIVATE_KEY.get_public_key()) ))
 #define CONTENTO_CHAIN_ID                        (contento::protocol::chain_id_type())
-#define VESTS_SYMBOL  (uint64_t(6) | (uint64_t('V') << 8) | (uint64_t('E') << 16) | (uint64_t('S') << 24) | (uint64_t('T') << 32) | (uint64_t('S') << 40)) ///< VESTS with 6 digits of precision
-#define COC_SYMBOL  (uint64_t(3) | (uint64_t('S') << 8) | (uint64_t('T') << 16) | (uint64_t('E') << 24) | (uint64_t('E') << 32) | (uint64_t('M') << 40)) ///< STEEM with 3 digits of precision
+//#define VESTS_SYMBOL  (uint64_t(6) | (uint64_t('V') << 8) | (uint64_t('E') << 16) | (uint64_t('S') << 24) | (uint64_t('T') << 32) | (uint64_t('S') << 40)) ///< VESTS with 6 digits of precision
+//#define COC_SYMBOL  (uint64_t(3) | (uint64_t('S') << 8) | (uint64_t('T') << 16) | (uint64_t('E') << 24) | (uint64_t('E') << 32) | (uint64_t('M') << 40)) ///< STEEM with 3 digits of precision
+#define VESTS_SYMBOL  (uint64_t(3) | (uint64_t('V') << 8) | (uint64_t('E') << 16) | (uint64_t('S') << 24) | (uint64_t('T') << 32) | (uint64_t('S') << 40)) ///< VESTS with 6 digits of precision
+#define COC_SYMBOL (uint64_t(3) | (uint64_t('C') << 8) | (uint64_t('O') << 16) | (uint64_t('C') << 24))
 #define SBD_SYMBOL    (uint64_t(3) | (uint64_t('S') << 8) | (uint64_t('B') << 16) | (uint64_t('D') << 24) ) ///< STEEM Backed Dollars with 3 digits of precision
 #define STMD_SYMBOL   (uint64_t(3) | (uint64_t('S') << 8) | (uint64_t('T') << 16) | (uint64_t('M') << 24) | (uint64_t('D') << 32) ) ///< STEEM Dollars with 3 digits of precision
 #define CONTENTO_SYMBOL                          "STEEM"
@@ -61,7 +69,13 @@
 #define CONTENTO_MINING_TIME                     (fc::time_point_sec(1458838800))
 #define CONTENTO_CASHOUT_WINDOW_SECONDS_PRE_HF12 (60*60*24)    /// 1 day
 #define CONTENTO_CASHOUT_WINDOW_SECONDS_PRE_HF17 (60*60*12)    /// 12 hours
+
+#ifdef CONTENTO_ASA
+#define CONTENTO_CASHOUT_WINDOW_SECONDS          (60*10) // 10 min
+#else
 #define CONTENTO_CASHOUT_WINDOW_SECONDS          (60*60*24*7)  /// 7 days
+#endif
+
 #define CONTENTO_SECOND_CASHOUT_WINDOW           (60*60*24*30) /// 30 days
 #define CONTENTO_MAX_CASHOUT_WINDOW_SECONDS      (60*60*24*14) /// 2 weeks
 #define CONTENTO_VOTE_CHANGE_LOCKOUT_PERIOD      (60*60*2)     /// 2 hours
@@ -103,13 +117,22 @@
 #define CONTENTO_MAX_MINER_WITNESSES_HF17        0
 #define CONTENTO_MAX_RUNNER_WITNESSES_HF17       1
 
-#define CONTENTO_HARDFORK_REQUIRED_WITNESSES     17 // 17 of the 21 dpos witnesses (20 elected and 1 virtual time) required for hardfork. This guarantees 75% participation on all subsequent rounds.
+#ifdef CONTENTO_ASA
+#define CONTENTO_HARDFORK_REQUIRED_WITNESSES     0 // 17 of the 21 dpos witnesses (20 elected and 1 virtual time) required for hardfork. This guarantees 75% participation on all subsequent rounds.
+#else
+#define CONTENTO_HARDFORK_REQUIRED_WITNESSES     17
+#endif
 #define CONTENTO_MAX_TIME_UNTIL_EXPIRATION       (60*60) // seconds,  aka: 1 hour
 #define CONTENTO_MAX_MEMO_SIZE                   2048
 #define CONTENTO_MAX_PROXY_RECURSION_DEPTH       4
 #define CONTENTO_VESTING_WITHDRAW_INTERVALS_PRE_HF_16 104
 #define CONTENTO_VESTING_WITHDRAW_INTERVALS      13
+
+#ifndef CONTENTO_ASA
 #define CONTENTO_VESTING_WITHDRAW_INTERVAL_SECONDS (60*60*24*7) /// 1 week per interval
+#else
+#define CONTENTO_VESTING_WITHDRAW_INTERVAL_SECONDS (60) // 1 minutes
+#endif
 #define CONTENTO_MAX_WITHDRAW_ROUTES             10
 #define CONTENTO_SAVINGS_WITHDRAW_TIME        	(fc::days(3))
 #define CONTENTO_SAVINGS_WITHDRAW_REQUEST_LIMIT  100
@@ -129,6 +152,12 @@
 #define CONTENTO_1_PERCENT                       (CONTENTO_100_PERCENT/100)
 #define CONTENTO_1_TENTH_PERCENT                 (CONTENTO_100_PERCENT/1000)
 #define CONTENTO_DEFAULT_SBD_INTEREST_RATE       (10*CONTENTO_1_PERCENT) ///< 10% APR
+
+#define CONTENTO_CREATOR_REWARD_PERCENT          (70*CONTENTO_1_PERCENT)
+#define CONTENTO_COMMENTER_REWARD_PERCENT        (15*CONTENTO_1_PERCENT)
+#define CONTENTO_OTHER_REWARD_PERCENT            (5*CONTENTO_1_PERCENT)
+
+#define OTHER_REWARD_CASHOUT_INTERVAL            1000
 
 #define CONTENTO_INFLATION_RATE_START_PERCENT    (978) // Fixes block 7,000,000 to 9.5%
 #define CONTENTO_INFLATION_RATE_STOP_PERCENT     (95) // 0.95%

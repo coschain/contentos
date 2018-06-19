@@ -128,21 +128,20 @@ namespace contento { namespace protocol {
    };
 
 
-   struct comment_operation : public base_operation
-   {
-      account_name_type parent_author;
-      string            parent_permlink;
+    struct comment_operation : public base_operation
+    {
+        account_name_type parent_author;
+        string            parent_permlink;
+        string            category;
+        account_name_type author;
+        string            permlink;
+        string            title;
+        string            body;
+        string            json_metadata;
+        void validate()const;
+        void get_required_posting_authorities( flat_set<account_name_type>& a )const{ a.insert(author); }
+    };
 
-      account_name_type author;
-      string            permlink;
-
-      string            title;
-      string            body;
-      string            json_metadata;
-
-      void validate()const;
-      void get_required_posting_authorities( flat_set<account_name_type>& a )const{ a.insert(author); }
-   };
 
    struct beneficiary_route_type
    {
@@ -271,112 +270,6 @@ namespace contento { namespace protocol {
       void get_required_owner_authorities( flat_set<account_name_type>& a )const { if(amount.symbol == VESTS_SYMBOL) a.insert(from); }
    };
 
-
-   /**
-    *  The purpose of this operation is to enable someone to send money contingently to
-    *  another individual. The funds leave the *from* account and go into a temporary balance
-    *  where they are held until *from* releases it to *to* or *to* refunds it to *from*.
-    *
-    *  In the event of a dispute the *agent* can divide the funds between the to/from account.
-    *  Disputes can be raised any time before or on the dispute deadline time, after the escrow
-    *  has been approved by all parties.
-    *
-    *  This operation only creates a proposed escrow transfer. Both the *agent* and *to* must
-    *  agree to the terms of the arrangement by approving the escrow.
-    *
-    *  The escrow agent is paid the fee on approval of all parties. It is up to the escrow agent
-    *  to determine the fee.
-    *
-    *  Escrow transactions are uniquely identified by 'from' and 'escrow_id', the 'escrow_id' is defined
-    *  by the sender.
-    */
-   struct escrow_transfer_operation : public base_operation
-   {
-      account_name_type from;
-      account_name_type to;
-      account_name_type agent;
-      uint32_t          escrow_id = 30;
-
-      asset             sbd_amount = asset( 0, SBD_SYMBOL );
-      asset             steem_amount = asset( 0, COC_SYMBOL );
-      asset             fee;
-
-      time_point_sec    ratification_deadline;
-      time_point_sec    escrow_expiration;
-
-      string            json_meta;
-
-      void validate()const;
-      void get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert(from); }
-   };
-
-
-   /**
-    *  The agent and to accounts must approve an escrow transaction for it to be valid on
-    *  the blockchain. Once a part approves the escrow, the cannot revoke their approval.
-    *  Subsequent escrow approve operations, regardless of the approval, will be rejected.
-    */
-   struct escrow_approve_operation : public base_operation
-   {
-      account_name_type from;
-      account_name_type to;
-      account_name_type agent;
-      account_name_type who; // Either to or agent
-
-      uint32_t          escrow_id = 30;
-      bool              approve = true;
-
-      void validate()const;
-      void get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert(who); }
-   };
-
-
-   /**
-    *  If either the sender or receiver of an escrow payment has an issue, they can
-    *  raise it for dispute. Once a payment is in dispute, the agent has authority over
-    *  who gets what.
-    */
-   struct escrow_dispute_operation : public base_operation
-   {
-      account_name_type from;
-      account_name_type to;
-      account_name_type agent;
-      account_name_type who;
-
-      uint32_t          escrow_id = 30;
-
-      void validate()const;
-      void get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert(who); }
-   };
-
-
-   /**
-    *  This operation can be used by anyone associated with the escrow transfer to
-    *  release funds if they have permission.
-    *
-    *  The permission scheme is as follows:
-    *  If there is no dispute and escrow has not expired, either party can release funds to the other.
-    *  If escrow expires and there is no dispute, either party can release funds to either party.
-    *  If there is a dispute regardless of expiration, the agent can release funds to either party
-    *     following whichever agreement was in place between the parties.
-    */
-   struct escrow_release_operation : public base_operation
-   {
-      account_name_type from;
-      account_name_type to; ///< the original 'to'
-      account_name_type agent;
-      account_name_type who; ///< the account that is attempting to release the funds, determines valid 'receiver'
-      account_name_type receiver; ///< the account that should receive funds (might be from, might be to)
-
-      uint32_t          escrow_id = 30;
-      asset             sbd_amount = asset( 0, SBD_SYMBOL ); ///< the amount of sbd to release
-      asset             steem_amount = asset( 0, COC_SYMBOL ); ///< the amount of steem to release
-
-      void validate()const;
-      void get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert(who); }
-   };
-
-
    /**
     *  This operation converts STEEM into VFS (Vesting Fund Shares) at
     *  the current exchange rate. With this operation it is possible to
@@ -392,6 +285,16 @@ namespace contento { namespace protocol {
       void validate()const;
       void get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert(from); }
    };
+    
+
+    struct convert_from_vesting_operation: public base_operation
+    {
+        account_name_type account;
+        asset             vesting_shares;
+        
+        void validate() const;
+        void get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert(account); }
+    };
 
 
    /**
@@ -1065,11 +968,12 @@ FC_REFLECT( contento::protocol::account_update_operation,
 FC_REFLECT( contento::protocol::transfer_operation, (from)(to)(amount)(memo) )
 FC_REFLECT( contento::protocol::transfer_to_vesting_operation, (from)(to)(amount) )
 FC_REFLECT( contento::protocol::withdraw_vesting_operation, (account)(vesting_shares) )
+FC_REFLECT( contento::protocol::convert_from_vesting_operation, (account)(vesting_shares))
 FC_REFLECT( contento::protocol::set_withdraw_vesting_route_operation, (from_account)(to_account)(percent)(auto_vest) )
 FC_REFLECT( contento::protocol::witness_update_operation, (owner)(url)(block_signing_key)(props)(fee) )
 FC_REFLECT( contento::protocol::account_witness_vote_operation, (account)(witness)(approve) )
 FC_REFLECT( contento::protocol::account_witness_proxy_operation, (account)(proxy) )
-FC_REFLECT( contento::protocol::comment_operation, (parent_author)(parent_permlink)(author)(permlink)(title)(body)(json_metadata) )
+FC_REFLECT( contento::protocol::comment_operation, (parent_author)(parent_permlink)(category)(author)(permlink)(title)(body)(json_metadata) )
 FC_REFLECT( contento::protocol::vote_operation, (voter)(author)(permlink)(weight) )
 FC_REFLECT( contento::protocol::custom_operation, (required_auths)(id)(data) )
 FC_REFLECT( contento::protocol::custom_json_operation, (required_auths)(required_posting_auths)(id)(json) )
@@ -1085,10 +989,10 @@ FC_REFLECT( contento::protocol::comment_payout_beneficiaries, (beneficiaries) )
 FC_REFLECT_TYPENAME( contento::protocol::comment_options_extension )
 FC_REFLECT( contento::protocol::comment_options_operation, (author)(permlink)(max_accepted_payout)(percent_steem_dollars)(allow_votes)(allow_curation_rewards)(extensions) )
 
-FC_REFLECT( contento::protocol::escrow_transfer_operation, (from)(to)(sbd_amount)(steem_amount)(escrow_id)(agent)(fee)(json_meta)(ratification_deadline)(escrow_expiration) );
-FC_REFLECT( contento::protocol::escrow_approve_operation, (from)(to)(agent)(who)(escrow_id)(approve) );
-FC_REFLECT( contento::protocol::escrow_dispute_operation, (from)(to)(agent)(who)(escrow_id) );
-FC_REFLECT( contento::protocol::escrow_release_operation, (from)(to)(agent)(who)(receiver)(escrow_id)(sbd_amount)(steem_amount) );
+//FC_REFLECT( contento::protocol::escrow_transfer_operation, (from)(to)(sbd_amount)(steem_amount)(escrow_id)(agent)(fee)(json_meta)(ratification_deadline)(escrow_expiration) );
+//FC_REFLECT( contento::protocol::escrow_approve_operation, (from)(to)(agent)(who)(escrow_id)(approve) );
+//FC_REFLECT( contento::protocol::escrow_dispute_operation, (from)(to)(agent)(who)(escrow_id) );
+//FC_REFLECT( contento::protocol::escrow_release_operation, (from)(to)(agent)(who)(receiver)(escrow_id)(sbd_amount)(steem_amount) );
 FC_REFLECT( contento::protocol::challenge_authority_operation, (challenger)(challenged)(require_owner) );
 FC_REFLECT( contento::protocol::prove_authority_operation, (challenged)(require_owner) );
 FC_REFLECT( contento::protocol::request_account_recovery_operation, (recovery_account)(account_to_recover)(new_owner_authority)(extensions) );

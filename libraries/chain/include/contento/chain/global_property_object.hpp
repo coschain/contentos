@@ -51,36 +51,29 @@ namespace contento { namespace chain {
 
          asset       virtual_supply             = asset( 0, COC_SYMBOL );
          asset       current_supply             = asset( 0, COC_SYMBOL );
-         asset       confidential_supply        = asset( 0, COC_SYMBOL ); ///< total asset held in confidential balances
-         asset       current_sbd_supply         = asset( 0, SBD_SYMBOL );
-         asset       confidential_sbd_supply    = asset( 0, SBD_SYMBOL ); ///< total asset held in confidential balances
-         asset       total_vesting_fund_steem   = asset( 0, COC_SYMBOL );
+         asset       total_vesting_fund_coc   = asset( 0, COC_SYMBOL );
          asset       total_vesting_shares       = asset( 0, VESTS_SYMBOL );
          asset       total_reward_fund_steem    = asset( 0, COC_SYMBOL );
          fc::uint128 total_reward_shares2; ///< the running total of REWARD^2
-         asset       pending_rewarded_vesting_shares = asset( 0, VESTS_SYMBOL );
-         asset       pending_rewarded_vesting_steem = asset( 0, COC_SYMBOL );
 
-         price       get_vesting_share_price() const
-         {
-            if ( total_vesting_fund_steem.amount == 0 || total_vesting_shares.amount == 0 )
-               return price ( asset( 1000, COC_SYMBOL ), asset( 1000000, VESTS_SYMBOL ) );
 
-            return price( total_vesting_shares, total_vesting_fund_steem );
-         }
+       price get_vesting_share_price() const
+       {
+           return price( asset( 1, COC_SYMBOL), asset( 1, VESTS_SYMBOL ));
+       }
 
-         price get_reward_vesting_share_price() const
-         {
-            return price( total_vesting_shares + pending_rewarded_vesting_shares,
-               total_vesting_fund_steem + pending_rewarded_vesting_steem );
-         }
+//         price get_reward_vesting_share_price() const
+//         {
+//            return price( total_vesting_shares + pending_rewarded_vesting_shares,
+//               total_vesting_fund_coc + pending_rewarded_vesting_steem );
+//         }
 
          /**
           *  This property defines the interest rate that SBD deposits receive.
           */
-         uint16_t sbd_interest_rate = 0;
-
-         uint16_t sbd_print_rate = CONTENTO_100_PERCENT;
+//         uint16_t sbd_interest_rate = 0;
+//
+//         uint16_t sbd_print_rate = CONTENTO_100_PERCENT;
 
          /**
           *  Maximum block size is decided by the set of active witnesses which change every round.
@@ -136,17 +129,17 @@ FC_REFLECT( contento::chain::dynamic_global_property_object,
              (num_pow_witnesses)
              (virtual_supply)
              (current_supply)
-             (confidential_supply)
-             (current_sbd_supply)
-             (confidential_sbd_supply)
-             (total_vesting_fund_steem)
+//             (confidential_supply)
+//             (current_sbd_supply)
+//             (confidential_sbd_supply)
+             (total_vesting_fund_coc)
              (total_vesting_shares)
              (total_reward_fund_steem)
              (total_reward_shares2)
-             (pending_rewarded_vesting_shares)
-             (pending_rewarded_vesting_steem)
-             (sbd_interest_rate)
-             (sbd_print_rate)
+//             (pending_rewarded_vesting_shares)
+//             (pending_rewarded_vesting_steem)
+//             (sbd_interest_rate)
+//             (sbd_print_rate)
              (maximum_block_size)
              (current_aslot)
              (recent_slots_filled)
