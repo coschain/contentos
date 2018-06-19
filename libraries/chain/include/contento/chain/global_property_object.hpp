@@ -57,7 +57,7 @@ namespace contento { namespace chain {
          asset       total_vesting_fund_steem   = asset( 0, STEEM_SYMBOL );
          asset       total_vesting_shares       = asset( 0, VESTS_SYMBOL );
          asset       total_reward_fund_steem    = asset( 0, STEEM_SYMBOL );
-         fc::uint128 total_reward_shares2; ///< the running total of REWARD^2
+         fc::uint128 total_reward_shares2       = 0; ///< the running total of REWARD^2
          asset       pending_rewarded_vesting_shares = asset( 0, VESTS_SYMBOL );
          asset       pending_rewarded_vesting_steem = asset( 0, STEEM_SYMBOL );
 
@@ -112,7 +112,7 @@ namespace contento { namespace chain {
           * "wasting" voting power through spillover; any user voting faster than this rate will have
           * their votes reduced.
           */
-         uint32_t vote_power_reserve_rate = 40;
+         uint32_t vote_power_reserve_rate = 10;
    };
 
    typedef multi_index_container<

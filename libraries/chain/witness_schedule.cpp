@@ -88,7 +88,8 @@ void update_witness_schedule4( database& db )
         itr != widx.end() && selected_voted.size() < wso.max_voted_witnesses;
         ++itr )
    {
-      if( db.has_hardfork( STEEMIT_HARDFORK_0_14__278 ) && (itr->signing_key == public_key_type()) )
+//      if( db.has_hardfork( STEEMIT_HARDFORK_0_14__278 ) && (itr->signing_key == public_key_type()) )
+     if( (itr->signing_key == public_key_type()) )
          continue;
       selected_voted.insert( itr->id );
       active_witnesses.push_back( itr->owner) ;
@@ -109,7 +110,8 @@ void update_witness_schedule4( database& db )
       if( selected_voted.find(mitr->id) == selected_voted.end() )
       {
          // Only consider a miner who has a valid block signing key
-         if( !( db.has_hardfork( STEEMIT_HARDFORK_0_14__278 ) && db.get_witness( mitr->owner ).signing_key == public_key_type() ) )
+//         if( !( db.has_hardfork( STEEMIT_HARDFORK_0_14__278 ) && db.get_witness( mitr->owner ).signing_key == public_key_type() ) )
+         if( !( db.get_witness( mitr->owner ).signing_key == public_key_type() ) )
          {
             selected_miners.insert(mitr->id);
             active_witnesses.push_back(mitr->owner);
@@ -143,7 +145,8 @@ void update_witness_schedule4( database& db )
       new_virtual_time = sitr->virtual_scheduled_time; /// everyone advances to at least this time
       processed_witnesses.push_back(sitr);
 
-      if( db.has_hardfork( STEEMIT_HARDFORK_0_14__278 ) && sitr->signing_key == public_key_type() )
+//      if( db.has_hardfork( STEEMIT_HARDFORK_0_14__278 ) && sitr->signing_key == public_key_type() )
+      if( sitr->signing_key == public_key_type() )
          continue; /// skip witnesses without a valid block signing key
 
       if( selected_miners.find(sitr->id) == selected_miners.end()
@@ -186,74 +189,74 @@ void update_witness_schedule4( database& db )
 
    auto majority_version = wso.majority_version;
 
-   if( db.has_hardfork( STEEMIT_HARDFORK_0_5__54 ) )
-   {
-      flat_map< version, uint32_t, std::greater< version > > witness_versions;
-      flat_map< std::tuple< hardfork_version, time_point_sec >, uint32_t > hardfork_version_votes;
+//    if( db.has_hardfork( STEEMIT_HARDFORK_0_5__54 ) )
+//    {
+    flat_map< version, uint32_t, std::greater< version > > witness_versions;
+    flat_map< std::tuple< hardfork_version, time_point_sec >, uint32_t > hardfork_version_votes;
 
-      for( uint32_t i = 0; i < wso.num_scheduled_witnesses; i++ )
-      {
-         auto witness = db.get_witness( wso.current_shuffled_witnesses[ i ] );
-         if( witness_versions.find( witness.running_version ) == witness_versions.end() )
-            witness_versions[ witness.running_version ] = 1;
-         else
-            witness_versions[ witness.running_version ] += 1;
+    for( uint32_t i = 0; i < wso.num_scheduled_witnesses; i++ )
+    {
+        auto witness = db.get_witness( wso.current_shuffled_witnesses[ i ] );
+        if( witness_versions.find( witness.running_version ) == witness_versions.end() )
+        witness_versions[ witness.running_version ] = 1;
+        else
+        witness_versions[ witness.running_version ] += 1;
 
-         auto version_vote = std::make_tuple( witness.hardfork_version_vote, witness.hardfork_time_vote );
-         if( hardfork_version_votes.find( version_vote ) == hardfork_version_votes.end() )
-            hardfork_version_votes[ version_vote ] = 1;
-         else
-            hardfork_version_votes[ version_vote ] += 1;
-      }
+        auto version_vote = std::make_tuple( witness.hardfork_version_vote, witness.hardfork_time_vote );
+        if( hardfork_version_votes.find( version_vote ) == hardfork_version_votes.end() )
+        hardfork_version_votes[ version_vote ] = 1;
+        else
+        hardfork_version_votes[ version_vote ] += 1;
+    }
 
-      int witnesses_on_version = 0;
-      auto ver_itr = witness_versions.begin();
+    int witnesses_on_version = 0;
+    auto ver_itr = witness_versions.begin();
 
-      // The map should be sorted highest version to smallest, so we iterate until we hit the majority of witnesses on at least this version
-      while( ver_itr != witness_versions.end() )
-      {
-         witnesses_on_version += ver_itr->second;
+    // The map should be sorted highest version to smallest, so we iterate until we hit the majority of witnesses on at least this version
+    while( ver_itr != witness_versions.end() )
+    {
+        witnesses_on_version += ver_itr->second;
 
-         if( witnesses_on_version >= wso.hardfork_required_witnesses )
-         {
-            majority_version = ver_itr->first;
-            break;
-         }
+        if( witnesses_on_version >= wso.hardfork_required_witnesses )
+        {
+        majority_version = ver_itr->first;
+        break;
+        }
 
-         ++ver_itr;
-      }
+        ++ver_itr;
+    }
 
-      auto hf_itr = hardfork_version_votes.begin();
+    auto hf_itr = hardfork_version_votes.begin();
 
-      while( hf_itr != hardfork_version_votes.end() )
-      {
-         if( hf_itr->second >= wso.hardfork_required_witnesses )
-         {
-            const auto& hfp = db.get_hardfork_property_object();
-            if( hfp.next_hardfork != std::get<0>( hf_itr->first ) ||
-                hfp.next_hardfork_time != std::get<1>( hf_itr->first ) ) {
+    while( hf_itr != hardfork_version_votes.end() )
+    {
+        if( hf_itr->second >= wso.hardfork_required_witnesses )
+        {
+        const auto& hfp = db.get_hardfork_property_object();
+        if( hfp.next_hardfork != std::get<0>( hf_itr->first ) ||
+            hfp.next_hardfork_time != std::get<1>( hf_itr->first ) ) {
 
-               db.modify( hfp, [&]( hardfork_property_object& hpo )
-               {
-                  hpo.next_hardfork = std::get<0>( hf_itr->first );
-                  hpo.next_hardfork_time = std::get<1>( hf_itr->first );
-               } );
-            }
-            break;
-         }
+            db.modify( hfp, [&]( hardfork_property_object& hpo )
+            {
+                hpo.next_hardfork = std::get<0>( hf_itr->first );
+                hpo.next_hardfork_time = std::get<1>( hf_itr->first );
+            } );
+        }
+        break;
+        }
 
-         ++hf_itr;
-      }
+        ++hf_itr;
+    }
 
-      // We no longer have a majority
-      if( hf_itr == hardfork_version_votes.end() )
-      {
-         db.modify( db.get_hardfork_property_object(), [&]( hardfork_property_object& hpo )
-         {
-            hpo.next_hardfork = hpo.current_hardfork_version;
-         });
-      }
-   }
+    // We no longer have a majority
+    if( hf_itr == hardfork_version_votes.end() )
+    {
+        db.modify( db.get_hardfork_property_object(), [&]( hardfork_property_object& hpo )
+        {
+        hpo.next_hardfork = hpo.current_hardfork_version;
+        });
+    }
+//    }
 
    assert( num_elected + num_miners + num_timeshare == active_witnesses.size() );
 
@@ -310,7 +313,8 @@ void update_witness_schedule(database& db)
 {
    if( (db.head_block_num() % STEEMIT_MAX_WITNESSES) == 0 ) //wso.next_shuffle_block_num )
    {
-      if( db.has_hardfork(STEEMIT_HARDFORK_0_4) )
+//       if( db.has_hardfork(STEEMIT_HARDFORK_0_4) )
+      if(true)
       {
          update_witness_schedule4(db);
          return;
@@ -366,10 +370,10 @@ void update_witness_schedule(database& db)
                    new_virtual_time = fc::uint128();
 
                /// this witness will produce again here
-               if( db.has_hardfork( STEEMIT_HARDFORK_0_2 ) )
-                  wo.virtual_scheduled_time += VIRTUAL_SCHEDULE_LAP_LENGTH2 / (wo.votes.value+1);
-               else
-                  wo.virtual_scheduled_time += VIRTUAL_SCHEDULE_LAP_LENGTH / (wo.votes.value+1);
+//                if( db.has_hardfork( STEEMIT_HARDFORK_0_2 ) )
+                wo.virtual_scheduled_time += VIRTUAL_SCHEDULE_LAP_LENGTH2 / (wo.votes.value+1);
+//                else
+//                   wo.virtual_scheduled_time += VIRTUAL_SCHEDULE_LAP_LENGTH / (wo.votes.value+1);
             } );
          }
       }
