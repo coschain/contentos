@@ -22,9 +22,9 @@ add_library( contento_chain
              fork_database.cpp
              witness_schedule.cpp
 
-             steem_evaluator.cpp
+             contento_evaluator.cpp
 
-             steem_objects.cpp
+             contento_objects.cpp
              shared_authority.cpp
              block_log.cpp
 

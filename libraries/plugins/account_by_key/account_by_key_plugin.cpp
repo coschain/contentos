@@ -50,6 +50,10 @@ struct pre_operation_visitor
       _plugin.my->clear_cache();
    }
 
+   void operator() ( const admin_grant_operation& op) const {
+
+   }
+
    void operator()( const account_create_with_delegation_operation& op )const
    {
       _plugin.my->clear_cache();
@@ -108,6 +112,10 @@ struct post_operation_visitor
       if( acct_itr ) _plugin.my->update_key_lookup( *acct_itr );
    }
 
+   void operator() ( const admin_grant_operation& op) const {
+         
+   }
+
    void operator()( const account_create_with_delegation_operation& op )const
    {
       auto acct_itr = _plugin.database().find< account_authority_object, by_account >( op.new_account_name );
@@ -143,23 +151,23 @@ struct post_operation_visitor
 
    void operator()( const hardfork_operation& op )const
    {
-//      if( op.hardfork_id == STEEMIT_HARDFORK_0_9 )
-//      {
-//         auto& db = _plugin.database();
-//
-//         for( const std::string& acc : hardfork9::get_compromised_accounts() )
-//         {
-//            const account_object* account = db.find_account( acc );
-//            if( account == nullptr )
-//               continue;
-//
-//            db.create< key_lookup_object >( [&]( key_lookup_object& o )
-//            {
-//               o.key = public_key_type( "STM7sw22HqsXbz7D2CmJfmMwt9rimtk518dRzsR1f8Cgw52dQR1pR" );
-//               o.account = account->name;
-//            });
-//         }
-//      }
+      // if( op.hardfork_id == CONTENTO_HARDFORK_0_9 )
+      // {
+      //    auto& db = _plugin.database();
+
+      //    for( const std::string& acc : hardfork9::get_compromised_accounts() )
+      //    {
+      //       const account_object* account = db.find_account( acc );
+      //       if( account == nullptr )
+      //          continue;
+
+      //       db.create< key_lookup_object >( [&]( key_lookup_object& o )
+      //       {
+      //          o.key = public_key_type( "STM7sw22HqsXbz7D2CmJfmMwt9rimtk518dRzsR1f8Cgw52dQR1pR" );
+      //          o.account = account->name;
+      //       });
+      //    }
+      // }
    }
 };
 
@@ -271,4 +279,4 @@ void account_by_key_plugin::plugin_startup()
 
 } } // contento::account_by_key
 
-STEEMIT_DEFINE_PLUGIN( account_by_key, contento::account_by_key::account_by_key_plugin )
+CONTENTO_DEFINE_PLUGIN( account_by_key, contento::account_by_key::account_by_key_plugin )

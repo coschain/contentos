@@ -48,6 +48,23 @@ struct operation_validate_visitor
    void operator()( const T& v )const { v.validate(); }
 };
 
+struct operation_get_required_admin_visitor
+{
+   typedef void result_type;
+   std::vector< std::pair<account_name_type, admin_type> >& admins;
+
+   operation_get_required_admin_visitor(std::vector< std::pair<account_name_type, admin_type> >& a)
+      : admins(a) {}
+
+   template< typename T >
+   void operator()( const T& v ) const {}
+
+   void operator()( const comment_report_operation& op ) const
+   {
+      op.get_required_admin( admins );
+   }
+};
+
 struct operation_get_required_auth_visitor
 {
    typedef void result_type;
@@ -134,4 +151,9 @@ void operation_get_required_authorities( const OperationType& op,          \
    op.visit( contento::protocol::operation_get_required_auth_visitor( active, owner, posting, other ) ); \
 }                                                                          \
                                                                            \
+void operation_get_required_admin( const OperationType& op,                \
+      std::vector< std::pair<account_name_type, admin_type> >& admins )         \
+{                                                                          \
+   op.visit( contento::protocol::operation_get_required_admin_visitor( admins ) );   \
+}                                                                          \
 } } /* contento::protocol */

@@ -1,5 +1,6 @@
 *.a
 *.sw*
+/.vscode/
 
 *.cmake
 CMakeCache.txt
@@ -47,3 +48,5 @@ witness_node_data_dir
 *.pyc
 *.pyo
 *.egg-info/
+
+.vscode/

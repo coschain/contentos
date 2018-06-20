@@ -1,10 +1,10 @@
 #pragma once
 #include <contento/app/applied_operation.hpp>
-#include <contento/app/steem_api_objects.hpp>
+#include <contento/app/contento_api_objects.hpp>
 
 #include <contento/chain/global_property_object.hpp>
 #include <contento/chain/account_object.hpp>
-#include <contento/chain/steem_objects.hpp>
+#include <contento/chain/contento_objects.hpp>
 
 namespace contento { namespace app {
    using std::string;
@@ -73,7 +73,8 @@ namespace contento { namespace app {
       vector<vote_state>          active_votes;
       vector<string>              replies; ///< author/slug mapping
       share_type                  author_reputation = 0;
-      asset                       promoted = asset(0, SBD_SYMBOL);
+      // asset                       promoted = asset(0, SBD_SYMBOL);
+      asset                       promoted = asset(0, VESTS_SYMBOL);
       uint32_t                    body_length = 0;
       vector<account_name_type>   reblogged_by;
       optional<account_name_type> first_reblogged_by;

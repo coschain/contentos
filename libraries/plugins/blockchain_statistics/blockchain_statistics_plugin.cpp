@@ -53,20 +53,20 @@ struct operation_process
       {
          b.transfers++;
 
-         if( op.amount.symbol == STEEM_SYMBOL )
+         if( op.amount.symbol == COC_SYMBOL )
             b.steem_transferred += op.amount.amount;
          else
             b.sbd_transferred += op.amount.amount;
       });
    }
 
-   void operator()( const interest_operation& op )const
-   {
-      _db.modify( _bucket, [&]( bucket_object& b )
-      {
-         b.sbd_paid_as_interest += op.interest.amount;
-      });
-   }
+//   void operator()( const interest_operation& op )const
+//   {
+//      _db.modify( _bucket, [&]( bucket_object& b )
+//      {
+//         b.sbd_paid_as_interest += op.interest.amount;
+//      });
+//   }
 
    void operator()( const account_create_operation& op )const
    {
@@ -74,6 +74,10 @@ struct operation_process
       {
          b.paid_accounts_created++;
       });
+   }
+
+   void operator() ( const admin_grant_operation& op ) const {
+         
    }
 
    void operator()( const pow_operation& op )const
@@ -191,7 +195,7 @@ struct operation_process
       _db.modify( _bucket, [&]( bucket_object& b )
       {
          b.vesting_withdrawals_processed++;
-         if( op.deposited.symbol == STEEM_SYMBOL )
+         if( op.deposited.symbol == COC_SYMBOL )
             b.vests_withdrawn += op.withdrawn.amount;
          else
             b.vests_transferred += op.withdrawn.amount;
@@ -225,14 +229,14 @@ struct operation_process
       });
    }
 
-   void operator()( const convert_operation& op )const
-   {
-      _db.modify( _bucket, [&]( bucket_object& b )
-      {
-         b.sbd_conversion_requests_created++;
-         b.sbd_to_be_converted += op.amount.amount;
-      });
-   }
+//   void operator()( const convert_operation& op )const
+//   {
+//      _db.modify( _bucket, [&]( bucket_object& b )
+//      {
+//         b.sbd_conversion_requests_created++;
+//         b.sbd_to_be_converted += op.amount.amount;
+//      });
+//   }
 
    void operator()( const fill_convert_request_operation& op )const
    {
@@ -357,11 +361,11 @@ void blockchain_statistics_plugin_impl::pre_operation( const operation_notificat
          auto& account = db.get_account( op.account );
          const auto& bucket = db.get(bucket_id);
 
-         auto new_vesting_withdrawal_rate = op.vesting_shares.amount / STEEMIT_VESTING_WITHDRAW_INTERVALS;
+         auto new_vesting_withdrawal_rate = op.vesting_shares.amount / CONTENTO_VESTING_WITHDRAW_INTERVALS;
          if( op.vesting_shares.amount > 0 && new_vesting_withdrawal_rate == 0 )
             new_vesting_withdrawal_rate = 1;
 
-//          if( !db.has_hardfork( STEEMIT_HARDFORK_0_1 ) )
+//          if( !db.has_hardfork( CONTENTO_HARDFORK_0_1 ) )
          new_vesting_withdrawal_rate *= 1000000;
 
          db.modify( bucket, [&]( bucket_object& b )
@@ -470,4 +474,4 @@ uint32_t blockchain_statistics_plugin::get_max_history_per_bucket() const
 
 } } // contento::blockchain_statistics
 
-STEEMIT_DEFINE_PLUGIN( blockchain_statistics, contento::blockchain_statistics::blockchain_statistics_plugin );
+CONTENTO_DEFINE_PLUGIN( blockchain_statistics, contento::blockchain_statistics::blockchain_statistics_plugin );

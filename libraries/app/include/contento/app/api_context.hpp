@@ -9,6 +9,7 @@
 namespace fc { namespace rpc {
 
 class websocket_api_connection;
+class http_api_connection;
 
 } }
 
@@ -24,6 +25,7 @@ class application;
 struct api_session_data
 {
    std::shared_ptr< fc::rpc::websocket_api_connection >        wsc;
+   std::shared_ptr< fc::rpc::http_api_connection >             httpc;
    std::map< std::string, fc::api_ptr >                        api_map;
 };
 

@@ -2,7 +2,7 @@
 
 #include <contento/follow/follow_plugin.hpp>
 
-#include <contento/chain/steem_object_types.hpp>
+#include <contento/chain/contento_object_types.hpp>
 
 namespace contento { namespace follow {
 

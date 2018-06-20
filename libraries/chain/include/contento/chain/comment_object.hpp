@@ -1,9 +1,10 @@
 #pragma once
 
 #include <contento/protocol/authority.hpp>
-#include <contento/protocol/steem_operations.hpp>
+#include <contento/protocol/contento_operations.hpp>
 
-#include <contento/chain/steem_object_types.hpp>
+#include <contento/chain/contento_object_types.hpp>
+#include <contento/chain/shared_report_info.hpp>
 #include <contento/chain/witness_objects.hpp>
 
 #include <boost/multi_index/composite_key.hpp>
@@ -12,6 +13,7 @@
 namespace contento { namespace chain {
 
    using protocol::beneficiary_route_type;
+   //using protocol::report_info_type;
 
    struct strcmp_less
    {
@@ -82,9 +84,7 @@ namespace contento { namespace chain {
          uint16_t          reward_weight = 0;
 
          /** tracks the total payout this comment has received over time, measured in SBD */
-         asset             total_payout_value = asset(0, SBD_SYMBOL);
-         asset             curator_payout_value = asset(0, SBD_SYMBOL);
-         asset             beneficiary_payout_value = asset( 0, SBD_SYMBOL );
+       asset             total_payout_value = asset(0, VESTS_SYMBOL);
 
          share_type        author_rewards = 0;
 
@@ -92,15 +92,42 @@ namespace contento { namespace chain {
 
          id_type           root_comment;
 
-         asset             max_accepted_payout = asset( 1000000000, SBD_SYMBOL );       /// SBD value of the maximum payout this post will receive
-         uint16_t          percent_steem_dollars = STEEMIT_100_PERCENT; /// the percent of Steem Dollars to key, unkept amounts will be received as Steem Power
          bool              allow_replies = true;      /// allows a post to disable replies.
          bool              allow_votes   = true;      /// allows a post to receive votes;
          bool              allow_curation_rewards = true;
+          bool              allow_report = true;
 
          bip::vector< beneficiary_route_type, allocator< beneficiary_route_type > > beneficiaries;
    };
 
+   class comment_report_object 
+      : public object< comment_report_object_type, comment_report_object > 
+   {
+      public:
+         template< typename Constructor, typename Allocator >
+         comment_report_object( Constructor&& c, allocator< Allocator > a ) 
+            : reports(a)
+         {
+            c( *this );
+         }
+
+         const asset& total_credit() const
+         {
+            return reports.total_credit;
+         }
+
+         void add_report(const account_name_type& acc, const asset& credit, const string& tag)
+         {
+            reports.add_report(acc, credit, tag);
+         }
+
+         id_type              id;
+         comment_id_type      comment;
+         time_point_sec       last_update;
+         time_point_sec       cashout_time;
+         shared_report_info   reports;
+
+   };
 
    /**
     * This index maintains the set of voter/comment pairs that have been used, voters cannot
@@ -166,6 +193,29 @@ namespace contento { namespace chain {
       allocator< comment_vote_object >
    > comment_vote_index;
 
+   struct by_comment;
+   struct by_total_credit;
+   struct by_last_update;
+    struct by_cashout_time;
+   typedef multi_index_container<
+      comment_report_object,
+      indexed_by<
+         ordered_unique< tag< by_id >, member< comment_report_object, comment_report_id_type, &comment_report_object::id > >,
+         ordered_unique< tag< by_cashout_time >,
+            member< comment_report_object, time_point_sec, &comment_report_object::cashout_time>
+         >,
+         ordered_unique< tag< by_comment >,
+            member< comment_report_object, comment_id_type, &comment_report_object::comment >
+         >,
+         ordered_unique< tag< by_total_credit >,
+            const_mem_fun< comment_report_object, const asset&, &comment_report_object::total_credit >
+         >,
+         ordered_unique< tag< by_last_update >,
+            member< comment_report_object, time_point_sec, &comment_report_object::last_update >
+         >
+      >,
+      allocator< comment_report_object >
+   > comment_report_index;
 
    struct by_cashout_time; /// cashout_time
    struct by_permlink; /// author, perm
@@ -216,6 +266,7 @@ namespace contento { namespace chain {
                member< comment_object, comment_id_type, &comment_object::id >
             >,
             composite_key_compare< std::less< account_name_type >, strcmp_less, std::less< comment_id_type > >
+//              composite_key_compare< std::less< account_name_type >, strcmp_less >
          >
          /// NON_CONSENSUS INDICIES - used by APIs
 #ifndef IS_LOW_MEM
@@ -250,8 +301,11 @@ FC_REFLECT( contento::chain::comment_object,
              (depth)(children)
              (net_rshares)(abs_rshares)(vote_rshares)
              (children_abs_rshares)(cashout_time)(max_cashout_time)
-             (total_vote_weight)(reward_weight)(total_payout_value)(curator_payout_value)(beneficiary_payout_value)(author_rewards)(net_votes)(root_comment)
-             (max_accepted_payout)(percent_steem_dollars)(allow_replies)(allow_votes)(allow_curation_rewards)
+             (total_vote_weight)(reward_weight)(total_payout_value)
+//           (curator_payout_value)(beneficiary_payout_value)
+              (author_rewards)(net_votes)(root_comment)
+//             (max_accepted_payout)(percent_steem_dollars)
+             (allow_replies)(allow_votes)(allow_curation_rewards)
              (beneficiaries)
           )
 CHAINBASE_SET_INDEX_TYPE( contento::chain::comment_object, contento::chain::comment_index )
@@ -260,3 +314,8 @@ FC_REFLECT( contento::chain::comment_vote_object,
              (id)(voter)(comment)(weight)(rshares)(vote_percent)(last_update)(num_changes)
           )
 CHAINBASE_SET_INDEX_TYPE( contento::chain::comment_vote_object, contento::chain::comment_vote_index )
+
+FC_REFLECT( contento::chain::comment_report_object,
+             (id)(comment)(last_update)(reports)
+          )
+CHAINBASE_SET_INDEX_TYPE( contento::chain::comment_report_object, contento::chain::comment_report_index )

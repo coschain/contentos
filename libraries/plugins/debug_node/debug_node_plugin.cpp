@@ -439,4 +439,4 @@ void debug_node_plugin::plugin_shutdown()
 
 } } }
 
-STEEMIT_DEFINE_PLUGIN( debug_node, contento::plugin::debug_node::debug_node_plugin )
+CONTENTO_DEFINE_PLUGIN( debug_node, contento::plugin::debug_node::debug_node_plugin )

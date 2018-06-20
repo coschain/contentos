@@ -30,4 +30,4 @@ void raw_block_plugin::plugin_shutdown()
 
 } } } // contento::plugin::raw_block
 
-STEEMIT_DEFINE_PLUGIN( raw_block, contento::plugin::raw_block::raw_block_plugin )
+CONTENTO_DEFINE_PLUGIN( raw_block, contento::plugin::raw_block::raw_block_plugin )

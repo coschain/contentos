@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <contento/protocol/steem_operations.hpp>
+#include <contento/protocol/contento_operations.hpp>
 #include <contento/protocol/operation_util_impl.hpp>
 
 #include <contento/chain/evaluator.hpp>

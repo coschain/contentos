@@ -3,8 +3,8 @@
 #include <contento/app/state.hpp>
 
 #include <contento/chain/database.hpp>
-#include <contento/chain/steem_objects.hpp>
-#include <contento/chain/steem_object_types.hpp>
+#include <contento/chain/contento_objects.hpp>
+#include <contento/chain/contento_object_types.hpp>
 #include <contento/chain/history_object.hpp>
 
 #include <contento/tags/tags_plugin.hpp>
@@ -285,15 +285,15 @@ class database_api
        * @breif Gets the current order book for STEEM:SBD market
        * @param limit Maximum number of orders for each side of the spread to return -- Must not exceed 1000
        */
-      order_book get_order_book( uint32_t limit = 1000 )const;
-      vector<extended_limit_order> get_open_orders( string owner )const;
+      // order_book get_order_book( uint32_t limit = 1000 )const;
+      // vector<extended_limit_order> get_open_orders( string owner )const;
 
       /**
        * @breif Gets the current liquidity reward queue.
        * @param start_account The account to start the list from, or "" to get the head of the queue
        * @param limit Maxmimum number of accounts to return -- Must not exceed 1000
        */
-      vector< liquidity_balance > get_liquidity_queue( string start_account, uint32_t limit = 1000 )const;
+      // vector< liquidity_balance > get_liquidity_queue( string start_account, uint32_t limit = 1000 )const;
 
       ////////////////////////////
       // Authority / validation //
@@ -409,7 +409,7 @@ class database_api
       void on_api_startup();
 
    private:
-      void set_pending_payout( discussion& d )const;
+      // void set_pending_payout( discussion& d )const;
       void set_url( discussion& d )const;
       discussion get_discussion( comment_id_type, uint32_t truncate_body = 0 )const;
 
@@ -499,7 +499,7 @@ FC_API(contento::app::database_api,
    (get_account_history)
    (get_owner_history)
    (get_recovery_request)
-   (get_escrow)
+   // (get_escrow)
    (get_withdraw_routes)
    (get_account_bandwidth)
    (get_savings_withdraw_from)
@@ -508,9 +508,9 @@ FC_API(contento::app::database_api,
    (get_expiring_vesting_delegations)
 
    // Market
-   (get_order_book)
-   (get_open_orders)
-   (get_liquidity_queue)
+//   (get_order_book)
+//   (get_open_orders)
+//   (get_liquidity_queue)
 
    // Authority / validation
    (get_transaction_hex)

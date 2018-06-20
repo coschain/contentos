@@ -2,9 +2,9 @@
 #include <fc/fixed_string.hpp>
 
 #include <contento/protocol/authority.hpp>
-#include <contento/protocol/steem_operations.hpp>
+#include <contento/protocol/contento_operations.hpp>
 
-#include <contento/chain/steem_object_types.hpp>
+#include <contento/chain/contento_object_types.hpp>
 #include <contento/chain/witness_objects.hpp>
 #include <contento/chain/shared_authority.hpp>
 
@@ -44,18 +44,18 @@ namespace contento { namespace chain {
          time_point_sec    last_owner_proved = time_point_sec::min();
          time_point_sec    last_active_proved = time_point_sec::min();
          account_name_type recovery_account;
-         account_name_type reset_account = STEEMIT_NULL_ACCOUNT;
+         account_name_type reset_account = CONTENTO_NULL_ACCOUNT;
          time_point_sec    last_account_recovery;
          uint32_t          comment_count = 0;
          uint32_t          lifetime_vote_count = 0;
          uint32_t          post_count = 0;
 
          bool              can_vote = true;
-         uint16_t          voting_power = STEEMIT_100_PERCENT;   ///< current voting power of this account, it falls after every vote
+         uint16_t          voting_power = CONTENTO_100_PERCENT;   ///< current voting power of this account, it falls after every vote
          time_point_sec    last_vote_time; ///< used to increase the voting power of this account the longer it goes without voting.
 
-         asset             balance = asset( 0, STEEM_SYMBOL );  ///< total liquid shares held by this account
-         asset             savings_balance = asset( 0, STEEM_SYMBOL );  ///< total liquid shares held by this account
+         asset             balance = asset( 0, COC_SYMBOL );  ///< total liquid shares held by this account
+         asset             savings_balance = asset( 0, COC_SYMBOL );  ///< total liquid shares held by this account
 
          /**
           *  SBD Deposits pay interest based upon the interest rate set by witnesses. The purpose of these
@@ -65,30 +65,19 @@ namespace contento { namespace chain {
           *  interest = interest_rate * sbd_seconds / seconds_per_year
           *
           *  Every time the sbd_balance is updated the sbd_seconds is also updated. If at least
-          *  STEEMIT_MIN_COMPOUNDING_INTERVAL_SECONDS has past since sbd_last_interest_payment then
+          *  CONTENTO_MIN_COMPOUNDING_INTERVAL_SECONDS has past since sbd_last_interest_payment then
           *  interest is added to sbd_balance.
           *
           *  @defgroup sbd_data sbd Balance Data
           */
          ///@{
-         asset             sbd_balance = asset( 0, SBD_SYMBOL ); /// total sbd balance
-         uint128_t         sbd_seconds; ///< total sbd * how long it has been hel
-         time_point_sec    sbd_seconds_last_update; ///< the last time the sbd_seconds was updated
-         time_point_sec    sbd_last_interest_payment; ///< used to pay interest at most once per month
-
-
-         asset             savings_sbd_balance = asset( 0, SBD_SYMBOL ); /// total sbd balance
-         uint128_t         savings_sbd_seconds; ///< total sbd * how long it has been hel
-         time_point_sec    savings_sbd_seconds_last_update; ///< the last time the sbd_seconds was updated
-         time_point_sec    savings_sbd_last_interest_payment; ///< used to pay interest at most once per month
 
          uint8_t           savings_withdraw_requests = 0;
          ///@}
 
-         asset             reward_sbd_balance = asset( 0, SBD_SYMBOL );
-         asset             reward_steem_balance = asset( 0, STEEM_SYMBOL );
+         asset             reward_steem_balance = asset( 0, COC_SYMBOL );
          asset             reward_vesting_balance = asset( 0, VESTS_SYMBOL );
-         asset             reward_vesting_steem = asset( 0, STEEM_SYMBOL );
+         asset             reward_vesting_steem = asset( 0, COC_SYMBOL );
 
          share_type        curation_rewards = 0;
          share_type        posting_rewards = 0;
@@ -103,7 +92,7 @@ namespace contento { namespace chain {
          share_type        to_withdraw = 0; /// Might be able to look this up with operation history.
          uint16_t          withdraw_routes = 0;
 
-         fc::array<share_type, STEEMIT_MAX_PROXY_RECURSION_DEPTH> proxied_vsf_votes;// = std::vector<share_type>( STEEMIT_MAX_PROXY_RECURSION_DEPTH, 0 ); ///< the total VFS votes proxied to this account
+         fc::array<share_type, CONTENTO_MAX_PROXY_RECURSION_DEPTH> proxied_vsf_votes;// = std::vector<share_type>( CONTENTO_MAX_PROXY_RECURSION_DEPTH, 0 ); ///< the total VFS votes proxied to this account
 
          uint16_t          witnesses_voted_for = 0;
 
@@ -124,6 +113,24 @@ namespace contento { namespace chain {
          }
 
          asset effective_vesting_shares()const { return vesting_shares - delegated_vesting_shares + received_vesting_shares; }
+   };
+
+   class admin_object : public object<admin_object_type, admin_object>
+   {
+      admin_object() = delete;
+
+      public:
+         template< typename Constructor, typename Allocator >
+         admin_object( Constructor&& c, allocator< Allocator > a )
+         {
+            c( *this );
+         }
+         
+         id_type              id;
+         account_name_type    name;
+         
+         uint128_t            comment_delete_nomination;
+         uint128_t            commercial_nomination;
    };
 
    class account_authority_object : public object< account_authority_object_type, account_authority_object >
@@ -244,7 +251,7 @@ namespace contento { namespace chain {
    struct by_next_vesting_withdrawal;
    struct by_steem_balance;
    struct by_smp_balance;
-   struct by_smd_balance;
+//   struct by_smd_balance;
    struct by_post_count;
    struct by_vote_count;
 
@@ -291,13 +298,6 @@ namespace contento { namespace chain {
             >,
             composite_key_compare< std::greater< asset >, std::less< account_id_type > >
          >,
-         ordered_unique< tag< by_smd_balance >,
-            composite_key< account_object,
-               member< account_object, asset, &account_object::sbd_balance >,
-               member< account_object, account_id_type, &account_object::id >
-            >,
-            composite_key_compare< std::greater< asset >, std::less< account_id_type > >
-         >,
          ordered_unique< tag< by_post_count >,
             composite_key< account_object,
                member< account_object, uint32_t, &account_object::post_count >,
@@ -315,6 +315,18 @@ namespace contento { namespace chain {
       >,
       allocator< account_object >
    > account_index;
+
+   struct by_name;
+   typedef multi_index_container<
+      admin_object,
+      indexed_by<
+         ordered_unique< tag< by_id >,
+            member< admin_object, admin_id_type, &admin_object::id > >,
+         ordered_unique< tag< by_name >,
+            member< admin_object, account_name_type, &admin_object::name > >
+      >,
+      allocator< admin_object >
+   > admin_index;
 
    struct by_account;
    struct by_last_valid;
@@ -464,9 +476,9 @@ FC_REFLECT( contento::chain::account_object,
              (comment_count)(lifetime_vote_count)(post_count)(can_vote)(voting_power)(last_vote_time)
              (balance)
              (savings_balance)
-             (sbd_balance)(sbd_seconds)(sbd_seconds_last_update)(sbd_last_interest_payment)
-             (savings_sbd_balance)(savings_sbd_seconds)(savings_sbd_seconds_last_update)(savings_sbd_last_interest_payment)(savings_withdraw_requests)
-             (reward_steem_balance)(reward_sbd_balance)(reward_vesting_balance)(reward_vesting_steem)
+             (savings_withdraw_requests)
+             (reward_steem_balance)
+           (reward_vesting_balance)(reward_vesting_steem)
              (vesting_shares)(delegated_vesting_shares)(received_vesting_shares)
              (vesting_withdraw_rate)(next_vesting_withdrawal)(withdrawn)(to_withdraw)(withdraw_routes)
              (curation_rewards)
@@ -475,6 +487,12 @@ FC_REFLECT( contento::chain::account_object,
              (last_post)(last_root_post)(post_bandwidth)
           )
 CHAINBASE_SET_INDEX_TYPE( contento::chain::account_object, contento::chain::account_index )
+
+FC_REFLECT( contento::chain::admin_object,
+             (id)(name)
+             (comment_delete_nomination)(commercial_nomination)
+          )
+CHAINBASE_SET_INDEX_TYPE( contento::chain::admin_object, contento::chain::admin_index )
 
 FC_REFLECT( contento::chain::account_authority_object,
              (id)(account)(owner)(active)(posting)(last_owner_update)

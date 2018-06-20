@@ -3,7 +3,7 @@
 #include <contento/app/api.hpp>
 #include <contento/private_message/private_message_plugin.hpp>
 #include <contento/follow/follow_plugin.hpp>
-#include <contento/app/steem_api_objects.hpp>
+#include <contento/app/contento_api_objects.hpp>
 
 #include <graphene/utilities/key_conversion.hpp>
 
@@ -352,7 +352,15 @@ class wallet_api
        *  @param broadcast true if you wish to broadcast the transaction
        */
       annotated_signed_transaction create_account( string creator, string new_account_name, string json_meta, bool broadcast );
-
+      annotated_signed_transaction create_councillor ( bool broadcast );
+      /**
+       *  @param type  type == 0: comment_delete
+       *               type == 1: commercial 
+       */
+      annotated_signed_transaction grant_admin ( string creator, vector<string> targets, int type, bool is_grant, bool broadcast );
+      annotated_signed_transaction report_comment( string reporter,
+          int credit, string author, string permlink, string tag, 
+          bool is_ack, bool approved, bool broadcast);
       /**
        * This method is used by faucets to create new accounts for other users which must
        * provide their desired keys. The resulting account may not be controllable by this
@@ -744,6 +752,19 @@ class wallet_api
        * @param broadcast true if you wish to broadcast the transaction
        */
       annotated_signed_transaction withdraw_vesting( string from, asset vesting_shares, bool broadcast = false );
+    
+      /**
+       * Transfer STEEM into a vesting fund represented by vesting shares (VESTS). VESTS are required to vesting
+       * for a minimum of one coin year and can be withdrawn once a week over a two year withdraw period.
+       * VESTS are protected against dilution up until 90% of STEEM is vesting.
+       *
+       * @param from The account the STEEM is coming from
+       * @param to The account getting the VESTS
+       * @param amount The amount of STEEM to vest i.e. "100.00 STEEM"
+       * @param broadcast true if you wish to broadcast the transaction
+      **/
+    
+       annotated_signed_transaction convert_from_vesting(string account, asset vesting_shares, bool broadcast = false);
 
       /**
        * Set up a vesting withdraw route. When vesting shares are withdrawn, they will be routed to these accounts
@@ -815,8 +836,8 @@ class wallet_api
        *
        * @param limit Maximum number of orders to return for bids and asks. Max is 1000.
        */
-      order_book  get_order_book( uint32_t limit = 1000 );
-      vector<extended_limit_order>  get_open_orders( string accountname );
+      // order_book  get_order_book( uint32_t limit = 1000 );
+      // vector<extended_limit_order>  get_open_orders( string accountname );
 
       /**
        *  Creates a limit order at the price amount_to_sell / min_to_receive and will deduct amount_to_sell from account
@@ -829,7 +850,7 @@ class wallet_api
        *  @param expiration the time the order should expire if it has not been filled
        *  @param broadcast true if you wish to broadcast the transaction
        */
-      annotated_signed_transaction create_order( string owner, uint32_t order_id, asset amount_to_sell, asset min_to_receive, bool fill_or_kill, uint32_t expiration, bool broadcast );
+      // annotated_signed_transaction create_order( string owner, uint32_t order_id, asset amount_to_sell, asset min_to_receive, bool fill_or_kill, uint32_t expiration, bool broadcast );
 
       /**
        * Cancel an order created with create_order
@@ -838,7 +859,7 @@ class wallet_api
        * @param orderid The unique identifier assigned to the order by its creator
        * @param broadcast true if you wish to broadcast the transaction
        */
-      annotated_signed_transaction cancel_order( string owner, uint32_t orderid, bool broadcast );
+      // annotated_signed_transaction cancel_order( string owner, uint32_t orderid, bool broadcast );
 
       /**
        *  Post or update a comment.
@@ -852,8 +873,9 @@ class wallet_api
        *  @param json the json metadata of the comment
        *  @param broadcast true if you wish to broadcast the transaction
        */
-      annotated_signed_transaction post_comment( string author, string permlink, string parent_author, string parent_permlink, string title, string body, string json, bool broadcast );
+      annotated_signed_transaction post_comment( string author, string permlink, string parent_author, string parent_permlink, string body, string json, bool broadcast );
 
+      annotated_signed_transaction post_subject( string author, string permlink, string category, string title, string body, string json, bool broadcast);
       annotated_signed_transaction      send_private_message( string from, string to, string subject, string body, bool broadcast );
       vector<extended_message_object>   get_inbox( string account, fc::time_point newest, uint32_t limit );
       vector<extended_message_object>   get_outbox( string account, fc::time_point newest, uint32_t limit );
@@ -996,6 +1018,8 @@ FC_REFLECT( contento::wallet::plain_keys, (checksum)(keys) )
 
 FC_REFLECT_ENUM( contento::wallet::authority_type, (owner)(active)(posting) )
 
+// 不需要注释函数，注释掉这个 API 声明即可屏蔽调用
+// 相对来说，这样更加干净文明
 FC_API( contento::wallet::wallet_api,
         /// wallet api
         (help)(gethelp)
@@ -1019,75 +1043,80 @@ FC_API( contento::wallet::wallet_api,
         (get_account)
         (get_block)
         (get_ops_in_block)
-        (get_feed_history)
-        (get_conversion_requests)
+//        (get_feed_history)
+//        (get_conversion_requests)
         (get_account_history)
         (get_state)
-        (get_withdraw_routes)
+//        (get_withdraw_routes)
 
         /// transaction api
         (create_account)
-        (create_account_with_keys)
-        (create_account_delegated)
-        (create_account_with_keys_delegated)
+        (create_councillor)
+        (grant_admin)
+        (report_comment)
+//        (create_account_with_keys)
+//        (create_account_delegated)
+//        (create_account_with_keys_delegated)
         (update_account)
-        (update_account_auth_key)
-        (update_account_auth_account)
-        (update_account_auth_threshold)
-        (update_account_meta)
-        (update_account_memo_key)
-        (delegate_vesting_shares)
+//        (update_account_auth_key)
+//        (update_account_auth_account)
+//        (update_account_auth_threshold)
+//        (update_account_meta)
+//        (update_account_memo_key)
+//        (delegate_vesting_shares)
         (update_witness)
-        (set_voting_proxy)
-        (vote_for_witness)
+//        (set_voting_proxy)
+//        (vote_for_witness)
         (follow)
         (transfer)
-        (escrow_transfer)
-        (escrow_approve)
-        (escrow_dispute)
-        (escrow_release)
+//        (escrow_transfer)
+//        (escrow_approve)
+//        (escrow_dispute)
+//        (escrow_release)
         (transfer_to_vesting)
-        (withdraw_vesting)
-        (set_withdraw_vesting_route)
-        (convert_sbd)
-        (publish_feed)
-        (get_order_book)
-        (get_open_orders)
-        (create_order)
-        (cancel_order)
+        (convert_from_vesting)
+//        (withdraw_vesting)
+//        (set_withdraw_vesting_route)
+//        (convert_sbd)
+//        (publish_feed)
+//        (get_order_book)
+//        (get_open_orders)
+//        (create_order)
+//        (cancel_order)
         (post_comment)
+        (post_subject)
         (vote)
-        (set_transaction_expiration)
-        (challenge)
-        (prove)
-        (request_account_recovery)
-        (recover_account)
-        (change_recovery_account)
-        (get_owner_history)
-        (transfer_to_savings)
-        (transfer_from_savings)
-        (cancel_transfer_from_savings)
-        (get_encrypted_memo)
-        (decrypt_memo)
-        (decline_voting_rights)
-        (claim_reward_balance)
+//        (set_transaction_expiration)
+//        (challenge)
+//        (prove)
+//        (request_account_recovery)
+//        (recover_account)
+//        (change_recovery_account)
+//        (get_owner_history)
+//        (transfer_to_savings)
+//        (transfer_from_savings)
+//        (cancel_transfer_from_savings)
+//        (get_encrypted_memo)
+//        (decrypt_memo)
+//        (decline_voting_rights)
+//        (claim_reward_balance)
 
         // private message api
-        (send_private_message)
-        (get_inbox)
-        (get_outbox)
+//        (send_private_message)
+//        (get_inbox)
+//        (get_outbox)
 
         /// helper api
-        (get_prototype_operation)
-        (serialize_transaction)
-        (sign_transaction)
+//        (get_prototype_operation)
+//        (serialize_transaction)
+//        (sign_transaction)
+//
+//        (network_add_nodes)
+//        (network_get_connected_peers)
 
-        (network_add_nodes)
-        (network_get_connected_peers)
-
-        (get_active_witnesses)
-        (get_miner_queue)
-        (get_transaction)
+//        (get_active_witnesses)
+//        (get_miner_queue)
+//        (get_transaction)
       )
 
 FC_REFLECT( contento::wallet::memo_data, (from)(to)(nonce)(check)(encrypted) )

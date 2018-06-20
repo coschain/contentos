@@ -6,18 +6,73 @@
 #include <fc/utf8.hpp>
 #include <fc/crypto/equihash.hpp>
 
+#include <utility>
+
 namespace contento { namespace protocol {
+
 
    inline void validate_account_name( const string& name )
    {
       FC_ASSERT( is_valid_account_name( name ), "Account name ${n} is invalid", ("n", name) );
    }
 
+   inline void validate_councillor_name( const string& name ) {
+      FC_ASSERT( is_councillor( name ), "Invalid councillor name: ${n}", ("n", name) );
+   }
+
    inline void validate_permlink( const string& permlink )
    {
-      FC_ASSERT( permlink.size() < STEEMIT_MAX_PERMLINK_LENGTH, "permlink is too long" );
+      FC_ASSERT( permlink.size() < CONTENTO_MAX_PERMLINK_LENGTH, "permlink is too long" );
       FC_ASSERT( fc::is_utf8( permlink ), "permlink not formatted in UTF8" );
    }
+   
+   struct admin_grant_operation : public base_operation 
+   {
+      account_name_type creator;
+      account_name_type nominee;
+
+      int type;
+      bool is_grant;
+
+      void validate() const;
+      void get_required_active_authorities( flat_set<account_name_type>& a ) const 
+      { 
+         a.insert(creator); 
+      }
+   };
+
+   struct comment_report_operation : public base_operation
+   {
+      account_name_type reporter;
+
+      account_name_type author;
+      string            permlink;
+
+      asset credit;
+      string tag;
+
+      // true if this op is from admin user
+      // otherwise if it is from common user. i.e. this is a report action waiting
+      // for admin to approve
+      bool is_ack; 
+      // true if the report is accepted.
+      // false if this is a malicious report, reporter will be punished
+      bool approved;
+
+      void validate() const;
+      void get_required_posting_authorities( flat_set<account_name_type>& a ) const 
+      { 
+         a.insert(reporter); 
+      }
+
+      void get_required_admin( vector< std::pair<account_name_type, admin_type> >& admins ) const 
+      {
+         if( is_ack )
+         {
+            admins.push_back(std::make_pair(reporter, admin_type::comment_delete));
+         }
+      }
+   };
 
    struct account_create_operation : public base_operation
    {
@@ -73,21 +128,20 @@ namespace contento { namespace protocol {
    };
 
 
-   struct comment_operation : public base_operation
-   {
-      account_name_type parent_author;
-      string            parent_permlink;
+    struct comment_operation : public base_operation
+    {
+        account_name_type parent_author;
+        string            parent_permlink;
+        string            category;
+        account_name_type author;
+        string            permlink;
+        string            title;
+        string            body;
+        string            json_metadata;
+        void validate()const;
+        void get_required_posting_authorities( flat_set<account_name_type>& a )const{ a.insert(author); }
+    };
 
-      account_name_type author;
-      string            permlink;
-
-      string            title;
-      string            body;
-      string            json_metadata;
-
-      void validate()const;
-      void get_required_posting_authorities( flat_set<account_name_type>& a )const{ a.insert(author); }
-   };
 
    struct beneficiary_route_type
    {
@@ -100,6 +154,17 @@ namespace contento { namespace protocol {
       // For use by std::sort such that the route is sorted first by name (ascending)
       bool operator < ( const beneficiary_route_type& o )const { return account < o.account; }
    };
+/*
+   struct report_info_type
+   {
+      report_info_type() {}
+      report_info_type(const account_name_type& acc, asset credit, string tag)
+            : reporter(acc), credit(credit), tag(tag) {}
+
+      account_name_type  reporter;
+      asset            credit;
+      string    tag;
+   };*/
 
    struct comment_payout_beneficiaries
    {
@@ -128,7 +193,7 @@ namespace contento { namespace protocol {
       string            permlink;
 
       asset             max_accepted_payout    = asset( 1000000000, SBD_SYMBOL );       /// SBD value of the maximum payout this post will receive
-      uint16_t          percent_steem_dollars  = STEEMIT_100_PERCENT; /// the percent of Steem Dollars to key, unkept amounts will be received as Steem Power
+      uint16_t          percent_steem_dollars  = CONTENTO_100_PERCENT; /// the percent of Steem Dollars to key, unkept amounts will be received as Steem Power
       bool              allow_votes            = true;      /// allows a post to receive votes;
       bool              allow_curation_rewards = true; /// allows voters to recieve curation rewards. Rewards return to reward fund.
       comment_options_extensions_type extensions;
@@ -205,112 +270,6 @@ namespace contento { namespace protocol {
       void get_required_owner_authorities( flat_set<account_name_type>& a )const { if(amount.symbol == VESTS_SYMBOL) a.insert(from); }
    };
 
-
-   /**
-    *  The purpose of this operation is to enable someone to send money contingently to
-    *  another individual. The funds leave the *from* account and go into a temporary balance
-    *  where they are held until *from* releases it to *to* or *to* refunds it to *from*.
-    *
-    *  In the event of a dispute the *agent* can divide the funds between the to/from account.
-    *  Disputes can be raised any time before or on the dispute deadline time, after the escrow
-    *  has been approved by all parties.
-    *
-    *  This operation only creates a proposed escrow transfer. Both the *agent* and *to* must
-    *  agree to the terms of the arrangement by approving the escrow.
-    *
-    *  The escrow agent is paid the fee on approval of all parties. It is up to the escrow agent
-    *  to determine the fee.
-    *
-    *  Escrow transactions are uniquely identified by 'from' and 'escrow_id', the 'escrow_id' is defined
-    *  by the sender.
-    */
-   struct escrow_transfer_operation : public base_operation
-   {
-      account_name_type from;
-      account_name_type to;
-      account_name_type agent;
-      uint32_t          escrow_id = 30;
-
-      asset             sbd_amount = asset( 0, SBD_SYMBOL );
-      asset             steem_amount = asset( 0, STEEM_SYMBOL );
-      asset             fee;
-
-      time_point_sec    ratification_deadline;
-      time_point_sec    escrow_expiration;
-
-      string            json_meta;
-
-      void validate()const;
-      void get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert(from); }
-   };
-
-
-   /**
-    *  The agent and to accounts must approve an escrow transaction for it to be valid on
-    *  the blockchain. Once a part approves the escrow, the cannot revoke their approval.
-    *  Subsequent escrow approve operations, regardless of the approval, will be rejected.
-    */
-   struct escrow_approve_operation : public base_operation
-   {
-      account_name_type from;
-      account_name_type to;
-      account_name_type agent;
-      account_name_type who; // Either to or agent
-
-      uint32_t          escrow_id = 30;
-      bool              approve = true;
-
-      void validate()const;
-      void get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert(who); }
-   };
-
-
-   /**
-    *  If either the sender or receiver of an escrow payment has an issue, they can
-    *  raise it for dispute. Once a payment is in dispute, the agent has authority over
-    *  who gets what.
-    */
-   struct escrow_dispute_operation : public base_operation
-   {
-      account_name_type from;
-      account_name_type to;
-      account_name_type agent;
-      account_name_type who;
-
-      uint32_t          escrow_id = 30;
-
-      void validate()const;
-      void get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert(who); }
-   };
-
-
-   /**
-    *  This operation can be used by anyone associated with the escrow transfer to
-    *  release funds if they have permission.
-    *
-    *  The permission scheme is as follows:
-    *  If there is no dispute and escrow has not expired, either party can release funds to the other.
-    *  If escrow expires and there is no dispute, either party can release funds to either party.
-    *  If there is a dispute regardless of expiration, the agent can release funds to either party
-    *     following whichever agreement was in place between the parties.
-    */
-   struct escrow_release_operation : public base_operation
-   {
-      account_name_type from;
-      account_name_type to; ///< the original 'to'
-      account_name_type agent;
-      account_name_type who; ///< the account that is attempting to release the funds, determines valid 'receiver'
-      account_name_type receiver; ///< the account that should receive funds (might be from, might be to)
-
-      uint32_t          escrow_id = 30;
-      asset             sbd_amount = asset( 0, SBD_SYMBOL ); ///< the amount of sbd to release
-      asset             steem_amount = asset( 0, STEEM_SYMBOL ); ///< the amount of steem to release
-
-      void validate()const;
-      void get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert(who); }
-   };
-
-
    /**
     *  This operation converts STEEM into VFS (Vesting Fund Shares) at
     *  the current exchange rate. With this operation it is possible to
@@ -326,6 +285,16 @@ namespace contento { namespace protocol {
       void validate()const;
       void get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert(from); }
    };
+    
+
+    struct convert_from_vesting_operation: public base_operation
+    {
+        account_name_type account;
+        asset             vesting_shares;
+        
+        void validate() const;
+        void get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert(account); }
+    };
 
 
    /**
@@ -382,21 +351,21 @@ namespace contento { namespace protocol {
        *  ability to vote and make transactions.
        */
       asset             account_creation_fee =
-         asset( STEEMIT_MIN_ACCOUNT_CREATION_FEE, STEEM_SYMBOL );
+         asset( CONTENTO_MIN_ACCOUNT_CREATION_FEE, COC_SYMBOL );
 
       /**
        *  This witnesses vote for the maximum_block_size which is used by the network
        *  to tune rate limiting and capacity
        */
-      uint32_t          maximum_block_size = STEEMIT_MIN_BLOCK_SIZE_LIMIT * 2;
-      uint16_t          sbd_interest_rate  = STEEMIT_DEFAULT_SBD_INTEREST_RATE;
+      uint32_t          maximum_block_size = CONTENTO_MIN_BLOCK_SIZE_LIMIT * 2;
+      uint16_t          sbd_interest_rate  = CONTENTO_DEFAULT_SBD_INTEREST_RATE;
 
       void validate()const
       {
-         FC_ASSERT( account_creation_fee.amount >= STEEMIT_MIN_ACCOUNT_CREATION_FEE);
-         FC_ASSERT( maximum_block_size >= STEEMIT_MIN_BLOCK_SIZE_LIMIT);
+         FC_ASSERT( account_creation_fee.amount >= CONTENTO_MIN_ACCOUNT_CREATION_FEE);
+         FC_ASSERT( maximum_block_size >= CONTENTO_MIN_BLOCK_SIZE_LIMIT);
          FC_ASSERT( sbd_interest_rate >= 0 );
-         FC_ASSERT( sbd_interest_rate <= STEEMIT_100_PERCENT );
+         FC_ASSERT( sbd_interest_rate <= CONTENTO_100_PERCENT );
       }
    };
 
@@ -521,7 +490,7 @@ namespace contento { namespace protocol {
 
    /**
     *  This operation instructs the blockchain to start a conversion between STEEM and SBD,
-    *  The funds are deposited after STEEMIT_CONVERSION_DELAY
+    *  The funds are deposited after CONTENTO_CONVERSION_DELAY
     */
    struct convert_operation : public base_operation
    {
@@ -683,7 +652,7 @@ namespace contento { namespace protocol {
    /**
     * This operation is used to report a miner who signs two blocks
     * at the same time. To be valid, the violation must be reported within
-    * STEEMIT_MAX_WITNESSES blocks of the head block (1 round) and the
+    * CONTENTO_MAX_WITNESSES blocks of the head block (1 round) and the
     * producer must be in the ACTIVE witness set.
     *
     * Users not in the ACTIVE witness set should not have to worry about their
@@ -963,6 +932,9 @@ FC_REFLECT_TYPENAME( contento::protocol::pow2_work )
 FC_REFLECT( contento::protocol::pow_operation, (worker_account)(block_id)(nonce)(work)(props) )
 FC_REFLECT( contento::protocol::pow2_operation, (work)(new_owner_key)(props) )
 
+FC_REFLECT( contento::protocol::admin_grant_operation, (creator)(nominee)(type)(is_grant))
+FC_REFLECT( contento::protocol::comment_report_operation, (reporter)(author)(permlink)(credit)(tag)(is_ack)(approved))
+
 FC_REFLECT( contento::protocol::account_create_operation,
             (fee)
             (creator)
@@ -996,11 +968,12 @@ FC_REFLECT( contento::protocol::account_update_operation,
 FC_REFLECT( contento::protocol::transfer_operation, (from)(to)(amount)(memo) )
 FC_REFLECT( contento::protocol::transfer_to_vesting_operation, (from)(to)(amount) )
 FC_REFLECT( contento::protocol::withdraw_vesting_operation, (account)(vesting_shares) )
+FC_REFLECT( contento::protocol::convert_from_vesting_operation, (account)(vesting_shares))
 FC_REFLECT( contento::protocol::set_withdraw_vesting_route_operation, (from_account)(to_account)(percent)(auto_vest) )
 FC_REFLECT( contento::protocol::witness_update_operation, (owner)(url)(block_signing_key)(props)(fee) )
 FC_REFLECT( contento::protocol::account_witness_vote_operation, (account)(witness)(approve) )
 FC_REFLECT( contento::protocol::account_witness_proxy_operation, (account)(proxy) )
-FC_REFLECT( contento::protocol::comment_operation, (parent_author)(parent_permlink)(author)(permlink)(title)(body)(json_metadata) )
+FC_REFLECT( contento::protocol::comment_operation, (parent_author)(parent_permlink)(category)(author)(permlink)(title)(body)(json_metadata) )
 FC_REFLECT( contento::protocol::vote_operation, (voter)(author)(permlink)(weight) )
 FC_REFLECT( contento::protocol::custom_operation, (required_auths)(id)(data) )
 FC_REFLECT( contento::protocol::custom_json_operation, (required_auths)(required_posting_auths)(id)(json) )
@@ -1016,10 +989,10 @@ FC_REFLECT( contento::protocol::comment_payout_beneficiaries, (beneficiaries) )
 FC_REFLECT_TYPENAME( contento::protocol::comment_options_extension )
 FC_REFLECT( contento::protocol::comment_options_operation, (author)(permlink)(max_accepted_payout)(percent_steem_dollars)(allow_votes)(allow_curation_rewards)(extensions) )
 
-FC_REFLECT( contento::protocol::escrow_transfer_operation, (from)(to)(sbd_amount)(steem_amount)(escrow_id)(agent)(fee)(json_meta)(ratification_deadline)(escrow_expiration) );
-FC_REFLECT( contento::protocol::escrow_approve_operation, (from)(to)(agent)(who)(escrow_id)(approve) );
-FC_REFLECT( contento::protocol::escrow_dispute_operation, (from)(to)(agent)(who)(escrow_id) );
-FC_REFLECT( contento::protocol::escrow_release_operation, (from)(to)(agent)(who)(receiver)(escrow_id)(sbd_amount)(steem_amount) );
+//FC_REFLECT( contento::protocol::escrow_transfer_operation, (from)(to)(sbd_amount)(steem_amount)(escrow_id)(agent)(fee)(json_meta)(ratification_deadline)(escrow_expiration) );
+//FC_REFLECT( contento::protocol::escrow_approve_operation, (from)(to)(agent)(who)(escrow_id)(approve) );
+//FC_REFLECT( contento::protocol::escrow_dispute_operation, (from)(to)(agent)(who)(escrow_id) );
+//FC_REFLECT( contento::protocol::escrow_release_operation, (from)(to)(agent)(who)(receiver)(escrow_id)(sbd_amount)(steem_amount) );
 FC_REFLECT( contento::protocol::challenge_authority_operation, (challenger)(challenged)(require_owner) );
 FC_REFLECT( contento::protocol::prove_authority_operation, (challenged)(require_owner) );
 FC_REFLECT( contento::protocol::request_account_recovery_operation, (recovery_account)(account_to_recover)(new_owner_authority)(extensions) );

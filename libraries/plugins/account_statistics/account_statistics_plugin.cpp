@@ -107,4 +107,4 @@ const flat_set< std::string >& account_statistics_plugin::get_tracked_accounts()
 
 } } // contento::account_statistics
 
-STEEMIT_DEFINE_PLUGIN( account_statistics, contento::account_statistics::account_statistics_plugin );
+CONTENTO_DEFINE_PLUGIN( account_statistics, contento::account_statistics::account_statistics_plugin );

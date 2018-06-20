@@ -30,5 +30,7 @@ void operation_get_required_authorities( const OperationType& op,               
                                          flat_set< account_name_type >& owner,   \
                                          flat_set< account_name_type >& posting, \
                                          vector< authority >& other );           \
+void operation_get_required_admin( const OperationType& op,                      \
+      std::vector< std::pair<account_name_type, admin_type> >& admins );              \
                                                                                  \
 } } /* contento::protocol */

@@ -77,7 +77,7 @@ namespace contento { namespace chain {
           *
           * @param data_dir Path to open or create database in
           */
-         void open( const fc::path& data_dir, const fc::path& shared_mem_dir, uint64_t initial_supply = STEEMIT_INIT_SUPPLY, uint64_t shared_file_size = 0, uint32_t chainbase_flags = 0 );
+         void open( const fc::path& data_dir, const fc::path& shared_mem_dir, uint64_t initial_supply = CONTENTO_INIT_SUPPLY, uint64_t shared_file_size = 0, uint32_t chainbase_flags = 0 );
 
          /**
           * @brief Rebuild object graph from block history and open detabase
@@ -95,6 +95,14 @@ namespace contento { namespace chain {
           */
          void wipe(const fc::path& data_dir, const fc::path& shared_mem_dir, bool include_blocks);
          void close(bool rewind = true);
+
+         /**
+          * @brief check if the authority of each op has admin authority
+          * @param 
+          *
+          * if check failed, a exception is thrown
+          */
+         void check_admin(const vector<operation>& ops);
 
          //////////////////// db_block.cpp ////////////////////
 
@@ -122,6 +130,9 @@ namespace contento { namespace chain {
          const account_object&  get_account(  const account_name_type& name )const;
          const account_object*  find_account( const account_name_type& name )const;
 
+         const admin_object&  get_admin(  const account_name_type& name )const;
+         const admin_object*  find_admin( const account_name_type& name )const;
+
          const comment_object&  get_comment(  const account_name_type& author, const shared_string& permlink )const;
          const comment_object*  find_comment( const account_name_type& author, const shared_string& permlink )const;
 
@@ -138,6 +149,7 @@ namespace contento { namespace chain {
          const savings_withdraw_object* find_savings_withdraw( const account_name_type& owner, uint32_t request_id )const;
 
          const dynamic_global_property_object&  get_dynamic_global_properties()const;
+         const dynamic_global_reward_property_object& get_dynamic_global_reward_properties()const;
          const node_property_object&            get_node_properties()const;
          const feed_history_object&             get_feed_history()const;
          const witness_schedule_object&         get_witness_schedule_object()const;
@@ -257,7 +269,7 @@ namespace contento { namespace chain {
           * Use the get_slot_time() and get_slot_at_time() functions
           * to convert between slot_num and timestamp.
           *
-          * Passing slot_num == 0 returns STEEMIT_NULL_WITNESS
+          * Passing slot_num == 0 returns CONTENTO_NULL_WITNESS
           */
          account_name_type get_scheduled_witness(uint32_t slot_num)const;
 
@@ -282,11 +294,11 @@ namespace contento { namespace chain {
          uint32_t get_slot_at_time(fc::time_point_sec when)const;
 
          /** @return the sbd created and deposited to_account, may return STEEM if there is no median feed */
-         std::pair< asset, asset > create_sbd( const account_object& to_account, asset steem, bool to_reward_balance=false );
-         asset create_vesting( const account_object& to_account, asset steem, bool to_reward_balance=false );
-         void adjust_total_payout( const comment_object& a, const asset& sbd, const asset& curator_sbd_value, const asset& beneficiary_value );
+         // std::pair< asset, asset > create_sbd( const account_object& to_account, asset steem, bool to_reward_balance=false );
+         asset create_vesting( const account_object& to_account, asset coc);
+         //void adjust_total_payout( const comment_object& a, const asset& sbd, const asset& curator_sbd_value, const asset& beneficiary_value );
 
-         void        adjust_liquidity_reward( const account_object& owner, const asset& volume, bool is_bid );
+         // void        adjust_liquidity_reward( const account_object& owner, const asset& volume, bool is_bid );
          void        adjust_balance( const account_object& a, const asset& delta );
          void        adjust_savings_balance( const account_object& a, const asset& delta );
          void        adjust_reward_balance( const account_object& a, const asset& delta );
@@ -300,7 +312,7 @@ namespace contento { namespace chain {
 
          /** this updates the votes for witnesses as a result of account voting proxy changing */
          void adjust_proxied_witness_votes( const account_object& a,
-                                            const std::array< share_type, STEEMIT_MAX_PROXY_RECURSION_DEPTH+1 >& delta,
+                                            const std::array< share_type, CONTENTO_MAX_PROXY_RECURSION_DEPTH+1 >& delta,
                                             int depth = 0 );
 
          /** this updates the votes for all witnesses as a result of account VESTS changing */
@@ -319,10 +331,11 @@ namespace contento { namespace chain {
          void clear_witness_votes( const account_object& a );
          void process_vesting_withdrawals();
          share_type pay_curators( const comment_object& c, share_type& max_rewards );
-         share_type cashout_comment_helper( util::comment_reward_context& ctx, const comment_object& comment );
+         share_type cashout_comment_helper( util::comment_reward_context& ctx, const comment_object& comment, bool is_subject );
          void process_comment_cashout();
          void process_funds();
-         void process_conversions();
+         void process_other_cashout();
+         // void process_conversions();
          void process_savings_withdraws();
          void account_recovery_processing();
          void expire_escrow_ratification();
@@ -364,7 +377,7 @@ namespace contento { namespace chain {
          /// Reset the object graph in-memory
          void initialize_indexes();
          void init_schema();
-         void init_genesis(uint64_t initial_supply = STEEMIT_INIT_SUPPLY );
+         void init_genesis(uint64_t initial_supply = CONTENTO_INIT_SUPPLY );
 
          /**
           *  This method validates transactions without adding it to the pending state.
@@ -377,10 +390,10 @@ namespace contento { namespace chain {
          std::deque< signed_transaction >       _popped_tx;
 
 
-         bool apply_order( const limit_order_object& new_order_object );
-         bool fill_order( const limit_order_object& order, const asset& pays, const asset& receives );
-         void cancel_order( const limit_order_object& obj );
-         int  match( const limit_order_object& bid, const limit_order_object& ask, const price& trade_price );
+         // bool apply_order( const limit_order_object& new_order_object );
+         // bool fill_order( const limit_order_object& order, const asset& pays, const asset& receives );
+         // void cancel_order( const limit_order_object& obj );
+         // int  match( const limit_order_object& bid, const limit_order_object& ask, const price& trade_price );
 
          void perform_vesting_share_split( uint32_t magnitude );
          void retally_comment_children();
@@ -438,8 +451,8 @@ namespace contento { namespace chain {
          void update_global_dynamic_data( const signed_block& b );
          void update_signing_witness(const witness_object& signing_witness, const signed_block& new_block);
          void update_last_irreversible_block();
-         void clear_expired_transactions();
-         void clear_expired_orders();
+         // void clear_expired_transactions();
+         // void clear_expired_orders();
          void clear_expired_delegations();
          void process_header_extensions( const signed_block& next_block );
 
@@ -453,8 +466,8 @@ namespace contento { namespace chain {
 
          vector< signed_transaction >  _pending_tx;
          fork_database                 _fork_db;
-         fc::time_point_sec            _hardfork_times[ STEEMIT_NUM_HARDFORKS + 1 ];
-         protocol::hardfork_version    _hardfork_versions[ STEEMIT_NUM_HARDFORKS + 1 ];
+         fc::time_point_sec            _hardfork_times[ CONTENTO_NUM_HARDFORKS + 1 ];
+         protocol::hardfork_version    _hardfork_versions[ CONTENTO_NUM_HARDFORKS + 1 ];
 
          block_log                     _block_log;
 
