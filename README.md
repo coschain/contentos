@@ -8,12 +8,6 @@ Contentos is a Delegated Proof of Stake blockchain that uses a "Proof of Brain" 
   - 15% of inflation to stake holders.
   - 10% of inflation to block producers.
 
-# Public Announcement & Discussion
-
-Contentos was announced on the
-[Bitcointalk forum](https://bitcointalk.org/index.php?topic=1410943.new) prior to
-the start of any mining.
-
 # No Support & No Warranty
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
