@@ -105,7 +105,7 @@ namespace contento { namespace chain {
           * "wasting" voting power through spillover; any user voting faster than this rate will have
           * their votes reduced.
           */
-         uint32_t vote_power_reserve_rate = 40;
+         uint32_t vote_power_reserve_rate = 10;
    };
 
    typedef multi_index_container<

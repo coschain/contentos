@@ -5,7 +5,7 @@
 
 // #define CONTENTO_ASA
 
-#define CONTENTO_BLOCKCHAIN_VERSION              ( version(0, 19, 2) )
+#define CONTENTO_BLOCKCHAIN_VERSION              ( version(0, 0, 1) )
 #define CONTENTO_BLOCKCHAIN_HARDFORK_VERSION     ( hardfork_version( CONTENTO_BLOCKCHAIN_VERSION ) )
 
 #ifdef IS_TEST_NET
@@ -65,8 +65,8 @@
 #define CONTENTO_SYMBOL                          "STEEM"
 #define CONTENTO_ADDRESS_PREFIX                  "STM"
 
-#define CONTENTO_GENESIS_TIME                    (fc::time_point_sec(1458835200))
-#define CONTENTO_MINING_TIME                     (fc::time_point_sec(1458838800))
+#define CONTENTO_GENESIS_TIME                    (fc::time_point_sec(1526560970))
+#define CONTENTO_MINING_TIME                     (fc::time_point_sec(1526560971))
 #define CONTENTO_CASHOUT_WINDOW_SECONDS_PRE_HF12 (60*60*24)    /// 1 day
 #define CONTENTO_CASHOUT_WINDOW_SECONDS_PRE_HF17 (60*60*12)    /// 12 hours
 
@@ -93,7 +93,7 @@
 #define CONTENTO_MIN_ROOT_COMMENT_INTERVAL       (fc::seconds(60*5)) // 5 minutes
 #define CONTENTO_MIN_REPLY_INTERVAL              (fc::seconds(20)) // 20 seconds
 
-#define CONTENTO_INIT_SUPPLY                     int64_t(0)
+#define CONTENTO_INIT_SUPPLY                     int64_t(1000000)
 
 #endif
 
