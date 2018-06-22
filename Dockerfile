@@ -56,7 +56,7 @@ RUN \
     cd /usr/local/src/contentos && \
     doxygen && \
 #    programs/build_helpers/check_reflect.py && \
-    programs/build_helpers/get_config_check.sh && \
+#    programs/build_helpers/get_config_check.sh && \
     rm -rf /usr/local/src/contentos/build
 
 RUN \
