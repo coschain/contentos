@@ -1105,7 +1105,7 @@ bool wallet_api::import_key(string wif_key)
 
    if( my->import_key(wif_key) )
    {
-      save_wallet_file();
+      //save_wallet_file();
  //     copy_wallet_file( "after-import-key-" + shorthash );
       return true;
    }
