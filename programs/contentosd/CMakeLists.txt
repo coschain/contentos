@@ -9,7 +9,7 @@ if( GPERFTOOLS_FOUND )
     list( APPEND PLATFORM_SPECIFIC_LIBS tcmalloc )
 endif()
 
-if( STEEM_STATIC_BUILD )
+if( CONTENTOS_STATIC_BUILD )
    target_link_libraries( contentosd PRIVATE
       "-static-libstdc++ -static-libgcc"
       contento_plugins
@@ -23,7 +23,7 @@ if( STEEM_STATIC_BUILD )
       ${CMAKE_DL_LIBS}
       ${PLATFORM_SPECIFIC_LIBS}
    )
-else( STEEM_STATIC_BUILD )
+else( CONTENTOS_STATIC_BUILD )
    target_link_libraries( contentosd PRIVATE
       contento_plugins
       contento_mf_plugins
@@ -36,7 +36,7 @@ else( STEEM_STATIC_BUILD )
       ${CMAKE_DL_LIBS}
       ${PLATFORM_SPECIFIC_LIBS}
    )
-endif( STEEM_STATIC_BUILD )
+endif( CONTENTOS_STATIC_BUILD )
 
 install( TARGETS
    contentosd
