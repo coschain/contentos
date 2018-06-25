@@ -1,16 +1,16 @@
-add_executable( steemd main.cpp )
+add_executable( contentosd main.cpp )
 if( UNIX AND NOT APPLE )
   set(rt_library rt )
 endif()
 
 find_package( Gperftools QUIET )
 if( GPERFTOOLS_FOUND )
-    message( STATUS "Found gperftools; compiling steemd with TCMalloc")
+    message( STATUS "Found gperftools; compiling contentosd with TCMalloc")
     list( APPEND PLATFORM_SPECIFIC_LIBS tcmalloc )
 endif()
 
 if( STEEM_STATIC_BUILD )
-   target_link_libraries( steemd PRIVATE
+   target_link_libraries( contentosd PRIVATE
       "-static-libstdc++ -static-libgcc"
       contento_plugins
       contento_mf_plugins
@@ -24,7 +24,7 @@ if( STEEM_STATIC_BUILD )
       ${PLATFORM_SPECIFIC_LIBS}
    )
 else( STEEM_STATIC_BUILD )
-   target_link_libraries( steemd PRIVATE
+   target_link_libraries( contentosd PRIVATE
       contento_plugins
       contento_mf_plugins
       contento_app
@@ -39,7 +39,7 @@ else( STEEM_STATIC_BUILD )
 endif( STEEM_STATIC_BUILD )
 
 install( TARGETS
-   steemd
+   contentosd
 
    RUNTIME DESTINATION bin
    LIBRARY DESTINATION lib
