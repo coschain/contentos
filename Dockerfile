@@ -79,29 +79,29 @@ RUN \
 
 RUN \
     cd /usr/local/src/contentos && \
-#    mkdir build && \
-#    cd build && \
-#    cmake \
-#        -DCMAKE_INSTALL_PREFIX=/usr/local/contentosd-default \
-#        -DCMAKE_BUILD_TYPE=Release \
+    mkdir build && \
+    cd build && \
+    cmake \
+        -DCMAKE_INSTALL_PREFIX=/usr/local/contentosd-default \
+        -DCMAKE_BUILD_TYPE=Release \
 #        -DLOW_MEMORY_NODE=ON \
 #        -DCLEAR_VOTES=ON \
 #        -DSKIP_BY_TX_ID=OFF \
-#        -DBUILD_CONTENTOS_TESTNET=OFF \
-#        -DCONTENTOS_STATIC_BUILD=${CONTENTOS_STATIC_BUILD} \
-#        .. \
-#    && \
-#    make -j$(nproc) && \
-#    make install && \
-#    cd .. && \
-#    ( /usr/local/contentosd-default/bin/contentosd --version \
-#      | grep -o '[0-9]*\.[0-9]*\.[0-9]*' \
-#      && echo '_' \
-#      && git rev-parse --short HEAD ) \
-#      | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n//g' \
-#      > /etc/contentosdversion && \
-#    cat /etc/contentosdversion && \
-#    rm -rfv build && \
+        -DBUILD_CONTENTOS_TESTNET=OFF \
+        -DCONTENTOS_STATIC_BUILD=${CONTENTOS_STATIC_BUILD} \
+        .. \
+    && \
+    make -j$(nproc) && \
+    make install && \
+    cd .. && \
+    ( /usr/local/contentosd-default/bin/contentosd --version \
+      | grep -o '[0-9]*\.[0-9]*\.[0-9]*' \
+      && echo '_' \
+      && git rev-parse --short HEAD ) \
+      | sed -e ':a' -e 'N' -e '$!ba' -e 's/\n//g' \
+      > /etc/contentosdversion && \
+    cat /etc/contentosdversion && \
+    rm -rfv build && \
     mkdir build && \
     cd build && \
     cmake \
