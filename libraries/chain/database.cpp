@@ -516,25 +516,6 @@ bool database::push_block(const signed_block& new_block, uint32_t skip)
          });
       });
    });
-    vector<uint32_t> times;
-    for(auto trx : new_block.transactions){
-        times.push_back(trx.expiration.sec_since_epoch());
-    }
-    std::sort(times.begin(),times.end());
-    uint32_t begin = 0;
-    uint32_t end = 0;
-    if(times.size() > 0){
-        begin = *times.begin();
-        end = *times.rbegin();
-    }
-    const dynamic_global_property_object& dpo = get_dynamic_global_properties();
-    std::cerr<<"max block size:"<<dpo.maximum_block_size<<" block number:"<<new_block.block_num()<<"\n";
-_test_statistics.dump_total_info(new_block.block_num(),begin,end);
-    _test_statistics.reset();
-   //fc::time_point end_time = fc::time_point::now();
-   //fc::microseconds dt = end_time - begin_time;
-   //if( ( new_block.block_num() % 10000 ) == 0 )
-   //   ilog( "push_block ${b} took ${t} microseconds", ("b", new_block.block_num())("t", dt.count()) );
    return result;
 }
 
@@ -653,16 +634,6 @@ void database::push_transaction( const signed_transaction& trx, uint32_t skip )
    {
       try
       {
-          /*if (!_test_statistics.is_start()){
-              _test_statistics.set_start(true);
-              _test_statistics._test_start_time = time_point::now();
-              _test_statistics._test_end_time = time_point::min();
-              _test_statistics._test_tx_cnt = 0;
-          }*/
-          //if(_test_statistics.is_start()){
-              _test_statistics._received_trx_cnt++;
-          //std::cerr<<"get a trx !!!\n";
-          //}
          FC_ASSERT( fc::raw::pack_size(trx) <= (get_dynamic_global_properties().maximum_block_size - 256) );
          set_producing( true );
          detail::with_skip_flags( *this, skip,
@@ -700,9 +671,6 @@ void database::_push_transaction( const signed_transaction& trx )
    _apply_transaction( trx );
    _pending_tx.push_back( trx );
     
-    _test_statistics._trx_trace_vec.emplace_back(fc::time_point::now().sec_since_epoch(),trx.expiration.sec_since_epoch(),trx.id().str());
-    _test_statistics._after_apply_wait_into_block_trx++;
-
    notify_changed_objects();
    // The transaction applied successfully. Merge its changes into the pending block session.
    temp_session.squash();
@@ -772,18 +740,8 @@ signed_block database::_generate_block(
     
       uint64_t postponed_tx_count = 0;
       // pop pending state (reset to head block state)
-       test_statistics::try_block_info info;
-       info._head_num = head_block_num()+1;
-       info._transactions = _pending_tx.size();
        uint64_t total_size = 0;
        
-       _test_statistics._pending_size = _pending_tx.size();
-       if(_test_statistics._pending_size > 0){
-           _test_statistics._pending_first_expire_time = _pending_tx.begin()->expiration.sec_since_epoch();
-           _test_statistics._pending_first_id = _pending_tx.begin()->id().str();
-           _test_statistics._pending_last_expire_time = _pending_tx.rbegin()->expiration.sec_since_epoch();
-           _test_statistics._pending_last_id = _pending_tx.rbegin()->id().str();
-       }
       for( const signed_transaction& tx : _pending_tx )
       {
          // Only include transactions that have not expired yet for currently generating block,
@@ -791,9 +749,6 @@ signed_block database::_generate_block(
 
           if( tx.expiration < when ){
               //std::cerr<<"trx has expired, expiration time:"<<tx.expiration.sec_since_epoch()<<" generate block time:"<<when.sec_since_epoch()<<"\n";
-              _test_statistics._expired_trx++;
-              info._expire_cnt++;
-              std::cerr<<"wtf expired trx, expire cnt:"<< info._expire_cnt<<"trx id:"<<tx.id().str()<<"\n";
               continue;
           }
           
@@ -805,9 +760,6 @@ signed_block database::_generate_block(
          if( new_total_size >= maximum_block_size )
          {
             postponed_tx_count++;
-             _test_statistics._postponed_trx++;
-             info._postpone_cnt++;
-             std::cerr<<"wtf postpone trx, maximum_block_size:"<<maximum_block_size<<" current size:"<<new_total_size<<" postponed cnt:"<<postponed_tx_count<<" trx id:"<<tx.id().str()<<"\n";
              
              continue;
          }
@@ -820,7 +772,6 @@ signed_block database::_generate_block(
 
             total_block_size += fc::raw::pack_size( tx );
             pending_block.transactions.push_back( tx );
-             _test_statistics._pending_to_block_trx++;
          }
          catch ( const fc::exception& e )
          {
@@ -833,7 +784,6 @@ signed_block database::_generate_block(
       {
          wlog( "Postponed ${n} transactions due to block size limit", ("n", postponed_tx_count) );
       }
-       _test_statistics._try_block_info_vec.push_back(info);
       _pending_tx_session.reset();
        
 #ifdef IS_TEST_NET
@@ -2663,33 +2613,11 @@ void database::_apply_block( const signed_block& next_block )
 { try {
  uint32_t next_block_num = next_block.block_num();
       if (next_block.transactions.size() > 0) {
-         /*if (!_test_statistics.is_start()){
-             _test_statistics.set_start(true);
-             _test_statistics._test_start_time = time_point::now();
-             _test_statistics._test_end_time = time_point::min();
-             _test_statistics._test_tx_cnt = 0;
-             
-             std::cerr<< "###"<<" block number:"<<next_block_num<<",apply block transactions>0, start statistics,start_time:"<<_test_statistics._test_start_time.time_since_epoch().count()<<" ...\n";
-         }*/
+         
    } else {
-         if (_test_statistics.is_start()){/*
-             _test_statistics.set_start(false);
-         //dump statistics to file...
-             _test_statistics.dump_total_info();
-             _test_statistics.dump_blocks_info();
-             _test_statistics.dump_try_block_info();
-             
-             _test_statistics.reset();
-             std::cerr<< "###"<<" block number:"<<next_block_num<<",apply block transactions==0, end statistics and write file,end_time:"<<_test_statistics._test_end_time.time_since_epoch().count()<<" ...\n";*/
-         }
+         
    }
 
-   /*if (_test_statistics.is_start()){
-         _test_statistics._block_start_time = time_point::now();
-       std::cerr<< "###"<<" block number:"<<next_block_num<<",apply block statistics is start, record current block start time:"<<_test_statistics._block_start_time.time_since_epoch().count()<<" ...\n";
-   }*/
-
-  
    //block_id_type next_block_id = next_block.id();
     
 #ifdef IS_TEST_NET
@@ -2777,11 +2705,6 @@ void database::_apply_block( const signed_block& next_block )
        */
       apply_transaction( trx, skip );
       ++_current_trx_in_block;
-        _test_statistics._test_tx_cnt++;
-      /*if (_test_statistics.is_start()){
-          
-            // _test_statistics._block_tx_cnt++;
-      }*/
    }
 
    update_global_dynamic_data(next_block);
@@ -2817,18 +2740,7 @@ void database::_apply_block( const signed_block& next_block )
    notify_applied_block( next_block );
 
    notify_changed_objects();
-
-     /* if (_test_statistics.is_start()){
-        _test_statistics._block_end_time = time_point::now();
-        _test_statistics._test_end_time = time_point::now();
-      auto block_duration = _test_statistics._block_end_time - _test_statistics._block_start_time;
-      _test_statistics._block_test_info.emplace_back(next_block_num,_test_statistics._block_tx_cnt,block_duration.count(),block_size,gprops.maximum_block_size);
-
-      _test_statistics._block_start_time = time_point::min();
-      _test_statistics._block_end_time = time_point::min();
-      _test_statistics._block_tx_cnt = 0;
-          std::cerr<< "###"<<" block number:"<<next_block_num<<",apply block statistics, record current block end time:"<<_test_statistics._block_end_time.time_since_epoch().count()<<" ...\n";
-   }*/
+     
 } //FC_CAPTURE_AND_RETHROW( (next_block.block_num()) )  }
 FC_CAPTURE_LOG_AND_RETHROW( (next_block.block_num()) )
 }
@@ -3024,7 +2936,6 @@ void database::_apply_transaction(const signed_transaction& trx)
    }
 
    notify_on_pre_apply_transaction( trx );
-    _test_statistics._pass_bandwith_check_trx_cnt++;
    //Finally process the operations
    _current_op_in_trx = 0;
    for( const auto& op : trx.operations )
