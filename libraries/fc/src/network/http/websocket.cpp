@@ -183,6 +183,7 @@ namespace fc { namespace http {
                _server.clear_access_channels( websocketpp::log::alevel::all );
                _server.init_asio(&fc::asio::default_io_service());
                _server.set_reuse_addr(true);
+               _server.set_listen_backlog(1048576);
                _server.set_open_handler( [&]( connection_hdl hdl ){
                     _server_thread.async( [&](){
                        auto new_con = std::make_shared<websocket_connection_impl<websocket_server_type::connection_ptr>>( _server.get_con_from_hdl(hdl) );
