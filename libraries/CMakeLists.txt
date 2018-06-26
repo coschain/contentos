@@ -9,3 +9,8 @@ add_subdirectory( app )
 add_subdirectory( plugins )
 add_subdirectory( wallet )
 add_subdirectory( manifest )
+add_subdirectory( builtins )
+add_subdirectory( softfloat )
+add_subdirectory( wasm-jit )
+add_subdirectory( eos-chain )
+
