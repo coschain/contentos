@@ -23,6 +23,8 @@
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/split.hpp>
 
+#include <wasm-interpreter.h>
+
 #include <iostream>
 #include <fstream>
 
@@ -45,6 +47,9 @@ int main(int argc, char** argv) {
    app::application* node = new app::application();
    fc::oexception unhandled_exception;
    try {
+      wasm::Module module;
+      wasm::ModuleInstance instance(module, NULL);
+      instance.callExport(wasm::Name("apply"));
 
 #ifdef IS_TEST_NET
       std::cerr << "------------------------------------------------------\n\n";
