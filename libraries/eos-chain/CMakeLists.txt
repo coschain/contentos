@@ -13,15 +13,15 @@ add_library( eosio_chain
              name.cpp
              transaction.cpp
              block_header.cpp
-             #block_header_state.cpp
+             block_header_state.cpp
              block_state.cpp
              fork_database.cpp
-             #controller.cpp
+             controller.cpp
              authorization_manager.cpp
-             #resource_limits.cpp
-             #block_log.cpp
+             resource_limits.cpp
+             block_log.cpp
              transaction_context.cpp
-             #eosio_contract.cpp
+             eosio_contract.cpp
              eosio_contract_abi.cpp
              chain_config.cpp
              chain_id_type.cpp
@@ -33,7 +33,7 @@ add_library( eosio_chain
               wasm_eosio_validation.cpp
               wasm_eosio_injection.cpp
               apply_context.cpp
-              #abi_serializer.cpp
+              abi_serializer.cpp
               asset.cpp
 
              webassembly/wavm.cpp

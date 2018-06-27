@@ -665,6 +665,8 @@ namespace chainbase {
             read_only     = 0,
             read_write    = 1
          };
+         database(const bfs::path& dir, open_flags write = read_only, uint64_t shared_file_size = 0, bool allow_dirty = false);
+         database(){}
 
          void open( const bfs::path& dir, uint32_t write = read_only, uint64_t shared_file_size = 0 );
          void close();

@@ -23,6 +23,7 @@
 #include <fc/crypto/ripemd160.hpp>
 #include <fc/fixed_string.hpp>
 #include <fc/crypto/elliptic.hpp>
+#include <fc/reflect/variant.hpp>
 
 #include <memory>
 #include <vector>

@@ -655,7 +655,7 @@ struct controller_impl {
                authorization.check_authorization(
                        trx->trx.actions,
                        trx->recover_keys( chain_id ),
-                       {},
+                       flat_set<permission_level>(),
                        trx_context.delay,
                        [](){}
                        /*std::bind(&transaction_context::add_cpu_usage_and_check_time, &trx_context,

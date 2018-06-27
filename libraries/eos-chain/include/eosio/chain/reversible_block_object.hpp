@@ -22,7 +22,7 @@ namespace eosio { namespace chain {
 
       void set_block( const signed_block_ptr& b ) {
          packedblock.resize( fc::raw::pack_size( *b ) );
-         fc::datastream<char*> ds( packedblock.data(), packedblock.size() );
+         fc::datastream<char*> ds( (char*)packedblock.data(), packedblock.size() );
          fc::raw::pack( ds, *b );
       }
 

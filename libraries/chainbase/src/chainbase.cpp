@@ -29,7 +29,10 @@ namespace chainbase {
       bool                    apple = false;
       bool                    windows = false;
    };
-
+   database::database(const bfs::path& dir, open_flags flags, uint64_t shared_file_size, bool allow_dirty ) {
+         this->open(dir, flags, shared_file_size);
+   }
+   
    void database::open( const bfs::path& dir, uint32_t flags, uint64_t shared_file_size ) {
 
       bool write = flags & database::read_write;
