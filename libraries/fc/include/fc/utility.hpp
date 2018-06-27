@@ -60,7 +60,6 @@ namespace fc {
   //    return i; 
   // }
 
-
   template<typename T>
   void move_append(std::vector<T> &dest, std::vector<T>&& src ) {
     if (src.empty()) {
