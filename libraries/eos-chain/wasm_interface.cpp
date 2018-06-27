@@ -15,6 +15,8 @@
 #include <fc/exception/exception.hpp>
 #include <fc/crypto/sha256.hpp>
 #include <fc/crypto/sha1.hpp>
+#include <fc/crypto/hex.hpp>
+
 #include <fc/io/raw.hpp>
 
 #include <softfloat.hpp>
@@ -703,27 +705,27 @@ class crypto_api : public context_aware_api {
       void assert_recover_key( const fc::sha256& digest,
                         array_ptr<char> sig, size_t siglen,
                         array_ptr<char> pub, size_t publen ) {
-         fc::crypto::signature s;
-         fc::crypto::public_key p;
+         fc::ecc::compact_signature s;
+         fc::ecc::public_key p;
          datastream<const char*> ds( sig, siglen );
          datastream<const char*> pubds( pub, publen );
 
          fc::raw::unpack(ds, s);
          fc::raw::unpack(pubds, p);
 
-         auto check = fc::crypto::public_key( s, digest, false );
+         auto check = fc::ecc::public_key( s, digest, false );
          FC_ASSERT( check == p, "Error expected key different than recovered key" );
       }
 
       int recover_key( const fc::sha256& digest,
                         array_ptr<char> sig, size_t siglen,
                         array_ptr<char> pub, size_t publen ) {
-         fc::crypto::signature s;
+         fc::ecc::compact_signature s;
          datastream<const char*> ds( sig, siglen );
          datastream<char*> pubds( pub, publen );
 
          fc::raw::unpack(ds, s);
-         fc::raw::pack( pubds, fc::crypto::public_key( s, digest, false ) );
+         fc::raw::pack( pubds, fc::ecc::public_key( s, digest, false ) );
          return pubds.tellp();
       }
 

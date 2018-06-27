@@ -70,6 +70,10 @@ namespace fc {
            {
             return a.serialize() != b.serialize();
            }
+           inline friend bool operator<( const public_key& a, const public_key& b )
+           {
+            return a.serialize() < b.serialize();
+           }
 
            /// Allows to convert current public key object into base58 number.
            std::string to_base58() const;
