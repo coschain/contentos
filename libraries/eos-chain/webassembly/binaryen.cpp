@@ -1,5 +1,5 @@
 #include <eosio/chain/webassembly/binaryen.hpp>
-#include <eosio/chain/apply_context.hpp>
+//#include <eosio/chain/apply_context.hpp>
 
 #include <wasm-binary.h>
 

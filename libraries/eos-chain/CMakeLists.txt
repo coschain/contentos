@@ -28,12 +28,12 @@ add_library( eosio_chain
              #genesis_state.cpp
              #${CMAKE_CURRENT_BINARY_DIR}/genesis_state_root_key.cpp
 
-              #wast_to_wasm.cpp
+              wast_to_wasm.cpp
               #wasm_interface.cpp
               #wasm_eosio_validation.cpp
               #wasm_eosio_injection.cpp
-              #apply_context.cpp
-              #abi_serializer.cpp
+              apply_context.cpp
+              abi_serializer.cpp
               #asset.cpp
 
              webassembly/wavm.cpp

@@ -188,6 +188,13 @@ void apply_context::execute_inline( action&& a ) {
 
    for( const auto& auth : a.authorization ) {
       auto* actor = control.db().find<account_object, by_name>(auth.actor);
+      fc::variant v;
+      fc::variant v1;
+      fc::variant v2;
+
+      fc::to_variant(auth.actor, v1);
+      fc::to_variant(auth.permission, v2);
+      fc::to_variant(auth, v);
       EOS_ASSERT( actor != nullptr, action_validate_exception,
                   "inline action's authorizing actor ${account} does not exist", ("account", auth.actor) );
       EOS_ASSERT( control.get_authorization_manager().find_permission(auth) != nullptr, action_validate_exception,
@@ -199,7 +206,7 @@ void apply_context::execute_inline( action&& a ) {
    if( !control.skip_auth_check() && !privileged && a.account != receiver ) {
       control.get_authorization_manager()
              .check_authorization( {a},
-                                   {},
+                                   flat_set<public_key_type>(),
                                    {{receiver, config::eosio_code_name}},
                                    control.pending_block_time() - trx_context.published,
                                    std::bind(&transaction_context::checktime, &this->trx_context),
@@ -257,7 +264,7 @@ void apply_context::schedule_deferred_transaction( const uint128_t& sender_id, a
       if( check_auth ) {
          control.get_authorization_manager()
                 .check_authorization( trx.actions,
-                                      {},
+                                      flat_set<public_key_type>(),
                                       {{receiver, config::eosio_code_name}},
                                       delay,
                                       std::bind(&transaction_context::checktime, &this->trx_context),
@@ -427,7 +434,7 @@ int apply_context::db_store_i64( uint64_t code, uint64_t scope, uint64_t table, 
       o.primary_key = id;
       o.value.resize( buffer_size );
       o.payer       = payer;
-      memcpy( o.value.data(), buffer, buffer_size );
+      memcpy( (void*)o.value.data(), buffer, buffer_size );
    });
 
    db.modify( tab, [&]( auto& t ) {
@@ -467,7 +474,7 @@ void apply_context::db_update_i64( int iterator, account_name payer, const char*
 
    db.modify( obj, [&]( auto& o ) {
      o.value.resize( buffer_size );
-     memcpy( o.value.data(), buffer, buffer_size );
+     memcpy( (void*)o.value.data(), buffer, buffer_size );
      o.payer = payer;
    });
 }

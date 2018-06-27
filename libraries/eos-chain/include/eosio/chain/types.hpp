@@ -21,7 +21,7 @@
 #include <fc/smart_ref_fwd.hpp>
 #include <fc/crypto/ripemd160.hpp>
 #include <fc/fixed_string.hpp>
-#include <fc/crypto/private_key.hpp>
+#include <fc/crypto/elliptic.hpp>
 
 #include <memory>
 #include <vector>
@@ -83,9 +83,9 @@ namespace eosio { namespace chain {
    using                               fc::ecc::range_proof_info;
    using                               fc::ecc::commitment_type;
 
-   using public_key_type  = fc::crypto::public_key;
-   using private_key_type = fc::crypto::private_key;
-   using signature_type   = fc::crypto::signature;
+   using public_key_type  = fc::ecc::public_key;
+   using private_key_type = fc::ecc::private_key;
+   using signature_type   = fc::ecc::signature;
 
    struct void_t{};
 
