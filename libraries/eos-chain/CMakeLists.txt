@@ -11,7 +11,7 @@ set( CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++14 -stdlib=libc++ -Wall -Wno-conv
 add_library( eosio_chain
              merkle.cpp
              name.cpp
-             #transaction.cpp
+             transaction.cpp
              block_header.cpp
              #block_header_state.cpp
              block_state.cpp

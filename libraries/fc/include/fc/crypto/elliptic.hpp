@@ -294,6 +294,32 @@ namespace fc {
   } // namespace raw
 
 } // namespace fc
+
+namespace std
+{
+    template<>
+    struct hash<fc::ecc::compact_signature>
+    {
+        size_t operator()( const fc::ecc::compact_signature& s )const
+        {
+            return  *((size_t*)&s);
+        }
+    };
+}
+
+namespace boost
+{
+    template<>
+    struct hash<fc::ecc::compact_signature>
+    {
+        size_t operator()( const fc::ecc::compact_signature& s )const
+        {
+            return  *((size_t*)&s);
+        }
+    };
+}
+
+
 #include <fc/reflect/reflect.hpp>
 
 FC_REFLECT_TYPENAME( fc::ecc::private_key )
