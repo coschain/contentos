@@ -464,7 +464,7 @@ namespace eosio { namespace chain {
       auto checker = make_auth_checker( [&](const permission_level& p){ return get_permission(p).auth; },
                                         _control.get_global_properties().configuration.max_authority_depth,
                                         candidate_keys,
-                                        {},
+                                        flat_set<permission_level>(),
                                         provided_delay,
                                         _noop_checktime
                                       );

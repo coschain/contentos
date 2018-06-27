@@ -85,7 +85,7 @@ namespace eosio { namespace chain {
 
    using public_key_type  = fc::ecc::public_key;
    using private_key_type = fc::ecc::private_key;
-   using signature_type   = fc::ecc::signature;
+   using signature_type   = fc::ecc::compact_signature;
 
    struct void_t{};
 

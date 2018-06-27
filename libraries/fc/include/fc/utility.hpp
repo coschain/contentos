@@ -53,12 +53,12 @@ namespace fc {
   template<typename T>
   const T& min( const T& a, const T& b ) { return a < b ? a: b; }
 
-  size_t const_strlen(const char* str) {
-     int i = 0;
-     while(*(str+i) != '\0')
-        i++;
-     return i; 
-  }
+  // size_t const_strlen(const char* str) {
+  //    int i = 0;
+  //    while(*(str+i) != '\0')
+  //       i++;
+  //    return i; 
+  // }
 
 
   template<typename T>

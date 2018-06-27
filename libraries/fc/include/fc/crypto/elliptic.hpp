@@ -126,7 +126,7 @@ namespace fc {
             */
            fc::sha512 get_shared_secret( const public_key& pub )const;
 
-//           signature         sign( const fc::sha256& digest )const;
+           compact_signature sign( const fc::sha256& digest )const { return sign_compact(digest); }
            compact_signature sign_compact( const fc::sha256& digest, bool require_canonical = true )const;
 //           bool              verify( const fc::sha256& digest, const signature& sig );
 

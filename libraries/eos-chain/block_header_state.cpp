@@ -229,12 +229,12 @@ namespace eosio { namespace chain {
      auto d = sig_digest();
      header.producer_signature = signer( d );
      if( !trust ) {
-        FC_ASSERT( block_signing_key == fc::crypto::public_key( header.producer_signature, d ) );
+        FC_ASSERT( block_signing_key == fc::ecc::public_key( header.producer_signature, d ) );
      }
   }
 
   public_key_type block_header_state::signee()const {
-    return fc::crypto::public_key( header.producer_signature, sig_digest(), true );
+    return fc::ecc::public_key( header.producer_signature, sig_digest(), true );
   }
 
   void block_header_state::add_confirmation( const header_confirmation& conf ) {
@@ -243,7 +243,7 @@ namespace eosio { namespace chain {
 
      auto key = active_schedule.get_producer_key( conf.producer );
      FC_ASSERT( key != public_key_type(), "producer not in current schedule" );
-     auto signer = fc::crypto::public_key( conf.producer_signature, sig_digest(), true );
+     auto signer = fc::ecc::public_key( conf.producer_signature, sig_digest(), true );
      FC_ASSERT( signer == key, "confirmation not signed by expected key" );
 
      confirmations.emplace_back( conf );

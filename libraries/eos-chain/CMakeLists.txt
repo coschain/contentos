@@ -9,32 +9,32 @@ set( CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++14 -stdlib=libc++ -Wall -Wno-conv
 
 ## SORT .cpp by most likely to change / break compile
 add_library( eosio_chain
-             #merkle.cpp
-             #name.cpp
+             merkle.cpp
+             name.cpp
              #transaction.cpp
-             #block_header.cpp
+             block_header.cpp
              #block_header_state.cpp
-             #block_state.cpp
-             #fork_database.cpp
+             block_state.cpp
+             fork_database.cpp
              #controller.cpp
-             #authorization_manager.cpp
+             authorization_manager.cpp
              #resource_limits.cpp
              #block_log.cpp
-             #transaction_context.cpp
+             transaction_context.cpp
              #eosio_contract.cpp
-             #eosio_contract_abi.cpp
-             #chain_config.cpp
-             #chain_id_type.cpp
-             #genesis_state.cpp
-             #${CMAKE_CURRENT_BINARY_DIR}/genesis_state_root_key.cpp
+             eosio_contract_abi.cpp
+             chain_config.cpp
+             chain_id_type.cpp
+             genesis_state.cpp
+             ${CMAKE_CURRENT_BINARY_DIR}/genesis_state_root_key.cpp
 
               wast_to_wasm.cpp
-              #wasm_interface.cpp
-              #wasm_eosio_validation.cpp
-              #wasm_eosio_injection.cpp
+              wasm_interface.cpp
+              wasm_eosio_validation.cpp
+              wasm_eosio_injection.cpp
               apply_context.cpp
-              abi_serializer.cpp
-              #asset.cpp
+              #abi_serializer.cpp
+              asset.cpp
 
              webassembly/wavm.cpp
              webassembly/binaryen.cpp
@@ -42,12 +42,14 @@ add_library( eosio_chain
              ${HEADERS}
              )
 
-target_link_libraries( eosio_chain eos_utilities fc chainbase Logging IR WAST WASM Runtime
+target_link_libraries( eosio_chain utilities fc chainbase Logging IR WAST WASM Runtime
       wasm asmjs passes cfg ast emscripten-optimizer support softfloat builtins
                      )
 target_include_directories( eosio_chain
-                            PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_BINARY_DIR}/include"
+                            PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" 
+                                   "${CMAKE_CURRENT_BINARY_DIR}/include"
                                    "${CMAKE_CURRENT_SOURCE_DIR}/../wasm-jit/Include"
+                                   "${CMAKE_CURRENT_SOURCE_DIR}/../utilities/Include"
                                    "${CMAKE_CURRENT_SOURCE_DIR}/../../externals/binaryen/src"
                             )
 
