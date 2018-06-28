@@ -277,7 +277,7 @@ endif(WIN32)
 # end readline stuff
 
 if( NOT CPP_STANDARD )
-  set( CPP_STANDARD, "-std=c++11" )
+  set( CPP_STANDARD, "-std=c++14" )
 endif()
 
 IF(WIN32)
