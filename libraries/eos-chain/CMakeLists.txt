@@ -5,7 +5,7 @@ file(GLOB HEADERS "include/eosio/chain/*.hpp"
                   "include/eosio/chain/contracts/*.hpp"
                   "${CMAKE_CURRENT_BINARY_DIR}/include/eosio/chain/core_symbol.hpp" )
 
-set( CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++14 -stdlib=libc++ -Wall -Wno-conversion" )
+#set( CMAKE_CXX_FLAGS "${CMAKE_C_FLAGS} -std=c++14 -stdlib=libc++ -Wall -Wno-conversion" )
 
 ## SORT .cpp by most likely to change / break compile
 add_library( eosio_chain
