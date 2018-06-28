@@ -1,3 +1,7 @@
+set( CMAKE_CXX_STANDARD 14 )
+set( CMAKE_CXX_EXTENSIONS ON )
+set( CXX_STANDARD_REQUIRED ON)
+
 add_executable( steemd main.cpp )
 if( UNIX AND NOT APPLE )
   set(rt_library rt )
@@ -21,6 +25,8 @@ if( STEEM_STATIC_BUILD )
       contento_protocol
       fc
       # wasm asmjs passes cfg ast support
+      eosio_chain
+      eosio_testing
       ${CMAKE_DL_LIBS}
       ${PLATFORM_SPECIFIC_LIBS}
    )
@@ -35,6 +41,8 @@ else( STEEM_STATIC_BUILD )
       contento_protocol
       fc
       # wasm asmjs passes cfg ast support
+      eosio_chain
+      eosio_testing
       ${CMAKE_DL_LIBS}
       ${PLATFORM_SPECIFIC_LIBS}
    )

@@ -97,11 +97,6 @@ namespace eosio { namespace chain {
    };
 
 } } /// namespace eosio::chain
-namespace fc {
-  class variant;
-  void to_variant(const eosio::chain::permission_level& auth, fc::variant& v);
-  void from_variant(const fc::variant& v, eosio::chain::permission_level& auth);
-} // fc
 
 FC_REFLECT( eosio::chain::permission_level, (actor)(permission) )
 FC_REFLECT( eosio::chain::action, (account)(name)(authorization)(data) )

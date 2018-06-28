@@ -188,13 +188,7 @@ void apply_context::execute_inline( action&& a ) {
 
    for( const auto& auth : a.authorization ) {
       auto* actor = control.db().find<account_object, by_name>(auth.actor);
-      fc::variant v;
-      fc::variant v1;
-      fc::variant v2;
 
-      fc::to_variant(auth.actor, v1);
-      fc::to_variant(auth.permission, v2);
-      fc::to_variant(auth, v);
       EOS_ASSERT( actor != nullptr, action_validate_exception,
                   "inline action's authorizing actor ${account} does not exist", ("account", auth.actor) );
       EOS_ASSERT( control.get_authorization_manager().find_permission(auth) != nullptr, action_validate_exception,
