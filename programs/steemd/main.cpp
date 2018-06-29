@@ -55,7 +55,7 @@ void test_eosio() {
     
     // create the account
     test.create_account(acc);
-    test.produce_blocks(10);
+    //test.produce_blocks(10);
     
     // query the account object from database
     auto acc_obj = test.control->get_account(acc);

@@ -78,142 +78,9 @@ namespace eosio { namespace testing {
       control.reset( new controller(cfg) );
       control->startup();
       chain_transactions.clear();
-      control->accepted_block.connect([this]( const block_state_ptr& block_state ){
-        FC_ASSERT( block_state->block );
-          for( const auto& receipt : block_state->block->transactions ) {
-              if( receipt.trx.contains<packed_transaction>() ) {
-                  auto &pt = receipt.trx.get<packed_transaction>();
-                  chain_transactions[pt.get_transaction().id()] = receipt;
-              } else {
-                  auto& id = receipt.trx.get<transaction_id_type>();
-                  chain_transactions[id] = receipt;
-              }
-          }
-      });
-   }
-
-   signed_block_ptr base_tester::push_block(signed_block_ptr b) {
-      control->abort_block();
-      control->push_block(b);
-
-      auto itr = last_produced_block.find(b->producer);
-      if (itr == last_produced_block.end() || block_header::num_from_id(b->id()) > block_header::num_from_id(itr->second)) {
-         last_produced_block[b->producer] = b->id();
-      }
-
-      return b;
-   }
-
-   signed_block_ptr base_tester::_produce_block( fc::microseconds skip_time, bool skip_pending_trxs, uint32_t skip_flag) {
-      auto head = control->head_block_state();
-      auto head_time = control->head_block_time();
-      auto next_time = head_time + skip_time;
-
-      if( !control->pending_block_state() || control->pending_block_state()->header.timestamp != next_time ) {
-         _start_block( next_time );
-      }
-
-      auto producer = control->head_block_state()->get_scheduled_producer(next_time);
-      private_key_type priv_key;
-      // Check if signing private key exist in the list
-      auto private_key_itr = block_signing_private_keys.find( producer.block_signing_key );
-      if( private_key_itr == block_signing_private_keys.end() ) {
-         // If it's not found, default to active k1 key
-         priv_key = get_private_key( producer.producer_name, "active" );
-      } else {
-         priv_key = private_key_itr->second;
-      }
-
-      if( !skip_pending_trxs ) {
-         auto unapplied_trxs = control->get_unapplied_transactions();
-         for (const auto& trx : unapplied_trxs ) {
-            auto trace = control->push_transaction(trx, fc::time_point::maximum());
-            if(trace->except) {
-               trace->except->dynamic_rethrow_exception();
-            }
-         }
-
-         vector<transaction_id_type> scheduled_trxs;
-         while( (scheduled_trxs = control->get_scheduled_transactions() ).size() > 0 ) {
-            for (const auto& trx : scheduled_trxs ) {
-               auto trace = control->push_scheduled_transaction(trx, fc::time_point::maximum());
-               if(trace->except) {
-                  trace->except->dynamic_rethrow_exception();
-               }
-            }
-         }
-      }
-
-
-
-      control->finalize_block();
-      control->sign_block( [&]( digest_type d ) {
-                    return priv_key.sign(d);
-                    });
-
-      control->commit_block();
-      last_produced_block[control->head_block_state()->header.producer] = control->head_block_state()->id;
-
-      _start_block( next_time + fc::microseconds(config::block_interval_us));
-      return control->head_block_state()->block;
-   }
-
-   void base_tester::_start_block(fc::time_point block_time) {
-      auto head_block_number = control->head_block_num();
-      auto producer = control->head_block_state()->get_scheduled_producer(block_time);
-
-      auto last_produced_block_num = control->last_irreversible_block_num();
-      auto itr = last_produced_block.find(producer.producer_name);
-      if (itr != last_produced_block.end()) {
-         last_produced_block_num = std::max(control->last_irreversible_block_num(), block_header::num_from_id(itr->second));
-      }
-
-      control->abort_block();
-      control->start_block( block_time, head_block_number - last_produced_block_num );
    }
 
 
-   void base_tester::produce_blocks( uint32_t n, bool empty ) {
-      if( empty ) {
-         for( uint32_t i = 0; i < n; ++i )
-            produce_empty_block();
-      } else {
-         for( uint32_t i = 0; i < n; ++i )
-            produce_block();
-      }
-   }
-
-
-   void base_tester::produce_blocks_until_end_of_round() {
-      uint64_t blocks_per_round;
-      while(true) {
-         blocks_per_round = control->active_producers().producers.size() * config::producer_repetitions;
-         produce_block();
-         if (control->head_block_num() % blocks_per_round == (blocks_per_round - 1)) break;
-      }
-   }
-
-   void base_tester::produce_blocks_for_n_rounds(const uint32_t num_of_rounds) {
-      for(uint32_t i = 0; i < num_of_rounds; i++) {
-         produce_blocks_until_end_of_round();
-      }
-   }
-
-   void base_tester::produce_min_num_of_blocks_to_spend_time_wo_inactive_prod(const fc::microseconds target_elapsed_time) {
-      fc::microseconds elapsed_time;
-      while (elapsed_time < target_elapsed_time) {
-         for(uint32_t i = 0; i < control->head_block_state()->active_schedule.producers.size(); i++) {
-            const auto time_to_skip = fc::milliseconds(config::producer_repetitions * config::block_interval_ms);
-            produce_block(time_to_skip);
-            elapsed_time += time_to_skip;
-         }
-         // if it is more than 24 hours, producer will be marked as inactive
-         const auto time_to_skip = fc::seconds(23 * 60 * 60);
-         produce_block(time_to_skip);
-         elapsed_time += time_to_skip;
-      }
-
-   }
 
 
   void base_tester::set_transaction_headers( signed_transaction& trx, uint32_t expiration, uint32_t delay_sec ) const {
@@ -277,9 +144,7 @@ namespace eosio { namespace testing {
                                                         uint32_t billed_cpu_time_us
                                                       )
    { try {
-      if( !control->pending_block_state() )
-         _start_block(control->head_block_time() + fc::microseconds(config::block_interval_us));
-      auto r = control->push_transaction( std::make_shared<transaction_metadata>(trx), deadline, billed_cpu_time_us );
+     auto r = control->push_transaction( std::make_shared<transaction_metadata>(trx), deadline, billed_cpu_time_us );
       if( r->except_ptr ) std::rethrow_exception( r->except_ptr );
       if( r->except ) throw *r->except;
       return r;
@@ -290,8 +155,6 @@ namespace eosio { namespace testing {
                                                         uint32_t billed_cpu_time_us
                                                       )
    { try {
-      if( !control->pending_block_state() )
-         _start_block(control->head_block_time() + fc::microseconds(config::block_interval_us));
       auto c = packed_transaction::none;
 
       if( fc::raw::pack_size(trx) > 1000 ) {
@@ -321,7 +184,6 @@ namespace eosio { namespace testing {
          //return error(ex.top_message()); // top_message() is assumed by many tests; otherwise they fail
          return error(ex.to_detail_string());
       }
-      produce_block();
       BOOST_REQUIRE_EQUAL(true, chain_has_transaction(trx.id()));
       return success();
    }
@@ -733,28 +595,6 @@ namespace eosio { namespace testing {
       return s;
    }
 
-
-   void base_tester::sync_with(base_tester& other) {
-      // Already in sync?
-      if (control->head_block_id() == other.control->head_block_id())
-         return;
-      // If other has a longer chain than we do, sync it to us first
-      if (control->head_block_num() < other.control->head_block_num())
-         return other.sync_with(*this);
-
-      auto sync_dbs = [](base_tester& a, base_tester& b) {
-         for( int i = 1; i <= a.control->head_block_num(); ++i ) {
-            auto block = a.control->fetch_block_by_number(i);
-            if( block ) { //&& !b.control->is_known_block(block->id()) ) {
-               b.control->abort_block();
-               b.control->push_block(block); //, eosio::chain::validation_steps::created_block);
-            }
-         }
-      };
-
-      sync_dbs(*this, other);
-      sync_dbs(other, *this);
-   }
 
    void base_tester::push_genesis_block() {
       set_code(config::system_account_name, eosio_bios_wast);

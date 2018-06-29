@@ -95,6 +95,7 @@ namespace eosio { namespace chain {
 
          uint32_t             head_block_num()const;
          block_id_type        head_block_id()const;
+         time_point           head_block_time()const ;
 
          time_point      pending_block_time()const;
 

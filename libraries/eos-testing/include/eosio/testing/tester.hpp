@@ -85,14 +85,11 @@ namespace eosio { namespace testing {
          void              open();
          bool              is_same_chain( base_tester& other );
 
-         virtual signed_block_ptr produce_block( fc::microseconds skip_time = fc::milliseconds(config::block_interval_ms), uint32_t skip_flag = 0/*skip_missed_block_penalty*/ ) = 0;
-         virtual signed_block_ptr produce_empty_block( fc::microseconds skip_time = fc::milliseconds(config::block_interval_ms), uint32_t skip_flag = 0/*skip_missed_block_penalty*/ ) = 0;
          void                 produce_blocks( uint32_t n = 1, bool empty = false );
          void                 produce_blocks_until_end_of_round();
          void                 produce_blocks_for_n_rounds(const uint32_t num_of_rounds = 1);
          // Produce minimal number of blocks as possible to spend the given time without having any producer become inactive
          void                 produce_min_num_of_blocks_to_spend_time_wo_inactive_prod(const fc::microseconds target_elapsed_time = fc::microseconds());
-         signed_block_ptr     push_block(signed_block_ptr b);
 
          transaction_trace_ptr    push_transaction( packed_transaction& trx, fc::time_point deadline = fc::time_point::maximum(), uint32_t billed_cpu_time_us = DEFAULT_BILLED_CPU_TIME_US );
          transaction_trace_ptr    push_transaction( signed_transaction& trx, fc::time_point deadline = fc::time_point::maximum(), uint32_t billed_cpu_time_us = DEFAULT_BILLED_CPU_TIME_US );
@@ -288,28 +285,17 @@ namespace eosio { namespace testing {
          init(config);
       }
 
-      signed_block_ptr produce_block( fc::microseconds skip_time = fc::milliseconds(config::block_interval_ms), uint32_t skip_flag = 0/*skip_missed_block_penalty*/ )override {
-         return _produce_block(skip_time, false, skip_flag);
-      }
-
-      signed_block_ptr produce_empty_block( fc::microseconds skip_time = fc::milliseconds(config::block_interval_ms), uint32_t skip_flag = 0/*skip_missed_block_penalty*/ )override {
-         control->abort_block();
-         return _produce_block(skip_time, true, skip_flag);
-      }
-
       bool validate() { return true; }
    };
 
    class validating_tester : public base_tester {
    public:
       virtual ~validating_tester() {
-         try {
-            if( num_blocks_to_producer_before_shutdown > 0 )
-               produce_blocks( num_blocks_to_producer_before_shutdown );
-            BOOST_REQUIRE_EQUAL( validate(), true );
-         } catch( const fc::exception& e ) {
-            wdump((e.to_detail_string()));
-         }
+      //    try {
+            
+      //    } catch( const fc::exception& e ) {
+      //       wdump((e.to_detail_string()));
+      //    }
       }
       controller::config vcfg;
 
@@ -351,41 +337,6 @@ namespace eosio { namespace testing {
          init(config);
       }
 
-      signed_block_ptr produce_block( fc::microseconds skip_time = fc::milliseconds(config::block_interval_ms), uint32_t skip_flag = 0 /*skip_missed_block_penalty*/ )override {
-         auto sb = _produce_block(skip_time, false, skip_flag | 2);
-         validating_node->push_block( sb );
-
-         return sb;
-      }
-
-      signed_block_ptr produce_empty_block( fc::microseconds skip_time = fc::milliseconds(config::block_interval_ms), uint32_t skip_flag = 0 /*skip_missed_block_penalty*/ )override {
-         control->abort_block();
-         auto sb = _produce_block(skip_time, true, skip_flag | 2);
-         validating_node->push_block( sb );
-
-
-
-         return sb;
-      }
-
-      bool validate() {
-
-
-        auto hbh = control->head_block_state()->header;
-        auto vn_hbh = validating_node->head_block_state()->header;
-        bool ok = control->head_block_id() == validating_node->head_block_id() &&
-               hbh.previous == vn_hbh.previous &&
-               hbh.timestamp == vn_hbh.timestamp &&
-               hbh.transaction_mroot == vn_hbh.transaction_mroot &&
-               hbh.action_mroot == vn_hbh.action_mroot &&
-               hbh.producer == vn_hbh.producer;
-
-        validating_node.reset();
-        validating_node = std::make_unique<controller>(vcfg);
-        validating_node->startup();
-
-        return ok;
-      }
 
       unique_ptr<controller>   validating_node;
       uint32_t                 num_blocks_to_producer_before_shutdown = 0;
