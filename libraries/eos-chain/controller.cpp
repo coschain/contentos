@@ -2,7 +2,7 @@
 #include <eosio/chain/transaction_context.hpp>
 
 #include <eosio/chain/block_log.hpp>
-#include <eosio/chain/fork_database.hpp>
+////#include <eosio/chain/fork_database.hpp>
 
 #include <eosio/chain/account_object.hpp>
 #include <eosio/chain/block_summary_object.hpp>
@@ -50,7 +50,6 @@ struct controller_impl {
    block_log                      blog;
    optional<pending_state>        pending;
    block_state_ptr                head;
-   fork_database                  fork_db;
    wasm_interface                 wasmif;
    resource_limits_manager        resource_limits;
    authorization_manager          authorization;
@@ -68,23 +67,6 @@ struct controller_impl {
     */
    map<digest_type, transaction_metadata_ptr>     unapplied_transactions;
 
-   void pop_block() {
-      auto prev = fork_db.get_block( head->header.previous );
-      FC_ASSERT( prev, "attempt to pop beyond last irreversible block" );
-
-      if( const auto* b = reversible_blocks.find<reversible_block_object,by_num>(head->block_num) )
-      {
-         reversible_blocks.remove( *b );
-      }
-
-      for( const auto& t : head->trxs )
-         unapplied_transactions[t->signed_id] = t;
-      head = prev;
-      db.undo();
-
-   }
-
-
    void set_apply_handler( account_name receiver, account_name contract, action_name action, apply_handler v ) {
       apply_handlers[receiver][make_pair(contract,action)] = v;
    }
@@ -98,7 +80,6 @@ struct controller_impl {
         cfg.read_only ? database::read_only : database::read_write,
         cfg.reversible_cache_size ),
     blog( cfg.blocks_dir ),
-    fork_db( cfg.state_dir ),
     wasmif( cfg.wasm_runtime ),
     resource_limits( db ),
     authorization( s, db ),
@@ -123,10 +104,6 @@ struct controller_impl {
 */
 
    SET_APP_HANDLER( eosio, eosio, canceldelay );
-
-   fork_db.irreversible.connect( [&]( auto b ) {
-                                 on_irreversible(b);
-                                 });
 
    }
 
@@ -153,34 +130,6 @@ struct controller_impl {
       }
    }
 
-   void on_irreversible( const block_state_ptr& s ) {
-      if( !blog.head() )
-         blog.read_head();
-
-      const auto& log_head = blog.head();
-      FC_ASSERT( log_head );
-      auto lh_block_num = log_head->block_num();
-
-      emit( self.irreversible_block, s );
-      db.commit( s->block_num );
-
-      if( s->block_num <= lh_block_num ) {
-//         edump((s->block_num)("double call to on_irr"));
-//         edump((s->block_num)(s->block->previous)(log_head->id()));
-         return;
-      }
-
-      FC_ASSERT( s->block_num - 1  == lh_block_num, "unlinkable block", ("s->block_num",s->block_num)("lh_block_num", lh_block_num) );
-      FC_ASSERT( s->block->previous == log_head->id(), "irreversible doesn't link to block log head" );
-      blog.append(s->block);
-
-      const auto& ubi = reversible_blocks.get_index<reversible_block_index,by_num>();
-      auto objitr = ubi.begin();
-      while( objitr != ubi.end() && objitr->blocknum <= s->block_num ) {
-         reversible_blocks.remove( *objitr );
-         objitr = ubi.begin();
-      }
-   }
 
    void init() {
 
@@ -200,7 +149,7 @@ struct controller_impl {
 
             auto start = fc::time_point::now();
             while( auto next = blog.read_block_by_num( head->block_num + 1 ) ) {
-               self.push_block( next, controller::block_status::irreversible );
+            ////   self.push_block( next, controller::block_status::irreversible );
                if( next->block_num() % 100 == 0 ) {
                   std::cerr << std::setw(10) << next->block_num() << " of " << end->block_num() <<"\r";
                }
@@ -209,7 +158,7 @@ struct controller_impl {
             int rev = 0;
             while( auto obj = reversible_blocks.find<reversible_block_object,by_num>(head->block_num+1) ) {
                ++rev;
-               self.push_block( obj->get_block(), controller::block_status::validated );
+            ////   self.push_block( obj->get_block(), controller::block_status::validated );
             }
 
             std::cerr<< "\n";
@@ -255,7 +204,6 @@ struct controller_impl {
 
    ~controller_impl() {
       pending.reset();
-      fork_db.close();
 
       db.flush();
       reversible_blocks.flush();
@@ -315,7 +263,6 @@ struct controller_impl {
 
       head = std::make_shared<block_state>( genheader );
       head->block = std::make_shared<signed_block>(genheader.header);
-      fork_db.set( head );
       db.set_revision( head->block_num );
 
       initialize_database();
@@ -392,33 +339,6 @@ struct controller_impl {
                                                                              conf.genesis.initial_timestamp );
    }
 
-
-
-   void commit_block( bool add_to_fork_db ) {
-      if( add_to_fork_db ) {
-         pending->_pending_block_state->validated = true;
-         auto new_bsp = fork_db.add( pending->_pending_block_state );
-         emit( self.accepted_block_header, pending->_pending_block_state );
-         head = fork_db.head();
-         FC_ASSERT( new_bsp == head, "committed block did not become the new head in fork database" );
-
-      }
-
-  //    ilog((fc::json::to_pretty_string(*pending->_pending_block_state->block)));
-      emit( self.accepted_block, pending->_pending_block_state );
-
-      if( !replaying ) {
-         reversible_blocks.create<reversible_block_object>( [&]( auto& ubo ) {
-            ubo.blocknum = pending->_pending_block_state->block_num;
-            ubo.set_block( pending->_pending_block_state->block );
-         });
-      }
-
-      pending->push();
-      pending.reset();
-
-   }
-
    // The returned scoped_exit should not exceed the lifetime of the pending which existed when make_block_restore_point was called.
    fc::scoped_exit<std::function<void()>> make_block_restore_point() {
       auto orig_block_transactions_size = pending->_pending_block_state->block->transactions.size();
@@ -477,16 +397,6 @@ struct controller_impl {
       return trace;
    }
 
-   void remove_scheduled_transaction( const generated_transaction_object& gto ) {
-      resource_limits.add_pending_ram_usage(
-         gto.payer,
-         -(config::billable_size_v<generated_transaction_object> + gto.packed_trx.size())
-      );
-      // No need to verify_account_ram_usage since we are only reducing memory
-
-      db.remove( gto );
-   }
-
    bool failure_is_subjective( const fc::exception& e ) {
       auto code = e.code();
       return    (code == subjective_block_production_exception::code_value)
@@ -501,104 +411,6 @@ struct controller_impl {
              || (code == action_blacklist_exception::code_value)
              || (code == key_blacklist_exception::code_value);
    }
-
-   transaction_trace_ptr push_scheduled_transaction( const transaction_id_type& trxid, fc::time_point deadline, uint32_t billed_cpu_time_us ) {
-      const auto& idx = db.get_index<generated_transaction_multi_index,by_trx_id>();
-      auto itr = idx.find( trxid );
-      FC_ASSERT( itr != idx.end(), "unknown transaction" );
-      return push_scheduled_transaction( *itr, deadline, billed_cpu_time_us );
-   }
-
-   transaction_trace_ptr push_scheduled_transaction( const generated_transaction_object& gto, fc::time_point deadline, uint32_t billed_cpu_time_us )
-   { try {
-      auto undo_session = db.start_undo_session(true);
-      fc::datastream<const char*> ds( gto.packed_trx.data(), gto.packed_trx.size() );
-
-      auto remove_retained_state = fc::make_scoped_exit([&, this](){
-         remove_scheduled_transaction(gto);
-      });
-
-      FC_ASSERT( gto.delay_until <= self.pending_block_time(), "this transaction isn't ready",
-                 ("gto.delay_until",gto.delay_until)("pbt",self.pending_block_time())          );
-      if( gto.expiration < self.pending_block_time() ) {
-         auto trace = std::make_shared<transaction_trace>();
-         trace->id = gto.trx_id;
-         trace->scheduled = false;
-         trace->receipt = push_receipt( gto.trx_id, transaction_receipt::expired, billed_cpu_time_us, 0 ); // expire the transaction
-         undo_session.squash();
-         return trace;
-      }
-
-      signed_transaction dtrx;
-      fc::raw::unpack(ds,static_cast<transaction&>(dtrx) );
-
-      transaction_context trx_context( self, dtrx, gto.trx_id );
-      trx_context.deadline = deadline;
-      trx_context.billed_cpu_time_us = billed_cpu_time_us;
-      transaction_trace_ptr trace = trx_context.trace;
-      flat_set<account_name>  bill_to_accounts;
-      try {
-         trx_context.init_for_deferred_trx( gto.published );
-         bill_to_accounts = trx_context.bill_to_accounts;
-         trx_context.exec();
-         trx_context.finalize(); // Automatically rounds up network and CPU usage in trace and bills payers if successful
-
-         auto restore = make_block_restore_point();
-
-         trace->receipt = push_receipt( gto.trx_id,
-                                        transaction_receipt::executed,
-                                        trx_context.billed_cpu_time_us,
-                                        trace->net_usage );
-
-         fc::move_append( pending->_actions, move(trx_context.executed) );
-
-         emit( self.applied_transaction, trace );
-
-         trx_context.squash();
-         undo_session.squash();
-         restore.cancel();
-         return trace;
-      } catch( const fc::exception& e ) {
-         trace->except = e;
-         trace->except_ptr = std::current_exception();
-         trace->elapsed = fc::time_point::now() - trx_context.start;
-      }
-      trx_context.undo_session.undo();
-
-      // Only soft or hard failure logic below:
-
-      if( gto.sender != account_name() && !failure_is_subjective(*trace->except)) {
-         // Attempt error handling for the generated transaction.
-         dlog("${detail}", ("detail", trace->except->to_detail_string()));
-         auto error_trace = apply_onerror( gto, deadline, trx_context.start, trx_context.billed_cpu_time_us );
-         error_trace->failed_dtrx_trace = trace;
-         trace = error_trace;
-         if( !trace->except_ptr ) {
-            undo_session.squash();
-            return trace;
-         }
-      }
-
-      // Only hard failure OR subjective failure logic below:
-
-      trace->elapsed = fc::time_point::now() - trx_context.start;
-
-      resource_limits.add_transaction_usage( bill_to_accounts, trx_context.billed_cpu_time_us, 0,
-                                             block_timestamp_type(self.pending_block_time()).slot ); // Should never fail
-
-      if (failure_is_subjective(*trace->except)) {
-         // this is a subjective failure, don't remove the retained state so it can be
-         // retried at a later time and don't include any artifact of the transaction in the pending block
-         remove_retained_state.cancel();
-      } else {
-         trace->receipt = push_receipt(gto.trx_id, transaction_receipt::hard_fail, trx_context.billed_cpu_time_us, 0);
-         emit( self.applied_transaction, trace );
-         undo_session.squash();
-      }
-
-      return trace;
-   } FC_CAPTURE_AND_RETHROW() } /// push_scheduled_transaction
-
 
    /**
     *  Adds the transaction receipt to the pending block and returns it.
@@ -713,350 +525,6 @@ struct controller_impl {
       } FC_CAPTURE_AND_RETHROW((trace))
    } /// push_transaction
 
-
-   void start_block( block_timestamp_type when, uint16_t confirm_block_count, controller::block_status s ) {
-      FC_ASSERT( !pending );
-
-      FC_ASSERT( db.revision() == head->block_num, "",
-                ("db.revision()", db.revision())("controller_head_block", head->block_num)("fork_db_head_block", fork_db.head()->block_num) );
-
-      auto guard_pending = fc::make_scoped_exit([this](){
-         pending.reset();
-      });
-
-      pending = db.start_undo_session(true);
-
-      pending->_block_status = s;
-
-      pending->_pending_block_state = std::make_shared<block_state>( *head, when ); // promotes pending schedule (if any) to active
-      pending->_pending_block_state->in_current_chain = true;
-
-      pending->_pending_block_state->set_confirmed(confirm_block_count);
-
-      auto was_pending_promoted = pending->_pending_block_state->maybe_promote_pending();
-
-
-
-      const auto& gpo = db.get<global_property_object>();
-      if( gpo.proposed_schedule_block_num.valid() && // if there is a proposed schedule that was proposed in a block ...
-          ( *gpo.proposed_schedule_block_num <= pending->_pending_block_state->dpos_irreversible_blocknum ) && // ... that has now become irreversible ...
-          pending->_pending_block_state->pending_schedule.producers.size() == 0 && // ... and there is room for a new pending schedule ...
-          !was_pending_promoted // ... and not just because it was promoted to active at the start of this block, then:
-        )
-      {
-         // Promote proposed schedule to pending schedule.
-         if( !replaying ) {
-            ilog( "promoting proposed schedule (set in block ${proposed_num}) to pending; current block: ${n} lib: ${lib} schedule: ${schedule} ",
-                  ("proposed_num", *gpo.proposed_schedule_block_num)("n", pending->_pending_block_state->block_num)
-                  ("lib", pending->_pending_block_state->dpos_irreversible_blocknum)
-                  ("schedule", static_cast<producer_schedule_type>(gpo.proposed_schedule) ) );
-         }
-         pending->_pending_block_state->set_new_producers( gpo.proposed_schedule );
-         db.modify( gpo, [&]( auto& gp ) {
-            gp.proposed_schedule_block_num = optional<block_num_type>();
-            gp.proposed_schedule.clear();
-         });
-      }
-
-      try {
-         auto onbtrx = std::make_shared<transaction_metadata>( get_on_block_transaction() );
-         push_transaction( onbtrx, fc::time_point::maximum(), true, self.get_global_properties().configuration.min_transaction_cpu_usage );
-      } catch( const boost::interprocess::bad_alloc& e  ) {
-         elog( "on block transaction failed due to a bad allocation" );
-         throw;
-      } catch( const fc::exception& e ) {
-         wlog( "on block transaction failed, but shouldn't impact block generation, system contract needs update" );
-         edump((e.to_detail_string()));
-      } catch( ... ) {
-         wlog( "on block transaction failed, but shouldn't impact block generation, system contract needs update" );
-      }
-
-      clear_expired_input_transactions();
-      update_producers_authority();
-      guard_pending.cancel();
-   } // start_block
-
-
-
-   void sign_block( const std::function<signature_type( const digest_type& )>& signer_callback, bool trust  ) {
-      auto p = pending->_pending_block_state;
-
-      p->sign( signer_callback, false); //trust );
-
-      static_cast<signed_block_header&>(*p->block) = p->header;
-   } /// sign_block
-
-   void apply_block( const signed_block_ptr& b, controller::block_status s ) { try {
-      try {
-         FC_ASSERT( b->block_extensions.size() == 0, "no supported extensions" );
-         start_block( b->timestamp, b->confirmed, s );
-
-         transaction_trace_ptr trace;
-
-         for( const auto& receipt : b->transactions ) {
-            auto num_pending_receipts = pending->_pending_block_state->block->transactions.size();
-            if( receipt.trx.contains<packed_transaction>() ) {
-               auto& pt = receipt.trx.get<packed_transaction>();
-               auto mtrx = std::make_shared<transaction_metadata>(pt);
-               trace = push_transaction( mtrx, fc::time_point::maximum(), false, receipt.cpu_usage_us );
-            } else if( receipt.trx.contains<transaction_id_type>() ) {
-               trace = push_scheduled_transaction( receipt.trx.get<transaction_id_type>(), fc::time_point::maximum(), receipt.cpu_usage_us );
-            } else {
-               EOS_ASSERT( false, block_validate_exception, "encountered unexpected receipt type" );
-            }
-
-            bool transaction_failed =  trace && trace->except;
-            bool transaction_can_fail = receipt.status == transaction_receipt_header::hard_fail && receipt.trx.contains<transaction_id_type>();
-            if( transaction_failed && !transaction_can_fail) {
-               edump((*trace));
-               throw *trace->except;
-            }
-
-            EOS_ASSERT( pending->_pending_block_state->block->transactions.size() > 0,
-                        block_validate_exception, "expected a receipt",
-                        ("block", *b)("expected_receipt", receipt)
-                      );
-            EOS_ASSERT( pending->_pending_block_state->block->transactions.size() == num_pending_receipts + 1,
-                        block_validate_exception, "expected receipt was not added",
-                        ("block", *b)("expected_receipt", receipt)
-                      );
-            const transaction_receipt_header& r = pending->_pending_block_state->block->transactions.back();
-            EOS_ASSERT( r == static_cast<const transaction_receipt_header&>(receipt),
-                        block_validate_exception, "receipt does not match",
-                        ("producer_receipt", receipt)("validator_receipt", pending->_pending_block_state->block->transactions.back()) );
-         }
-
-         finalize_block();
-         sign_block( [&]( const auto& ){ return b->producer_signature; }, false ); //trust );
-
-         // this is implied by the signature passing
-         //FC_ASSERT( b->id() == pending->_pending_block_state->block->id(),
-         //           "applying block didn't produce expected block id" );
-
-         commit_block(false);
-         return;
-      } catch ( const fc::exception& e ) {
-         edump((e.to_detail_string()));
-         abort_block();
-         throw;
-      }
-   } FC_CAPTURE_AND_RETHROW() } /// apply_block
-
-
-   void push_block( const signed_block_ptr& b, controller::block_status s ) {
-    //  idump((fc::json::to_pretty_string(*b)));
-      FC_ASSERT(!pending, "it is not valid to push a block when there is a pending block");
-      try {
-         FC_ASSERT( b );
-         FC_ASSERT( s != controller::block_status::incomplete, "invalid block status for a completed block" );
-         bool trust = !conf.force_all_checks && (s == controller::block_status::irreversible || s == controller::block_status::validated);
-         auto new_header_state = fork_db.add( b, trust );
-         emit( self.accepted_block_header, new_header_state );
-         maybe_switch_forks( s );
-      } FC_LOG_AND_RETHROW( )
-   }
-
-   void push_confirmation( const header_confirmation& c ) {
-      FC_ASSERT(!pending, "it is not valid to push a confirmation when there is a pending block");
-      fork_db.add( c );
-      emit( self.accepted_confirmation, c );
-      maybe_switch_forks();
-   }
-
-   void maybe_switch_forks( controller::block_status s = controller::block_status::complete ) {
-      auto new_head = fork_db.head();
-
-      if( new_head->header.previous == head->id ) {
-         try {
-            apply_block( new_head->block, s );
-            fork_db.mark_in_current_chain( new_head, true );
-            fork_db.set_validity( new_head, true );
-            head = new_head;
-         } catch ( const fc::exception& e ) {
-            fork_db.set_validity( new_head, false ); // Removes new_head from fork_db index, so no need to mark it as not in the current chain.
-            throw;
-         }
-      } else if( new_head->id != head->id ) {
-         ilog("switching forks from ${current_head_id} (block number ${current_head_num}) to ${new_head_id} (block number ${new_head_num})",
-              ("current_head_id", head->id)("current_head_num", head->block_num)("new_head_id", new_head->id)("new_head_num", new_head->block_num) );
-         auto branches = fork_db.fetch_branch_from( new_head->id, head->id );
-
-         for( auto itr = branches.second.begin(); itr != branches.second.end(); ++itr ) {
-            fork_db.mark_in_current_chain( *itr , false );
-            pop_block();
-         }
-         FC_ASSERT( self.head_block_id() == branches.second.back()->header.previous,
-                    "loss of sync between fork_db and chainbase during fork switch" ); // _should_ never fail
-
-         for( auto ritr = branches.first.rbegin(); ritr != branches.first.rend(); ++ritr) {
-            optional<fc::exception> except;
-            try {
-               apply_block( (*ritr)->block, (*ritr)->validated ? controller::block_status::validated : controller::block_status::complete );
-               head = *ritr;
-               fork_db.mark_in_current_chain( *ritr, true );
-               (*ritr)->validated = true;
-            }
-            catch (const fc::exception& e) { except = e; }
-            if (except) {
-               elog("exception thrown while switching forks ${e}", ("e",except->to_detail_string()));
-
-               // ritr currently points to the block that threw
-               // if we mark it invalid it will automatically remove all forks built off it.
-               fork_db.set_validity( *ritr, false );
-
-               // pop all blocks from the bad fork
-               // ritr base is a forward itr to the last block successfully applied
-               auto applied_itr = ritr.base();
-               for( auto itr = applied_itr; itr != branches.first.end(); ++itr ) {
-                  fork_db.mark_in_current_chain( *itr , false );
-                  pop_block();
-               }
-               FC_ASSERT( self.head_block_id() == branches.second.back()->header.previous,
-                          "loss of sync between fork_db and chainbase during fork switch reversal" ); // _should_ never fail
-
-               // re-apply good blocks
-               for( auto ritr = branches.second.rbegin(); ritr != branches.second.rend(); ++ritr ) {
-                  apply_block( (*ritr)->block, controller::block_status::validated /* we previously validated these blocks*/ );
-                  head = *ritr;
-                  fork_db.mark_in_current_chain( *ritr, true );
-               }
-               throw *except;
-            } // end if exception
-         } /// end for each block in branch
-         ilog("successfully switched fork to new head ${new_head_id}", ("new_head_id", new_head->id));
-      }
-   } /// push_block
-
-   void abort_block() {
-      if( pending ) {
-         for( const auto& t : pending->_pending_block_state->trxs )
-            unapplied_transactions[t->signed_id] = t;
-         pending.reset();
-      }
-   }
-
-
-   bool should_enforce_runtime_limits()const {
-      return false;
-   }
-
-   void set_action_merkle() {
-      vector<digest_type> action_digests;
-      action_digests.reserve( pending->_actions.size() );
-      for( const auto& a : pending->_actions )
-         action_digests.emplace_back( a.digest() );
-
-      pending->_pending_block_state->header.action_mroot = merkle( move(action_digests) );
-   }
-
-   void set_trx_merkle() {
-      vector<digest_type> trx_digests;
-      const auto& trxs = pending->_pending_block_state->block->transactions;
-      trx_digests.reserve( trxs.size() );
-      for( const auto& a : trxs )
-         trx_digests.emplace_back( a.digest() );
-
-      pending->_pending_block_state->header.transaction_mroot = merkle( move(trx_digests) );
-   }
-
-
-   void finalize_block()
-   {
-      FC_ASSERT(pending, "it is not valid to finalize when there is no pending block");
-      try {
-
-
-      /*
-      ilog( "finalize block ${n} (${id}) at ${t} by ${p} (${signing_key}); schedule_version: ${v} lib: ${lib} #dtrxs: ${ndtrxs} ${np}",
-            ("n",pending->_pending_block_state->block_num)
-            ("id",pending->_pending_block_state->header.id())
-            ("t",pending->_pending_block_state->header.timestamp)
-            ("p",pending->_pending_block_state->header.producer)
-            ("signing_key", pending->_pending_block_state->block_signing_key)
-            ("v",pending->_pending_block_state->header.schedule_version)
-            ("lib",pending->_pending_block_state->dpos_irreversible_blocknum)
-            ("ndtrxs",db.get_index<generated_transaction_multi_index,by_trx_id>().size())
-            ("np",pending->_pending_block_state->header.new_producers)
-            );
-      */
-
-      // Update resource limits:
-      resource_limits.process_account_limit_updates();
-      const auto& chain_config = self.get_global_properties().configuration;
-      uint32_t max_virtual_mult = 1000;
-      uint64_t CPU_TARGET = EOS_PERCENT(chain_config.max_block_cpu_usage, chain_config.target_block_cpu_usage_pct);
-      resource_limits.set_block_parameters(
-         { CPU_TARGET, chain_config.max_block_cpu_usage, config::block_cpu_usage_average_window_ms / config::block_interval_ms, max_virtual_mult, {99, 100}, {1000, 999}},
-         {EOS_PERCENT(chain_config.max_block_net_usage, chain_config.target_block_net_usage_pct), chain_config.max_block_net_usage, config::block_size_average_window_ms / config::block_interval_ms, max_virtual_mult, {99, 100}, {1000, 999}}
-      );
-      resource_limits.process_block_usage(pending->_pending_block_state->block_num);
-
-      set_action_merkle();
-      set_trx_merkle();
-
-      auto p = pending->_pending_block_state;
-      p->id = p->header.id();
-
-      create_block_summary(p->id);
-
-   } FC_CAPTURE_AND_RETHROW() }
-
-   void update_producers_authority() {
-      const auto& producers = pending->_pending_block_state->active_schedule.producers;
-
-      auto update_permission = [&]( auto& permission, auto threshold ) {
-         auto auth = authority( threshold, {}, {});
-         for( auto& p : producers ) {
-            auth.accounts.push_back({{p.producer_name, config::active_name}, 1});
-         }
-
-         if( static_cast<authority>(permission.auth) != auth ) { // TODO: use a more efficient way to check that authority has not changed
-            db.modify(permission, [&]( auto& po ) {
-               po.auth = auth;
-            });
-         }
-      };
-
-      uint32_t num_producers = producers.size();
-      auto calculate_threshold = [=]( uint32_t numerator, uint32_t denominator ) {
-         return ( (num_producers * numerator) / denominator ) + 1;
-      };
-
-      update_permission( authorization.get_permission({config::producers_account_name,
-                                                       config::active_name}),
-                         calculate_threshold( 2, 3 ) /* more than two-thirds */                      );
-
-      update_permission( authorization.get_permission({config::producers_account_name,
-                                                       config::majority_producers_permission_name}),
-                         calculate_threshold( 1, 2 ) /* more than one-half */                        );
-
-      update_permission( authorization.get_permission({config::producers_account_name,
-                                                       config::minority_producers_permission_name}),
-                         calculate_threshold( 1, 3 ) /* more than one-third */                       );
-
-      //TODO: Add tests
-   }
-
-   void create_block_summary(const block_id_type& id) {
-      auto block_num = block_header::num_from_id(id);
-      auto sid = block_num & 0xffff;
-      db.modify( db.get<block_summary_object,by_id>(sid), [&](block_summary_object& bso ) {
-          bso.block_id = id;
-      });
-   }
-
-
-   void clear_expired_input_transactions() {
-      //Look for expired transactions in the deduplication list, and remove them.
-      auto& transaction_idx = db.get_mutable_index<transaction_multi_index>();
-      const auto& dedupe_index = transaction_idx.indices().get<by_expiration>();
-      auto now = self.pending_block_time();
-      while( (!dedupe_index.empty()) && ( now > fc::time_point(dedupe_index.begin()->expiration) ) ) {
-         transaction_idx.remove(*dedupe_index.begin());
-      }
-   }
-
-
    void check_actor_list( const flat_set<account_name>& actors )const {
       if( conf.actor_whitelist.size() > 0 ) {
          vector<account_name> excluded;
@@ -1131,26 +599,6 @@ struct controller_impl {
    }
    */
 
-
-   /**
-    *  At the start of each block we notify the system contract with a transaction that passes in
-    *  the block header of the prior block (which is currently our head block)
-    */
-   signed_transaction get_on_block_transaction()
-   {
-      action on_block_act;
-      on_block_act.account = config::system_account_name;
-      on_block_act.name = N(onblock);
-      on_block_act.authorization = vector<permission_level>{{config::system_account_name, config::active_name}};
-      on_block_act.data = fc::raw::pack(self.head_block_header());
-
-      signed_transaction trx;
-      trx.actions.emplace_back(std::move(on_block_act));
-      trx.set_reference_block(self.head_block_id());
-      trx.expiration = self.pending_block_time() + fc::microseconds(999'999); // Round up to nearest second to avoid appearing expired
-      return trx;
-   }
-
 }; /// controller_impl
 
 const resource_limits_manager&   controller::get_resource_limits_manager()const
@@ -1177,7 +625,6 @@ controller::controller( const controller::config& cfg )
 }
 
 controller::~controller() {
-   my->abort_block();
 }
 
 
@@ -1186,7 +633,7 @@ void controller::startup() {
    // ilog( "${c}", ("c",fc::json::to_pretty_string(cfg)) );
    my->add_indices();
 
-   my->head = my->fork_db.head();
+   my->head = NULL;
    if( !my->head ) {
       elog( "No head block in fork db, perhaps we need to replay" );
    }
@@ -1195,87 +642,21 @@ void controller::startup() {
 
 chainbase::database& controller::db()const { return my->db; }
 
-fork_database& controller::fork_db()const { return my->fork_db; }
-
-
-void controller::start_block( block_timestamp_type when, uint16_t confirm_block_count) {
-   my->start_block(when, confirm_block_count, block_status::incomplete );
-}
-
-void controller::finalize_block() {
-   my->finalize_block();
-}
-
-void controller::sign_block( const std::function<signature_type( const digest_type& )>& signer_callback ) {
-   my->sign_block( signer_callback, false /* don't trust */);
-}
-
-void controller::commit_block() {
-   my->commit_block(true);
-}
-
-void controller::abort_block() {
-   my->abort_block();
-}
-
-void controller::push_block( const signed_block_ptr& b, block_status s ) {
-   my->push_block( b, s );
-}
-
-void controller::push_confirmation( const header_confirmation& c ) {
-   my->push_confirmation( c );
-}
-
 transaction_trace_ptr controller::push_transaction( const transaction_metadata_ptr& trx, fc::time_point deadline, uint32_t billed_cpu_time_us ) {
    return my->push_transaction(trx, deadline, false, billed_cpu_time_us);
-}
-
-transaction_trace_ptr controller::push_scheduled_transaction( const transaction_id_type& trxid, fc::time_point deadline, uint32_t billed_cpu_time_us )
-{
-   return my->push_scheduled_transaction( trxid, deadline, billed_cpu_time_us );
 }
 
 uint32_t controller::head_block_num()const {
    return my->head->block_num;
 }
-time_point controller::head_block_time()const {
-   return my->head->header.timestamp;
-}
+
 block_id_type controller::head_block_id()const {
    return my->head->id;
 }
-account_name  controller::head_block_producer()const {
-   return my->head->header.producer;
-}
-const block_header& controller::head_block_header()const {
-   return my->head->header;
-}
-block_state_ptr controller::head_block_state()const {
-   return my->head;
-}
 
-block_state_ptr controller::pending_block_state()const {
-   if( my->pending ) return my->pending->_pending_block_state;
-   return block_state_ptr();
-}
 time_point controller::pending_block_time()const {
    FC_ASSERT( my->pending, "no pending block" );
    return my->pending->_pending_block_state->header.timestamp;
-}
-
-uint32_t controller::last_irreversible_block_num() const {
-   return std::max(my->head->bft_irreversible_blocknum, my->head->dpos_irreversible_blocknum);
-}
-
-block_id_type controller::last_irreversible_block_id() const {
-   auto lib_num = last_irreversible_block_num();
-   const auto& tapos_block_summary = db().get<block_summary_object>((uint16_t)lib_num);
-
-   if( block_header::num_from_id(tapos_block_summary.block_id) == lib_num )
-      return tapos_block_summary.block_id;
-
-   return fetch_block_by_number(lib_num)->id();
-
 }
 
 const dynamic_global_property_object& controller::get_dynamic_global_properties()const {
@@ -1283,51 +664,6 @@ const dynamic_global_property_object& controller::get_dynamic_global_properties(
 }
 const global_property_object& controller::get_global_properties()const {
   return my->db.get<global_property_object>();
-}
-
-signed_block_ptr controller::fetch_block_by_id( block_id_type id )const {
-   auto state = my->fork_db.get_block(id);
-   if( state ) return state->block;
-   auto bptr = fetch_block_by_number( block_header::num_from_id(id) );
-   if( bptr && bptr->id() == id ) return bptr;
-   return signed_block_ptr();
-}
-
-signed_block_ptr controller::fetch_block_by_number( uint32_t block_num )const  { try {
-   auto blk_state = my->fork_db.get_block_in_current_chain_by_num( block_num );
-   if( blk_state ) {
-      return blk_state->block;
-   }
-
-   return my->blog.read_block_by_num(block_num);
-} FC_CAPTURE_AND_RETHROW( (block_num) ) }
-
-block_state_ptr controller::fetch_block_state_by_id( block_id_type id )const {
-   auto state = my->fork_db.get_block(id);
-   return state;
-}
-
-block_state_ptr controller::fetch_block_state_by_number( uint32_t block_num )const  { try {
-   auto blk_state = my->fork_db.get_block_in_current_chain_by_num( block_num );
-   return blk_state;
-} FC_CAPTURE_AND_RETHROW( (block_num) ) }
-
-block_id_type controller::get_block_id_for_num( uint32_t block_num )const { try {
-   auto blk_state = my->fork_db.get_block_in_current_chain_by_num( block_num );
-   if( blk_state ) {
-      return blk_state->id;
-   }
-
-   auto signed_blk = my->blog.read_block_by_num(block_num);
-
-   EOS_ASSERT( BOOST_LIKELY( signed_blk != nullptr ), unknown_block_exception,
-               "Could not find block: ${block}", ("block", block_num) );
-
-   return signed_blk->id();
-} FC_CAPTURE_AND_RETHROW( (block_num) ) }
-
-void controller::pop_block() {
-   my->pop_block();
 }
 
 int64_t controller::set_proposed_producers( vector<producer_key> producers ) {
@@ -1425,35 +761,6 @@ const account_object& controller::get_account( account_name name )const
    return my->db.get<account_object, by_name>(name);
 } FC_CAPTURE_AND_RETHROW( (name) ) }
 
-vector<transaction_metadata_ptr> controller::get_unapplied_transactions() const {
-   vector<transaction_metadata_ptr> result;
-   result.reserve(my->unapplied_transactions.size());
-   for ( const auto& entry: my->unapplied_transactions ) {
-      result.emplace_back(entry.second);
-   }
-   return result;
-}
-
-void controller::drop_unapplied_transaction(const transaction_metadata_ptr& trx) {
-   my->unapplied_transactions.erase(trx->signed_id);
-}
-
-vector<transaction_id_type> controller::get_scheduled_transactions() const {
-   const auto& idx = db().get_index<generated_transaction_multi_index,by_delay>();
-
-   vector<transaction_id_type> result;
-
-   static const size_t max_reserve = 64;
-   result.reserve(std::min(idx.size(), max_reserve));
-
-   auto itr = idx.begin();
-   while( itr != idx.end() && itr->delay_until <= pending_block_time() ) {
-      result.emplace_back(itr->trx_id);
-      ++itr;
-   }
-   return result;
-}
-
 void controller::check_contract_list( account_name code )const {
    my->check_contract_list( code );
 }
@@ -1522,10 +829,6 @@ void controller::validate_tapos( const transaction& trx )const { try {
               "Transaction's reference block did not match. Is this transaction from a different fork?",
               ("tapos_summary", tapos_block_summary));
 } FC_CAPTURE_AND_RETHROW() }
-
-bool controller::is_known_unexpired_transaction( const transaction_id_type& id) const {
-   return db().find<transaction_object, by_trx_id>(id);
-}
 
 
 } } /// eosio::chain

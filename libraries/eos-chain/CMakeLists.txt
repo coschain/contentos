@@ -15,7 +15,7 @@ add_library( eosio_chain
              block_header.cpp
              block_header_state.cpp
              block_state.cpp
-             fork_database.cpp
+             #fork_database.cpp
              controller.cpp
              authorization_manager.cpp
              resource_limits.cpp
@@ -42,7 +42,7 @@ add_library( eosio_chain
              ${HEADERS}
              )
 
-target_link_libraries( eosio_chain utilities fc chainbase Logging IR WAST WASM Runtime
+target_link_libraries( eosio_chain graphene_utilities fc chainbase Logging IR WAST WASM Runtime
       wasm asmjs passes cfg ast emscripten-optimizer support softfloat builtins
                      )
 target_include_directories( eosio_chain
