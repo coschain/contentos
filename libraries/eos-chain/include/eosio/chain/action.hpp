@@ -98,5 +98,6 @@ namespace eosio { namespace chain {
 
 } } /// namespace eosio::chain
 
+
 FC_REFLECT( eosio::chain::permission_level, (actor)(permission) )
 FC_REFLECT( eosio::chain::action, (account)(name)(authorization)(data) )
