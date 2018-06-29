@@ -1941,6 +1941,16 @@ share_type database::pay_reward_funds( share_type reward )
    return used_rewards;
 }
 
+asset database::to_sbd( const asset& steem )const
+{
+    return util::to_sbd( get_feed_history().current_median_history, steem );
+}
+
+asset database::to_steem( const asset& sbd )const
+{
+    return util::to_steem( get_feed_history().current_median_history, sbd );
+}
+
 void database::account_recovery_processing()
 {
    // Clear expired recovery requests
