@@ -58,7 +58,7 @@ abi_def eosio_contract_abi(const abi_def& eosio_system_abi)
          {"ref_block_prefix", "uint32"},
          {"max_net_usage_words", "varuint32"},
          {"max_cpu_usage_ms", "uint8"},
-         {"delay_sec", "varuint32"}
+      ////Y   {"delay_sec", "varuint32"}
       }
    });
 

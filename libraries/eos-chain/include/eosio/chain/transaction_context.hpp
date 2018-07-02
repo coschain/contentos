@@ -47,7 +47,7 @@ namespace eosio { namespace chain {
          inline void dispatch_action( action_trace& trace, const action& a, bool context_free = false ) {
             dispatch_action(trace, a, a.account, context_free);
          };
-         void schedule_transaction();
+         ////Y void schedule_transaction();
          void record_transaction( const transaction_id_type& id, fc::time_point_sec expire );
 
          void validate_cpu_usage_to_bill( int64_t u, bool check_minimum = true )const;
@@ -72,7 +72,7 @@ namespace eosio { namespace chain {
          /// the maximum number of virtual CPU instructions of the transaction that can be safely billed to the billable accounts
          uint64_t                      initial_max_billable_cpu = 0;
 
-         fc::microseconds              delay;
+         ////Y fc::microseconds              delay;
          bool                          is_input           = false;
          bool                          apply_context_free = true;
          bool                          can_subjectively_fail = true;

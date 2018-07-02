@@ -521,14 +521,14 @@ struct controller_impl {
             }
 
 
-            trx_context.delay = fc::seconds(trx->trx.delay_sec);
+            ////Y trx_context.delay = fc::seconds(trx->trx.delay_sec);
 
             if( !self.skip_auth_check() && !implicit ) {
                authorization.check_authorization(
                        trx->trx.actions,
                        trx->recover_keys( chain_id ),
                        flat_set<permission_level>(),
-                       trx_context.delay,
+                       fc::seconds(0), ////Y trx_context.delay,
                        [](){}
                        /*std::bind(&transaction_context::add_cpu_usage_and_check_time, &trx_context,
                                  std::placeholders::_1)*/,
@@ -542,7 +542,8 @@ struct controller_impl {
             auto restore = make_block_restore_point();
 
             if (!implicit) {
-               transaction_receipt::status_enum s = (trx_context.delay == fc::seconds(0))
+               transaction_receipt::status_enum s = (fc::seconds(0) == fc::seconds(0))
+                                                    ////Y (trx_context.delay == fc::seconds(0))
                                                     ? transaction_receipt::executed
                                                     : transaction_receipt::delayed;
                trace->receipt = push_receipt(trx->packed_trx, s, trx_context.billed_cpu_time_us, trace->net_usage);

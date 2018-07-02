@@ -156,12 +156,13 @@ namespace eosio { namespace chain {
                                     + packed_trx_unprunable_size + discounted_size_for_pruned_data;
 
 
-      if( trx.delay_sec.value > 0 ) {
-          // If delayed, also charge ahead of time for the additional net usage needed to retire the delayed transaction
-          // whether that be by successfully executing, soft failure, hard failure, or expiration.
-         initial_net_usage += static_cast<uint64_t>(cfg.base_per_transaction_net_usage)
-                               + static_cast<uint64_t>(config::transaction_id_net_usage);
-      }
+////Y
+    //   if( trx.delay_sec.value > 0 ) {
+    //       // If delayed, also charge ahead of time for the additional net usage needed to retire the delayed transaction
+    //       // whether that be by successfully executing, soft failure, hard failure, or expiration.
+    //      initial_net_usage += static_cast<uint64_t>(cfg.base_per_transaction_net_usage)
+    //                            + static_cast<uint64_t>(config::transaction_id_net_usage);
+    //   }
 
       published = control.pending_block_time();
       is_input = true;
@@ -192,14 +193,15 @@ namespace eosio { namespace chain {
         //  }
       }
 
-      if( delay == fc::microseconds() ) {
+      ////Y if( delay == fc::microseconds() ) {
          for( const auto& act : trx.actions ) {
             trace->action_traces.emplace_back();
             dispatch_action( trace->action_traces.back(), act );
          }
-      } else {
-         schedule_transaction();
-      }
+         ////Y
+    //   } else {
+    //      schedule_transaction();
+    //   }
    }
 
    void transaction_context::finalize() {
@@ -376,31 +378,32 @@ namespace eosio { namespace chain {
       trace = move(acontext.trace);
    }
 
-   void transaction_context::schedule_transaction() {
-      // Charge ahead of time for the additional net usage needed to retire the delayed transaction
-      // whether that be by successfully executing, soft failure, hard failure, or expiration.
-      if( trx.delay_sec.value == 0 ) { // Do not double bill. Only charge if we have not already charged for the delay.
-         const auto& cfg = control.get_global_properties().configuration;
-         add_net_usage( static_cast<uint64_t>(cfg.base_per_transaction_net_usage)
-                         + static_cast<uint64_t>(config::transaction_id_net_usage) ); // Will exit early if net usage cannot be payed.
-      }
+////Y
+//    void transaction_context::schedule_transaction() {
+//       // Charge ahead of time for the additional net usage needed to retire the delayed transaction
+//       // whether that be by successfully executing, soft failure, hard failure, or expiration.
+//       if( trx.delay_sec.value == 0 ) { // Do not double bill. Only charge if we have not already charged for the delay.
+//          const auto& cfg = control.get_global_properties().configuration;
+//          add_net_usage( static_cast<uint64_t>(cfg.base_per_transaction_net_usage)
+//                          + static_cast<uint64_t>(config::transaction_id_net_usage) ); // Will exit early if net usage cannot be payed.
+//       }
 
-      auto first_auth = trx.first_authorizor();
+//       auto first_auth = trx.first_authorizor();
 
-      uint32_t trx_size = 0;
-      const auto& cgto = control.db().create<generated_transaction_object>( [&]( auto& gto ) {
-        gto.trx_id      = id;
-        gto.payer       = first_auth;
-        gto.sender      = account_name(); /// delayed transactions have no sender
-        gto.sender_id   = transaction_id_to_sender_id( gto.trx_id );
-        gto.published   = control.pending_block_time();
-        gto.delay_until = gto.published + delay;
-        gto.expiration  = gto.delay_until + fc::seconds(control.get_global_properties().configuration.deferred_trx_expiration_window);
-        trx_size = gto.set( trx );
-      });
+//       uint32_t trx_size = 0;
+//       const auto& cgto = control.db().create<generated_transaction_object>( [&]( auto& gto ) {
+//         gto.trx_id      = id;
+//         gto.payer       = first_auth;
+//         gto.sender      = account_name(); /// delayed transactions have no sender
+//         gto.sender_id   = transaction_id_to_sender_id( gto.trx_id );
+//         gto.published   = control.pending_block_time();
+//         gto.delay_until = gto.published + delay;
+//         gto.expiration  = gto.delay_until + fc::seconds(control.get_global_properties().configuration.deferred_trx_expiration_window);
+//         trx_size = gto.set( trx );
+//       });
 
-      add_ram_usage( cgto.payer, (config::billable_size_v<generated_transaction_object> + trx_size) );
-   }
+//       add_ram_usage( cgto.payer, (config::billable_size_v<generated_transaction_object> + trx_size) );
+//    }
 
    void transaction_context::record_transaction( const transaction_id_type& id, fc::time_point_sec expire ) {
       try {
