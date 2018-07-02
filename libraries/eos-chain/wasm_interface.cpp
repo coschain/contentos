@@ -1312,25 +1312,29 @@ class transaction_api : public context_aware_api {
 
       void send_context_free_inline( array_ptr<char> data, size_t data_len ) {
          //TODO: Why is this limit even needed? And why is it not consistently checked on actions in input or deferred transactions
-         FC_ASSERT( data_len < context.control.get_global_properties().configuration.max_inline_action_size,
-                   "inline action too big" );
+      ////Y
+      //    FC_ASSERT( data_len < context.control.get_global_properties().configuration.max_inline_action_size,
+      //              "inline action too big" );
 
-         action act;
-         fc::raw::unpack<action>(data, data_len, act);
-         context.execute_context_free_inline(std::move(act));
+      //    action act;
+      //    fc::raw::unpack<action>(data, data_len, act);
+      //    context.execute_context_free_inline(std::move(act));
       }
 
       void send_deferred( const uint128_t& sender_id, account_name payer, array_ptr<char> data, size_t data_len, uint32_t replace_existing) {
-         try {
-            transaction trx;
-            fc::raw::unpack<transaction>(data, data_len, trx);
-            context.schedule_deferred_transaction(sender_id, payer, std::move(trx), replace_existing);
-         } FC_CAPTURE_AND_RETHROW((fc::to_hex(data, data_len)));
+      ////Y
+      //    try {
+      //       transaction trx;
+      //       fc::raw::unpack<transaction>(data, data_len, trx);
+      //       context.schedule_deferred_transaction(sender_id, payer, std::move(trx), replace_existing);
+      //    } FC_CAPTURE_AND_RETHROW((fc::to_hex(data, data_len)));
       }
 
       bool cancel_deferred( const unsigned __int128& val ) {
-         fc::uint128_t sender_id(val>>64, uint64_t(val) );
-         return context.cancel_deferred_transaction( (unsigned __int128)sender_id );
+            return false;
+            ////Y
+      //    fc::uint128_t sender_id(val>>64, uint64_t(val) );
+      //    return context.cancel_deferred_transaction( (unsigned __int128)sender_id );
       }
 };
 

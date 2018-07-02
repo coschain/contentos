@@ -475,10 +475,11 @@ class apply_context {
       action_trace exec_one();
       void exec();
       void execute_inline( action&& a );
-      void execute_context_free_inline( action&& a );
-      void schedule_deferred_transaction( const uint128_t& sender_id, account_name payer, transaction&& trx, bool replace_existing );
-      bool cancel_deferred_transaction( const uint128_t& sender_id, account_name sender );
-      bool cancel_deferred_transaction( const uint128_t& sender_id ) { return cancel_deferred_transaction(sender_id, receiver); }
+      ////Y void execute_context_free_inline( action&& a );
+      ////Y
+      // void schedule_deferred_transaction( const uint128_t& sender_id, account_name payer, transaction&& trx, bool replace_existing );
+      // bool cancel_deferred_transaction( const uint128_t& sender_id, account_name sender );
+      // bool cancel_deferred_transaction( const uint128_t& sender_id ) { return cancel_deferred_transaction(sender_id, receiver); }
 
 
    /// Authorization methods:
@@ -605,7 +606,7 @@ class apply_context {
       iterator_cache<key_value_object>    keyval_cache;
       vector<account_name>                _notified; ///< keeps track of new accounts to be notifed of current message
       vector<action>                      _inline_actions; ///< queued inline messages
-      vector<action>                      _cfa_inline_actions; ///< queued inline messages
+      ////Y vector<action>                      _cfa_inline_actions; ///< queued inline messages
       std::ostringstream                  _pending_console_output;
 
       //bytes                               _cached_trx;

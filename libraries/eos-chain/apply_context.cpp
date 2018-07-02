@@ -101,15 +101,16 @@ void apply_context::exec()
       trace.inline_traces.emplace_back( exec_one() );
    }
 
-   if( _cfa_inline_actions.size() > 0 || _inline_actions.size() > 0 ) {
-      EOS_ASSERT( recurse_depth < control.get_global_properties().configuration.max_inline_action_depth,
-                  transaction_exception, "inline action recursion depth reached" );
-   }
+////Y
+  //  if( _cfa_inline_actions.size() > 0 || _inline_actions.size() > 0 ) {
+  //     EOS_ASSERT( recurse_depth < control.get_global_properties().configuration.max_inline_action_depth,
+  //                 transaction_exception, "inline action recursion depth reached" );
+  //  }
 
-   for( const auto& inline_action : _cfa_inline_actions ) {
-      trace.inline_traces.emplace_back();
-      trx_context.dispatch_action( trace.inline_traces.back(), inline_action, inline_action.account, true, recurse_depth + 1 );
-   }
+  //  for( const auto& inline_action : _cfa_inline_actions ) {
+  //     trace.inline_traces.emplace_back();
+  //     trx_context.dispatch_action( trace.inline_traces.back(), inline_action, inline_action.account, true, recurse_depth + 1 );
+  //  }
 
    for( const auto& inline_action : _inline_actions ) {
       trace.inline_traces.emplace_back();
@@ -215,106 +216,17 @@ void apply_context::execute_inline( action&& a ) {
    _inline_actions.emplace_back( move(a) );
 }
 
-void apply_context::execute_context_free_inline( action&& a ) {
-   auto* code = control.db().find<account_object, by_name>(a.account);
-   EOS_ASSERT( code != nullptr, action_validate_exception,
-               "inline action's code account ${account} does not exist", ("account", a.account) );
+////Y
+// void apply_context::execute_context_free_inline( action&& a ) {
+//    auto* code = control.db().find<account_object, by_name>(a.account);
+//    EOS_ASSERT( code != nullptr, action_validate_exception,
+//                "inline action's code account ${account} does not exist", ("account", a.account) );
 
-   EOS_ASSERT( a.authorization.size() == 0, action_validate_exception,
-               "context-free actions cannot have authorizations" );
+//    EOS_ASSERT( a.authorization.size() == 0, action_validate_exception,
+//                "context-free actions cannot have authorizations" );
 
-   _cfa_inline_actions.emplace_back( move(a) );
-}
-
-
-void apply_context::schedule_deferred_transaction( const uint128_t& sender_id, account_name payer, transaction&& trx, bool replace_existing ) {
-   FC_ASSERT( trx.context_free_actions.size() == 0, "context free actions are not currently allowed in generated transactions" );
-   trx.expiration = control.pending_block_time() + fc::microseconds(999'999); // Rounds up to nearest second (makes expiration check unnecessary)
-   trx.set_reference_block(control.head_block_id()); // No TaPoS check necessary
-   control.validate_referenced_accounts( trx );
-
-   // Charge ahead of time for the additional net usage needed to retire the deferred transaction
-   // whether that be by successfully executing, soft failure, hard failure, or expiration.
-   const auto& cfg = control.get_global_properties().configuration;
-   trx_context.add_net_usage( static_cast<uint64_t>(cfg.base_per_transaction_net_usage)
-                               + static_cast<uint64_t>(config::transaction_id_net_usage) ); // Will exit early if net usage cannot be payed.
-
-   auto delay = fc::seconds(trx.delay_sec);
-
-   if( !control.skip_auth_check() && !privileged ) { // Do not need to check authorization if replayng irreversible block or if contract is privileged
-      if( payer != receiver ) {
-         require_authorization(payer); /// uses payer's storage
-      }
-
-      // if a contract is deferring only actions to itself then there is no need
-      // to check permissions, it could have done everything anyway.
-      bool check_auth = false;
-      for( const auto& act : trx.actions ) {
-         if( act.account != receiver ) {
-            check_auth = true;
-            break;
-         }
-      }
-      if( check_auth ) {
-         control.get_authorization_manager()
-                .check_authorization( trx.actions,
-                                      flat_set<public_key_type>(),
-                                      {{receiver, config::eosio_code_name}},
-                                      delay,
-                                      std::bind(&transaction_context::checktime, &this->trx_context),
-                                      false
-                                    );
-      }
-   }
-
-   uint32_t trx_size = 0;
-   auto& d = control.db();
-   if ( auto ptr = d.find<generated_transaction_object,by_sender_id>(boost::make_tuple(receiver, sender_id)) ) {
-      EOS_ASSERT( replace_existing, deferred_tx_duplicate, "deferred transaction with the same sender_id and payer already exists" );
-
-      // TODO: Remove the following subjective check when the deferred trx replacement RAM bug has been fixed with a hard fork.
-      EOS_ASSERT( !control.is_producing_block(), subjective_block_production_exception,
-                  "Replacing a deferred transaction is temporarily disabled." );
-
-      // TODO: The logic of the next line needs to be incorporated into the next hard fork.
-      // trx_context.add_ram_usage( ptr->payer, -(config::billable_size_v<generated_transaction_object> + ptr->packed_trx.size()) );
-
-      d.modify<generated_transaction_object>( *ptr, [&]( auto& gtx ) {
-            gtx.sender      = receiver;
-            gtx.sender_id   = sender_id;
-            gtx.payer       = payer;
-            gtx.published   = control.pending_block_time();
-            gtx.delay_until = gtx.published + delay;
-            gtx.expiration  = gtx.delay_until + fc::seconds(control.get_global_properties().configuration.deferred_trx_expiration_window);
-
-            trx_size = gtx.set( trx );
-         });
-   } else {
-      d.create<generated_transaction_object>( [&]( auto& gtx ) {
-            gtx.trx_id      = trx.id();
-            gtx.sender      = receiver;
-            gtx.sender_id   = sender_id;
-            gtx.payer       = payer;
-            gtx.published   = control.pending_block_time();
-            gtx.delay_until = gtx.published + delay;
-            gtx.expiration  = gtx.delay_until + fc::seconds(control.get_global_properties().configuration.deferred_trx_expiration_window);
-
-            trx_size = gtx.set( trx );
-         });
-   }
-
-   trx_context.add_ram_usage( payer, (config::billable_size_v<generated_transaction_object> + trx_size) );
-}
-
-bool apply_context::cancel_deferred_transaction( const uint128_t& sender_id, account_name sender ) {
-   auto& generated_transaction_idx = db.get_mutable_index<generated_transaction_multi_index>();
-   const auto* gto = db.find<generated_transaction_object,by_sender_id>(boost::make_tuple(sender, sender_id));
-   if ( gto ) {
-      trx_context.add_ram_usage( gto->payer, -(config::billable_size_v<generated_transaction_object> + gto->packed_trx.size()) );
-      generated_transaction_idx.remove(*gto);
-   }
-   return gto;
-}
+//    _cfa_inline_actions.emplace_back( move(a) );
+// }
 
 const table_id_object* apply_context::find_table( name code, name scope, name table ) {
    return db.find<table_id_object, by_code_scope_table>(boost::make_tuple(code, scope, table));
@@ -377,9 +289,11 @@ int apply_context::get_action( uint32_t type, uint32_t index, char* buffer, size
    const action* act_ptr = nullptr;
 
    if( type == 0 ) {
-      if( index >= trx.context_free_actions.size() )
-         return -1;
-      act_ptr = &trx.context_free_actions[index];
+      ////Y
+      // if( index >= trx.context_free_actions.size() )
+      //    return -1;
+      // act_ptr = &trx.context_free_actions[index];
+      return -1;
    }
    else if( type == 1 ) {
       if( index >= trx.actions.size() )

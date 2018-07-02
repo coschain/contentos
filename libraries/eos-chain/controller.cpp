@@ -846,13 +846,14 @@ bool controller::is_producing_block()const {
 }
 
 void controller::validate_referenced_accounts( const transaction& trx )const {
-   for( const auto& a : trx.context_free_actions ) {
-      auto* code = my->db.find<account_object, by_name>(a.account);
-      EOS_ASSERT( code != nullptr, transaction_exception,
-                  "action's code account '${account}' does not exist", ("account", a.account) );
-      EOS_ASSERT( a.authorization.size() == 0, transaction_exception,
-                  "context-free actions cannot have authorizations" );
-   }
+  ////Y
+  //  for( const auto& a : trx.context_free_actions ) {
+  //     auto* code = my->db.find<account_object, by_name>(a.account);
+  //     EOS_ASSERT( code != nullptr, transaction_exception,
+  //                 "action's code account '${account}' does not exist", ("account", a.account) );
+  //     EOS_ASSERT( a.authorization.size() == 0, transaction_exception,
+  //                 "context-free actions cannot have authorizations" );
+  //  }
    bool one_auth = false;
    for( const auto& a : trx.actions ) {
       auto* code = my->db.find<account_object, by_name>(a.account);

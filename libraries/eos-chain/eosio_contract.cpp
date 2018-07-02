@@ -362,12 +362,13 @@ void apply_eosio_unlinkauth(apply_context& context) {
 }
 
 void apply_eosio_canceldelay(apply_context& context) {
-   auto cancel = context.act.data_as<canceldelay>();
-   context.require_authorization(cancel.canceling_auth.actor); // only here to mark the single authority on this action as used
+  //// Y
+  //  auto cancel = context.act.data_as<canceldelay>();
+  //  context.require_authorization(cancel.canceling_auth.actor); // only here to mark the single authority on this action as used
 
-   const auto& trx_id = cancel.trx_id;
+  //  const auto& trx_id = cancel.trx_id;
 
-   context.cancel_deferred_transaction(transaction_id_to_sender_id(trx_id), account_name());
+  //  context.cancel_deferred_transaction(transaction_id_to_sender_id(trx_id), account_name());
 }
 
 } } // namespace eosio::chain

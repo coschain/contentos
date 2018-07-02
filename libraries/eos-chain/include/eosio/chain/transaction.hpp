@@ -52,7 +52,7 @@ namespace eosio { namespace chain {
     *  read and write scopes.
     */
    struct transaction : public transaction_header {
-      vector<action>         context_free_actions;
+      ////Y vector<action>         context_free_actions;
       vector<action>         actions;
       extensions_type        transaction_extensions;
 
@@ -62,8 +62,8 @@ namespace eosio { namespace chain {
                                                      const chain_id_type& chain_id,
                                                      const vector<bytes>& cfd = vector<bytes>(),
                                                      bool allow_duplicate_keys = false )const;
-
-      uint32_t total_actions()const { return context_free_actions.size() + actions.size(); }
+      uint32_t total_actions()const { return actions.size(); }
+      ////Y uint32_t total_actions()const { return context_free_actions.size() + actions.size(); }
       account_name first_authorizor()const {
          for( const auto& a : actions ) {
             for( const auto& u : a.authorization )
@@ -153,24 +153,25 @@ namespace eosio { namespace chain {
     *  passed back to the sender if the transaction fails for some
     *  reason.
     */
-   struct deferred_transaction : public signed_transaction
-   {
-      uint128_t      sender_id; /// ID assigned by sender of generated, accessible via WASM api when executing normal or error
-      account_name   sender; /// receives error handler callback
-      account_name   payer;
-      time_point_sec execute_after; /// delayed execution
+   ////Y
+//    struct deferred_transaction : public signed_transaction
+//    {
+//       uint128_t      sender_id; /// ID assigned by sender of generated, accessible via WASM api when executing normal or error
+//       account_name   sender; /// receives error handler callback
+//       account_name   payer;
+//       time_point_sec execute_after; /// delayed execution
 
-      deferred_transaction() = default;
+//       deferred_transaction() = default;
 
-      deferred_transaction(uint128_t sender_id, account_name sender, account_name payer,time_point_sec execute_after,
-                           const signed_transaction& txn)
-      : signed_transaction(txn),
-        sender_id(sender_id),
-        sender(sender),
-        payer(payer),
-        execute_after(execute_after)
-      {}
-   };
+//       deferred_transaction(uint128_t sender_id, account_name sender, account_name payer,time_point_sec execute_after,
+//                            const signed_transaction& txn)
+//       : signed_transaction(txn),
+//         sender_id(sender_id),
+//         sender(sender),
+//         payer(payer),
+//         execute_after(execute_after)
+//       {}
+//    };
 
    struct deferred_reference {
       deferred_reference(){}
@@ -188,9 +189,11 @@ namespace eosio { namespace chain {
 
 FC_REFLECT( eosio::chain::transaction_header, (expiration)(ref_block_num)(ref_block_prefix)
                                               (max_net_usage_words)(max_cpu_usage_ms)(delay_sec) )
-FC_REFLECT_DERIVED( eosio::chain::transaction, (eosio::chain::transaction_header), (context_free_actions)(actions)(transaction_extensions) )
+FC_REFLECT_DERIVED( eosio::chain::transaction, (eosio::chain::transaction_header), (actions)(transaction_extensions) )
+////Y FC_REFLECT_DERIVED( eosio::chain::transaction, (eosio::chain::transaction_header), (context_free_actions)(actions)(transaction_extensions) )
+
 FC_REFLECT_DERIVED( eosio::chain::signed_transaction, (eosio::chain::transaction), (signatures)(context_free_data) )
 FC_REFLECT_ENUM( eosio::chain::packed_transaction::compression_type, (none)(zlib))
 FC_REFLECT( eosio::chain::packed_transaction, (signatures)(compression)(packed_context_free_data)(packed_trx) )
-FC_REFLECT_DERIVED( eosio::chain::deferred_transaction, (eosio::chain::signed_transaction), (sender_id)(sender)(payer)(execute_after) )
+////Y FC_REFLECT_DERIVED( eosio::chain::deferred_transaction, (eosio::chain::signed_transaction), (sender_id)(sender)(payer)(execute_after) )
 FC_REFLECT( eosio::chain::deferred_reference, (sender)(sender_id) )

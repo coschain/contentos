@@ -172,22 +172,24 @@ namespace eosio { namespace chain {
       record_transaction( id, trx.expiration ); /// checks for dupes
    }
 
-   void transaction_context::init_for_deferred_trx( fc::time_point p )
-   {
-      published = p;
-      trace->scheduled = true;
-      apply_context_free = false;
-      init( 0 );
-   }
+////Y
+//    void transaction_context::init_for_deferred_trx( fc::time_point p )
+//    {
+//       published = p;
+//       trace->scheduled = true;
+//       apply_context_free = false;
+//       init( 0 );
+//    }
 
    void transaction_context::exec() {
       FC_ASSERT( is_initialized, "must first initialize" );
 
       if( apply_context_free ) {
-         for( const auto& act : trx.context_free_actions ) {
-            trace->action_traces.emplace_back();
-            dispatch_action( trace->action_traces.back(), act, true );
-         }
+        //// Y
+        //  for( const auto& act : trx.context_free_actions ) {
+        //     trace->action_traces.emplace_back();
+        //     dispatch_action( trace->action_traces.back(), act, true );
+        //  }
       }
 
       if( delay == fc::microseconds() ) {

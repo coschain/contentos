@@ -21,7 +21,7 @@ namespace eosio { namespace chain {
                                   uint64_t packed_trx_prunable_size,
                                   uint32_t num_signatures              );
 
-         void init_for_deferred_trx( fc::time_point published );
+         ////Y void init_for_deferred_trx( fc::time_point published );
 
          void exec();
          void finalize();

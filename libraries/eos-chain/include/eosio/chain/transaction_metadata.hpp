@@ -42,7 +42,8 @@ class transaction_metadata {
          return signing_keys->second;
       }
 
-      uint32_t total_actions()const { return trx.context_free_actions.size() + trx.actions.size(); }
+      uint32_t total_actions()const { return trx.actions.size(); }
+      ////Y uint32_t total_actions()const { return trx.context_free_actions.size() + trx.actions.size(); }
 };
 
 using transaction_metadata_ptr = std::shared_ptr<transaction_metadata>;
