@@ -138,24 +138,23 @@ namespace dorothy {
         const auto* stmt = (const hsql::SelectStatement*)result.getStatement(0);
         // printStatementInfo(stmt);
         // std::string field(((const hsql::SelectStatement*)stmt)->order->at(0)->expr->name);
-        std::string field(stmt -> order -> at(0) -> expr -> name);
-        std::cout << field << "\n";
+        // std::string field(stmt -> order -> at(0) -> expr -> name);
         // query_account(stmt);
-        query_account(stmt);
-        // std::string table_name(((const hsql::SelectStatement*)stmt) -> fromTable -> getName());
-        // if (table_name == "dynamic_global_property"){
-        //     query_dynamic_global_property();
+        std::string table_name(stmt -> fromTable -> getName());
+        if (table_name == "dynamic_global_property"){
+            query_dynamic_global_property();
+        }
         // }else if (table_name == "dynamic_global_reward_property") {
         //     query_dynamic_global_reward_property();
-        // } else if (table_name == "comment") {
-        //     query_comment();
-        // } else if(table_name == "account") {
-        //     query_account();
-        // }
-        // else {
-        //      std::cerr << "unknown table:" + table_name << "\n";
-
-        // }
+        // } 
+          else if (table_name == "comment") {
+            query_comment(stmt);
+        } else if(table_name == "account") {
+            query_account(stmt);
+        }
+        else {
+             std::cerr << "unknown table:" + table_name << "\n";
+        }
 
     }
 
