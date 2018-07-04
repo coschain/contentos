@@ -106,6 +106,7 @@ namespace contento { namespace chain {
           * their votes reduced.
           */
          uint32_t vote_power_reserve_rate = 40;
+       
    };
 
    typedef multi_index_container<
