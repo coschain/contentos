@@ -97,7 +97,7 @@ namespace fc {
     }
 
     context( fc::thread* t) :
-#if BOOST_VERSION >= 105600 && BOOST_VERSION <= 106100 
+#if BOOST_VERSION >= 105600 // && BOOST_VERSION <= 106100 
      my_context(nullptr),
 #elif BOOST_VERSION >= 105300
      my_context(new bc::fcontext_t),
