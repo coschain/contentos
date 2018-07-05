@@ -38,4 +38,17 @@ namespace dorothy {
                 (current -> last_irreversible_block_num);
             }
     };
+
+    class DynamicGlobalRewardPropertyPrinter {
+        public:
+            template<typename Iterator>
+            void print(TablePrinter& tp, Iterator current)
+            {
+                tp << current -> id._id << current -> subject_reward_balance.to_string() << 
+                std::string(current -> subject_recent_claims) << current -> comment_reward_balance.to_string() << 
+                std::string(current -> comment_recent_claims) << current -> other_reward_balance.to_string() << 
+                std::string(current -> tick) << current -> subject_last_update.sec_since_epoch() << 
+                current -> comment_last_update.sec_since_epoch();
+            }
+    };
 }

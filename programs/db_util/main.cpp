@@ -13,8 +13,13 @@ int main(int argc, char** argv) {
 
     // std::string sql("select * from account order by id");
     std::string sql;
-    std::cout << ">> ";
-    std::getline(std::cin, sql);
-    database.query(sql);
+    std::cout << "\n>> ";
+    while (std::getline(std::cin, sql))
+    {
+        database.query(sql);
+        std::cout << "\n>> "; 
+    }
     database.close();
+    std::cout << "quit";
+   
 }

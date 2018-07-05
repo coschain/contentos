@@ -32,8 +32,8 @@ namespace dorothy {
 
             void query(std::string& sql );
 
-            void query_dynamic_global_property();
-            // void query_dynamic_global_reward_property();
+            void query_dynamic_global_property(const hsql::SelectStatement* stmt);
+            void query_dynamic_global_reward_property(const hsql::SelectStatement* stmt);
             void query_comment(const hsql::SelectStatement* stmt);
             void query_account(const hsql::SelectStatement* stmt);
 
@@ -45,6 +45,5 @@ namespace dorothy {
             void print_footer(TablePrinter& tp);
             
             std::shared_ptr<chainbase::database> _chain_db;
-            TablePrinter _tp;
     };
 }

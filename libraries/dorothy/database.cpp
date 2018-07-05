@@ -8,7 +8,7 @@
 namespace dorothy {
 
     database::database()
-    : _chain_db(std::make_shared<chainbase::database>()), _tp(&std::cout){}
+    : _chain_db(std::make_shared<chainbase::database>()){}
 
     database::~database()
     {
@@ -68,8 +68,9 @@ namespace dorothy {
         } 
     }
 
-    void database::query_dynamic_global_property()
+    void database::query_dynamic_global_property(const hsql::SelectStatement* stmt)
     {
+        TablePrinter _tp(&std::cout);
         std::vector<column> columns = {
             {"id", 0}, {"head_block_number", 0}, {"time", 10}, {"current_witness", 0}, {"virtual_supply", 20},
             {"current_supply", 20}, {"vesting_shares", 0}, {"last_irrversible_block", 00}
@@ -84,9 +85,25 @@ namespace dorothy {
         print_footer(_tp);
     }
 
+    void database::query_dynamic_global_reward_property(const hsql::SelectStatement* stmt)
+    {
+        TablePrinter _tp(&std::cout);
+        std::vector<column> columns = {
+            {"id", 0}, {"subject_reward_balance", 0}, {"subject_recent_claims", 0}, 
+            {"comment_reward_balance", 0}, {"comment_recent_claims", 0}, {"other_reward_balance", 0},
+            {"tick", 5}, {"subject_last_update", 0}, {"comment_last_update", 0}
+        };
+        print_header(_tp, columns);
+        _chain_db->with_read_lock( [&]()
+        {
+            print_body<dynamic_global_reward_property_index, contento::chain::by_id, dorothy::DynamicGlobalRewardPropertyPrinter>(_tp);
+        });
+        print_footer(_tp); 
+    } 
+
     void database::query_comment(const hsql::SelectStatement* stmt)
     {
-        
+        TablePrinter _tp(&std::cout);
         std::string field;
         if (stmt->order != nullptr) {
             field = stmt -> order -> at(0) -> expr -> name;
@@ -94,8 +111,6 @@ namespace dorothy {
         else {
             field = "id";
         }
-
-        // if(field == "id")
         std::vector<column> columns = {
             {"id", 0}, {"is_subject", 0}, {"parent_author", 0}, {"parent_permlink", 0}, {"author", 15},
             {"permlink", 20}, {"title", 20}, 
@@ -105,7 +120,18 @@ namespace dorothy {
         print_header(_tp, columns);
         _chain_db->with_read_lock( [&]()
         {
-           print_body<comment_index, contento::chain::by_id, dorothy::CommentPrinter>(_tp);
+            if(field == "id")
+                print_body<comment_index, contento::chain::by_id, dorothy::CommentPrinter>(_tp);
+            else if (field == "cashout_time")
+                print_body<comment_index, contento::chain::by_cashout_time, dorothy::CommentPrinter>(_tp);
+            else if (field == "permlink")
+                print_body<comment_index, contento::chain::by_permlink, dorothy::CommentPrinter>(_tp); 
+            else if (field == "root")
+                print_body<comment_index, contento::chain::by_root, dorothy::CommentPrinter>(_tp);
+            else if (field == "parent")
+                print_body<comment_index, contento::chain::by_parent, dorothy::CommentPrinter>(_tp);
+            else
+                std::cout << "invalid order key\n";
         });
         print_footer(_tp);
 
@@ -113,6 +139,14 @@ namespace dorothy {
 
     void database::query_account(const hsql::SelectStatement* stmt)
     {
+        TablePrinter _tp(&std::cout);
+        std::string field;
+        if (stmt->order != nullptr) {
+            field = stmt -> order -> at(0) -> expr -> name;
+        }
+        else {
+            field = "id";
+        }
         std::vector<column> columns = {
             {"id", 0}, {"name", 12}, {"balance", 15}, {"vesting_shares", 15}, 
             {"next_vesting_withdrawal", 10}, {"to_withdraw", 10}, {"withdrawn", 10}
@@ -120,7 +154,16 @@ namespace dorothy {
         print_header(_tp, columns);
         _chain_db->with_read_lock( [&]()
         {
-            print_body<account_index, contento::chain::by_id, dorothy::AccountPrinter>(_tp);
+            if(field=="id")
+                print_body<account_index, contento::chain::by_id, dorothy::AccountPrinter>(_tp);
+            else if (field == "name")
+                print_body<account_index, contento::chain::by_name, dorothy::AccountPrinter>(_tp);
+            else if (field == "balance")
+                print_body<account_index, contento::chain::by_balance, dorothy::AccountPrinter>(_tp);
+            else if (field == "vesting_shares")
+                print_body<account_index, contento::chain::by_vesting_shares, dorothy::AccountPrinter>(_tp);
+            else
+               std::cout << "invalid order key\n"; 
         });
         print_footer(_tp);
     }
@@ -136,23 +179,16 @@ namespace dorothy {
         
         assert(result.getStatement(0)->type() == hsql::kStmtSelect);
         const auto* stmt = (const hsql::SelectStatement*)result.getStatement(0);
-        // printStatementInfo(stmt);
-        // std::string field(((const hsql::SelectStatement*)stmt)->order->at(0)->expr->name);
-        // std::string field(stmt -> order -> at(0) -> expr -> name);
-        // query_account(stmt);
         std::string table_name(stmt -> fromTable -> getName());
-        if (table_name == "dynamic_global_property"){
-            query_dynamic_global_property();
-        }
-        // }else if (table_name == "dynamic_global_reward_property") {
-        //     query_dynamic_global_reward_property();
-        // } 
-          else if (table_name == "comment") {
+        if (table_name == "property"){
+            query_dynamic_global_property(stmt);
+        }else if (table_name == "reward_property") {
+            query_dynamic_global_reward_property(stmt);
+        } else if (table_name == "comment") {
             query_comment(stmt);
         } else if(table_name == "account") {
             query_account(stmt);
-        }
-        else {
+        }else {
              std::cerr << "unknown table:" + table_name << "\n";
         }
 
