@@ -1,8 +1,9 @@
 #include <iostream>
 #include <cassert>
 #include <boost/filesystem.hpp>
-#include "SQLParser.h"
-#include "sql/statements.h"
+#include "hsql/SQLParser.h"
+#include "hsql/sql/statements.h"
+#include "hsql/sql/Expr.h"
 #include "table_printer.h"
 
 #include <contento/chain/global_property_object.hpp>
@@ -19,6 +20,9 @@ typedef contento::chain::account_index account_index;
 typedef std::pair<std::string, uint> column;
 
 namespace dorothy {
+    using hsql::OperatorType;
+
+    typedef hsql::Expr Expr;
 
     class database {
         public:
@@ -27,6 +31,8 @@ namespace dorothy {
 
             void open(const boost::filesystem::path& dir);
             void close();
+
+            void catch_expression(Expr* expr, std::vector<Expr*>& expr_v);
 
             void initialize_indexes();
 
@@ -41,6 +47,9 @@ namespace dorothy {
 
             template<typename index_type, typename by_tag, typename printer>
             void print_body(TablePrinter& tp);
+
+            template<typename index_type, typename by_tag,  typename printer, typename compare_key>
+            void print_body(TablePrinter& tp, compare_key&& key);
 
             void print_footer(TablePrinter& tp);
             

@@ -11,7 +11,8 @@ int main(int argc, char** argv) {
     dorothy::database database;
     database.open(dir);
 
-    // std::string sql("select * from account order by id");
+    // std::string sql("select * from account where name = 'initminer'  order by name");
+    // database.query(sql);
     std::string sql;
     std::cout << "\n>> ";
     while (std::getline(std::cin, sql))
@@ -21,5 +22,4 @@ int main(int argc, char** argv) {
     }
     database.close();
     std::cout << "quit";
-   
 }

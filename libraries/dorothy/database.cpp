@@ -1,6 +1,7 @@
 
 #include <dorothy/database.hpp>
 #include <dorothy/printer.hpp>
+#include "hsql/util/sqlhelper.h"
 
 #define NDEBUG
 
@@ -34,6 +35,14 @@ namespace dorothy {
         initialize_indexes();
     }
 
+    void database::catch_expression(Expr* expr, std::vector<Expr*>& expr_v){
+        if(expr == nullptr) return;
+        if(expr -> opType == OperatorType::kOpEquals)
+            expr_v.push_back(expr);
+        catch_expression(expr->expr, expr_v);
+        catch_expression(expr->expr2, expr_v);
+    }
+
     void database::print_header(TablePrinter& tp, std::vector<column>& columns )
     {
         uint span(0);
@@ -57,6 +66,18 @@ namespace dorothy {
         tp.PrintFooter();
     }
 
+    template<typename index_type, typename by_tag, typename printer, typename compare_key>
+    void database::print_body(TablePrinter& tp, compare_key&& key)
+    {
+        const auto& idx = _chain_db -> template get_index<index_type>().indices().template get<by_tag>();
+        auto itr = idx.find(std::forward<compare_key>(key));
+        if(itr != idx.end())
+        {
+            printer p = printer();
+            p.template print<decltype(itr)>(tp, itr); 
+        }
+    }
+
     template<typename index_type, typename by_tag, typename printer>
     void database::print_body(TablePrinter& tp)
     {
@@ -66,7 +87,7 @@ namespace dorothy {
             printer p = printer();
             p.template print<decltype(current)>(tp, current);
         } 
-    }
+    } 
 
     void database::query_dynamic_global_property(const hsql::SelectStatement* stmt)
     {
@@ -111,6 +132,10 @@ namespace dorothy {
         else {
             field = "id";
         }
+        std::vector<Expr*> expr_v;
+        if (stmt -> whereClause != nullptr) {
+            catch_expression(stmt -> whereClause, expr_v);
+        }
         std::vector<column> columns = {
             {"id", 0}, {"is_subject", 0}, {"parent_author", 0}, {"parent_permlink", 0}, {"author", 15},
             {"permlink", 20}, {"title", 20}, 
@@ -120,8 +145,17 @@ namespace dorothy {
         print_header(_tp, columns);
         _chain_db->with_read_lock( [&]()
         {
-            if(field == "id")
-                print_body<comment_index, contento::chain::by_id, dorothy::CommentPrinter>(_tp);
+            if(field == "id"){
+                if (expr_v.empty()) 
+                    print_body<comment_index, contento::chain::by_id, dorothy::CommentPrinter>(_tp);
+                else {
+                    Expr* e = expr_v.at(0);
+                    std::string field = e -> expr -> name;
+                    assert(field == "id");
+                    int value = e -> expr2 -> ival;
+                    print_body<comment_index, contento::chain::by_id, dorothy::CommentPrinter>(_tp, value); 
+                }
+            }
             else if (field == "cashout_time")
                 print_body<comment_index, contento::chain::by_cashout_time, dorothy::CommentPrinter>(_tp);
             else if (field == "permlink")
@@ -147,6 +181,11 @@ namespace dorothy {
         else {
             field = "id";
         }
+
+        std::vector<Expr*> expr_v;
+        if (stmt -> whereClause != nullptr) {
+            catch_expression(stmt -> whereClause, expr_v);
+        }
         std::vector<column> columns = {
             {"id", 0}, {"name", 12}, {"balance", 15}, {"vesting_shares", 15}, 
             {"next_vesting_withdrawal", 10}, {"to_withdraw", 10}, {"withdrawn", 10}
@@ -154,16 +193,34 @@ namespace dorothy {
         print_header(_tp, columns);
         _chain_db->with_read_lock( [&]()
         {
-            if(field=="id")
-                print_body<account_index, contento::chain::by_id, dorothy::AccountPrinter>(_tp);
-            else if (field == "name")
-                print_body<account_index, contento::chain::by_name, dorothy::AccountPrinter>(_tp);
-            else if (field == "balance")
-                print_body<account_index, contento::chain::by_balance, dorothy::AccountPrinter>(_tp);
-            else if (field == "vesting_shares")
-                print_body<account_index, contento::chain::by_vesting_shares, dorothy::AccountPrinter>(_tp);
-            else
-               std::cout << "invalid order key\n"; 
+            if(field=="id"){
+                if (expr_v.empty())
+                    print_body<account_index, contento::chain::by_id, dorothy::AccountPrinter>(_tp);
+                else{
+                    Expr* e = expr_v.at(0);
+                    std::string field = e -> expr -> name;
+                    assert(field == "id");
+                    int value = e -> expr2 -> ival;
+                    print_body<account_index, contento::chain::by_id, dorothy::AccountPrinter>(_tp, value);
+                }
+            }
+            else if (field == "name"){
+                if (expr_v.empty())
+                    print_body<account_index, contento::chain::by_name, dorothy::AccountPrinter>(_tp);
+                else {
+                    Expr* e = expr_v.at(0);
+                    std::string field = e -> expr -> name;
+                     assert(field == "name");
+                     std::string value = e -> expr2 -> name;
+                    print_body<account_index, contento::chain::by_name, dorothy::AccountPrinter>(_tp, value);
+                }
+            }
+             else if (field == "balance")
+                 print_body<account_index, contento::chain::by_balance, dorothy::AccountPrinter>(_tp);
+             else if (field == "vesting_shares")
+                 print_body<account_index, contento::chain::by_vesting_shares, dorothy::AccountPrinter>(_tp);
+             else
+                std::cout << "invalid order key\n";
         });
         print_footer(_tp);
     }
@@ -179,18 +236,19 @@ namespace dorothy {
         
         assert(result.getStatement(0)->type() == hsql::kStmtSelect);
         const auto* stmt = (const hsql::SelectStatement*)result.getStatement(0);
-        std::string table_name(stmt -> fromTable -> getName());
-        if (table_name == "property"){
-            query_dynamic_global_property(stmt);
-        }else if (table_name == "reward_property") {
-            query_dynamic_global_reward_property(stmt);
-        } else if (table_name == "comment") {
-            query_comment(stmt);
-        } else if(table_name == "account") {
-            query_account(stmt);
-        }else {
-             std::cerr << "unknown table:" + table_name << "\n";
-        }
+        //hsql::printSelectStatementInfo(stmt, 0);
+        // std::string table_name(stmt -> fromTable -> getName());
+        // if (table_name == "property"){
+        //     query_dynamic_global_property(stmt);
+        // }else if (table_name == "reward_property") {
+        //     query_dynamic_global_reward_property(stmt);
+        // } else if (table_name == "comment") {
+        //     query_comment(stmt);
+        // } else if(table_name == "account") {
+        query_account(stmt);
+        // }else {
+        //      std::cerr << "unknown table:" + table_name << "\n";
+        // }
 
     }
 

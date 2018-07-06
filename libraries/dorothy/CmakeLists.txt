@@ -23,7 +23,6 @@ target_link_libraries( dorothy
 )
 
 target_include_directories( dorothy PUBLIC
-     "/usr/local/include/hsql"
     "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
 
