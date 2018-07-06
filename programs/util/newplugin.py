@@ -220,7 +220,7 @@ void {plugin_name}_plugin::plugin_shutdown()
 
 }} }} }} // {plugin_provider}::plugin::{plugin_name}
 
-STEEMIT_DEFINE_PLUGIN( {plugin_name}, {plugin_provider}::plugin::{plugin_name}::{plugin_name}_plugin )
+CONTENTOS_DEFINE_PLUGIN( {plugin_name}, {plugin_provider}::plugin::{plugin_name}::{plugin_name}_plugin )
 """,
 }
 
@@ -230,7 +230,7 @@ import sys
 
 def main(argv):
     parser = argparse.ArgumentParser()
-    parser.add_argument("provider", help="Name of plugin provider (steemit for plugins developed by Steemit)")
+    parser.add_argument("provider", help="Name of plugin provider (contentos for plugins developed by Contentos)")
     parser.add_argument("name", help="Name of plugin to create")
     args = parser.parse_args(argv[1:])
     ctx = {

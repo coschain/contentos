@@ -434,16 +434,16 @@ const escrow_object* database::find_escrow( const account_name_type& name, uint3
 
 const limit_order_object& database::get_limit_order( const account_name_type& name, uint32_t orderid )const
 { try {
-   if( !has_hardfork( CONTENTO_HARDFORK_0_6__127 ) )
-      orderid = orderid & 0x0000FFFF;
+//    if( !has_hardfork( CONTENTO_HARDFORK_0_6__127 ) )
+//       orderid = orderid & 0x0000FFFF;
 
    return get< limit_order_object, by_account >( boost::make_tuple( name, orderid ) );
 } FC_CAPTURE_AND_RETHROW( (name)(orderid) ) }
 
 const limit_order_object* database::find_limit_order( const account_name_type& name, uint32_t orderid )const
 {
-   if( !has_hardfork( CONTENTO_HARDFORK_0_6__127 ) )
-      orderid = orderid & 0x0000FFFF;
+//    if( !has_hardfork( CONTENTO_HARDFORK_0_6__127 ) )
+//       orderid = orderid & 0x0000FFFF;
 
    return find< limit_order_object, by_account >( boost::make_tuple( name, orderid ) );
 }
@@ -493,10 +493,10 @@ const hardfork_property_object& database::get_hardfork_property_object()const
 
 const time_point_sec database::calculate_discussion_payout_time( const comment_object& comment )const
 {
-   if( has_hardfork( CONTENTO_HARDFORK_0_17__769 ) || comment.parent_author == CONTENTO_ROOT_POST_PARENT )
+//    if( has_hardfork( CONTENTO_HARDFORK_0_17__769 ) || comment.parent_author == CONTENTO_ROOT_POST_PARENT )
       return comment.cashout_time;
-   else
-      return get< comment_object >( comment.root_comment ).cashout_time;
+//    else
+//       return get< comment_object >( comment.root_comment ).cashout_time;
 }
 
 const reward_fund_object& database::get_reward_fund( const comment_object& c ) const
@@ -853,8 +853,8 @@ signed_block database::_generate_block(
    pending_block.timestamp = when;
    pending_block.transaction_merkle_root = pending_block.calculate_merkle_root();
    pending_block.witness = witness_owner;
-   if( has_hardfork( CONTENTO_HARDFORK_0_5__54 ) )
-   {
+//    if( has_hardfork( CONTENTO_HARDFORK_0_5__54 ) )
+//    {
       const auto& witness = get_witness( witness_owner );
 
       if( witness.running_version != CONTENTO_BLOCKCHAIN_VERSION )
@@ -874,7 +874,7 @@ signed_block database::_generate_block(
          // Make vote match binary configuration. This is vote to not apply the new hardfork.
          pending_block.extensions.insert( block_header_extensions( hardfork_version_vote( _hardfork_versions[ hfp.last_hardfork ], _hardfork_times[ hfp.last_hardfork ] ) ) );
       }
-   }
+//    }
 
    if( !(skip & skip_witness_signature) )
       pending_block.sign( block_signing_private_key );
@@ -1085,10 +1085,10 @@ uint32_t database::get_pow_summary_target()const
    if( dgp.num_pow_witnesses >= 1004 )
       return 0;
 
-   if( has_hardfork( CONTENTO_HARDFORK_0_16__551 ) )
+//    if( has_hardfork( CONTENTO_HARDFORK_0_16__551 ) )
       return (0xFE00 - 0x0040 * dgp.num_pow_witnesses ) << 0x10;
-   else
-      return (0xFC00 - 0x0040 * dgp.num_pow_witnesses) << 0x10;
+//    else
+//       return (0xFC00 - 0x0040 * dgp.num_pow_witnesses) << 0x10;
 }
 
 void database::adjust_proxied_witness_votes( const account_object& a,
@@ -1168,17 +1168,17 @@ void database::adjust_witness_vote( const witness_object& witness, share_type de
       w.votes += delta;
       FC_ASSERT( w.votes <= get_dynamic_global_properties().total_vesting_shares.amount, "", ("w.votes", w.votes)("props",get_dynamic_global_properties().total_vesting_shares) );
 
-      if( has_hardfork( CONTENTO_HARDFORK_0_2 ) )
+    //   if( has_hardfork( CONTENTO_HARDFORK_0_2 ) )
          w.virtual_scheduled_time = w.virtual_last_update + (VIRTUAL_SCHEDULE_LAP_LENGTH2 - w.virtual_position)/(w.votes.value+1);
-      else
-         w.virtual_scheduled_time = w.virtual_last_update + (VIRTUAL_SCHEDULE_LAP_LENGTH - w.virtual_position)/(w.votes.value+1);
+    //   else
+    //      w.virtual_scheduled_time = w.virtual_last_update + (VIRTUAL_SCHEDULE_LAP_LENGTH - w.virtual_position)/(w.votes.value+1);
 
       /** witnesses with a low number of votes could overflow the time field and end up with a scheduled time in the past */
-      if( has_hardfork( CONTENTO_HARDFORK_0_4 ) )
-      {
+    //   if( has_hardfork( CONTENTO_HARDFORK_0_4 ) )
+    //   {
          if( w.virtual_scheduled_time < wso.current_virtual_time )
             w.virtual_scheduled_time = fc::uint128::max_value();
-      }
+//       }
    } );
 }
 
@@ -1193,7 +1193,7 @@ void database::clear_witness_votes( const account_object& a )
       remove(current);
    }
 
-   if( has_hardfork( CONTENTO_HARDFORK_0_6__104 ) )
+//    if( has_hardfork( CONTENTO_HARDFORK_0_6__104 ) )
       modify( a, [&](account_object& acc )
       {
          acc.witnesses_voted_for = 0;
@@ -1202,7 +1202,7 @@ void database::clear_witness_votes( const account_object& a )
 
 void database::clear_null_account_balance()
 {
-   if( !has_hardfork( CONTENTO_HARDFORK_0_14__327 ) ) return;
+//    if( !has_hardfork( CONTENTO_HARDFORK_0_14__327 ) ) return;
 
    const auto& null_account = get_account( CONTENTO_NULL_ACCOUNT );
    asset total_steem( 0, COC_SYMBOL );
@@ -1807,13 +1807,13 @@ void database::process_savings_withdraws()
 
 asset database::get_liquidity_reward()const
 {
-   if( has_hardfork( CONTENTO_HARDFORK_0_12__178 ) )
+//    if( has_hardfork( CONTENTO_HARDFORK_0_12__178 ) )
       return asset( 0, COC_SYMBOL );
 
-   const auto& props = get_dynamic_global_properties();
-   static_assert( CONTENTO_LIQUIDITY_REWARD_PERIOD_SEC == 60*60, "this code assumes a 1 hour time interval" );
-   asset percent( protocol::calc_percent_reward_per_hour< CONTENTO_LIQUIDITY_APR_PERCENT >( props.virtual_supply.amount ), COC_SYMBOL );
-   return std::max( percent, CONTENTO_MIN_LIQUIDITY_REWARD );
+//    const auto& props = get_dynamic_global_properties();
+//    static_assert( CONTENTO_LIQUIDITY_REWARD_PERIOD_SEC == 60*60, "this code assumes a 1 hour time interval" );
+//    asset percent( protocol::calc_percent_reward_per_hour< CONTENTO_LIQUIDITY_APR_PERCENT >( props.virtual_supply.amount ), COC_SYMBOL );
+//    return std::max( percent, CONTENTO_MIN_LIQUIDITY_REWARD );
 }
 
 asset database::get_content_reward()const
@@ -1909,12 +1909,12 @@ void database::pay_liquidity_reward()
 
 uint16_t database::get_curation_rewards_percent( const comment_object& c ) const
 {
-   if( has_hardfork( CONTENTO_HARDFORK_0_17__774 ) )
+//    if( has_hardfork( CONTENTO_HARDFORK_0_17__774 ) )
       return get_reward_fund( c ).percent_curation_rewards;
-   else if( has_hardfork( CONTENTO_HARDFORK_0_8__116 ) )
-      return CONTENTO_1_PERCENT * 25;
-   else
-      return CONTENTO_1_PERCENT * 50;
+//    else if( has_hardfork( CONTENTO_HARDFORK_0_8__116 ) )
+//       return CONTENTO_1_PERCENT * 25;
+//    else
+//       return CONTENTO_1_PERCENT * 50;
 }
 
 share_type database::pay_reward_funds( share_type reward )
@@ -1939,6 +1939,16 @@ share_type database::pay_reward_funds( share_type reward )
    }
 
    return used_rewards;
+}
+
+asset database::to_sbd( const asset& steem )const
+{
+    return util::to_sbd( get_feed_history().current_median_history, steem );
+}
+
+asset database::to_steem( const asset& sbd )const
+{
+    return util::to_steem( get_feed_history().current_median_history, sbd );
 }
 
 void database::account_recovery_processing()
@@ -2517,10 +2527,10 @@ void database::_apply_block( const signed_block& next_block )
 
    const auto& gprops = get_dynamic_global_properties();
    auto block_size = fc::raw::pack_size( next_block );
-   if( has_hardfork( CONTENTO_HARDFORK_0_12 ) )
-   {
+//    if( has_hardfork( CONTENTO_HARDFORK_0_12 ) )
+//    {
       FC_ASSERT( block_size <= gprops.maximum_block_size, "Block Size is too Big", ("next_block_num",next_block_num)("block_size", block_size)("max",gprops.maximum_block_size) );
-   }
+//    }
 
    if( block_size < CONTENTO_MIN_BLOCK_SIZE )
    {
@@ -2538,15 +2548,15 @@ void database::_apply_block( const signed_block& next_block )
    /// parse witness version reporting
    process_header_extensions( next_block );
 
-   if( has_hardfork( CONTENTO_HARDFORK_0_5__54 ) ) // Cannot remove after hardfork
-   {
+//    if( has_hardfork( CONTENTO_HARDFORK_0_5__54 ) ) // Cannot remove after hardfork
+//    {
       const auto& witness = get_witness( next_block.witness );
       const auto& hardfork_state = get_hardfork_property_object();
       FC_ASSERT( witness.running_version >= hardfork_state.current_hardfork_version,
          "Block produced by witness that is not running current hardfork",
          ("witness",witness)("next_block.witness",next_block.witness)("hardfork_state", hardfork_state)
       );
-   }
+//   }
 
    for( const auto& trx : next_block.transactions )
    {
@@ -2659,19 +2669,19 @@ try {
    for( int i = 0; i < wso.num_scheduled_witnesses; i++ )
    {
       const auto& wit = get_witness( wso.current_shuffled_witnesses[i] );
-      if( has_hardfork( CONTENTO_HARDFORK_0_19__822 ) )
-      {
+    //   if( has_hardfork( CONTENTO_HARDFORK_0_19__822 ) )
+    //   {
          if( now < wit.last_sbd_exchange_update + CONTENTO_MAX_FEED_AGE_SECONDS
             && !wit.sbd_exchange_rate.is_null() )
          {
             feeds.push_back( wit.sbd_exchange_rate );
          }
-      }
-      else if( wit.last_sbd_exchange_update < now + CONTENTO_MAX_FEED_AGE_SECONDS &&
-          !wit.sbd_exchange_rate.is_null() )
-      {
-         feeds.push_back( wit.sbd_exchange_rate );
-      }
+    //   }
+    //   else if( wit.last_sbd_exchange_update < now + CONTENTO_MAX_FEED_AGE_SECONDS &&
+    //       !wit.sbd_exchange_rate.is_null() )
+    //   {
+    //      feeds.push_back( wit.sbd_exchange_rate );
+    //   }
    }
 
    if( feeds.size() >= CONTENTO_MIN_FEEDS )
@@ -2683,7 +2693,7 @@ try {
       {
          fho.price_history.push_back( median_feed );
          size_t steemit_feed_history_window = CONTENTO_FEED_HISTORY_WINDOW_PRE_HF_16;
-         if( has_hardfork( CONTENTO_HARDFORK_0_16__551) )
+        //  if( has_hardfork( CONTENTO_HARDFORK_0_16__551) )
             steemit_feed_history_window = CONTENTO_FEED_HISTORY_WINDOW;
 
          if( fho.price_history.size() > steemit_feed_history_window )
@@ -2766,7 +2776,7 @@ void database::_apply_transaction(const signed_transaction& trx)
 
       CONTENTO_ASSERT( trx.expiration <= now + fc::seconds(CONTENTO_MAX_TIME_UNTIL_EXPIRATION), transaction_expiration_exception,
                   "", ("trx.expiration",trx.expiration)("now",now)("max_til_exp",CONTENTO_MAX_TIME_UNTIL_EXPIRATION));
-      if( has_hardfork( CONTENTO_HARDFORK_0_9 ) ) // Simple solution to pending trx bug when now == trx.expiration
+    //   if( has_hardfork( CONTENTO_HARDFORK_0_9 ) ) // Simple solution to pending trx bug when now == trx.expiration
          CONTENTO_ASSERT( now < trx.expiration, transaction_expiration_exception, "", ("now",now)("trx.exp",trx.expiration) );
       CONTENTO_ASSERT( now <= trx.expiration, transaction_expiration_exception, "", ("now",now)("trx.exp",trx.expiration) );
    }
@@ -2853,14 +2863,15 @@ void database::update_global_dynamic_data( const signed_block& b )
             modify( witness_missed, [&]( witness_object& w )
             {
                w.total_missed++;
-               if( has_hardfork( CONTENTO_HARDFORK_0_14__278 ) )
-               {
+            //    if( has_hardfork( CONTENTO_HARDFORK_0_14__278 ) )
+            //    {
                   if( head_block_num() - w.last_confirmed_block_num  > CONTENTO_BLOCKS_PER_DAY )
                   {
                      w.signing_key = public_key_type();
                      push_virtual_operation( shutdown_witness_operation( w.owner ) );
                   }
-               }
+            //    }
+//               }
             } );
          }
       }
@@ -3323,63 +3334,63 @@ void database::init_hardforks()
 {
    _hardfork_times[ 0 ] = fc::time_point_sec( CONTENTO_GENESIS_TIME );
    _hardfork_versions[ 0 ] = hardfork_version( 0, 0 );
-   FC_ASSERT( CONTENTO_HARDFORK_0_1 == 1, "Invalid hardfork configuration" );
-   _hardfork_times[ CONTENTO_HARDFORK_0_1 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_1_TIME );
-   _hardfork_versions[ CONTENTO_HARDFORK_0_1 ] = CONTENTO_HARDFORK_0_1_VERSION;
-   FC_ASSERT( CONTENTO_HARDFORK_0_2 == 2, "Invlaid hardfork configuration" );
-   _hardfork_times[ CONTENTO_HARDFORK_0_2 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_2_TIME );
-   _hardfork_versions[ CONTENTO_HARDFORK_0_2 ] = CONTENTO_HARDFORK_0_2_VERSION;
-   FC_ASSERT( CONTENTO_HARDFORK_0_3 == 3, "Invalid hardfork configuration" );
-   _hardfork_times[ CONTENTO_HARDFORK_0_3 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_3_TIME );
-   _hardfork_versions[ CONTENTO_HARDFORK_0_3 ] = CONTENTO_HARDFORK_0_3_VERSION;
-   FC_ASSERT( CONTENTO_HARDFORK_0_4 == 4, "Invalid hardfork configuration" );
-   _hardfork_times[ CONTENTO_HARDFORK_0_4 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_4_TIME );
-   _hardfork_versions[ CONTENTO_HARDFORK_0_4 ] = CONTENTO_HARDFORK_0_4_VERSION;
-   FC_ASSERT( CONTENTO_HARDFORK_0_5 == 5, "Invalid hardfork configuration" );
-   _hardfork_times[ CONTENTO_HARDFORK_0_5 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_5_TIME );
-   _hardfork_versions[ CONTENTO_HARDFORK_0_5 ] = CONTENTO_HARDFORK_0_5_VERSION;
-   FC_ASSERT( CONTENTO_HARDFORK_0_6 == 6, "Invalid hardfork configuration" );
-   _hardfork_times[ CONTENTO_HARDFORK_0_6 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_6_TIME );
-   _hardfork_versions[ CONTENTO_HARDFORK_0_6 ] = CONTENTO_HARDFORK_0_6_VERSION;
-   FC_ASSERT( CONTENTO_HARDFORK_0_7 == 7, "Invalid hardfork configuration" );
-   _hardfork_times[ CONTENTO_HARDFORK_0_7 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_7_TIME );
-   _hardfork_versions[ CONTENTO_HARDFORK_0_7 ] = CONTENTO_HARDFORK_0_7_VERSION;
-   FC_ASSERT( CONTENTO_HARDFORK_0_8 == 8, "Invalid hardfork configuration" );
-   _hardfork_times[ CONTENTO_HARDFORK_0_8 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_8_TIME );
-   _hardfork_versions[ CONTENTO_HARDFORK_0_8 ] = CONTENTO_HARDFORK_0_8_VERSION;
-   FC_ASSERT( CONTENTO_HARDFORK_0_9 == 9, "Invalid hardfork configuration" );
-   _hardfork_times[ CONTENTO_HARDFORK_0_9 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_9_TIME );
-   _hardfork_versions[ CONTENTO_HARDFORK_0_9 ] = CONTENTO_HARDFORK_0_9_VERSION;
-   FC_ASSERT( CONTENTO_HARDFORK_0_10 == 10, "Invalid hardfork configuration" );
-   _hardfork_times[ CONTENTO_HARDFORK_0_10 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_10_TIME );
-   _hardfork_versions[ CONTENTO_HARDFORK_0_10 ] = CONTENTO_HARDFORK_0_10_VERSION;
-   FC_ASSERT( CONTENTO_HARDFORK_0_11 == 11, "Invalid hardfork configuration" );
-   _hardfork_times[ CONTENTO_HARDFORK_0_11 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_11_TIME );
-   _hardfork_versions[ CONTENTO_HARDFORK_0_11 ] = CONTENTO_HARDFORK_0_11_VERSION;
-   FC_ASSERT( CONTENTO_HARDFORK_0_12 == 12, "Invalid hardfork configuration" );
-   _hardfork_times[ CONTENTO_HARDFORK_0_12 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_12_TIME );
-   _hardfork_versions[ CONTENTO_HARDFORK_0_12 ] = CONTENTO_HARDFORK_0_12_VERSION;
-   FC_ASSERT( CONTENTO_HARDFORK_0_13 == 13, "Invalid hardfork configuration" );
-   _hardfork_times[ CONTENTO_HARDFORK_0_13 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_13_TIME );
-   _hardfork_versions[ CONTENTO_HARDFORK_0_13 ] = CONTENTO_HARDFORK_0_13_VERSION;
-   FC_ASSERT( CONTENTO_HARDFORK_0_14 == 14, "Invalid hardfork configuration" );
-   _hardfork_times[ CONTENTO_HARDFORK_0_14 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_14_TIME );
-   _hardfork_versions[ CONTENTO_HARDFORK_0_14 ] = CONTENTO_HARDFORK_0_14_VERSION;
-   FC_ASSERT( CONTENTO_HARDFORK_0_15 == 15, "Invalid hardfork configuration" );
-   _hardfork_times[ CONTENTO_HARDFORK_0_15 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_15_TIME );
-   _hardfork_versions[ CONTENTO_HARDFORK_0_15 ] = CONTENTO_HARDFORK_0_15_VERSION;
-   FC_ASSERT( CONTENTO_HARDFORK_0_16 == 16, "Invalid hardfork configuration" );
-   _hardfork_times[ CONTENTO_HARDFORK_0_16 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_16_TIME );
-   _hardfork_versions[ CONTENTO_HARDFORK_0_16 ] = CONTENTO_HARDFORK_0_16_VERSION;
-   FC_ASSERT( CONTENTO_HARDFORK_0_17 == 17, "Invalid hardfork configuration" );
-   _hardfork_times[ CONTENTO_HARDFORK_0_17 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_17_TIME );
-   _hardfork_versions[ CONTENTO_HARDFORK_0_17 ] = CONTENTO_HARDFORK_0_17_VERSION;
-   FC_ASSERT( CONTENTO_HARDFORK_0_18 == 18, "Invalid hardfork configuration" );
-   _hardfork_times[ CONTENTO_HARDFORK_0_18 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_18_TIME );
-   _hardfork_versions[ CONTENTO_HARDFORK_0_18 ] = CONTENTO_HARDFORK_0_18_VERSION;
-   FC_ASSERT( CONTENTO_HARDFORK_0_19 == 19, "Invalid hardfork configuration" );
-   _hardfork_times[ CONTENTO_HARDFORK_0_19 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_19_TIME );
-   _hardfork_versions[ CONTENTO_HARDFORK_0_19 ] = CONTENTO_HARDFORK_0_19_VERSION;
+//    FC_ASSERT( CONTENTO_HARDFORK_0_1 == 1, "Invalid hardfork configuration" );
+//    _hardfork_times[ CONTENTO_HARDFORK_0_1 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_1_TIME );
+//    _hardfork_versions[ CONTENTO_HARDFORK_0_1 ] = CONTENTO_HARDFORK_0_1_VERSION;
+//    FC_ASSERT( CONTENTO_HARDFORK_0_2 == 2, "Invlaid hardfork configuration" );
+//    _hardfork_times[ CONTENTO_HARDFORK_0_2 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_2_TIME );
+//    _hardfork_versions[ CONTENTO_HARDFORK_0_2 ] = CONTENTO_HARDFORK_0_2_VERSION;
+//    FC_ASSERT( CONTENTO_HARDFORK_0_3 == 3, "Invalid hardfork configuration" );
+//    _hardfork_times[ CONTENTO_HARDFORK_0_3 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_3_TIME );
+//    _hardfork_versions[ CONTENTO_HARDFORK_0_3 ] = CONTENTO_HARDFORK_0_3_VERSION;
+//    FC_ASSERT( CONTENTO_HARDFORK_0_4 == 4, "Invalid hardfork configuration" );
+//    _hardfork_times[ CONTENTO_HARDFORK_0_4 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_4_TIME );
+//    _hardfork_versions[ CONTENTO_HARDFORK_0_4 ] = CONTENTO_HARDFORK_0_4_VERSION;
+//    FC_ASSERT( CONTENTO_HARDFORK_0_5 == 5, "Invalid hardfork configuration" );
+//    _hardfork_times[ CONTENTO_HARDFORK_0_5 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_5_TIME );
+//    _hardfork_versions[ CONTENTO_HARDFORK_0_5 ] = CONTENTO_HARDFORK_0_5_VERSION;
+//    FC_ASSERT( CONTENTO_HARDFORK_0_6 == 6, "Invalid hardfork configuration" );
+//    _hardfork_times[ CONTENTO_HARDFORK_0_6 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_6_TIME );
+//    _hardfork_versions[ CONTENTO_HARDFORK_0_6 ] = CONTENTO_HARDFORK_0_6_VERSION;
+//    FC_ASSERT( CONTENTO_HARDFORK_0_7 == 7, "Invalid hardfork configuration" );
+//    _hardfork_times[ CONTENTO_HARDFORK_0_7 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_7_TIME );
+//    _hardfork_versions[ CONTENTO_HARDFORK_0_7 ] = CONTENTO_HARDFORK_0_7_VERSION;
+//    FC_ASSERT( CONTENTO_HARDFORK_0_8 == 8, "Invalid hardfork configuration" );
+//    _hardfork_times[ CONTENTO_HARDFORK_0_8 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_8_TIME );
+//    _hardfork_versions[ CONTENTO_HARDFORK_0_8 ] = CONTENTO_HARDFORK_0_8_VERSION;
+//    FC_ASSERT( CONTENTO_HARDFORK_0_9 == 9, "Invalid hardfork configuration" );
+//    _hardfork_times[ CONTENTO_HARDFORK_0_9 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_9_TIME );
+//    _hardfork_versions[ CONTENTO_HARDFORK_0_9 ] = CONTENTO_HARDFORK_0_9_VERSION;
+//    FC_ASSERT( CONTENTO_HARDFORK_0_10 == 10, "Invalid hardfork configuration" );
+//    _hardfork_times[ CONTENTO_HARDFORK_0_10 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_10_TIME );
+//    _hardfork_versions[ CONTENTO_HARDFORK_0_10 ] = CONTENTO_HARDFORK_0_10_VERSION;
+//    FC_ASSERT( CONTENTO_HARDFORK_0_11 == 11, "Invalid hardfork configuration" );
+//    _hardfork_times[ CONTENTO_HARDFORK_0_11 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_11_TIME );
+//    _hardfork_versions[ CONTENTO_HARDFORK_0_11 ] = CONTENTO_HARDFORK_0_11_VERSION;
+//    FC_ASSERT( CONTENTO_HARDFORK_0_12 == 12, "Invalid hardfork configuration" );
+//    _hardfork_times[ CONTENTO_HARDFORK_0_12 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_12_TIME );
+//    _hardfork_versions[ CONTENTO_HARDFORK_0_12 ] = CONTENTO_HARDFORK_0_12_VERSION;
+//    FC_ASSERT( CONTENTO_HARDFORK_0_13 == 13, "Invalid hardfork configuration" );
+//    _hardfork_times[ CONTENTO_HARDFORK_0_13 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_13_TIME );
+//    _hardfork_versions[ CONTENTO_HARDFORK_0_13 ] = CONTENTO_HARDFORK_0_13_VERSION;
+//    FC_ASSERT( CONTENTO_HARDFORK_0_14 == 14, "Invalid hardfork configuration" );
+//    _hardfork_times[ CONTENTO_HARDFORK_0_14 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_14_TIME );
+//    _hardfork_versions[ CONTENTO_HARDFORK_0_14 ] = CONTENTO_HARDFORK_0_14_VERSION;
+//    FC_ASSERT( CONTENTO_HARDFORK_0_15 == 15, "Invalid hardfork configuration" );
+//    _hardfork_times[ CONTENTO_HARDFORK_0_15 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_15_TIME );
+//    _hardfork_versions[ CONTENTO_HARDFORK_0_15 ] = CONTENTO_HARDFORK_0_15_VERSION;
+//    FC_ASSERT( CONTENTO_HARDFORK_0_16 == 16, "Invalid hardfork configuration" );
+//    _hardfork_times[ CONTENTO_HARDFORK_0_16 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_16_TIME );
+//    _hardfork_versions[ CONTENTO_HARDFORK_0_16 ] = CONTENTO_HARDFORK_0_16_VERSION;
+//    FC_ASSERT( CONTENTO_HARDFORK_0_17 == 17, "Invalid hardfork configuration" );
+//    _hardfork_times[ CONTENTO_HARDFORK_0_17 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_17_TIME );
+//    _hardfork_versions[ CONTENTO_HARDFORK_0_17 ] = CONTENTO_HARDFORK_0_17_VERSION;
+//    FC_ASSERT( CONTENTO_HARDFORK_0_18 == 18, "Invalid hardfork configuration" );
+//    _hardfork_times[ CONTENTO_HARDFORK_0_18 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_18_TIME );
+//    _hardfork_versions[ CONTENTO_HARDFORK_0_18 ] = CONTENTO_HARDFORK_0_18_VERSION;
+//    FC_ASSERT( CONTENTO_HARDFORK_0_19 == 19, "Invalid hardfork configuration" );
+//    _hardfork_times[ CONTENTO_HARDFORK_0_19 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_19_TIME );
+//    _hardfork_versions[ CONTENTO_HARDFORK_0_19 ] = CONTENTO_HARDFORK_0_19_VERSION;
 
 
    const auto& hardforks = get_hardfork_property_object();
@@ -3395,8 +3406,8 @@ void database::process_hardforks()
       // If there are upcoming hardforks and the next one is later, do nothing
       const auto& hardforks = get_hardfork_property_object();
 
-      if( has_hardfork( CONTENTO_HARDFORK_0_5__54 ) )
-      {
+    //   if( has_hardfork( CONTENTO_HARDFORK_0_5__54 ) )
+    //   {
          while( _hardfork_versions[ hardforks.last_hardfork ] < hardforks.next_hardfork
             && hardforks.next_hardfork_time <= head_block_time() )
          {
@@ -3406,16 +3417,16 @@ void database::process_hardforks()
             else
                throw unknown_hardfork_exception();
          }
-      }
-      else
-      {
-         while( hardforks.last_hardfork < CONTENTO_NUM_HARDFORKS
-               && _hardfork_times[ hardforks.last_hardfork + 1 ] <= head_block_time()
-               && hardforks.last_hardfork < CONTENTO_HARDFORK_0_5__54 )
-         {
-            apply_hardfork( hardforks.last_hardfork + 1 );
-         }
-      }
+    //   }
+    //   else
+    //   {
+    //      while( hardforks.last_hardfork < CONTENTO_NUM_HARDFORKS
+    //            && _hardfork_times[ hardforks.last_hardfork + 1 ] <= head_block_time()
+    //            && hardforks.last_hardfork < CONTENTO_HARDFORK_0_5__54 )
+    //      {
+    //         apply_hardfork( hardforks.last_hardfork + 1 );
+    //      }
+    //   }
    }
    FC_CAPTURE_AND_RETHROW()
 }
@@ -3431,19 +3442,19 @@ void database::set_hardfork( uint32_t hardfork, bool apply_now )
 
    for( uint32_t i = hardforks.last_hardfork + 1; i <= hardfork && i <= CONTENTO_NUM_HARDFORKS; i++ )
    {
-      if( i <= CONTENTO_HARDFORK_0_5__54 )
-         _hardfork_times[i] = head_block_time();
-      else
-      {
-         modify( hardforks, [&]( hardfork_property_object& hpo )
-         {
-            hpo.next_hardfork = _hardfork_versions[i];
-            hpo.next_hardfork_time = head_block_time();
-         } );
-      }
+    //   if( i <= CONTENTO_HARDFORK_0_5__54 )
+    //      _hardfork_times[i] = head_block_time();
+    //   else
+    //   {
+    //      modify( hardforks, [&]( hardfork_property_object& hpo )
+    //      {
+    //         hpo.next_hardfork = _hardfork_versions[i];
+    //         hpo.next_hardfork_time = head_block_time();
+    //      } );
+    //   }
 
-      if( apply_now )
-         apply_hardfork( i );
+    //   if( apply_now )
+    //      apply_hardfork( i );
    }
 }
 
@@ -3454,255 +3465,255 @@ void database::apply_hardfork( uint32_t hardfork )
 
    switch( hardfork )
    {
-      case CONTENTO_HARDFORK_0_1:
-         // perform_vesting_share_split( 1000000 );
-#ifdef IS_TEST_NET
-         {
-            custom_operation test_op;
-            string op_msg = "Testnet: Hardfork applied";
-            test_op.data = vector< char >( op_msg.begin(), op_msg.end() );
-            test_op.required_auths.insert( CONTENTO_INIT_MINER_NAME );
-            operation op = test_op;   // we need the operation object to live to the end of this scope
-            operation_notification note( op );
-            notify_pre_apply_operation( note );
-            notify_post_apply_operation( note );
-         }
-         break;
-#endif
-         break;
-      case CONTENTO_HARDFORK_0_2:
-         retally_witness_votes();
-         break;
-      case CONTENTO_HARDFORK_0_3:
-         retally_witness_votes();
-         break;
-      case CONTENTO_HARDFORK_0_4:
-         reset_virtual_schedule_time(*this);
-         break;
-      case CONTENTO_HARDFORK_0_5:
-         break;
-      case CONTENTO_HARDFORK_0_6:
-         retally_witness_vote_counts();
-         retally_comment_children();
-         break;
-      case CONTENTO_HARDFORK_0_7:
-         break;
-      case CONTENTO_HARDFORK_0_8:
-         retally_witness_vote_counts(true);
-         break;
-      case CONTENTO_HARDFORK_0_9:
-//         {
-//            for( const std::string& acc : hardfork9::get_compromised_accounts() )
-//            {
-//               const account_object* account = find_account( acc );
-//               if( account == nullptr )
-//                  continue;
-//
-//               update_owner_authority( *account, authority( 1, public_key_type( "STM7sw22HqsXbz7D2CmJfmMwt9rimtk518dRzsR1f8Cgw52dQR1pR" ), 1 ) );
-//
-//               modify( get< account_authority_object, by_account >( account->name ), [&]( account_authority_object& auth )
-//               {
-//                  auth.active  = authority( 1, public_key_type( "STM7sw22HqsXbz7D2CmJfmMwt9rimtk518dRzsR1f8Cgw52dQR1pR" ), 1 );
-//                  auth.posting = authority( 1, public_key_type( "STM7sw22HqsXbz7D2CmJfmMwt9rimtk518dRzsR1f8Cgw52dQR1pR" ), 1 );
-//               });
-//            }
-//         }
-         break;
-      case CONTENTO_HARDFORK_0_10:
-         retally_liquidity_weight();
-         break;
-      case CONTENTO_HARDFORK_0_11:
-         break;
-      case CONTENTO_HARDFORK_0_12:
-//         {
-//            const auto& comment_idx = get_index< comment_index >().indices();
-//
-//            for( auto itr = comment_idx.begin(); itr != comment_idx.end(); ++itr )
-//            {
-//               // At the hardfork time, all new posts with no votes get their cashout time set to +12 hrs from head block time.
-//               // All posts with a payout get their cashout time set to +30 days. This hardfork takes place within 30 days
-//               // initial payout so we don't have to handle the case of posts that should be frozen that aren't
-//               if( itr->parent_author == CONTENTO_ROOT_POST_PARENT )
-//               {
-//                  // Post has not been paid out and has no votes (cashout_time == 0 === net_rshares == 0, under current semmantics)
-//                  if( itr->last_payout == fc::time_point_sec::min() && itr->cashout_time == fc::time_point_sec::maximum() )
-//                  {
-//                     modify( *itr, [&]( comment_object & c )
-//                     {
-//                        c.cashout_time = head_block_time() + CONTENTO_CASHOUT_WINDOW_SECONDS_PRE_HF17;
-//                     });
-//                  }
-//                  // Has been paid out, needs to be on second cashout window
-//                  else if( itr->last_payout > fc::time_point_sec() )
-//                  {
-//                     modify( *itr, [&]( comment_object& c )
-//                     {
-//                        c.cashout_time = c.last_payout + CONTENTO_SECOND_CASHOUT_WINDOW;
-//                     });
-//                  }
-//               }
-//            }
-//
-//            modify( get< account_authority_object, by_account >( CONTENTO_MINER_ACCOUNT ), [&]( account_authority_object& auth )
-//            {
-//               auth.posting = authority();
-//               auth.posting.weight_threshold = 1;
-//            });
-//
-//            modify( get< account_authority_object, by_account >( CONTENTO_NULL_ACCOUNT ), [&]( account_authority_object& auth )
-//            {
-//               auth.posting = authority();
-//               auth.posting.weight_threshold = 1;
-//            });
-//
-//            modify( get< account_authority_object, by_account >( CONTENTO_TEMP_ACCOUNT ), [&]( account_authority_object& auth )
-//            {
-//               auth.posting = authority();
-//               auth.posting.weight_threshold = 1;
-//            });
-//         }
-         break;
-      case CONTENTO_HARDFORK_0_13:
-         break;
-      case CONTENTO_HARDFORK_0_14:
-         break;
-      case CONTENTO_HARDFORK_0_15:
-         break;
-      case CONTENTO_HARDFORK_0_16:
-//         {
-//            modify( get_feed_history(), [&]( feed_history_object& fho )
-//            {
-//               while( fho.price_history.size() > CONTENTO_FEED_HISTORY_WINDOW )
-//                  fho.price_history.pop_front();
-//            });
-//         }
-         break;
-      case CONTENTO_HARDFORK_0_17:
-//         {
-//            static_assert(
-//               CONTENTO_MAX_VOTED_WITNESSES_HF0 + CONTENTO_MAX_MINER_WITNESSES_HF0 + CONTENTO_MAX_RUNNER_WITNESSES_HF0 == CONTENTO_MAX_WITNESSES,
-//               "HF0 witness counts must add up to CONTENTO_MAX_WITNESSES" );
-//            static_assert(
-//               CONTENTO_MAX_VOTED_WITNESSES_HF17 + CONTENTO_MAX_MINER_WITNESSES_HF17 + CONTENTO_MAX_RUNNER_WITNESSES_HF17 == CONTENTO_MAX_WITNESSES,
-//               "HF17 witness counts must add up to CONTENTO_MAX_WITNESSES" );
-//
-//            modify( get_witness_schedule_object(), [&]( witness_schedule_object& wso )
-//            {
-//               wso.max_voted_witnesses = CONTENTO_MAX_VOTED_WITNESSES_HF17;
-//               wso.max_miner_witnesses = CONTENTO_MAX_MINER_WITNESSES_HF17;
-//               wso.max_runner_witnesses = CONTENTO_MAX_RUNNER_WITNESSES_HF17;
-//            });
-//
-//            const auto& gpo = get_dynamic_global_properties();
-//
-//            auto post_rf = create< reward_fund_object >( [&]( reward_fund_object& rfo )
-//            {
-//               rfo.name = CONTENTO_POST_REWARD_FUND_NAME;
-//               rfo.last_update = head_block_time();
-//               rfo.content_constant = CONTENTO_CONTENT_CONSTANT_HF0;
-//               rfo.percent_curation_rewards = CONTENTO_1_PERCENT * 25;
-//               rfo.percent_content_rewards = CONTENTO_100_PERCENT;
-//               rfo.reward_balance = gpo.total_reward_fund_steem;
-//#ifndef IS_TEST_NET
-//               rfo.recent_claims = CONTENTO_HF_17_RECENT_CLAIMS;
-//#endif
-//               rfo.author_reward_curve = curve_id::quadratic;
-//               rfo.curation_reward_curve = curve_id::quadratic_curation;
-//            });
-//
-//            // As a shortcut in payout processing, we use the id as an array index.
-//            // The IDs must be assigned this way. The assertion is a dummy check to ensure this happens.
-//            FC_ASSERT( post_rf.id._id == 0 );
-//
-//            modify( gpo, [&]( dynamic_global_property_object& g )
-//            {
-//               g.total_reward_fund_steem = asset( 0, COC_SYMBOL );
-//               g.total_reward_shares2 = 0;
-//            });
-//
-//            /*
-//            * For all current comments we will either keep their current cashout time, or extend it to 1 week
-//            * after creation.
-//            *
-//            * We cannot do a simple iteration by cashout time because we are editting cashout time.
-//            * More specifically, we will be adding an explicit cashout time to all comments with parents.
-//            * To find all discussions that have not been paid out we fir iterate over posts by cashout time.
-//            * Before the hardfork these are all root posts. Iterate over all of their children, adding each
-//            * to a specific list. Next, update payout times for all discussions on the root post. This defines
-//            * the min cashout time for each child in the discussion. Then iterate over the children and set
-//            * their cashout time in a similar way, grabbing the root post as their inherent cashout time.
-//            */
-//            const auto& comment_idx = get_index< comment_index, by_cashout_time >();
-//            const auto& by_root_idx = get_index< comment_index, by_root >();
-//            vector< const comment_object* > root_posts;
-//            root_posts.reserve( CONTENTO_HF_17_NUM_POSTS );
-//            vector< const comment_object* > replies;
-//            replies.reserve( CONTENTO_HF_17_NUM_REPLIES );
-//
-//            for( auto itr = comment_idx.begin(); itr != comment_idx.end() && itr->cashout_time < fc::time_point_sec::maximum(); ++itr )
-//            {
-//               root_posts.push_back( &(*itr) );
-//
-//               for( auto reply_itr = by_root_idx.lower_bound( itr->id ); reply_itr != by_root_idx.end() && reply_itr->root_comment == itr->id; ++reply_itr )
-//               {
-//                  replies.push_back( &(*reply_itr) );
-//               }
-//            }
-//
-//            for( auto itr : root_posts )
-//            {
-//               modify( *itr, [&]( comment_object& c )
-//               {
-//                  c.cashout_time = std::max( c.created + CONTENTO_CASHOUT_WINDOW_SECONDS, c.cashout_time );
-//               });
-//            }
-//
-//            for( auto itr : replies )
-//            {
-//               modify( *itr, [&]( comment_object& c )
-//               {
-//                  c.cashout_time = std::max( calculate_discussion_payout_time( c ), c.created + CONTENTO_CASHOUT_WINDOW_SECONDS );
-//               });
-//            }
-//         }
-         break;
-      case CONTENTO_HARDFORK_0_18:
-         break;
-      case CONTENTO_HARDFORK_0_19:
-//         {
-//            modify( get_dynamic_global_properties(), [&]( dynamic_global_property_object& gpo )
-//            {
-//               gpo.vote_power_reserve_rate = 10;
-//            });
-//
-//            modify( get< reward_fund_object, by_name >( CONTENTO_POST_REWARD_FUND_NAME ), [&]( reward_fund_object &rfo )
-//            {
-//#ifndef IS_TEST_NET
-//               rfo.recent_claims = CONTENTO_HF_19_RECENT_CLAIMS;
-//#endif
-//               rfo.author_reward_curve = curve_id::linear;
-//               rfo.curation_reward_curve = curve_id::square_root;
-//            });
-//
-//            /* Remove all 0 delegation objects */
-//            vector< const vesting_delegation_object* > to_remove;
-//            const auto& delegation_idx = get_index< vesting_delegation_index, by_id >();
-//            auto delegation_itr = delegation_idx.begin();
-//
-//            while( delegation_itr != delegation_idx.end() )
-//            {
-//               if( delegation_itr->vesting_shares.amount == 0 )
-//                  to_remove.push_back( &(*delegation_itr) );
-//
-//               ++delegation_itr;
-//            }
-//
-//            for( const vesting_delegation_object* delegation_ptr: to_remove )
-//            {
-//               remove( *delegation_ptr );
-//            }
-//         }
-         break;
+//       case CONTENTO_HARDFORK_0_1:
+//          // perform_vesting_share_split( 1000000 );
+// #ifdef IS_TEST_NET
+//          {
+//             custom_operation test_op;
+//             string op_msg = "Testnet: Hardfork applied";
+//             test_op.data = vector< char >( op_msg.begin(), op_msg.end() );
+//             test_op.required_auths.insert( CONTENTO_INIT_MINER_NAME );
+//             operation op = test_op;   // we need the operation object to live to the end of this scope
+//             operation_notification note( op );
+//             notify_pre_apply_operation( note );
+//             notify_post_apply_operation( note );
+//          }
+//          break;
+// #endif
+//          break;
+//       case CONTENTO_HARDFORK_0_2:
+//          retally_witness_votes();
+//          break;
+//       case CONTENTO_HARDFORK_0_3:
+//          retally_witness_votes();
+//          break;
+//       case CONTENTO_HARDFORK_0_4:
+//          reset_virtual_schedule_time(*this);
+//          break;
+//       case CONTENTO_HARDFORK_0_5:
+//          break;
+//       case CONTENTO_HARDFORK_0_6:
+//          retally_witness_vote_counts();
+//          retally_comment_children();
+//          break;
+//       case CONTENTO_HARDFORK_0_7:
+//          break;
+//       case CONTENTO_HARDFORK_0_8:
+//          retally_witness_vote_counts(true);
+//          break;
+//       case CONTENTO_HARDFORK_0_9:
+// //         {
+// //            for( const std::string& acc : hardfork9::get_compromised_accounts() )
+// //            {
+// //               const account_object* account = find_account( acc );
+// //               if( account == nullptr )
+// //                  continue;
+// //
+// //               update_owner_authority( *account, authority( 1, public_key_type( "STM7sw22HqsXbz7D2CmJfmMwt9rimtk518dRzsR1f8Cgw52dQR1pR" ), 1 ) );
+// //
+// //               modify( get< account_authority_object, by_account >( account->name ), [&]( account_authority_object& auth )
+// //               {
+// //                  auth.active  = authority( 1, public_key_type( "STM7sw22HqsXbz7D2CmJfmMwt9rimtk518dRzsR1f8Cgw52dQR1pR" ), 1 );
+// //                  auth.posting = authority( 1, public_key_type( "STM7sw22HqsXbz7D2CmJfmMwt9rimtk518dRzsR1f8Cgw52dQR1pR" ), 1 );
+// //               });
+// //            }
+// //         }
+//          break;
+//       case CONTENTO_HARDFORK_0_10:
+//          retally_liquidity_weight();
+//          break;
+//       case CONTENTO_HARDFORK_0_11:
+//          break;
+//       case CONTENTO_HARDFORK_0_12:
+// //         {
+// //            const auto& comment_idx = get_index< comment_index >().indices();
+// //
+// //            for( auto itr = comment_idx.begin(); itr != comment_idx.end(); ++itr )
+// //            {
+// //               // At the hardfork time, all new posts with no votes get their cashout time set to +12 hrs from head block time.
+// //               // All posts with a payout get their cashout time set to +30 days. This hardfork takes place within 30 days
+// //               // initial payout so we don't have to handle the case of posts that should be frozen that aren't
+// //               if( itr->parent_author == CONTENTO_ROOT_POST_PARENT )
+// //               {
+// //                  // Post has not been paid out and has no votes (cashout_time == 0 === net_rshares == 0, under current semmantics)
+// //                  if( itr->last_payout == fc::time_point_sec::min() && itr->cashout_time == fc::time_point_sec::maximum() )
+// //                  {
+// //                     modify( *itr, [&]( comment_object & c )
+// //                     {
+// //                        c.cashout_time = head_block_time() + CONTENTO_CASHOUT_WINDOW_SECONDS_PRE_HF17;
+// //                     });
+// //                  }
+// //                  // Has been paid out, needs to be on second cashout window
+// //                  else if( itr->last_payout > fc::time_point_sec() )
+// //                  {
+// //                     modify( *itr, [&]( comment_object& c )
+// //                     {
+// //                        c.cashout_time = c.last_payout + CONTENTO_SECOND_CASHOUT_WINDOW;
+// //                     });
+// //                  }
+// //               }
+// //            }
+// //
+// //            modify( get< account_authority_object, by_account >( CONTENTO_MINER_ACCOUNT ), [&]( account_authority_object& auth )
+// //            {
+// //               auth.posting = authority();
+// //               auth.posting.weight_threshold = 1;
+// //            });
+// //
+// //            modify( get< account_authority_object, by_account >( CONTENTO_NULL_ACCOUNT ), [&]( account_authority_object& auth )
+// //            {
+// //               auth.posting = authority();
+// //               auth.posting.weight_threshold = 1;
+// //            });
+// //
+// //            modify( get< account_authority_object, by_account >( CONTENTO_TEMP_ACCOUNT ), [&]( account_authority_object& auth )
+// //            {
+// //               auth.posting = authority();
+// //               auth.posting.weight_threshold = 1;
+// //            });
+// //         }
+//          break;
+//       case CONTENTO_HARDFORK_0_13:
+//          break;
+//       case CONTENTO_HARDFORK_0_14:
+//          break;
+//       case CONTENTO_HARDFORK_0_15:
+//          break;
+//       case CONTENTO_HARDFORK_0_16:
+// //         {
+// //            modify( get_feed_history(), [&]( feed_history_object& fho )
+// //            {
+// //               while( fho.price_history.size() > CONTENTO_FEED_HISTORY_WINDOW )
+// //                  fho.price_history.pop_front();
+// //            });
+// //         }
+//          break;
+//       case CONTENTO_HARDFORK_0_17:
+// //         {
+// //            static_assert(
+// //               CONTENTO_MAX_VOTED_WITNESSES_HF0 + CONTENTO_MAX_MINER_WITNESSES_HF0 + CONTENTO_MAX_RUNNER_WITNESSES_HF0 == CONTENTO_MAX_WITNESSES,
+// //               "HF0 witness counts must add up to CONTENTO_MAX_WITNESSES" );
+// //            static_assert(
+// //               CONTENTO_MAX_VOTED_WITNESSES_HF17 + CONTENTO_MAX_MINER_WITNESSES_HF17 + CONTENTO_MAX_RUNNER_WITNESSES_HF17 == CONTENTO_MAX_WITNESSES,
+// //               "HF17 witness counts must add up to CONTENTO_MAX_WITNESSES" );
+// //
+// //            modify( get_witness_schedule_object(), [&]( witness_schedule_object& wso )
+// //            {
+// //               wso.max_voted_witnesses = CONTENTO_MAX_VOTED_WITNESSES_HF17;
+// //               wso.max_miner_witnesses = CONTENTO_MAX_MINER_WITNESSES_HF17;
+// //               wso.max_runner_witnesses = CONTENTO_MAX_RUNNER_WITNESSES_HF17;
+// //            });
+// //
+// //            const auto& gpo = get_dynamic_global_properties();
+// //
+// //            auto post_rf = create< reward_fund_object >( [&]( reward_fund_object& rfo )
+// //            {
+// //               rfo.name = CONTENTO_POST_REWARD_FUND_NAME;
+// //               rfo.last_update = head_block_time();
+// //               rfo.content_constant = CONTENTO_CONTENT_CONSTANT_HF0;
+// //               rfo.percent_curation_rewards = CONTENTO_1_PERCENT * 25;
+// //               rfo.percent_content_rewards = CONTENTO_100_PERCENT;
+// //               rfo.reward_balance = gpo.total_reward_fund_steem;
+// //#ifndef IS_TEST_NET
+// //               rfo.recent_claims = CONTENTO_HF_17_RECENT_CLAIMS;
+// //#endif
+// //               rfo.author_reward_curve = curve_id::quadratic;
+// //               rfo.curation_reward_curve = curve_id::quadratic_curation;
+// //            });
+// //
+// //            // As a shortcut in payout processing, we use the id as an array index.
+// //            // The IDs must be assigned this way. The assertion is a dummy check to ensure this happens.
+// //            FC_ASSERT( post_rf.id._id == 0 );
+// //
+// //            modify( gpo, [&]( dynamic_global_property_object& g )
+// //            {
+// //               g.total_reward_fund_steem = asset( 0, COC_SYMBOL );
+// //               g.total_reward_shares2 = 0;
+// //            });
+// //
+// //            /*
+// //            * For all current comments we will either keep their current cashout time, or extend it to 1 week
+// //            * after creation.
+// //            *
+// //            * We cannot do a simple iteration by cashout time because we are editting cashout time.
+// //            * More specifically, we will be adding an explicit cashout time to all comments with parents.
+// //            * To find all discussions that have not been paid out we fir iterate over posts by cashout time.
+// //            * Before the hardfork these are all root posts. Iterate over all of their children, adding each
+// //            * to a specific list. Next, update payout times for all discussions on the root post. This defines
+// //            * the min cashout time for each child in the discussion. Then iterate over the children and set
+// //            * their cashout time in a similar way, grabbing the root post as their inherent cashout time.
+// //            */
+// //            const auto& comment_idx = get_index< comment_index, by_cashout_time >();
+// //            const auto& by_root_idx = get_index< comment_index, by_root >();
+// //            vector< const comment_object* > root_posts;
+// //            root_posts.reserve( CONTENTO_HF_17_NUM_POSTS );
+// //            vector< const comment_object* > replies;
+// //            replies.reserve( CONTENTO_HF_17_NUM_REPLIES );
+// //
+// //            for( auto itr = comment_idx.begin(); itr != comment_idx.end() && itr->cashout_time < fc::time_point_sec::maximum(); ++itr )
+// //            {
+// //               root_posts.push_back( &(*itr) );
+// //
+// //               for( auto reply_itr = by_root_idx.lower_bound( itr->id ); reply_itr != by_root_idx.end() && reply_itr->root_comment == itr->id; ++reply_itr )
+// //               {
+// //                  replies.push_back( &(*reply_itr) );
+// //               }
+// //            }
+// //
+// //            for( auto itr : root_posts )
+// //            {
+// //               modify( *itr, [&]( comment_object& c )
+// //               {
+// //                  c.cashout_time = std::max( c.created + CONTENTO_CASHOUT_WINDOW_SECONDS, c.cashout_time );
+// //               });
+// //            }
+// //
+// //            for( auto itr : replies )
+// //            {
+// //               modify( *itr, [&]( comment_object& c )
+// //               {
+// //                  c.cashout_time = std::max( calculate_discussion_payout_time( c ), c.created + CONTENTO_CASHOUT_WINDOW_SECONDS );
+// //               });
+// //            }
+// //         }
+//          break;
+//       case CONTENTO_HARDFORK_0_18:
+//          break;
+//       case CONTENTO_HARDFORK_0_19:
+// //         {
+// //            modify( get_dynamic_global_properties(), [&]( dynamic_global_property_object& gpo )
+// //            {
+// //               gpo.vote_power_reserve_rate = 10;
+// //            });
+// //
+// //            modify( get< reward_fund_object, by_name >( CONTENTO_POST_REWARD_FUND_NAME ), [&]( reward_fund_object &rfo )
+// //            {
+// //#ifndef IS_TEST_NET
+// //               rfo.recent_claims = CONTENTO_HF_19_RECENT_CLAIMS;
+// //#endif
+// //               rfo.author_reward_curve = curve_id::linear;
+// //               rfo.curation_reward_curve = curve_id::square_root;
+// //            });
+// //
+// //            /* Remove all 0 delegation objects */
+// //            vector< const vesting_delegation_object* > to_remove;
+// //            const auto& delegation_idx = get_index< vesting_delegation_index, by_id >();
+// //            auto delegation_itr = delegation_idx.begin();
+// //
+// //            while( delegation_itr != delegation_idx.end() )
+// //            {
+// //               if( delegation_itr->vesting_shares.amount == 0 )
+// //                  to_remove.push_back( &(*delegation_itr) );
+// //
+// //               ++delegation_itr;
+// //            }
+// //
+// //            for( const vesting_delegation_object* delegation_ptr: to_remove )
+// //            {
+// //               remove( *delegation_ptr );
+// //            }
+// //         }
+//          break;
       default:
          break;
    }

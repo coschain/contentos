@@ -956,6 +956,68 @@ u256 to256( const fc::uint128& t )
    return result;
 }
 
+// void database_api::set_pending_payout( discussion& d )const
+// {
+//    if( my->_db.has_index< tags::tag_index >() )
+//    {
+//       const auto& cidx = my->_db.get_index<tags::tag_index>().indices().get<tags::by_comment>();
+//       auto itr = cidx.lower_bound( d.id );
+//       if( itr != cidx.end() && itr->comment == d.id )  {
+//          d.promoted = asset( itr->promoted_balance, SBD_SYMBOL );
+//       }
+//    }
+
+// //   const auto& props = my->_db.get_dynamic_global_properties();
+//    const auto& hist  = my->_db.get_feed_history();
+
+//    asset pot;
+// //   if( my->_db.has_hardfork( STEEMIT_HARDFORK_0_17__774 ) )
+//     pot = my->_db.get_reward_fund( my->_db.get_comment( d.author, d.permlink ) ).reward_balance;
+// //   else
+// //      pot = props.total_reward_fund_steem;
+
+//    if( !hist.current_median_history.is_null() ) pot = pot * hist.current_median_history;
+
+//    u256 total_r2 = 0;
+// //   if( my->_db.has_hardfork( STEEMIT_HARDFORK_0_17__774 ) )
+//    total_r2 = to256( my->_db.get_reward_fund( my->_db.get_comment( d.author, d.permlink ) ).recent_claims );
+// //   else
+// //      total_r2 = to256( props.total_reward_shares2 );
+
+//    if( total_r2 > 0 )
+//    {
+//       uint128_t vshares;
+// //      if( my->_db.has_hardfork( STEEMIT_HARDFORK_0_17__774 ) )
+// //      {
+//      const auto& rf = my->_db.get_reward_fund( my->_db.get_comment( d.author, d.permlink ) );
+//      vshares = d.net_rshares.value > 0 ? contento::chain::util::evaluate_reward_curve( d.net_rshares.value, rf.author_reward_curve, rf.content_constant ) : 0;
+// //      }
+// //      else
+// //         vshares = d.net_rshares.value > 0 ? contento::chain::util::evaluate_reward_curve( d.net_rshares.value ) : 0;
+
+//       u256 r2 = to256(vshares); //to256(abs_net_rshares);
+//       r2 *= pot.amount.value;
+//       r2 /= total_r2;
+
+//       d.pending_payout_value = asset( static_cast<uint64_t>(r2), pot.symbol );
+
+//       if( my->_follow_api )
+//       {
+//          d.author_reputation = my->_follow_api->get_account_reputations( d.author, 1 )[0].reputation;
+//       }
+//    }
+
+//    if( d.parent_author != CONTENTO_ROOT_POST_PARENT )
+//       d.cashout_time = my->_db.calculate_discussion_payout_time( my->_db.get< comment_object >( d.id ) );
+
+//    if( d.body.size() > 1024*128 )
+//       d.body = "body pruned due to size";
+//    if( d.parent_author.size() > 0 && d.body.size() > 1024*16 )
+//       d.body = "comment pruned due to size";
+
+//    set_url(d);
+// }
+
 void database_api::set_url( discussion& d )const
 {
    const comment_api_obj root( my->_db.get< comment_object, by_id >( d.root_comment ) );

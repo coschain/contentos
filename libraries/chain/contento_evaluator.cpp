@@ -69,25 +69,25 @@ void witness_update_evaluator::do_apply( const witness_update_operation& o )
 {
    _db.get_account( o.owner ); // verify owner exists
 
-   if ( _db.has_hardfork( CONTENTO_HARDFORK_0_1 ) )
-   {
+//    if ( _db.has_hardfork( CONTENTO_HARDFORK_0_1 ) )
+//    {
       FC_ASSERT( o.url.size() <= CONTENTO_MAX_WITNESS_URL_LENGTH, "URL is too long" );
-   }
-   else if( o.url.size() > CONTENTO_MAX_WITNESS_URL_LENGTH )
-   {
-      // after HF, above check can be moved to validate() if reindex doesn't show this warning
-      wlog( "URL is too long in block ${b}", ("b", _db.head_block_num()+1) );
-   }
+//    }
+//    else if( o.url.size() > CONTENTO_MAX_WITNESS_URL_LENGTH )
+//    {
+//       // after HF, above check can be moved to validate() if reindex doesn't show this warning
+//       wlog( "URL is too long in block ${b}", ("b", _db.head_block_num()+1) );
+//    }
 
-   if ( _db.has_hardfork( CONTENTO_HARDFORK_0_14__410 ) )
-   {
+//    if ( _db.has_hardfork( CONTENTO_HARDFORK_0_14__410 ) )
+//    {
       FC_ASSERT( o.props.account_creation_fee.symbol == COC_SYMBOL );
-   }
-   else if( o.props.account_creation_fee.symbol != COC_SYMBOL )
-   {
-      // after HF, above check can be moved to validate() if reindex doesn't show this warning
-      wlog( "Wrong fee symbol in block ${b}", ("b", _db.head_block_num()+1) );
-   }
+//    }
+//    else if( o.props.account_creation_fee.symbol != COC_SYMBOL )
+//    {
+//       // after HF, above check can be moved to validate() if reindex doesn't show this warning
+//       wlog( "Wrong fee symbol in block ${b}", ("b", _db.head_block_num()+1) );
+//    }
 
    const auto& by_witness_name_idx = _db.get_index< witness_index >().indices().get< by_name >();
    auto wit_itr = by_witness_name_idx.find( o.owner );
@@ -294,8 +294,8 @@ void account_create_evaluator::do_apply( const account_create_operation& o )
 //                 ("p", o.fee) );
 
 
-   if( _db.has_hardfork( CONTENTO_HARDFORK_0_15__465 ) )
-   {
+//    if( _db.has_hardfork( CONTENTO_HARDFORK_0_15__465 ) )
+//    {
       for( auto& a : o.owner.account_auths )
       {
          _db.get_account( a.first );
@@ -310,7 +310,7 @@ void account_create_evaluator::do_apply( const account_create_operation& o )
       {
          _db.get_account( a.first );
       }
-   }
+//    }
 
    _db.modify( creator, [&]( account_object& c ){
       c.balance -= o.fee;
@@ -347,7 +347,7 @@ void account_create_evaluator::do_apply( const account_create_operation& o )
 
 void account_create_with_delegation_evaluator::do_apply( const account_create_with_delegation_operation& o )
 {
-   FC_ASSERT( _db.has_hardfork( CONTENTO_HARDFORK_0_17__818 ), "Account creation with delegation is not enabled until hardfork 17" );
+//    FC_ASSERT( _db.has_hardfork( CONTENTO_HARDFORK_0_17__818 ), "Account creation with delegation is not enabled until hardfork 17" );
 
    const auto& creator = _db.get_account( o.creator );
    const auto& props = _db.get_dynamic_global_properties();
@@ -423,7 +423,8 @@ void account_create_with_delegation_evaluator::do_apply( const account_create_wi
       auth.last_owner_update = fc::time_point_sec::min();
    });
 
-   if( o.delegation.amount > 0 || !_db.has_hardfork( CONTENTO_HARDFORK_0_19__997 ) )
+//   if( o.delegation.amount > 0 || !_db.has_hardfork( CONTENTO_HARDFORK_0_19__997 ) )
+   if( o.delegation.amount > 0 )
    {
       _db.create< vesting_delegation_object >( [&]( vesting_delegation_object& vdo )
       {
@@ -441,10 +442,12 @@ void account_create_with_delegation_evaluator::do_apply( const account_create_wi
 
 void account_update_evaluator::do_apply( const account_update_operation& o )
 {
-   if( _db.has_hardfork( CONTENTO_HARDFORK_0_1 ) ) FC_ASSERT( o.account != CONTENTO_TEMP_ACCOUNT, "Cannot update temp account." );
+//    if( _db.has_hardfork( CONTENTO_HARDFORK_0_1 ) ) 
+    FC_ASSERT( o.account != CONTENTO_TEMP_ACCOUNT, "Cannot update temp account." );
 
-   if( ( _db.has_hardfork( CONTENTO_HARDFORK_0_15__465 ) ) && o.posting )
-      o.posting->validate();
+//   if( ( _db.has_hardfork( CONTENTO_HARDFORK_0_15__465 ) ) && o.posting )
+   if( o.posting )
+       o.posting->validate();
 
    const auto& account = _db.get_account( o.account );
    const auto& account_auth = _db.get< account_authority_object, by_account >( o.account );
@@ -452,23 +455,24 @@ void account_update_evaluator::do_apply( const account_update_operation& o )
    if( o.owner )
    {
 #ifndef IS_TEST_NET
-      if( _db.has_hardfork( CONTENTO_HARDFORK_0_11 ) )
-         FC_ASSERT( _db.head_block_time() - account_auth.last_owner_update > CONTENTO_OWNER_UPDATE_LIMIT, "Owner authority can only be updated once an hour." );
+//      if( _db.has_hardfork( CONTENTO_HARDFORK_0_11 ) )
+     FC_ASSERT( _db.head_block_time() - account_auth.last_owner_update > CONTENTO_OWNER_UPDATE_LIMIT, "Owner authority can only be updated once an hour." );
 #endif
 
-      if( ( _db.has_hardfork( CONTENTO_HARDFORK_0_15__465 ) ) )
-      {
-         for( auto a: o.owner->account_auths )
-         {
-            _db.get_account( a.first );
-         }
-      }
+//      if( ( _db.has_hardfork( CONTENTO_HARDFORK_0_15__465 ) ) )
+//      {
+     for( auto a: o.owner->account_auths )
+     {
+        _db.get_account( a.first );
+     }
+//      }
 
 
       _db.update_owner_authority( account, *o.owner );
    }
 
-   if( o.active && ( _db.has_hardfork( CONTENTO_HARDFORK_0_15__465 ) ) )
+//   if( o.active && ( _db.has_hardfork( CONTENTO_HARDFORK_0_15__465 ) ) )
+   if( o.active )
    {
       for( auto a: o.active->account_auths )
       {
@@ -476,7 +480,8 @@ void account_update_evaluator::do_apply( const account_update_operation& o )
       }
    }
 
-   if( o.posting && ( _db.has_hardfork( CONTENTO_HARDFORK_0_15__465 ) ) )
+//   if( o.posting && ( _db.has_hardfork( CONTENTO_HARDFORK_0_15__465 ) ) )
+   if( o.posting )
    {
       for( auto a: o.posting->account_auths )
       {
@@ -594,11 +599,11 @@ struct comment_options_extension_visitor
 
 void comment_options_evaluator::do_apply( const comment_options_operation& o )
 {
-   if( _db.has_hardfork( CONTENTO_HARDFORK_0_10 ) )
-   {
+//    if( _db.has_hardfork( CONTENTO_HARDFORK_0_10 ) )
+//    {
       const auto& auth = _db.get_account( o.author );
       FC_ASSERT( !(auth.owner_challenged || auth.active_challenged ), "Operation cannot be processed because account is currently challenged." );
-   }
+//    }
 
    const auto& comment = _db.get_comment( o.author, o.permlink );
 //   if( !o.allow_curation_rewards || !o.allow_votes || o.max_accepted_payout < comment.max_accepted_payout )
@@ -1256,8 +1261,8 @@ void account_witness_vote_evaluator::do_apply( const account_witness_vote_operat
    if( itr == by_account_witness_idx.end() ) {
       FC_ASSERT( o.approve, "Vote doesn't exist, user must indicate a desire to approve witness." );
 
-      if ( _db.has_hardfork( CONTENTO_HARDFORK_0_2 ) )
-      {
+    //   if ( _db.has_hardfork( CONTENTO_HARDFORK_0_2 ) )
+    //   {
          FC_ASSERT( voter.witnesses_voted_for < CONTENTO_MAX_ACCOUNT_WITNESS_VOTES, "Account has voted for too many witnesses." ); // TODO: Remove after hardfork 2
 
          _db.create<witness_vote_object>( [&]( witness_vote_object& v ) {
@@ -1265,24 +1270,24 @@ void account_witness_vote_evaluator::do_apply( const account_witness_vote_operat
              v.account = voter.id;
          });
 
-         if( _db.has_hardfork( CONTENTO_HARDFORK_0_3 ) ) {
+        //  if( _db.has_hardfork( CONTENTO_HARDFORK_0_3 ) ) {
             _db.adjust_witness_vote( witness, voter.witness_vote_weight() );
-         }
-         else {
-            _db.adjust_proxied_witness_votes( voter, voter.witness_vote_weight() );
-         }
+        //  }
+        //  else {
+        //     _db.adjust_proxied_witness_votes( voter, voter.witness_vote_weight() );
+        //  }
 
-      } else {
+    //   } else {
 
-         _db.create<witness_vote_object>( [&]( witness_vote_object& v ) {
-             v.witness = witness.id;
-             v.account = voter.id;
-         });
-         _db.modify( witness, [&]( witness_object& w ) {
-             w.votes += voter.witness_vote_weight();
-         });
+    //      _db.create<witness_vote_object>( [&]( witness_vote_object& v ) {
+    //          v.witness = witness.id;
+    //          v.account = voter.id;
+    //      });
+    //      _db.modify( witness, [&]( witness_object& w ) {
+    //          w.votes += voter.witness_vote_weight();
+    //      });
 
-      }
+    //   }
       _db.modify( voter, [&]( account_object& a ) {
          a.witnesses_voted_for++;
       });
@@ -1290,16 +1295,16 @@ void account_witness_vote_evaluator::do_apply( const account_witness_vote_operat
    } else {
       FC_ASSERT( !o.approve, "Vote currently exists, user must indicate a desire to reject witness." );
 
-      if (  _db.has_hardfork( CONTENTO_HARDFORK_0_2 ) ) {
-         if( _db.has_hardfork( CONTENTO_HARDFORK_0_3 ) )
+    //   if (  _db.has_hardfork( CONTENTO_HARDFORK_0_2 ) ) {
+    //      if( _db.has_hardfork( CONTENTO_HARDFORK_0_3 ) )
             _db.adjust_witness_vote( witness, -voter.witness_vote_weight() );
-         else
-            _db.adjust_proxied_witness_votes( voter, -voter.witness_vote_weight() );
-      } else  {
-         _db.modify( witness, [&]( witness_object& w ) {
-             w.votes -= voter.witness_vote_weight();
-         });
-      }
+    //      else
+    //         _db.adjust_proxied_witness_votes( voter, -voter.witness_vote_weight() );
+    //   } else  {
+    //      _db.modify( witness, [&]( witness_object& w ) {
+    //          w.votes -= voter.witness_vote_weight();
+    //      });
+    //   }
       _db.modify( voter, [&]( account_object& a ) {
          a.witnesses_voted_for--;
       });
@@ -1361,15 +1366,15 @@ void vote_evaluator::do_apply( const vote_operation& o )
    int64_t max_vote_denom = dgpo.vote_power_reserve_rate * CONTENTO_VOTE_REGENERATION_SECONDS / (60*60*24);
    FC_ASSERT( max_vote_denom > 0 );
 
-   if( !_db.has_hardfork( CONTENTO_HARDFORK_0_14__259 ) )
-   {
-      FC_ASSERT( max_vote_denom == 200 );   // TODO: Remove this assert
-      used_power = (used_power / max_vote_denom)+1;
-   }
-   else
-   {
+//    if( !_db.has_hardfork( CONTENTO_HARDFORK_0_14__259 ) )
+//    {
+//       FC_ASSERT( max_vote_denom == 200 );   // TODO: Remove this assert
+//       used_power = (used_power / max_vote_denom)+1;
+//    }
+//    else
+//    {
       used_power = (used_power + max_vote_denom - 1) / max_vote_denom;
-   }
+//    }
    FC_ASSERT( used_power <= current_power, "Account does not have enough power to vote." );
 
 //   int64_t abs_rshares    = ((uint128_t(voter.effective_vesting_shares().amount.value) * used_power) / (CONTENTO_100_PERCENT)).to_uint64();
@@ -1714,7 +1719,7 @@ void custom_json_evaluator::do_apply( const custom_json_operation& o )
 void custom_binary_evaluator::do_apply( const custom_binary_operation& o )
 {
    database& d = db();
-   FC_ASSERT( d.has_hardfork( CONTENTO_HARDFORK_0_14__317 ) );
+//    FC_ASSERT( d.has_hardfork( CONTENTO_HARDFORK_0_14__317 ) );
 
    std::shared_ptr< custom_operation_interpreter > eval = d.get_custom_json_evaluator( o.id );
    if( !eval )
@@ -1741,15 +1746,15 @@ void pow_apply( database& db, Operation o )
 {
    const auto& dgp = db.get_dynamic_global_properties();
 
-   if( db.has_hardfork( CONTENTO_HARDFORK_0_5__59 ) )
-   {
+//    if( db.has_hardfork( CONTENTO_HARDFORK_0_5__59 ) )
+//    {
       const auto& witness_by_work = db.get_index<witness_index>().indices().get<by_work>();
       auto work_itr = witness_by_work.find( o.work.work );
       if( work_itr != witness_by_work.end() )
       {
           FC_ASSERT( !"DUPLICATE WORK DISCOVERED", "${w}  ${witness}",("w",o)("wit",*work_itr) );
       }
-   }
+//    }
 
    const auto& accounts_by_name = db.get_index<account_index>().indices().get<by_name>();
 
@@ -1763,9 +1768,9 @@ void pow_apply( database& db, Operation o )
          acc.created = dgp.time;
          acc.last_vote_time = dgp.time;
 
-         if( !db.has_hardfork( CONTENTO_HARDFORK_0_11__169 ) )
-            acc.recovery_account = "steem";
-         else
+        //  if( !db.has_hardfork( CONTENTO_HARDFORK_0_11__169 ) )
+        //     acc.recovery_account = "steem";
+        //  else
             acc.recovery_account = ""; /// highest voted witness at time of recovery
       });
 
@@ -1784,7 +1789,7 @@ void pow_apply( database& db, Operation o )
    FC_ASSERT( worker_auth.active.key_auths.size() == 1, "Miners may only have one key authority." );
    FC_ASSERT( worker_auth.active.key_auths.begin()->first == o.work.worker, "Work must be performed by key that signed the work." );
    FC_ASSERT( o.block_id == db.head_block_id(), "pow not for last block" );
-   if( db.has_hardfork( CONTENTO_HARDFORK_0_13__256 ) )
+//    if( db.has_hardfork( CONTENTO_HARDFORK_0_13__256 ) )
       FC_ASSERT( worker_account.last_account_update < db.head_block_time(), "Worker account must not have updated their account this block." );
 
    fc::sha256 target = db.get_pow_target();
@@ -1832,8 +1837,8 @@ void pow_apply( database& db, Operation o )
 
 void pow_evaluator::do_apply( const pow_operation& o ) {
    CONTENTOS_OP_CLOSE_ASSERT();
-   FC_ASSERT( !db().has_hardfork( CONTENTO_HARDFORK_0_13__256 ), "pow is deprecated. Use pow2 instead" );
-   pow_apply( db(), o );
+//    FC_ASSERT( !db().has_hardfork( CONTENTO_HARDFORK_0_13__256 ), "pow is deprecated. Use pow2 instead" );
+//    pow_apply( db(), o );
 }
 
 
@@ -1841,14 +1846,14 @@ void pow2_evaluator::do_apply( const pow2_operation& o )
 {
    CONTENTOS_OP_CLOSE_ASSERT();
    database& db = this->db();
-   FC_ASSERT( !db.has_hardfork( CONTENTO_HARDFORK_0_17__770 ), "mining is now disabled" );
+   FC_ASSERT( false, "mining is now disabled" );
 
    const auto& dgp = db.get_dynamic_global_properties();
    uint32_t target_pow = db.get_pow_summary_target();
    account_name_type worker_account;
 
-   if( db.has_hardfork( CONTENTO_HARDFORK_0_16__551 ) )
-   {
+//    if( db.has_hardfork( CONTENTO_HARDFORK_0_16__551 ) )
+//    {
       const auto& work = o.work.get< equihash_pow >();
       FC_ASSERT( work.prev_block == db.head_block_id(), "Equihash pow op not for last block" );
       auto recent_block_num = protocol::block_header::num_from_id( work.input.prev_block );
@@ -1856,14 +1861,14 @@ void pow2_evaluator::do_apply( const pow2_operation& o )
          "Equihash pow done for block older than last irreversible block num" );
       FC_ASSERT( work.pow_summary < target_pow, "Insufficient work difficulty. Work: ${w}, Target: ${t}", ("w",work.pow_summary)("t", target_pow) );
       worker_account = work.input.worker_account;
-   }
-   else
-   {
-      const auto& work = o.work.get< pow2 >();
-      FC_ASSERT( work.input.prev_block == db.head_block_id(), "Work not for last block" );
-      FC_ASSERT( work.pow_summary < target_pow, "Insufficient work difficulty. Work: ${w}, Target: ${t}", ("w",work.pow_summary)("t", target_pow) );
-      worker_account = work.input.worker_account;
-   }
+//    }
+//    else
+//    {
+//       const auto& work = o.work.get< pow2 >();
+//       FC_ASSERT( work.input.prev_block == db.head_block_id(), "Work not for last block" );
+//       FC_ASSERT( work.pow_summary < target_pow, "Insufficient work difficulty. Work: ${w}, Target: ${t}", ("w",work.pow_summary)("t", target_pow) );
+//       worker_account = work.input.worker_account;
+//    }
 
    FC_ASSERT( o.props.maximum_block_size >= CONTENTO_MIN_BLOCK_SIZE_LIMIT * 2, "Voted maximum block size is too small." );
 
@@ -1916,15 +1921,15 @@ void pow2_evaluator::do_apply( const pow2_operation& o )
       });
    }
 
-   if( !db.has_hardfork( CONTENTO_HARDFORK_0_16__551) )
-   {
-      /// pay the witness that includes this POW
-      asset inc_reward = db.get_pow_reward();
-      db.adjust_supply( inc_reward, true );
+//    if( !db.has_hardfork( CONTENTO_HARDFORK_0_16__551) )
+//    {
+//       /// pay the witness that includes this POW
+//       asset inc_reward = db.get_pow_reward();
+//       db.adjust_supply( inc_reward, true );
 
-      const auto& inc_witness = db.get_account( dgp.current_witness );
-      db.create_vesting( inc_witness, inc_reward );
-   }
+//       const auto& inc_witness = db.get_account( dgp.current_witness );
+//       db.create_vesting( inc_witness, inc_reward );
+//    }
 }
 
 void feed_publish_evaluator::do_apply( const feed_publish_operation& o )
@@ -1948,7 +1953,7 @@ void convert_evaluator::do_apply( const convert_operation& o )
   FC_ASSERT( !fhistory.current_median_history.is_null(), "Cannot convert SBD because there is no price feed." );
 
   auto steemit_conversion_delay = CONTENTO_CONVERSION_DELAY_PRE_HF_16;
-  if( _db.has_hardfork( CONTENTO_HARDFORK_0_16__551) )
+//   if( _db.has_hardfork( CONTENTO_HARDFORK_0_16__551) )
      steemit_conversion_delay = CONTENTO_CONVERSION_DELAY;
 
   _db.create<convert_request_object>( [&]( convert_request_object& obj )
@@ -2018,13 +2023,13 @@ void convert_evaluator::do_apply( const convert_operation& o )
 
 void report_over_production_evaluator::do_apply( const report_over_production_operation& o )
 {
-   FC_ASSERT( !_db.has_hardfork( CONTENTO_HARDFORK_0_4 ), "report_over_production_operation is disabled." );
+   FC_ASSERT( false, "report_over_production_operation is disabled." );
 }
 
 void challenge_authority_evaluator::do_apply( const challenge_authority_operation& o )
 {
    CONTENTOS_OP_CLOSE_ASSERT();
-   if( _db.has_hardfork( CONTENTO_HARDFORK_0_14__307 ) ) FC_ASSERT( false, "Challenge authority operation is currently disabled." );
+   if( false ) FC_ASSERT( false, "Challenge authority operation is currently disabled." );
    const auto& challenged = _db.get_account( o.challenged );
    const auto& challenger = _db.get_account( o.challenger );
 
@@ -2096,13 +2101,13 @@ void request_account_recovery_evaluator::do_apply( const request_account_recover
       FC_ASSERT( o.new_owner_authority.weight_threshold, "Cannot recover using an open authority." );
 
       // Check accounts in the new authority exist
-      if( ( _db.has_hardfork( CONTENTO_HARDFORK_0_15__465 ) ) )
-      {
+    //   if( ( _db.has_hardfork( CONTENTO_HARDFORK_0_15__465 ) ) )
+    //   {
          for( auto& a : o.new_owner_authority.account_auths )
          {
             _db.get_account( a.first );
          }
-      }
+    //   }
 
       _db.create< account_recovery_request_object >( [&]( account_recovery_request_object& req )
       {
@@ -2120,13 +2125,13 @@ void request_account_recovery_evaluator::do_apply( const request_account_recover
       FC_ASSERT( !o.new_owner_authority.is_impossible(), "Cannot recover using an impossible authority." );
 
       // Check accounts in the new authority exist
-      if( ( _db.has_hardfork( CONTENTO_HARDFORK_0_15__465 ) ) )
-      {
+    //   if( ( _db.has_hardfork( CONTENTO_HARDFORK_0_15__465 ) ) )
+    //   {
          for( auto& a : o.new_owner_authority.account_auths )
          {
             _db.get_account( a.first );
          }
-      }
+    //   }
 
       _db.modify( *request, [&]( account_recovery_request_object& req )
       {
@@ -2141,7 +2146,7 @@ void recover_account_evaluator::do_apply( const recover_account_operation& o )
    CONTENTOS_OP_CLOSE_ASSERT();
    const auto& account = _db.get_account( o.account_to_recover );
 
-   if( _db.has_hardfork( CONTENTO_HARDFORK_0_12 ) )
+//    if( _db.has_hardfork( CONTENTO_HARDFORK_0_12 ) )
       FC_ASSERT( _db.head_block_time() - account.last_account_recovery > CONTENTO_OWNER_UPDATE_LIMIT, "Owner authority can only be updated once an hour." );
 
    const auto& recovery_request_idx = _db.get_index< account_recovery_request_index >().indices().get< by_account >();
@@ -2257,7 +2262,7 @@ void cancel_transfer_from_savings_evaluator::do_apply( const cancel_transfer_fro
 
 void decline_voting_rights_evaluator::do_apply( const decline_voting_rights_operation& o )
 {
-   FC_ASSERT( _db.has_hardfork( CONTENTO_HARDFORK_0_14__324 ) );
+//   FC_ASSERT( _db.has_hardfork( CONTENTO_HARDFORK_0_14__324 ) );
 
    const auto& account = _db.get_account( o.account );
    const auto& request_idx = _db.get_index< decline_voting_rights_request_index >().indices().get< by_account >();

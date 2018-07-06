@@ -223,35 +223,35 @@ const account_object& database_fixture::account_create(
 {
    try
    {
-      if( db.has_hardfork( CONTENTO_HARDFORK_0_17 ) )
-      {
-         account_create_with_delegation_operation op;
-         op.new_account_name = name;
-         op.creator = creator;
-         op.fee = asset( fee, COC_SYMBOL );
-         op.delegation = asset( 0, VESTS_SYMBOL );
-         op.owner = authority( 1, key, 1 );
-         op.active = authority( 1, key, 1 );
-         op.posting = authority( 1, post_key, 1 );
-         op.memo_key = key;
-         op.json_metadata = json_metadata;
+//      if( db.has_hardfork( STEEMIT_HARDFORK_0_17 ) )
+//      {
+     account_create_with_delegation_operation op;
+     op.new_account_name = name;
+     op.creator = creator;
+     op.fee = asset( fee, COC_SYMBOL );
+     op.delegation = asset( 0, VESTS_SYMBOL );
+     op.owner = authority( 1, key, 1 );
+     op.active = authority( 1, key, 1 );
+     op.posting = authority( 1, post_key, 1 );
+     op.memo_key = key;
+     op.json_metadata = json_metadata;
 
-         trx.operations.push_back( op );
-      }
-      else
-      {
-         account_create_operation op;
-         op.new_account_name = name;
-         op.creator = creator;
-         op.fee = asset( fee, COC_SYMBOL );
-         op.owner = authority( 1, key, 1 );
-         op.active = authority( 1, key, 1 );
-         op.posting = authority( 1, post_key, 1 );
-         op.memo_key = key;
-         op.json_metadata = json_metadata;
-
-         trx.operations.push_back( op );
-      }
+     trx.operations.push_back( op );
+//      }
+//      else
+//      {
+//         account_create_operation op;
+//         op.new_account_name = name;
+//         op.creator = creator;
+//         op.fee = asset( fee, STEEM_SYMBOL );
+//         op.owner = authority( 1, key, 1 );
+//         op.active = authority( 1, key, 1 );
+//         op.posting = authority( 1, post_key, 1 );
+//         op.memo_key = key;
+//         op.json_metadata = json_metadata;
+//
+//         trx.operations.push_back( op );
+//      }
 
       trx.set_expiration( db.head_block_time() + CONTENTO_MAX_TIME_UNTIL_EXPIRATION );
       trx.sign( creator_key, db.get_chain_id() );
@@ -350,17 +350,17 @@ void database_fixture::fund(
                a.balance += amount;
             else if( amount.symbol == SBD_SYMBOL )
             {
-               a.sbd_balance += amount;
-               a.sbd_seconds_last_update = db.head_block_time();
+            //    a.sbd_balance += amount;
+            //    a.sbd_seconds_last_update = db.head_block_time();
             }
          });
 
          db.modify( db.get_dynamic_global_properties(), [&]( dynamic_global_property_object& gpo )
          {
-            if( amount.symbol == COC_SYMBOL )
-               gpo.current_supply += amount;
-            else if( amount.symbol == SBD_SYMBOL )
-               gpo.current_sbd_supply += amount;
+            // if( amount.symbol == COC_SYMBOL )
+            //    gpo.current_supply += amount;
+            // else if( amount.symbol == SBD_SYMBOL )
+            //    gpo.current_sbd_supply += amount;
          });
 
          if( amount.symbol == SBD_SYMBOL )

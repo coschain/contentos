@@ -58,7 +58,7 @@ int main(int argc, char** argv) {
       std::cerr << "------------------------------------------------------\n";
 #else
       std::cerr << "------------------------------------------------------\n\n";
-      std::cerr << "            STARTING STEEM NETWORK\n\n";
+      std::cerr << "            STARTING Contento NETWORK\n\n";
       std::cerr << "------------------------------------------------------\n";
       //std::cerr << "initminer public key: " << CONTENTO_INIT_PUBLIC_KEY_STR << "\n";
       auto initminer_private_key = graphene::utilities::key_to_wif( CONTENTO_ONLINE_INIT_PRIVATE_KEY );
