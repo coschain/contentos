@@ -2,6 +2,8 @@
 project( Steem )
 cmake_minimum_required( VERSION 3.2 )
 
+include( GNUInstallDirs )
+
 set( BLOCKCHAIN_NAME "Steem" )
 
 set( GUI_CLIENT_EXECUTABLE_NAME Steem )
@@ -32,7 +34,12 @@ endif(USE_PCH)
 
 list( APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/libraries/fc/CMakeModules" )
 list( APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/libraries/fc/GitVersionGen" )
+
 include( GetGitRevisionDescription )
+
+include( InstallDirectoryPermissions )
+include( wasm )
+
 get_git_head_revision( GIT_REFSPEC GIT_SHA2 )
 
 SET(BOOST_COMPONENTS)
@@ -210,6 +217,8 @@ add_subdirectory( externals )
 add_subdirectory( external_plugins )
 add_subdirectory( libraries )
 add_subdirectory( programs )
+add_subdirectory( contracts )
+add_subdirectory( tools )
 
 #add_subdirectory( tests )
 
