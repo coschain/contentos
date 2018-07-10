@@ -100,8 +100,6 @@ namespace eosio { namespace chain {
          time_point      pending_block_time()const;
 
          const producer_schedule_type&    active_producers()const;
-         const producer_schedule_type&    pending_producers()const;
-         optional<producer_schedule_type> proposed_producers()const;
 
 
 
@@ -116,7 +114,6 @@ namespace eosio { namespace chain {
          void validate_expiration( const transaction& t )const;
          void validate_tapos( const transaction& t )const;
 
-         int64_t set_proposed_producers( vector<producer_key> producers );
 
          bool skip_auth_check()const;
 

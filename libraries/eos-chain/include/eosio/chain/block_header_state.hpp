@@ -35,7 +35,6 @@ struct block_header_state {
     bool maybe_promote_pending();
 
 
-    bool                 has_pending_producers()const { return pending_schedule.producers.size(); }
     uint32_t             calc_dpos_last_irreversible()const;
     bool                 is_active_producer( account_name n )const;
 
