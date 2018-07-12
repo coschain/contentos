@@ -400,10 +400,12 @@ namespace fc {
                 // slog( "jump to %p from %p", next, prev );
                 // fc_dlog( logger::get("fc_context"), "from ${from} to ${to}", ( "from", int64_t(prev) )( "to", int64_t(next) ) ); 
 #if BOOST_VERSION >= 106100
+//                  printf("[1]jump to %p(%p) from %p(%p)\n", next, next->my_context, prev, prev->my_context);
                 prev_ctx = prev;
-                std::cerr<<"start jumping to existing context...\n";
+//                std::cerr<<"start jumping to existing context...\n";
                 bc::detail::jump_fcontext( next->my_context, this );
-                std::cerr<<"back from jumping to existing context\n";
+//                std::cerr<<"back from jumping to existing context\n";
+//                  printf("[1]back to %p(%p)\n", current, current->my_context);
 #elif BOOST_VERSION >= 105600
                 bc::jump_fcontext( &prev->my_context, next->my_context, 0 );
 #elif BOOST_VERSION >= 105300
@@ -449,12 +451,15 @@ namespace fc {
 #if BOOST_VERSION >= 106100
                 //(*next->my_context)( (intptr_t)this );
                 //bc::detail::transfer_t tran; tran.data = this;
-                std::cerr << "start prev->my_context = " << prev->my_context <<"... \n";
-                std::cerr << "jumping to next context... \n";
+//                std::cerr << "start prev->my_context = " << prev->my_context <<"... \n";
+//                std::cerr << "jumping to next context... \n";
+//                  printf("[2]jump to %p(%p) from %p(%p)\n", next, next->my_context, prev, prev->my_context);
                 prev_ctx = prev;
-                auto result = bc::detail::jump_fcontext( next->my_context, this );
-                std::cerr << "end prev->my_context = " << prev->my_context <<"... \n";
-                std::cerr << result.fctx <<" <--- result \n";
+//                auto result = bc::detail::jump_fcontext( next->my_context, this );
+                  bc::detail::jump_fcontext( next->my_context, this );
+//                std::cerr << "end prev->my_context = " << prev->my_context <<"... \n";
+//                std::cerr << result.fctx <<" <--- result \n";
+//                  printf("[2]back to %p(%p)\n", current, current->my_context);
 #elif BOOST_VERSION >= 105600
                 bc::jump_fcontext( &prev->my_context, next->my_context, (intptr_t)this );
 #elif BOOST_VERSION >= 105300
@@ -486,15 +491,18 @@ namespace fc {
            static void start_process_tasks( fc::context::transfer_t my ) 
            {
 #if BOOST_VERSION >= 106100
-              std::cerr<<"my data: "<<my.data<<"\n";
-              std::cerr<<"my from: "<<my.fctx<<"\n";
+//               printf("start_process_tasks: data=%p, from=%p\n", my.data, my.fctx);
+//              std::cerr<<"my data: "<<my.data<<"\n";
+//              std::cerr<<"my from: "<<my.fctx<<"\n";
               thread_d* self = (thread_d*)my.data;
+//               printf("prev_ctx=%p\n", self->prev_ctx);
               if( self->prev_ctx )
               {
-                 std::cerr << "setting prev_ctx to " << int64_t(my.fctx) << "\n";
+//                 std::cerr << "setting prev_ctx to " << int64_t(my.fctx) << "\n";
+//                  printf("prev_ctx->my_context set to %p, was %p\n", my.fctx, self->prev_ctx->my_context);
                  self->prev_ctx->my_context = my.fctx;
               }
-              std::cerr<<"start process tasks\n" << int64_t(self)<<"\n";
+//              std::cerr<<"start process tasks\n" << int64_t(self)<<"\n";
               assert( self != 0 );
 #else
               thread_d* self = (thread_d*)my;
