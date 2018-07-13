@@ -26,6 +26,7 @@ struct api_session_data
 {
    std::shared_ptr< fc::rpc::websocket_api_connection >        wsc;
    std::shared_ptr< fc::rpc::http_api_connection >             httpc;
+   bool                                                        from_vm;
    std::map< std::string, fc::api_ptr >                        api_map;
 };
 

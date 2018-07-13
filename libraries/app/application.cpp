@@ -259,6 +259,53 @@ namespace detail {
          }
          c->set_session_data( session );
       }
+
+      std::string on_vm_request( const std::string& req_body )
+      {
+         std::shared_ptr< api_session_data > session = std::make_shared<api_session_data>();
+         session->wsc = nullptr;
+         session->httpc = nullptr;
+         session->from_vm = true;
+
+         std::shared_ptr<fc::local_api_connection> vm_api_server = std::make_shared<fc::local_api_connection>();
+         auto var = fc::json::from_string( req_body );
+         const auto& var_obj = var.get_object();
+
+         if( !var_obj.contains( "method" ) ){
+            FC_ASSERT( FALSE, "vm call must use jsonrpc format");
+         }
+         auto call = var.as<fc::rpc::request>();
+         FC_ASSERT( call.params.size() == 3, "vm call params size must equals 3");
+
+         fc::api_id_type id_call;
+         std::string api_name = call.params[0].as_string();
+         for( const std::string& name : _public_apis )
+         {
+            api_context ctx( *_self, name, session );
+            if (name != api_name){
+               continue;
+            }
+            fc::api_ptr api = create_api_by_name( ctx );
+            if( !api )
+            {
+               elog( "Couldn't create API ${name}", ("name", name) );
+               continue;
+            }
+            session->api_map[name] = api;
+            id_call = api->register_api( *vm_api_server );
+         }
+
+         try{
+            auto result = vm_api_server->receive_call(id_call, call.params[1].as_string(),
+                                                      call.params[2].get_array() );
+
+            return fc::json::to_string(result);
+         } catch (fc::exception e){
+            wdump((e.to_detail_string()));
+         }
+         return "";
+         //c->set_session_data( session );
+      }
        
        void on_http_request( const fc::http::request& req, const fc::http::server::response& resp ) {
            std::shared_ptr< api_session_data > session = std::make_shared<api_session_data>();
@@ -1164,6 +1211,10 @@ void application::register_abstract_plugin( std::shared_ptr< abstract_plugin > p
       _cfg_options.add(plugin_cfg_options);
 
    my->_plugins_available[plug->plugin_name()] = plug;
+}
+
+std::string application::on_vm_request( const std::string& req_body ){
+   return my->on_vm_request(req_body);
 }
 
 void application::enable_plugin( const std::string& name )
