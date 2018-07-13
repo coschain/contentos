@@ -26,8 +26,6 @@
 #include <iostream>
 #include <fstream>
 
-#include <eosio/testing/tester.hpp>
-
 #ifdef WIN32
 # include <signal.h>
 #else
@@ -42,32 +40,11 @@ namespace bpo = boost::program_options;
 void write_default_logging_config_to_stream(std::ostream& out);
 fc::optional<fc::logging_config> load_logging_config_from_ini_file(const fc::path& config_ini_filename);
 
-void test_eosio() {
-    eosio::testing::tester test;
-    
-    // generate a random account name
-    srand(time(0));
-    std::string rand_name;
-    for (int i = 0; i < 12; i++) {
-        rand_name += 'a' + rand() % 26;
-    }
-    eosio::chain::account_name acc(rand_name);
-    
-    // create the account
-    test.create_account(acc);
-    //test.produce_blocks(10);
-    
-    // query the account object from database
-    auto acc_obj = test.control->get_account(acc);
-    std::cout << acc_obj.name.to_string() << " created." << std::endl;
-}
-
 int main(int argc, char** argv) {
    contento::plugin::initialize_plugin_factories();
    app::application* node = new app::application();
    fc::oexception unhandled_exception;
    try {
-   	  test_eosio();
 
 #ifdef IS_TEST_NET
       std::cerr << "------------------------------------------------------\n\n";
