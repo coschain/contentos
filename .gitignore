@@ -38,6 +38,8 @@ tests/performance_test
 doxygen
 
 /build
+/xbuild
+!/xbuild/xcode.sh
 
 wallet.json
 witness_node_data_dir
