@@ -11,6 +11,12 @@
 # include <mstcpip.h>
 #endif
 
+#if BOOST_VERSION <= 106500
+#define BASIC_SOCK_NATIVE(s) ((s).native())
+#else
+#define BASIC_SOCK_NATIVE(s) ((s).native_handle())
+#endif
+
 namespace fc {
 
   namespace detail
@@ -177,13 +183,13 @@ namespace fc {
       keepalive_settings.keepaliveinterval = (ULONG)(interval.count() / fc::milliseconds(1).count());
 
       DWORD dwBytesRet = 0;
-      if (WSAIoctl(my->_sock.native(), SIO_KEEPALIVE_VALS, &keepalive_settings, sizeof(keepalive_settings),
+      if (WSAIoctl(BASIC_SOCK_NATIVE(my->_sock), SIO_KEEPALIVE_VALS, &keepalive_settings, sizeof(keepalive_settings),
                    NULL, 0, &dwBytesRet, NULL, NULL) == SOCKET_ERROR)
         wlog("Error setting TCP keepalive values");
 #elif !defined(__clang__) || (__clang_major__ >= 6)
       // This should work for modern Linuxes and for OSX >= Mountain Lion
       int timeout_sec = interval.count() / fc::seconds(1).count();
-      if (setsockopt(my->_sock.native(), IPPROTO_TCP, 
+      if (setsockopt(BASIC_SOCK_NATIVE(my->_sock), IPPROTO_TCP, 
       #if defined( __APPLE__ )
                      TCP_KEEPALIVE,
        #else
@@ -192,7 +198,7 @@ namespace fc {
                      (char*)&timeout_sec, sizeof(timeout_sec)) < 0)
         wlog("Error setting TCP keepalive idle time");
 # if !defined(__APPLE__) || defined(TCP_KEEPINTVL) // TCP_KEEPINTVL not defined before 10.9
-      if (setsockopt(my->_sock.native(), IPPROTO_TCP, TCP_KEEPINTVL, 
+      if (setsockopt(BASIC_SOCK_NATIVE(my->_sock), IPPROTO_TCP, TCP_KEEPINTVL, 
                      (char*)&timeout_sec, sizeof(timeout_sec)) < 0)
         wlog("Error setting TCP keepalive interval");
 # endif // !__APPLE__ || TCP_KEEPINTVL
@@ -224,7 +230,7 @@ namespace fc {
     if (detail::have_so_reuseport)
     {
       int reuseport_value = 1;
-      if (setsockopt(my->_sock.native(), SOL_SOCKET, SO_REUSEPORT, 
+      if (setsockopt(BASIC_SOCK_NATIVE(my->_sock), SOL_SOCKET, SO_REUSEPORT, 
                      (char*)&reuseport_value, sizeof(reuseport_value)) < 0)
       {
         if (errno == ENOPROTOOPT)
@@ -291,7 +297,7 @@ namespace fc {
     if (detail::have_so_reuseport)
     {
       int reuseport_value = 1;
-      if (setsockopt(my->_accept.native(), SOL_SOCKET, SO_REUSEPORT, 
+      if (setsockopt(BASIC_SOCK_NATIVE(my->_accept), SOL_SOCKET, SO_REUSEPORT, 
                      (char*)&reuseport_value, sizeof(reuseport_value)) < 0)
       {
         if (errno == ENOPROTOOPT)
