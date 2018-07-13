@@ -5,6 +5,7 @@
 #include "hsql/sql/statements.h"
 #include "hsql/sql/Expr.h"
 #include "table_printer.h"
+#include "hsql/util/sqlhelper.h"
 
 #include <contento/chain/global_property_object.hpp>
 #include <contento/chain/global_reward_property_object.hpp>
@@ -23,36 +24,34 @@ namespace dorothy {
     using hsql::OperatorType;
 
     typedef hsql::Expr Expr;
+    
 
     class database {
         public:
+
             database();
             ~database();
 
-            void open(const boost::filesystem::path& dir);
+            void open(const boost::filesystem::path& );
             void close();
 
-            void catch_expression(Expr* expr, std::vector<Expr*>& expr_v);
-
             void initialize_indexes();
-
-            void query(std::string& sql );
-
-            void query_dynamic_global_property(const hsql::SelectStatement* stmt);
-            void query_dynamic_global_reward_property(const hsql::SelectStatement* stmt);
-            void query_comment(const hsql::SelectStatement* stmt);
-            void query_account(const hsql::SelectStatement* stmt);
-
-            void print_header(TablePrinter& tp, std::vector<column>& column );
-
-            template<typename index_type, typename by_tag, typename printer>
-            void print_body(TablePrinter& tp);
-
-            template<typename index_type, typename by_tag,  typename printer, typename compare_key>
-            void print_body(TablePrinter& tp, compare_key&& key);
-
-            void print_footer(TablePrinter& tp);
+        
+            template<typename INDEX> void initialize_index(std::string&& );
             
+            void query(const std::string& );
+        
+            template<typename INDEX> void query_table(const hsql::SelectStatement*, const std::vector<std::string>& );
+        
+            void print_columns(std::vector<fc::variant>&, const std::vector<std::string>& );
+        
             std::shared_ptr<chainbase::database> _chain_db;
+            std::map<std::string, std::function<void(const hsql::SelectStatement*,  std::vector<std::string>&)>> _tables;
+            std::map<std::string, std::vector<std::string>> _selected_fields;
+        
+        private:
+            void _print_header(TablePrinter&, std::vector<std::pair<fc::string, fc::string>>&, std::map<fc::string, std::size_t>&, const std::vector<std::string>&) const;
+            void _print_body(TablePrinter&, std::vector<std::vector<std::pair<fc::string, fc::string>>>&, const std::vector<std::string>&) const;
+            void _print_footer(TablePrinter&) const;
     };
 }
