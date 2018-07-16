@@ -342,7 +342,7 @@ namespace detail {
       {
          _self->register_api_factory< login_api >( "login_api" );
          _self->register_api_factory< database_api >( "database_api" );
-         _self->register_api_factory< contento_vm_api >( "contento_vm_api" );
+         _self->register_api_factory< contento::vmi::contento_vm_api >( "contento_vm_api" );
          _self->register_api_factory< network_node_api >( "network_node_api" );
          _self->register_api_factory< network_broadcast_api >( "network_broadcast_api" );
       }

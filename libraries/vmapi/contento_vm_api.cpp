@@ -12,7 +12,7 @@
 #include <iostream>
 
 
-namespace contento { namespace app {
+namespace contento { namespace vmi {
 
 class contento_vm_api_impl;
 
@@ -24,7 +24,7 @@ class contento_vm_api_impl : public std::enable_shared_from_this<contento_vm_api
       ~contento_vm_api_impl();
 
       // Accounts
-      vector< extended_account > get_accounts( vector< string > names )const;
+      vector< account_obj_vmi > get_accounts( vector< string > names )const;
       set<string> lookup_accounts(const string& lower_bound_name, uint32_t limit)const;
       uint64_t get_account_count()const;
 
@@ -61,7 +61,7 @@ void contento_vm_api::on_api_startup() {}
 //                                                                  //
 //////////////////////////////////////////////////////////////////////
 
-vector< extended_account > contento_vm_api::get_accounts( vector< string > names )const
+vector< account_obj_vmi > contento_vm_api::get_accounts( vector< string > names )const
 {
    return my->_db.with_read_lock( [&]()
    {
@@ -69,24 +69,17 @@ vector< extended_account > contento_vm_api::get_accounts( vector< string > names
    });
 }
 
-vector< extended_account > contento_vm_api_impl::get_accounts( vector< string > names )const
+vector< account_obj_vmi > contento_vm_api_impl::get_accounts( vector< string > names )const
 {
    const auto& idx  = _db.get_index< account_index >().indices().get< by_name >();
-   const auto& vidx = _db.get_index< witness_vote_index >().indices().get< by_account_witness >();
-   vector< extended_account > results;
+   vector< account_obj_vmi > results;
 
    for( auto name: names )
    {
       auto itr = idx.find( name );
       if ( itr != idx.end() )
       {
-         results.push_back( extended_account( *itr, _db ) );
-
-         auto vitr = vidx.lower_bound( boost::make_tuple( itr->id, witness_id_type() ) );
-         while( vitr != vidx.end() && vitr->account == itr->id ) {
-            results.back().witness_votes.insert(_db.get(vitr->witness).owner);
-            ++vitr;
-         }
+         results.push_back( account_obj_vmi( *itr ) );
       }
    }
 

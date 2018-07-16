@@ -3,7 +3,7 @@
 #include <contento/chain/database.hpp>
 #include <contento/chain/contento_objects.hpp>
 #include <contento/chain/contento_object_types.hpp>
-#include <contento/app/state.hpp>
+#include "vm_obj.hpp"
 #include <contento/app/api_context.hpp>
 
 
@@ -20,10 +20,12 @@
 #include <memory>
 #include <vector>
 
-namespace contento { namespace app {
+namespace contento { namespace vmi {
 
 using namespace contento::chain;
 using namespace contento::protocol;
+using namespace contento::app;
+
 using namespace std;
 
 
@@ -45,7 +47,7 @@ class contento_vm_api
       // Accounts //
       //////////////
 
-      vector< extended_account > get_accounts( vector< string > names ) const;
+      vector< account_obj_vmi > get_accounts( vector< string > names ) const;
 
       /**
        * @brief Get the total number of accounts registered with the blockchain
@@ -64,7 +66,7 @@ class contento_vm_api
 
 } }
 
-FC_API(contento::app::contento_vm_api,
+FC_API(contento::vmi::contento_vm_api,
       (get_accounts)
       (get_account_count)
 )
