@@ -69,7 +69,16 @@ enum object_type
    block_stats_object_type,
    reward_fund_object_type,
    vesting_delegation_object_type,
-   vesting_delegation_expiration_object_type
+   vesting_delegation_expiration_object_type,
+   table_id_object_type,
+   action_code_object_type,
+   key_value_object_type,
+   index64_object_type,
+   index128_object_type,
+   index256_object_type,
+   ndex_double_object_type,
+   index_long_double_object_type,
+   account_sequence_object_type
 };
 
 class dynamic_global_property_object;
@@ -104,6 +113,7 @@ class block_stats_object;
 class reward_fund_object;
 class vesting_delegation_object;
 class vesting_delegation_expiration_object;
+class table_id_object;
 
 typedef oid< dynamic_global_property_object         > dynamic_global_property_id_type;
 typedef oid< dynamic_global_reward_property_object  > dynamic_global_reward_property_id_type;
@@ -251,6 +261,15 @@ FC_REFLECT_ENUM( contento::chain::object_type,
                  (reward_fund_object_type)
                  (vesting_delegation_object_type)
                  (vesting_delegation_expiration_object_type)
+                 (table_id_object)
+                 (action_code_object_type)
+                  (key_value_object_type)
+                  (index64_object_type)
+                  (index128_object_type)
+                  (index256_object_type)
+                  (ndex_double_object_type)
+                  (index_long_double_object_type)
+                  (account_sequence_object_type)
                )
 
 FC_REFLECT_TYPENAME( contento::chain::shared_string )
