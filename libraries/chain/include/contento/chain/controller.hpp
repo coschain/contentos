@@ -23,7 +23,7 @@ namespace contento { namespace chain {
          controller();
          ~controller();
 
-         void add_indices( my->add_indices() );
+         void add_indices();
 
          chainbase::database& db()const;
 

@@ -100,6 +100,14 @@ namespace contento { namespace chain {
          time_point_sec    last_root_post = fc::time_point_sec::min();
          uint32_t          post_bandwidth = 0;
 
+         uint8_t           vm_type = 0;
+         uint8_t           vm_version = 0;
+         time_point_sec    last_code_update;
+         digest_type       code_version;
+
+         shared_string     code;
+         shared_string     abi;
+
          /// This function should be used only when the account votes for a witness directly
          share_type        witness_vote_weight()const {
             return std::accumulate( proxied_vsf_votes.begin(),
@@ -485,6 +493,8 @@ FC_REFLECT( contento::chain::account_object,
              (posting_rewards)
              (proxied_vsf_votes)(witnesses_voted_for)
              (last_post)(last_root_post)(post_bandwidth)
+             (vm_type)(vm_version)(last_code_update)(code_version)
+             (code)(abi)
           )
 CHAINBASE_SET_INDEX_TYPE( contento::chain::account_object, contento::chain::account_index )
 

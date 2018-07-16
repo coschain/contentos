@@ -82,6 +82,10 @@ controller::controller()
 {
 }
 
+void controller::add_indices() {
+   my->add_indices();
+}
+
 const account_object& controller::get_account( account_name name )const
 { try {
    return my->db.get<account_object, by_name>(name);

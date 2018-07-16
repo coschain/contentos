@@ -76,7 +76,7 @@ enum object_type
    index64_object_type,
    index128_object_type,
    index256_object_type,
-   ndex_double_object_type,
+   index_double_object_type,
    index_long_double_object_type,
    account_sequence_object_type
 };
@@ -261,13 +261,13 @@ FC_REFLECT_ENUM( contento::chain::object_type,
                  (reward_fund_object_type)
                  (vesting_delegation_object_type)
                  (vesting_delegation_expiration_object_type)
-                 (table_id_object)
+                 (table_id_object_type)
                  (action_code_object_type)
                   (key_value_object_type)
                   (index64_object_type)
                   (index128_object_type)
                   (index256_object_type)
-                  (ndex_double_object_type)
+                  (index_double_object_type)
                   (index_long_double_object_type)
                   (account_sequence_object_type)
                )
