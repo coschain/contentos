@@ -8,8 +8,8 @@
 #include <fstream>
 #include <sstream>
 
-#include <eosio/chain/abi_serializer.hpp>
-#include <eosio/chain/contract_types.hpp>
+#include <contento/chain/abi_serializer.hpp>
+#include <contento/chain/contract_types.hpp>
 #include <fc/io/json.hpp>
 
 //clashes with something deep in the AST includes in clang 6 and possibly other versions of clang
@@ -42,8 +42,8 @@ using namespace std;
 using namespace clang::tooling;
 namespace cl = llvm::cl;
 
-namespace eosio {
-   using namespace eosio::chain;
+namespace contento {
+   using namespace contento::chain;
 
    FC_DECLARE_EXCEPTION( abi_generation_exception, 999999, "Unable to generate abi" );
 
@@ -54,7 +54,7 @@ namespace eosio {
          {                                                                      \
            if( fc::enable_record_assert_trip )                                  \
               fc::record_assert_trip( __FILE__, __LINE__, #TEST );              \
-           FC_THROW_EXCEPTION( eosio::abi_generation_exception, #TEST ": "  __VA_ARGS__ ); \
+           FC_THROW_EXCEPTION( contento::abi_generation_exception, #TEST ": "  __VA_ARGS__ ); \
          }                                                                      \
        FC_MULTILINE_MACRO_END \
       )
@@ -156,7 +156,7 @@ namespace eosio {
    };
 
    /**
-     * @brief Generates eosio::abi_def struct handling events from ASTConsumer
+     * @brief Generates contento::abi_def struct handling events from ASTConsumer
      */
    class abi_generator {
       private:
@@ -324,13 +324,13 @@ namespace eosio {
       }
    };
 
-   struct find_eosio_abi_macro_action : public PreprocessOnlyAction {
+   struct find_contento_abi_macro_action : public PreprocessOnlyAction {
 
          string& contract;
          vector<string>& actions;
          const string& abi_context;
 
-         find_eosio_abi_macro_action(string& contract, vector<string>& actions, const string& abi_context
+         find_contento_abi_macro_action(string& contract, vector<string>& actions, const string& abi_context
             ): contract(contract),
             actions(actions), abi_context(abi_context) {
          }
@@ -338,9 +338,9 @@ namespace eosio {
          struct callback_handler : public PPCallbacks {
 
             CompilerInstance& compiler_instance;
-            find_eosio_abi_macro_action& act;
+            find_contento_abi_macro_action& act;
 
-            callback_handler(CompilerInstance& compiler_instance, find_eosio_abi_macro_action& act)
+            callback_handler(CompilerInstance& compiler_instance, find_contento_abi_macro_action& act)
             : compiler_instance(compiler_instance), act(act) {}
 
             string remove_namespace(const string& full_name) {
@@ -366,7 +366,7 @@ namespace eosio {
 
                auto* id = token.getIdentifierInfo();
                if( id == nullptr ) return;
-               if( id->getName() != "EOSIO_ABI" ) return;
+               if( id->getName() != "contento_ABI" ) return;
 
                const auto& sm = compiler_instance.getSourceManager();
                auto file_name = sm.getFilename(range.getBegin());
@@ -380,7 +380,7 @@ namespace eosio {
                clang::SourceLocation e(clang::Lexer::getLocForEndOfToken(_e, 0, sm, compiler_instance.getLangOpts()));
                auto macrostr = string(sm.getCharacterData(b), sm.getCharacterData(e)-sm.getCharacterData(b));
 
-               regex r(R"(EOSIO_ABI\s*\(\s*(.+?)\s*,((?:.+?)*)\s*\))");
+               regex r(R"(contento_ABI\s*\(\s*(.+?)\s*,((?:.+?)*)\s*\))");
                smatch smatch;
                auto res = regex_search(macrostr, smatch, r);
                ABI_ASSERT( res );
@@ -437,6 +437,6 @@ namespace eosio {
          }
    };
 
-} //ns eosio
+} //ns contento
 
 #pragma pop_macro("N")

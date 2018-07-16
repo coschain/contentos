@@ -23,6 +23,7 @@
 #include <contento/chain/util/uint256.hpp>
 #include <contento/chain/util/reward.hpp>
 
+
 #include <fc/smart_ref_impl.hpp>
 #include <fc/uint128.hpp>
 
@@ -105,6 +106,8 @@ void database::open( const fc::path& data_dir, const fc::path& shared_mem_dir, u
 
       initialize_indexes();
       initialize_evaluators();
+
+      ctrl.add_indices();
 
       if( chainbase_flags & chainbase::database::read_write )
       {

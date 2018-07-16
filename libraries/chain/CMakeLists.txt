@@ -1,4 +1,9 @@
-file(GLOB HEADERS "include/contento/chain/*.hpp" "include/contento/chain/util/*.hpp")
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/include/contento/chain/core_symbol.hpp.in ${CMAKE_CURRENT_BINARY_DIR}/include/contento/chain/core_symbol.hpp)
+
+file(GLOB HEADERS "include/contento/chain/*.hpp" 
+                  "include/contento/chain/util/*.hpp"
+                  "include/contento/chain/contracts/*.hpp"
+                  "${CMAKE_CURRENT_BINARY_DIR}/include/contento/chain/core_symbol.hpp" )
 
 if( MSVC )
    set( hardfork_hpp_file "${CMAKE_CURRENT_SOURCE_DIR}/include/contento/chain/hardfork.hpp" )
@@ -19,6 +24,7 @@ add_library( contento_chain
 
              # As database takes the longest to compile, start it first
              database.cpp
+             controller.cpp
              fork_database.cpp
              witness_schedule.cpp
 
@@ -30,15 +36,36 @@ add_library( contento_chain
 
              util/reward.cpp
 
+             merkle.cpp
+             name.cpp
+             contento_contract.cpp
+             contento_contract_abi.cpp
+             chain_id_type.cpp
+
+              wast_to_wasm.cpp
+              wasm_interface.cpp
+              wasm_contento_validation.cpp
+              wasm_contento_injection.cpp
+              apply_context.cpp
+              abi_serializer.cpp
+
+             webassembly/wavm.cpp
+             webassembly/binaryen.cpp
+
              ${HEADERS}
              ${hardfork_hpp_file}
              "${CMAKE_CURRENT_BINARY_DIR}/include/contento/chain/hardfork.hpp"
            )
 
 add_dependencies( contento_chain contento_protocol build_hardfork_hpp )
-target_link_libraries( contento_chain contento_protocol fc chainbase graphene_schema ${PATCH_MERGE_LIB} )
+target_link_libraries( contento_chain contento_protocol fc chainbase graphene_schema ${PATCH_MERGE_LIB}
+                       IR WAST WASM Runtime wasm asmjs passes cfg ast emscripten-optimizer support softfloat builtins )
 target_include_directories( contento_chain
-                            PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" "${CMAKE_CURRENT_BINARY_DIR}/include" )
+                            PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" 
+                            "${CMAKE_CURRENT_BINARY_DIR}/include"
+                            "${CMAKE_CURRENT_SOURCE_DIR}/../wasm-jit/Include"
+                            "${CMAKE_CURRENT_SOURCE_DIR}/../utilities/Include"
+                            "${CMAKE_CURRENT_SOURCE_DIR}/../../externals/binaryen/src" )
 
 if(MSVC)
   set_source_files_properties( database.cpp PROPERTIES COMPILE_FLAGS "/bigobj" )

@@ -9,6 +9,8 @@
 #include <contento/chain/block_log.hpp>
 #include <contento/chain/operation_notification.hpp>
 
+#include <contento/chain/controller.hpp>
+
 #include <contento/protocol/protocol.hpp>
 
 //#include <graphene/db2/database.hpp>
@@ -494,6 +496,8 @@ namespace contento { namespace chain {
 
          flat_map< std::string, std::shared_ptr< custom_operation_interpreter > >   _custom_operation_interpreters;
          std::string                       _json_schema;
+
+         contento::chain::controller ctrl;
    };
 
 } }

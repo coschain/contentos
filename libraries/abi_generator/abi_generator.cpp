@@ -1,7 +1,7 @@
-#include <eosio/abi_generator/abi_generator.hpp>
-#include <eosio/chain/abi_def.hpp>
+#include <contento/abi_generator/abi_generator.hpp>
+#include <contento/chain/abi_def.hpp>
 
-namespace eosio {
+namespace contento {
 
 void abi_generator::set_target_contract(const string& contract, const vector<string>& actions) {
   target_contract = contract;
@@ -85,9 +85,9 @@ string abi_generator::translate_type(const string& type_name) {
   else if (type_name == "char"               || type_name == "int8_t")   built_in_type = "int8";
   else if (type_name == "double")   built_in_type = "float64";
   else {
-     static auto types = eosio::chain::common_type_defs();
+     static auto types = contento::chain::common_type_defs();
      auto itr = std::find_if( types.begin(), types.end(),
-                              [&type_name]( const eosio::chain::type_def& t ) { return t.new_type_name == type_name; } );
+                              [&type_name]( const contento::chain::type_def& t ) { return t.new_type_name == type_name; } );
      if( itr != types.end()) {
         built_in_type = itr->type;
      }
@@ -122,7 +122,7 @@ bool abi_generator::inspect_type_methods_for_actions(const Decl* decl) { try {
       raw_comment_is_action = smatch.size() == 3;
     }
 
-    // Check if current method is listed the EOSIO_ABI macro
+    // Check if current method is listed the contento_ABI macro
     bool is_action_from_macro = rec_decl->getName().str() == target_contract && std::find(target_actions.begin(), target_actions.end(), method_name) != target_actions.end();
     
     if(!raw_comment_is_action && !is_action_from_macro) {
@@ -202,7 +202,7 @@ void abi_generator::handle_decl(const Decl* decl) { try {
     return;
   }
 
-  // Check if the current declaration has actions (EOSIO_ABI, or explicit)
+  // Check if the current declaration has actions (contento_ABI, or explicit)
   bool type_has_actions = inspect_type_methods_for_actions(decl);
   if( type_has_actions ) return;
 
@@ -215,7 +215,7 @@ void abi_generator::handle_decl(const Decl* decl) { try {
   string raw_text = raw_comment->getRawText(source_manager);
   regex r;
 
-  // If EOSIO_ABI macro was found, we will only check if the current Decl
+  // If contento_ABI macro was found, we will only check if the current Decl
   // is intented to be an ABI table record, otherwise we check for both (action or table)
   if( target_contract.size() )
     r = regex(R"(@abi (table)((?: [a-z0-9]+)*))");

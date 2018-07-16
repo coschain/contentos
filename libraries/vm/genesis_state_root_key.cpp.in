@@ -1,0 +1,12 @@
+/**
+ *  @file
+ *  @copyright defined in eos/LICENSE.txt
+ */
+
+#include <contento/chain/genesis_state.hpp>
+
+namespace contento { namespace chain {
+
+const string genesis_state::contento_root_key = "${contento_ROOT_KEY}";
+
+} } // namespace contento::chain
