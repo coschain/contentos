@@ -70,19 +70,26 @@ namespace dorothy {
 
     void database::initialize_indexes()
     {
-        initialize_index<account_index>("account");
-        initialize_index<comment_index>("comment");
+        initialize_index<account_index, by_id>("account", "id");
+        initialize_index<account_index, by_name>("account", "name");
+        initialize_index<account_index, by_next_vesting_withdrawal>("account", "next_vesting_withdrawal");
     }
     
     
     
-    template<typename INDEX>
-    void database::initialize_index(std::string&& table_name)
+    template<typename INDEX, typename TAG>
+    void database::initialize_index(std::string&& table_name, std::string&& tag_name)
     {
-        _chain_db -> add_index<INDEX>();
-        auto f = [this](const hsql::SelectStatement* stmt, const std::vector<std::string>& fields){return query_table<INDEX>(stmt, fields);};
-        _tables[table_name] = f;
+        auto find_table_name = std::find(_table_names.begin(), _table_names.end(), table_name);
+        if(find_table_name == _table_names.end()){
+            _table_names.push_back(table_name);
+            _chain_db -> add_index<INDEX>();
+        }
+        auto key = table_name + "|" + tag_name;
+        auto f = [this](const hsql::SelectStatement* stmt, const std::vector<std::string>& fields){return query_table<INDEX, TAG>(stmt, fields);};
+        _tables[key] = f;
     }
+    
     
     void database::query(const std::string& sql){
         hsql::SQLParserResult result;
@@ -91,17 +98,29 @@ namespace dorothy {
         assert(result.getStatement(0)->type() == hsql::kStmtSelect);
         const auto* stmt = (const hsql::SelectStatement*)result.getStatement(0);
         
-//        hsql::printSelectStatementInfo(stmt, 0);
-        
         std::string table_name{stmt -> fromTable -> getName()};
-
         
-        auto itr = _tables.find(table_name);
+        std::string order_by;
+        
+        if (stmt->order != nullptr) {
+            order_by = stmt -> order -> at(0) -> expr -> name;
+        }
+        else {
+            order_by = "id";
+        }
+        
+        auto table_key = table_name + "|" + order_by;
+        
+        auto itr = _tables.find(table_key);
 
         if(itr == _tables.end()) {
-            std::cout << "the table " << table_name << " doesn't exist" << std::endl;
+            auto find_table_name = std::find(_table_names.begin(), _table_names.end(), table_name);
+            if(find_table_name == _table_names.end())
+                std::cerr << "the table: " << table_name << " doesn't exist" << std::endl;
+            else
+                std::cerr << "the order condition: " << order_by << "is invalid" << std::endl;
         } else {
-            auto query_functor = _tables.at(table_name);
+            auto query_functor = _tables.at(table_key);
             
             std::vector<std::string> fields;
             
@@ -125,11 +144,11 @@ namespace dorothy {
         }
     }
 
-    template<typename INDEX>
+    template<typename INDEX, typename TAG>
     void database::query_table(const hsql::SelectStatement* stmt, const std::vector<std::string>& fields)
     {
         
-        const auto& idx = _chain_db ->get_index<INDEX>().indices().template get<contento::chain::by_id>();
+        const auto& idx = _chain_db ->get_index<INDEX>().indices().template get<TAG>();
 
         std::vector<fc::variant> columns;
         auto current = idx.begin();

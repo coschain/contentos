@@ -56,9 +56,6 @@ int main(int argc, char** argv) {
         return 0;
     }
 
-    // fc::path blockchain_dir("/Users/aprocysanae/contento/steem-stable/build/programs/steemd/Debug/witness_node_data_dir/blockchain");
-
-
     std::cerr << "------------------------------------------------------\n\n";
     std::cerr << "            start db querying\n\n";                       
     std::cerr << "------------------------------------------------------\n";
