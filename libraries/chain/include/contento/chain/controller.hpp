@@ -24,6 +24,7 @@ namespace contento { namespace chain {
          ~controller();
 
          void add_indices();
+         bool is_producing_block() const
 
          chainbase::database& db()const;
 

@@ -104,6 +104,7 @@ namespace contento { namespace chain {
          uint8_t           vm_version = 0;
          time_point_sec    last_code_update;
          digest_type       code_version;
+         bool              privileged = false;
 
          shared_string     code;
          shared_string     abi;
@@ -493,7 +494,7 @@ FC_REFLECT( contento::chain::account_object,
              (posting_rewards)
              (proxied_vsf_votes)(witnesses_voted_for)
              (last_post)(last_root_post)(post_bandwidth)
-             (vm_type)(vm_version)(last_code_update)(code_version)
+             (vm_type)(vm_version)(last_code_update)(code_version)(privileged)
              (code)(abi)
           )
 CHAINBASE_SET_INDEX_TYPE( contento::chain::account_object, contento::chain::account_index )

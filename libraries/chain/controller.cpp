@@ -86,6 +86,11 @@ void controller::add_indices() {
    my->add_indices();
 }
 
+bool controller::is_producing_block() const {
+      // TODO:
+      return true;
+}
+
 const account_object& controller::get_account( account_name name )const
 { try {
    return my->db.get<account_object, by_name>(name);
