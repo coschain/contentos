@@ -2,6 +2,7 @@
 
 #include <contento/chain/abi_serializer.hpp>
 #include <contento/chain/account_object.hpp>
+#include <contento/chain/wasm_interface.hpp>
 
 namespace chainbase {
    class database;
@@ -9,7 +10,7 @@ namespace chainbase {
 
 
 namespace contento { namespace chain {
-
+    class apply_context;
    struct controller_impl;
    using chainbase::database;
 
@@ -24,7 +25,7 @@ namespace contento { namespace chain {
          ~controller();
 
          void add_indices();
-         bool is_producing_block() const
+       bool is_producing_block() const;
 
          chainbase::database& db()const;
 

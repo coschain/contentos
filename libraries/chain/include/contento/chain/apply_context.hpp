@@ -4,7 +4,7 @@
  */
 #pragma once
 #include <contento/chain/controller.hpp>
-//#include <contento/chain/transaction.hpp>
+#include <contento/protocol/transaction.hpp>
 #include <contento/chain/contract_table_objects.hpp>
 #include <fc/utility.hpp>
 #include <sstream>
@@ -565,12 +565,12 @@ class apply_context {
    public:
 
       int get_action( uint32_t type, uint32_t index, char* buffer, size_t buffer_size )const;
-      int get_context_free_data( uint32_t index, char* buffer, size_t buffer_size )const;
+      //int get_context_free_data( uint32_t index, char* buffer, size_t buffer_size )const;
       bytes  get_packed_transaction();
 
       uint64_t next_global_sequence();
       uint64_t next_recv_sequence( account_name receiver );
-      uint64_t next_auth_sequence( account_name actor );
+      //uint64_t next_auth_sequence( account_name actor );
 
    private:
 

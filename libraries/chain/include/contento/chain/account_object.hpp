@@ -123,6 +123,27 @@ namespace contento { namespace chain {
 
          asset effective_vesting_shares()const { return vesting_shares - delegated_vesting_shares + received_vesting_shares; }
    };
+    
+    class account_sequence_object : public chainbase::object<account_sequence_object_type, account_sequence_object>
+    {
+        OBJECT_CTOR(account_sequence_object);
+        
+        id_type      id;
+        account_name name;
+        uint64_t     recv_sequence = 0;
+        //uint64_t     auth_sequence = 0;
+        uint64_t     code_sequence = 0;
+        uint64_t     abi_sequence  = 0;
+    };
+    
+    struct by_name;
+    using account_sequence_index = chainbase::shared_multi_index_container<
+        account_sequence_object,
+        indexed_by<
+            ordered_unique<tag<by_id>, member<account_sequence_object, account_sequence_object::id_type, &account_sequence_object::id>>,
+            ordered_unique<tag<by_name>, member<account_sequence_object, account_name, &account_sequence_object::name>>
+        >
+    >;
 
    class admin_object : public object<admin_object_type, admin_object>
    {
@@ -498,6 +519,12 @@ FC_REFLECT( contento::chain::account_object,
              (code)(abi)
           )
 CHAINBASE_SET_INDEX_TYPE( contento::chain::account_object, contento::chain::account_index )
+
+FC_REFLECT( contento::chain::account_sequence_object,
+           (id)(name)
+           (recv_sequence)(code_sequence)(abi_sequence)
+           )
+CHAINBASE_SET_INDEX_TYPE(contento::chain::account_sequence_object, contento::chain::account_sequence_index)
 
 FC_REFLECT( contento::chain::admin_object,
              (id)(name)

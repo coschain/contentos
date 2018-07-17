@@ -84,19 +84,19 @@ class context_aware_api {
       apply_context&             context;
 
 };
-
+/*
 class context_free_api : public context_aware_api {
    public:
       context_free_api( apply_context& ctx )
       :context_aware_api(ctx, true) {
-         /* the context_free_data is not available during normal application because it is prunable */
+         // the context_free_data is not available during normal application because it is prunable
          FC_ASSERT( context.context_free, "this API may only be called from context_free apply" );
       }
 
       int get_context_free_data( uint32_t index, array_ptr<char> buffer, size_t buffer_size )const {
          return context.get_context_free_data( index, buffer, buffer_size );
       }
-};
+};*/
 
 class privileged_api : public context_aware_api {
    public:
@@ -1836,10 +1836,11 @@ REGISTER_INTRINSICS(transaction_api,
    (cancel_deferred,           int(int)                     )
 );
 
+/*
 REGISTER_INTRINSICS(context_free_api,
    (get_context_free_data, int(int, int, int) )
 )
-
+*/
 REGISTER_INTRINSICS(memory_api,
    (memcpy,                 int(int, int, int)  )
    (memmove,                int(int, int, int)  )

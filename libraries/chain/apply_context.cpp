@@ -1,6 +1,5 @@
 #include <algorithm>
 #include <contento/chain/apply_context.hpp>
-#include <contento/chain/controller.hpp>
 //#include <contento/chain/transaction_context.hpp>
 #include <contento/chain/exceptions.hpp>
 #include <contento/chain/wasm_interface.hpp>
@@ -63,20 +62,13 @@ action_trace apply_context::exec_one()
    r.code_sequence    = account_sequence.code_sequence;
    r.abi_sequence     = account_sequence.abi_sequence;
 
-   for( const auto& auth : act.authorization ) {
-      r.auth_sequence[auth.actor] = next_auth_sequence( auth.actor );
-   }
-
    action_trace t(r);
-   t.trx_id = trx_context.id;
+   //t.trx_id = trx_context.id;
    t.act = act;
    t.console = _pending_console_output.str();
 
-   trx_context.executed.emplace_back( move(r) );
+   //trx_context.executed.emplace_back( move(r) );
 
-   if ( control.contracts_console() ) {
-      print_debug(receiver, t);
-   }
 
    reset_console();
 
@@ -103,11 +95,12 @@ void apply_context::exec()
   //     trace.inline_traces.emplace_back();
   //     trx_context.dispatch_action( trace.inline_traces.back(), inline_action, inline_action.account, true, recurse_depth + 1 );
   //  }
-
+/*
    for( const auto& inline_action : _inline_actions ) {
       trace.inline_traces.emplace_back();
       trx_context.dispatch_action( trace.inline_traces.back(), inline_action, inline_action.account, false, recurse_depth + 1 );
    }
+ */
 
 } /// exec()
 
@@ -184,12 +177,11 @@ void apply_context::execute_inline( action&& a ) {
 
       EOS_ASSERT( actor != nullptr, action_validate_exception,
                   "inline action's authorizing actor ${account} does not exist", ("account", auth.actor) );
-      EOS_ASSERT( control.get_authorization_manager().find_permission(auth) != nullptr, action_validate_exception,
-                  "inline action's authorizations include a non-existent permission: {permission}",
-                  ("permission", auth) );
    }
 
    // No need to check authorization if: replaying irreversible blocks; contract is privileged; or, contract is calling itself.
+    /* TODO: check auth
+     
    if( !control.skip_auth_check() && !privileged && a.account != receiver ) {
       control.get_authorization_manager()
              .check_authorization( {a},
@@ -199,11 +191,12 @@ void apply_context::execute_inline( action&& a ) {
                                    std::bind(&transaction_context::checktime, &this->trx_context),
                                    false
                                  );
+     
 
       //QUESTION: Is it smart to allow a deferred transaction that has been delayed for some time to get away
       //          with sending an inline action that requires a delay even though the decision to send that inline
       //          action was made at the moment the deferred transaction was executed with potentially no forewarning?
-   }
+   }*/
 
    _inline_actions.emplace_back( move(a) );
 }
@@ -246,27 +239,31 @@ void apply_context::remove_table( const table_id_object& tid ) {
 }
 
 void apply_context::reset_console() {
-   _pending_console_output = std::ostringstream();
-   _pending_console_output.setf( std::ios::scientific, std::ios::floatfield );
+   //_pending_console_output = std::ostringstream();
+   //_pending_console_output.setf( std::ios::scientific, std::ios::floatfield );
 }
 
 bytes apply_context::get_packed_transaction() {
-   auto r = fc::raw::pack( static_cast<const transaction&>(trx_context.trx) );
+    // TODO:
+   //auto r = fc::raw::pack( static_cast<const transaction&>(trx_context.trx) );
+    auto r = fc::raw::pack( static_cast<const protocol::transaction&>(protocol::signed_transaction()) );
    return r;
 }
 
 void apply_context::update_db_usage( const account_name& payer, int64_t delta ) {
-   if( delta > 0 ) {
+   /*if( delta > 0 ) {
       if( !(privileged || payer == account_name(receiver)) ) {
          require_authorization( payer );
       }
    }
    trx_context.add_ram_usage(payer, delta);
+    */
 }
 
 
 int apply_context::get_action( uint32_t type, uint32_t index, char* buffer, size_t buffer_size )const
 {
+    /* TODO:
    const auto& trx = trx_context.trx;
    const action* act_ptr = nullptr;
 
@@ -291,8 +288,11 @@ int apply_context::get_action( uint32_t type, uint32_t index, char* buffer, size
       fc::raw::pack( ds, *act_ptr );
    }
    return ps;
+     */
+    return 0;
 }
 
+    /*
 int apply_context::get_context_free_data( uint32_t index, char* buffer, size_t buffer_size )const
 {
    const auto& trx = trx_context.trx;
@@ -307,6 +307,7 @@ int apply_context::get_context_free_data( uint32_t index, char* buffer, size_t b
 
    return copy_size;
 }
+     */
 
 int apply_context::db_store_i64( uint64_t scope, uint64_t table, const account_name& payer, uint64_t id, const char* buffer, size_t buffer_size ) {
    return db_store_i64( receiver, scope, table, payer, id, buffer, buffer_size);
@@ -506,11 +507,14 @@ int apply_context::db_end_i64( uint64_t code, uint64_t scope, uint64_t table ) {
 }
 
 uint64_t apply_context::next_global_sequence() {
+    /* TODO:
    const auto& p = control.get_dynamic_global_properties();
    db.modify( p, [&]( auto& dgp ) {
       ++dgp.global_action_sequence;
    });
    return p.global_action_sequence;
+     */
+    return 0;
 }
 
 uint64_t apply_context::next_recv_sequence( account_name receiver ) {
@@ -519,13 +523,6 @@ uint64_t apply_context::next_recv_sequence( account_name receiver ) {
       ++mrs.recv_sequence;
    });
    return rs.recv_sequence;
-}
-uint64_t apply_context::next_auth_sequence( account_name actor ) {
-   const auto& rs = db.get<account_sequence_object,by_name>( actor );
-   db.modify( rs, [&](auto& mrs ){
-      ++mrs.auth_sequence;
-   });
-   return rs.auth_sequence;
 }
 
 

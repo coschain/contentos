@@ -8,35 +8,6 @@
 
 namespace contento { namespace chain {
 
-   struct permission_level {
-      account_name    actor;
-      permission_name permission;
-   };
-
-   inline bool operator== (const permission_level& lhs, const permission_level& rhs) {
-      return std::tie(lhs.actor, lhs.permission) == std::tie(rhs.actor, rhs.permission);
-   }
-
-   inline bool operator!= (const permission_level& lhs, const permission_level& rhs) {
-      return std::tie(lhs.actor, lhs.permission) != std::tie(rhs.actor, rhs.permission);
-   }
-
-   inline bool operator< (const permission_level& lhs, const permission_level& rhs) {
-      return std::tie(lhs.actor, lhs.permission) < std::tie(rhs.actor, rhs.permission);
-   }
-
-   inline bool operator<= (const permission_level& lhs, const permission_level& rhs) {
-      return std::tie(lhs.actor, lhs.permission) <= std::tie(rhs.actor, rhs.permission);
-   }
-
-   inline bool operator> (const permission_level& lhs, const permission_level& rhs) {
-      return std::tie(lhs.actor, lhs.permission) > std::tie(rhs.actor, rhs.permission);
-   }
-
-   inline bool operator>= (const permission_level& lhs, const permission_level& rhs) {
-      return std::tie(lhs.actor, lhs.permission) >= std::tie(rhs.actor, rhs.permission);
-   }
-
    /**
     *  An action is performed by an actor, aka an account. It may
     *  be created explicitly and authorized by signatures or might be
@@ -59,7 +30,6 @@ namespace contento { namespace chain {
    struct action {
       account_name               account;
       action_name                name;
-      vector<permission_level>   authorization;
       bytes                      data;
 
       action(){}

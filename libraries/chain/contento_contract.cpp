@@ -53,7 +53,7 @@ void apply_contento_setcode(apply_context& context) {
    db.modify( account, [&]( auto& a ) {
       /** TODO: consider whether a microsecond level local timestamp is sufficient to detect code version changes*/
       // TODO: update setcode message to include the hash, then validate it in validate
-      a.last_code_update = context.control.pending_block_time();
+       // TODO: a.last_code_update = context.control.pending_block_time();
       a.code_version = code_id;
       a.code.resize( code_size );
       if( code_size > 0 )
@@ -61,14 +61,16 @@ void apply_contento_setcode(apply_context& context) {
 
    });
 
+    /* TODO:
    const auto& account_sequence = db.get<account_sequence_object, by_name>(act.account);
    db.modify( account_sequence, [&]( auto& aso ) {
       aso.code_sequence += 1;
-   });
+   });*/
 
-   if (new_size != old_size) {
+    /* TODO:
+    if (new_size != old_size) {
       context.trx_context.add_ram_usage( act.account, new_size - old_size );
-   }
+   }*/
 }
 
 void apply_contento_setabi(apply_context& context) {
@@ -89,15 +91,16 @@ void apply_contento_setabi(apply_context& context) {
       if( abi_size > 0 )
          memcpy( (void*)a.abi.data(), act.abi.data(), abi_size );
    });
-
+    /* TODO:
    const auto& account_sequence = db.get<account_sequence_object, by_name>(act.account);
    db.modify( account_sequence, [&]( auto& aso ) {
       aso.abi_sequence += 1;
    });
-
+     */
+    /* TODO:
    if (new_size != old_size) {
       context.trx_context.add_ram_usage( act.account, new_size - old_size );
-   }
+   }*/
 }
 
 } } // namespace contento::chain
