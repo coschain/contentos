@@ -4,6 +4,7 @@
 #include <dorothy/util.hpp>
 #include <contento/chain/account_object.hpp>
 #include <iostream>
+#include <algorithm>
 #include <boost/interprocess/allocators/allocator.hpp>
 
 namespace dorothy {
@@ -13,11 +14,31 @@ namespace dorothy {
     
     auto cmp_default = [](fc::variant& v, const std::vector<Condition>& conditions){return true;};
     
-    auto cmp_account_id = [](fc::variant& v, const std::vector<Condition>& conditions){
-        return (v["id"].as_int64() == conditions[0].ival) ? true : false;
-    };
-
-    auto cmp_account_name = [](fc::variant& v, const std::vector<Condition>& conditions){
-        return (v["name"].as_string() == std::string(conditions[0].sval)) ? true : false;
+    auto cmp_conditions = [](fc::variant& v, const std::vector<Condition>& conditions){
+        std::vector<bool> results;
+        for(Condition con: conditions){
+            const char* name = con.name;
+            switch(con.conType){
+                case ConditionType::conString:
+                    if(v[name].as_string() == std::string(con.sval))
+                        results.push_back(true);
+                    else
+                        results.push_back(false);
+                    break;
+                case ConditionType::conInt:
+                    if(v[name].as_int64() == con.ival)
+                        results.push_back(true);
+                    else
+                        results.push_back(false);
+                    break;
+                default:
+                    results.push_back(false);
+                    break;
+            }
+        }
+        if ( std::all_of(results.begin(), results.end(), [](bool result){return result;}) )
+             return true;
+        else
+            return false;
     };
 }

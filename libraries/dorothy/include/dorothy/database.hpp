@@ -39,8 +39,6 @@ namespace dorothy {
 
             void initialize_indexes();
         
-            void add_callback_by_conditions(std::string&& table, std::string&& conditions, std::function<bool(fc::variant&, const std::vector<Condition>&)>);
-        
             template<typename INDEX, typename TAG> void initialize_index(std::string&&, std::string&&);
         
             
@@ -54,7 +52,6 @@ namespace dorothy {
             std::vector<std::string> _table_names;
             std::map<std::string, std::function<void(const hsql::SelectStatement*, const std::string, const std::vector<std::string>&, const std::vector<Condition>&)>> _tables;
             std::map<std::string, std::vector<std::string>> _selected_fields;
-            std::map<std::string, std::function<bool(fc::variant&, const std::vector<Condition>&)>> _callback_by_conditions;
         
         private:
             void _print_header(TablePrinter&, std::vector<std::pair<fc::string, fc::string>>&, std::map<fc::string, std::size_t>&, const std::vector<std::string>&) const;

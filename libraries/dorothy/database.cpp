@@ -66,24 +66,13 @@ namespace dorothy {
             _chain_db->close();
         }
     }
-    
-    // the conditions is the where-clause field combine.
-    // for example. where id=1 and name=2 the conditions should be id|name and by_name is the index
-    void database::add_callback_by_conditions(std::string&& table, std::string&& conditions, std::function<bool(fc::variant&, const std::vector<Condition>&)> callback)
-    {
-        auto key = table + "->" + conditions;
-        _callback_by_conditions[key] = callback;
-    }
 
     void database::initialize_indexes()
     {
         initialize_index<account_index, by_id>("account", "id");
-        add_callback_by_conditions("account", "id", cmp_account_id);
         initialize_index<account_index, by_name>("account", "name");
-        add_callback_by_conditions("account", "name", cmp_account_name);
 //        initialize_index<account_index, by_next_vesting_withdrawal>("account", "next_vesting_withdrawal");
     }
-    
     
     
     template<typename INDEX, typename TAG>
@@ -152,22 +141,7 @@ namespace dorothy {
         // lower_bound could do some filter. But it's hard to adapt any situation.
         // so I instead it from searching whole table.
         
-        std::function<bool(fc::variant&, const std::vector<Condition>&)> callback;
-        
-        if(conditions.empty()){
-            callback = cmp_default;
-        } else {
-            std::string condition_key;
-            for(Condition con: conditions){
-                condition_key += con.name;
-            }
-            auto find_key = _callback_by_conditions.find(table_name + "->" + condition_key);
-            if(find_key == _callback_by_conditions.end()){
-                callback = cmp_default;
-            }else {
-                callback = _callback_by_conditions.at(table_name + "->" + condition_key);
-            }
-        }
+        auto callback = (conditions.empty())? cmp_default : cmp_conditions;
         
         auto current = idx.begin();
         if(current != idx.end()) {

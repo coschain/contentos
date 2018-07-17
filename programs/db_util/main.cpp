@@ -62,7 +62,7 @@ int main(int argc, char** argv) {
     dorothy::database database;
     database.open(blockchain_dir);
 
-     std::string sql("select * from account where id = 0  order by name");
+     std::string sql("select * from account where id = 1  order by name");
      database.query(sql);
 //    std::string sql;
 //    std::cout << "\n>> ";
