@@ -35,23 +35,22 @@ namespace contento { namespace chain {
       action(){}
 
       template<typename T, std::enable_if_t<std::is_base_of<bytes, T>::value, int> = 1>
-      action( vector<permission_level> auth, const T& value ) {
+      action( const T& value ) {
          account     = T::get_account();
          name        = T::get_name();
-         authorization = move(auth);
          data.assign(value.data(), value.data() + value.size());
       }
 
       template<typename T, std::enable_if_t<!std::is_base_of<bytes, T>::value, int> = 1>
-      action( vector<permission_level> auth, const T& value ) {
+      action( const T& value ) {
          account     = T::get_account();
          name        = T::get_name();
          authorization = move(auth);
          data        = fc::raw::pack(value);
       }
 
-      action( vector<permission_level> auth, account_name account, action_name name, const bytes& data )
-            : account(account), name(name), authorization(move(auth)), data(data) {
+      action( account_name account, action_name name, const bytes& data )
+            : account(account), name(name), data(data) {
       }
 
       template<typename T>
@@ -69,5 +68,4 @@ namespace contento { namespace chain {
 } } /// namespace contento::chain
 
 
-FC_REFLECT( contento::chain::permission_level, (actor)(permission) )
-FC_REFLECT( contento::chain::action, (account)(name)(authorization)(data) )
+FC_REFLECT( contento::chain::action, (account)(name)(data) )

@@ -28,18 +28,19 @@ abi_def contento_contract_abi(const abi_def& contento_system_abi)
    fc::move_append(eos_abi.types, common_type_defs());
 
    // transaction
+   /*
    eos_abi.structs.emplace_back( struct_def {
       "permission_level", "", {
          {"actor", "account_name"},
          {"permission", "permission_name"}
       }
-   });
+   });*/
 
    eos_abi.structs.emplace_back( struct_def {
       "action", "", {
          {"account", "account_name"},
          {"name", "action_name"},
-         {"authorization", "permission_level[]"},
+         //{"authorization", "permission_level[]"},
          {"data", "bytes"}
       }
    });
@@ -107,13 +108,13 @@ abi_def contento_contract_abi(const abi_def& contento_system_abi)
          {"weight", "weight_type"}
       }
    });
-
+/*
    eos_abi.structs.emplace_back( struct_def {
       "permission_level_weight", "", {
          {"permission", "permission_level"},
          {"weight", "weight_type"}
       }
-   });
+   });*/
 
    eos_abi.structs.emplace_back( struct_def {
       "wait_weight", "", {
@@ -121,7 +122,7 @@ abi_def contento_contract_abi(const abi_def& contento_system_abi)
          {"weight", "weight_type"}
       }
    });
-
+/*
    eos_abi.structs.emplace_back( struct_def {
       "authority", "", {
          {"threshold", "uint32"},
@@ -129,7 +130,7 @@ abi_def contento_contract_abi(const abi_def& contento_system_abi)
          {"accounts", "permission_level_weight[]"},
          {"waits", "wait_weight[]"}
       }
-   });
+   });*/
 
    // TODO add any ricardian_clauses
    //
@@ -192,13 +193,13 @@ abi_def contento_contract_abi(const abi_def& contento_system_abi)
          {"type", "action_name"},
       }
    });
-
+/*
    eos_abi.structs.emplace_back( struct_def {
       "canceldelay", "", {
          {"canceling_auth", "permission_level"},
          {"trx_id", "transaction_id_type"},
       }
-   });
+   });*/
 
    eos_abi.structs.emplace_back( struct_def {
          "onerror", "", {

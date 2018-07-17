@@ -780,7 +780,7 @@ class crypto_api : public context_aware_api {
          hash_val = encode<fc::ripemd160::encoder>( data, datalen );
       }
 };
-
+/*
 class permission_api : public context_aware_api {
    public:
       using context_aware_api::context_aware_api;
@@ -900,7 +900,7 @@ class authorization_api : public context_aware_api {
       return context.is_account( account );
    }
 
-};
+};*/
 
 class system_api : public context_aware_api {
    public:
@@ -1770,13 +1770,13 @@ REGISTER_INTRINSICS(crypto_api,
    (ripemd160,              void(int, int, int)           )
 );
 
-
+/*
 REGISTER_INTRINSICS(permission_api,
    (check_transaction_authorization, int(int, int, int, int, int, int)                  )
    (check_permission_authorization,  int(int64_t, int64_t, int, int, int, int, int64_t) )
    (get_permission_last_used,        int64_t(int64_t, int64_t) )
    (get_account_creation_time,       int64_t(int64_t) )
-);
+);*/
 
 
 REGISTER_INTRINSICS(system_api,
@@ -1797,14 +1797,14 @@ REGISTER_INTRINSICS(action_api,
    (action_data_size,       int()          )
    (current_receiver,   int64_t()          )
 );
-
+/*
 REGISTER_INTRINSICS(authorization_api,
    (require_recipient,     void(int64_t)          )
    (require_authorization, void(int64_t), "require_auth", void(authorization_api::*)(const account_name&) )
    (require_authorization, void(int64_t, int64_t), "require_auth2", void(authorization_api::*)(const account_name&, const permission_name& permission) )
    (has_authorization,     int(int64_t), "has_auth", bool(authorization_api::*)(const account_name&)const )
    (is_account,            int(int64_t)           )
-);
+);*/
 
 REGISTER_INTRINSICS(console_api,
    (prints,                void(int)      )
