@@ -1,4 +1,6 @@
 #include <algorithm>
+#include <contento/protocol/authority.hpp>
+#include <contento/chain/account_object.hpp>
 #include <eosio/chain/apply_context.hpp>
 #include <eosio/chain/controller.hpp>
 #include <eosio/chain/transaction_context.hpp>
@@ -124,6 +126,34 @@ bool apply_context::is_account( const account_name& account )const {
 }
 
 void apply_context::require_authorization( const account_name& account ) {
+    std::string name = account.to_string();
+    //todo ... change impl to use steem's db to verify accout's sig
+    contento::protocol::authority active = contento::protocol::authority(db.get< contento::chain::account_authority_object, contento::chain::by_account >( name ).active);
+    contento::protocol::authority owner = contento::protocol::authority(db.get< contento::chain::account_authority_object, contento::chain::by_account >( name ).owner);
+    contento::protocol::authority posting = contento::protocol::authority(db.get< contento::chain::account_authority_object, contento::chain::by_account >( name ).posting);
+
+    const contento::protocol::chain_id_type& chain_id = CONTENTO_CHAIN_ID;
+    //flat_set<public_key_type> trx_pubs = trx_context.trx.get_signature_keys(chain_id);
+    flat_set<public_key_type> trx_pubs; 
+    
+    for( const auto& k : active.key_auths ) {
+        if( trx_pubs.find( k.first ) != trx_pubs.end() ) {
+            return;
+        }
+    }
+    for( const auto& k : owner.key_auths ) {
+        if( trx_pubs.find( k.first ) != trx_pubs.end() ) {
+            return;
+        }
+    }
+    for( const auto& k : posting.key_auths ) {
+        if( trx_pubs.find( k.first ) != trx_pubs.end() ) {
+            return;
+        }
+    }
+    EOS_ASSERT( false, missing_auth_exception, "missing authority of ${account}", ("account",account));
+    
+    /*
    for( uint32_t i=0; i < act.authorization.size(); i++ ) {
      if( act.authorization[i].actor == account ) {
         used_authorizations[i] = true;
@@ -131,6 +161,7 @@ void apply_context::require_authorization( const account_name& account ) {
      }
    }
    EOS_ASSERT( false, missing_auth_exception, "missing authority of ${account}", ("account",account));
+   */
 }
 
 bool apply_context::has_authorization( const account_name& account )const {

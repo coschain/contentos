@@ -52,6 +52,7 @@ target_include_directories( eosio_chain
                                    "${CMAKE_CURRENT_SOURCE_DIR}/../wasm-jit/Include"
                                    "${CMAKE_CURRENT_SOURCE_DIR}/../utilities/Include"
                                    "${CMAKE_CURRENT_SOURCE_DIR}/../../externals/binaryen/src"
+                                   "${CMAKE_CURRENT_SOURCE_DIR}/../protocol/include"
                             )
 
 set_target_properties( eosio_chain PROPERTIES PUBLIC_HEADER "${HEADERS}" )
