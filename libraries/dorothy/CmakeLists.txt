@@ -10,6 +10,7 @@ file(GLOB HEADERS "include/dorothy/*.hpp")
 add_library(dorothy 
     "${CMAKE_CURRENT_SOURCE_DIR}/database.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/table_printer.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/util.cpp"
     ${HEADERS}
 )
 

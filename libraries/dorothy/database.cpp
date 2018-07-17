@@ -1,6 +1,5 @@
 
 #include <dorothy/database.hpp>
-#include <fc/variant.hpp>
 #include "hsql/util/sqlhelper.h"
 #include <fc/io/json.hpp>
 
@@ -67,12 +66,22 @@ namespace dorothy {
             _chain_db->close();
         }
     }
+    
+    // the conditions is the where-clause field combine.
+    // for example. where id=1 and name=2 the conditions should be id|name and by_name is the index
+    void database::add_callback_by_conditions(std::string&& table, std::string&& conditions, std::function<bool(fc::variant&, const std::vector<Condition>&)> callback)
+    {
+        auto key = table + "->" + conditions;
+        _callback_by_conditions[key] = callback;
+    }
 
     void database::initialize_indexes()
     {
         initialize_index<account_index, by_id>("account", "id");
+        add_callback_by_conditions("account", "id", cmp_account_id);
         initialize_index<account_index, by_name>("account", "name");
-        initialize_index<account_index, by_next_vesting_withdrawal>("account", "next_vesting_withdrawal");
+        add_callback_by_conditions("account", "name", cmp_account_name);
+//        initialize_index<account_index, by_next_vesting_withdrawal>("account", "next_vesting_withdrawal");
     }
     
     
@@ -86,7 +95,7 @@ namespace dorothy {
             _chain_db -> add_index<INDEX>();
         }
         auto key = table_name + "|" + tag_name;
-        auto f = [this](const hsql::SelectStatement* stmt, const std::vector<std::string>& fields){return query_table<INDEX, TAG>(stmt, fields);};
+        auto f = [this](const hsql::SelectStatement* stmt, const std::string table_name, const std::vector<std::string>& fields, const std::vector<Condition>& conditions){return query_table<INDEX, TAG>(stmt, table_name, fields, conditions);};
         _tables[key] = f;
     }
     
@@ -102,12 +111,18 @@ namespace dorothy {
         
         std::string order_by;
         
-        if (stmt->order != nullptr) {
+        std::vector<std::string> fields;
+        std::vector<Condition> conditions;
+        
+        _parse_fields(stmt, fields);
+        _parse_conditions(stmt, conditions);
+        
+        
+        if (stmt->order != nullptr)
             order_by = stmt -> order -> at(0) -> expr -> name;
-        }
-        else {
+        else
             order_by = "id";
-        }
+        
         
         auto table_key = table_name + "|" + order_by;
         
@@ -120,44 +135,48 @@ namespace dorothy {
             else
                 std::cerr << "the order condition: " << order_by << "is invalid" << std::endl;
         } else {
-            auto query_functor = _tables.at(table_key);
-            
-            std::vector<std::string> fields;
-            
-            for (Expr* expr : *stmt->selectList){
-                if(expr->type == hsql::ExprType::kExprStar){
-                    fields.push_back("*");
-                }else if (expr->type == hsql::ExprType::kExprColumnRef) {
-                    fields.push_back(std::string(expr->name));
-                }
-            }
-            
-            auto is_star_in = std::find(fields.begin(), fields.end(), "*");
-            
-            if(is_star_in != fields.end()){
-                fields.clear();
-            }
+             auto query_functor = _tables.at(table_key);
                
-            query_functor(stmt, fields);
-               
+            query_functor(stmt, table_name, fields, conditions);
             
         }
     }
 
     template<typename INDEX, typename TAG>
-    void database::query_table(const hsql::SelectStatement* stmt, const std::vector<std::string>& fields)
+    void database::query_table(const hsql::SelectStatement* stmt, const std::string table_name, const std::vector<std::string>& fields,
+                               const std::vector<Condition>& conditions)
     {
         
         const auto& idx = _chain_db ->get_index<INDEX>().indices().template get<TAG>();
-
         std::vector<fc::variant> columns;
+        // lower_bound could do some filter. But it's hard to adapt any situation.
+        // so I instead it from searching whole table.
+        
+        std::function<bool(fc::variant&, const std::vector<Condition>&)> callback;
+        
+        if(conditions.empty()){
+            callback = cmp_default;
+        } else {
+            std::string condition_key;
+            for(Condition con: conditions){
+                condition_key += con.name;
+            }
+            auto find_key = _callback_by_conditions.find(table_name + "->" + condition_key);
+            if(find_key == _callback_by_conditions.end()){
+                callback = cmp_default;
+            }else {
+                callback = _callback_by_conditions.at(table_name + "->" + condition_key);
+            }
+        }
+        
         auto current = idx.begin();
         if(current != idx.end()) {
-            for(current=idx.begin(); current != idx.end(); ++current)
+            for(; current != idx.end(); ++current)
             {
                 fc::variant v;
                 fc::to_variant((*current), v);
-                columns.push_back(v);
+                if(callback(v, conditions))
+                    columns.push_back(v);
             }
             print_columns(columns, fields);
         }
@@ -242,6 +261,46 @@ namespace dorothy {
     void database::_print_footer(TablePrinter& tp) const
     {
         tp.PrintFooter();
+    }
+    
+    void database::_parse_fields(const hsql::SelectStatement* stmt, std::vector<std::string>& fields)
+    {
+        for (Expr* expr : *stmt->selectList){
+            if(expr->type == hsql::ExprType::kExprStar){
+                fields.push_back("*");
+            }else if (expr->type == hsql::ExprType::kExprColumnRef) {
+                fields.push_back(std::string(expr->name));
+            }
+        }
+        
+        auto is_star_in = std::find(fields.begin(), fields.end(), "*");
+        
+        if(is_star_in != fields.end()){
+            fields.clear();
+        }
+    }
+    
+    void database::_parse_conditions(const hsql::SelectStatement * stmt, std::vector<Condition> & conditions)
+    {
+        std::vector<Expr*> expr_v;
+        if (stmt -> whereClause != nullptr) {
+            _catch_expression(stmt -> whereClause, expr_v);
+        }
+        for(Expr* expr:expr_v){
+            conditions.push_back(make_condition(expr->expr, expr->expr2));
+        }
+        
+        std::sort(conditions.begin(), conditions.end(), [](Condition x, Condition y){
+            return std::strcmp(x.name, y.name) < 0;
+        });
+    }
+    
+    void database::_catch_expression(Expr* expr, std::vector<Expr*>& expr_v){
+        if(expr == nullptr) return;
+        if(expr -> opType == OperatorType::kOpEquals)
+            expr_v.push_back(expr);
+        _catch_expression(expr->expr, expr_v);
+        _catch_expression(expr->expr2, expr_v);
     }
 
 }

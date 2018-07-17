@@ -1,4 +1,4 @@
-
+# pragma once
 #include "hsql/sql/Expr.h"
 
 namespace dorothy {
