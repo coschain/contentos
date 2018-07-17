@@ -161,38 +161,6 @@ abi_def contento_contract_abi(const abi_def& contento_system_abi)
       }
    });
 
-   eos_abi.structs.emplace_back( struct_def {
-      "updateauth", "", {
-         {"account", "account_name"},
-         {"permission", "permission_name"},
-         {"parent", "permission_name"},
-         {"auth", "authority"}
-      }
-   });
-
-   eos_abi.structs.emplace_back( struct_def {
-      "deleteauth", "", {
-         {"account", "account_name"},
-         {"permission", "permission_name"},
-      }
-   });
-
-   eos_abi.structs.emplace_back( struct_def {
-      "linkauth", "", {
-         {"account", "account_name"},
-         {"code", "account_name"},
-         {"type", "action_name"},
-         {"requirement", "permission_name"},
-      }
-   });
-
-   eos_abi.structs.emplace_back( struct_def {
-      "unlinkauth", "", {
-         {"account", "account_name"},
-         {"code", "account_name"},
-         {"type", "action_name"},
-      }
-   });
 /*
    eos_abi.structs.emplace_back( struct_def {
       "canceldelay", "", {

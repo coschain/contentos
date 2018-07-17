@@ -265,7 +265,7 @@ namespace impl {
          mutable_variant_object mvo;
          mvo("account", act.account);
          mvo("name", act.name);
-         mvo("authorization", act.authorization);
+          // TODO: mvo("authorization", act.authorization);
 
          auto abi = resolver(act.account);
          if (abi.valid()) {
@@ -416,9 +416,9 @@ namespace impl {
          from_variant(vo["account"], act.account);
          from_variant(vo["name"], act.name);
 
-         if (vo.contains("authorization")) {
+         /*if (vo.contains("authorization")) {
             from_variant(vo["authorization"], act.authorization);
-         }
+         }*/
 
          bool valid_empty_data = false;
          if( vo.contains( "data" ) ) {

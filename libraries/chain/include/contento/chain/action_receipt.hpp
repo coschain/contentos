@@ -24,4 +24,4 @@ namespace contento { namespace chain {
 
 } }  /// namespace contento::chain
 
-FC_REFLECT( contento::chain::action_receipt, (receiver)(act_digest)(global_sequence)(recv_sequence)(auth_sequence)(code_sequence)(abi_sequence) )
+FC_REFLECT( contento::chain::action_receipt, (receiver)(act_digest)(global_sequence)(recv_sequence)(code_sequence)(abi_sequence) )

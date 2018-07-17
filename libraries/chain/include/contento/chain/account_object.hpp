@@ -1,5 +1,5 @@
 #pragma once
-#include <fc/fixed_string.hpp>
+//#include <fc/fixed_string.hpp>
 
 #include <contento/protocol/authority.hpp>
 #include <contento/protocol/contento_operations.hpp>

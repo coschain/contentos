@@ -109,6 +109,7 @@ bool apply_context::is_account( const account_name& account )const {
 }
 
 void apply_context::require_authorization( const account_name& account ) {
+    /*
    for( uint32_t i=0; i < act.authorization.size(); i++ ) {
      if( act.authorization[i].actor == account ) {
         used_authorizations[i] = true;
@@ -116,26 +117,15 @@ void apply_context::require_authorization( const account_name& account ) {
      }
    }
    EOS_ASSERT( false, missing_auth_exception, "missing authority of ${account}", ("account",account));
+     */
 }
 
 bool apply_context::has_authorization( const account_name& account )const {
+    /*
    for( const auto& auth : act.authorization )
      if( auth.actor == account )
-        return true;
+        return true;*/
   return false;
-}
-
-void apply_context::require_authorization(const account_name& account,
-                                          const permission_name& permission) {
-  for( uint32_t i=0; i < act.authorization.size(); i++ )
-     if( act.authorization[i].actor == account ) {
-        if( act.authorization[i].permission == permission ) {
-           used_authorizations[i] = true;
-           return;
-        }
-     }
-  EOS_ASSERT( false, missing_auth_exception, "missing authority of ${account}/${permission}",
-              ("account",account)("permission",permission) );
 }
 
 bool apply_context::has_recipient( account_name code )const {
@@ -152,7 +142,7 @@ void apply_context::require_recipient( account_name recipient ) {
 }
 
 
-/**
+/*
  *  This will execute an action after checking the authorization. Inline transactions are
  *  implicitly authorized by the current receiver (running code). This method has significant
  *  security considerations and several options have been considered:
@@ -172,12 +162,13 @@ void apply_context::execute_inline( action&& a ) {
    EOS_ASSERT( code != nullptr, action_validate_exception,
                "inline action's code account ${account} does not exist", ("account", a.account) );
 
+    /*
    for( const auto& auth : a.authorization ) {
       auto* actor = control.db().find<account_object, by_name>(auth.actor);
 
       EOS_ASSERT( actor != nullptr, action_validate_exception,
                   "inline action's authorizing actor ${account} does not exist", ("account", auth.actor) );
-   }
+   }*/
 
    // No need to check authorization if: replaying irreversible blocks; contract is privileged; or, contract is calling itself.
     /* TODO: check auth

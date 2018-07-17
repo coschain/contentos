@@ -22,7 +22,7 @@
 #include <fc/static_variant.hpp>
 #include <fc/smart_ref_fwd.hpp>
 #include <fc/crypto/ripemd160.hpp>
-#include <fc/fixed_string.hpp>
+//#include <fc/fixed_string.hpp>
 #include <fc/crypto/elliptic.hpp>
 #include <fc/reflect/variant.hpp>
 
@@ -88,7 +88,7 @@ namespace contento { namespace chain {
 
    //using public_key_type  = fc::ecc::public_key;
    //using private_key_type = fc::ecc::private_key;
-   using signature_type   = fc::ecc::compact_signature;
+   //using signature_type   = fc::ecc::compact_signature;
 
    struct void_t{};
 
@@ -102,7 +102,7 @@ namespace contento { namespace chain {
    using action_name      = name;
    using scope_name       = name;
    using account_name     = name;
-   using permission_name  = name;
+   //using permission_name  = name;
    using table_name       = name;
 
 

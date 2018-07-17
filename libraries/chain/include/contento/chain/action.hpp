@@ -45,7 +45,6 @@ namespace contento { namespace chain {
       action( const T& value ) {
          account     = T::get_account();
          name        = T::get_name();
-         authorization = move(auth);
          data        = fc::raw::pack(value);
       }
 

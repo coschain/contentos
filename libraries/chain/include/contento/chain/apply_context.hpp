@@ -457,7 +457,7 @@ class apply_context {
       //,trx_context(trx_ctx)
       ,act(a)
       ,receiver(act.account)
-      ,used_authorizations(act.authorization.size(), false)
+      //,used_authorizations(act.authorization.size(), false)
       ,recurse_depth(depth)
       ,idx64(*this)
       ,idx128(*this)
@@ -496,7 +496,6 @@ class apply_context {
        */
       void require_authorization(const account_name& account);
       bool has_authorization(const account_name& account) const;
-      void require_authorization(const account_name& account, const permission_name& permission);
 
       /**
        * @return true if account exists, false if it does not
@@ -586,7 +585,7 @@ class apply_context {
       //transaction_context&          trx_context; ///< transaction context in which the action is running
       const action&                 act; ///< message being applied
       account_name                  receiver; ///< the code that is currently running
-      vector<bool> used_authorizations; ///< Parallel to act.authorization; tracks which permissions have been used while processing the message
+      //vector<bool> used_authorizations; ///< Parallel to act.authorization; tracks which permissions have been used while processing the message
       uint32_t                      recurse_depth; ///< how deep inline actions can recurse
       bool                          privileged   = false;
       bool                          context_free = false;
