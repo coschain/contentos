@@ -467,8 +467,8 @@ struct signed_block_api_obj : public signed_block
       block_id = id();
       signing_key = signee();
       transaction_ids.reserve( transactions.size() );
-      for( const signed_transaction& tx : transactions )
-         transaction_ids.push_back( tx.id() );
+      for( const transaction_wrapper& trx_wrapper : transactions )
+         transaction_ids.push_back( trx_wrapper.sig_trx.id() );
    }
    signed_block_api_obj() {}
 

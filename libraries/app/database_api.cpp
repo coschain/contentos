@@ -2258,7 +2258,7 @@ annotated_signed_transaction database_api::get_transaction( transaction_id_type 
          auto blk = my->_db.fetch_block_by_number( itr->block );
          FC_ASSERT( blk.valid() );
          FC_ASSERT( blk->transactions.size() > itr->trx_in_block );
-         annotated_signed_transaction result = blk->transactions[itr->trx_in_block];
+         annotated_signed_transaction result = blk->transactions[itr->trx_in_block].sig_trx;
          result.block_num       = itr->block;
          result.transaction_num = itr->trx_in_block;
          return result;

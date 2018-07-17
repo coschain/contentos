@@ -383,11 +383,11 @@ namespace contento { namespace chain {
           *  This method validates transactions without adding it to the pending state.
           *  @throw if an error occurs
           */
-         void validate_transaction( const signed_transaction& trx );
+         void validate_transaction( const transaction_wrapper& trx );
 
          /** when popping a block, the transactions that were removed get cached here so they
           * can be reapplied at the proper time */
-         std::deque< signed_transaction >       _popped_tx;
+         std::deque< transaction_wrapper >       _popped_tx;
 
 
          // bool apply_order( const limit_order_object& new_order_object );
@@ -434,9 +434,9 @@ namespace contento { namespace chain {
          optional< chainbase::database::session > _pending_tx_session;
 
          void apply_block( const signed_block& next_block, uint32_t skip = skip_nothing );
-         void apply_transaction( const signed_transaction& trx, uint32_t skip = skip_nothing );
+         void apply_transaction( const transaction_wrapper& trx_wrapper, uint32_t skip = skip_nothing );
          void _apply_block( const signed_block& next_block );
-         void _apply_transaction( const signed_transaction& trx );
+         void _apply_transaction( const transaction_wrapper& trx_wrapper );
          void apply_operation( const operation& op );
 
 
@@ -464,7 +464,7 @@ namespace contento { namespace chain {
 
          std::unique_ptr< database_impl > _my;
 
-         vector< signed_transaction >  _pending_tx;
+         vector< transaction_wrapper >  _pending_tx;
          fork_database                 _fork_db;
          fc::time_point_sec            _hardfork_times[ CONTENTO_NUM_HARDFORKS + 1 ];
          protocol::hardfork_version    _hardfork_versions[ CONTENTO_NUM_HARDFORKS + 1 ];

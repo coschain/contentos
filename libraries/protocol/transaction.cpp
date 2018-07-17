@@ -284,4 +284,12 @@ void signed_transaction::verify_authority(
    contento::protocol::verify_authority( operations, get_signature_keys( chain_id ), get_active, get_owner, get_posting, max_recursion );
 } FC_CAPTURE_AND_RETHROW( (*this) ) }
 
+digest_type transaction_wrapper::merkle_digest()const
+{
+   digest_type::encoder enc;
+   fc::raw::pack( enc, (*this).sig_trx );
+   fc::raw::pack( enc, (*this).invoice );
+   return enc.result();
+}
+
 } } // contento::protocol

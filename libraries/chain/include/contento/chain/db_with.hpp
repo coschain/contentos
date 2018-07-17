@@ -45,7 +45,7 @@ struct skip_flags_restorer
  */
 struct pending_transactions_restorer
 {
-   pending_transactions_restorer( database& db, std::vector<signed_transaction>&& pending_transactions )
+   pending_transactions_restorer( database& db, std::vector<transaction_wrapper>&& pending_transactions )
       : _db(db), _pending_transactions( std::move(pending_transactions) )
    {
       _db.clear_pending();
@@ -53,26 +53,26 @@ struct pending_transactions_restorer
 
    ~pending_transactions_restorer()
    {
-      for( const auto& tx : _db._popped_tx )
+      for( const auto& trx_wrapper : _db._popped_tx )
       {
          try {
-            if( !_db.is_known_transaction( tx.id() ) ) {
+            if( !_db.is_known_transaction( trx_wrapper.sig_trx.id() ) ) {
                // since push_transaction() takes a signed_transaction,
                // the operation_results field will be ignored.
-               _db._push_transaction( tx );
+               _db._push_transaction( trx_wrapper.sig_trx );
             }
          } catch ( const fc::exception&  ) {
          }
       }
       _db._popped_tx.clear();
-      for( const signed_transaction& tx : _pending_transactions )
+      for( const transaction_wrapper& trx_wrapper : _pending_transactions )
       {
          try
          {
-            if( !_db.is_known_transaction( tx.id() ) ) {
+            if( !_db.is_known_transaction( trx_wrapper.sig_trx.id() ) ) {
                // since push_transaction() takes a signed_transaction,
                // the operation_results field will be ignored.
-               _db._push_transaction( tx );
+               _db._push_transaction( trx_wrapper.sig_trx );
             }
          }
          catch( const transaction_exception& e )
@@ -80,7 +80,7 @@ struct pending_transactions_restorer
             dlog( "Pending transaction became invalid after switching to block ${b} ${n} ${t}",
                ("b", _db.head_block_id())("n", _db.head_block_num())("t", _db.head_block_time()) );
             dlog( "The invalid transaction caused exception ${e}", ("e", e.to_detail_string()) );
-            dlog( "${t}", ("t", tx) );
+            dlog( "${t}", ("t", trx_wrapper) );
          }
          catch( const fc::exception& e )
          {
@@ -96,7 +96,7 @@ struct pending_transactions_restorer
    }
 
    database& _db;
-   std::vector< signed_transaction > _pending_transactions;
+   std::vector< transaction_wrapper > _pending_transactions;
 };
 
 /**
@@ -126,7 +126,7 @@ void with_skip_flags(
 template< typename Lambda >
 void without_pending_transactions(
    database& db,
-   std::vector<signed_transaction>&& pending_transactions,
+   std::vector<transaction_wrapper>&& pending_transactions,
    Lambda callback )
 {
     pending_transactions_restorer restorer( db, std::move(pending_transactions) );

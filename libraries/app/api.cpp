@@ -167,8 +167,8 @@ namespace contento { namespace app {
           {
              for( size_t trx_num = 0; trx_num < b.transactions.size(); ++trx_num )
              {
-                const auto& trx = b.transactions[trx_num];
-                auto id = trx.id();
+                const auto& trx_wrapper = b.transactions[trx_num];
+                auto id = trx_wrapper.sig_trx.id();
                 auto itr = _callbacks.find(id);
                 if( itr == _callbacks.end() ) continue;
                 confirmation_callback callback = itr->second;
