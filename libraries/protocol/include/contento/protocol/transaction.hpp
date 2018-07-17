@@ -104,8 +104,8 @@ namespace contento { namespace protocol {
    };
 
    struct transaction_invoice {
-         int status;
-         int gas_usage;
+         int status = 200;
+         int gas_usage = 0;
    };
 
    struct transaction_wrapper {
