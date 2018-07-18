@@ -6,6 +6,7 @@
 #include <iostream>
 #include <algorithm>
 #include <boost/interprocess/allocators/allocator.hpp>
+#include <fc/exception/exception.hpp>
 
 namespace dorothy {
     
@@ -18,22 +19,28 @@ namespace dorothy {
         std::vector<bool> results;
         for(Condition con: conditions){
             const char* name = con.name;
-            switch(con.conType){
-                case ConditionType::conString:
-                    if(v[name].as_string() == std::string(con.sval))
-                        results.push_back(true);
-                    else
+            try {
+                switch(con.conType){
+                    case ConditionType::conString:
+                        if(v[name].as_string() == std::string(con.sval))
+                            results.push_back(true);
+                        else
+                            results.push_back(false);
+                        break;
+                    case ConditionType::conInt:
+                        if(v[name].as_int64() == con.ival)
+                            results.push_back(true);
+                        else
+                            results.push_back(false);
+                        break;
+                    default:
                         results.push_back(false);
-                    break;
-                case ConditionType::conInt:
-                    if(v[name].as_int64() == con.ival)
-                        results.push_back(true);
-                    else
-                        results.push_back(false);
-                    break;
-                default:
-                    results.push_back(false);
-                    break;
+                        break;
+                }
+            }
+            catch (const fc::key_not_found_exception&){
+                std::cerr << "select condition not found: " << name << std::endl;
+                throw;
             }
         }
         if ( std::all_of(results.begin(), results.end(), [](bool result){return result;}) )

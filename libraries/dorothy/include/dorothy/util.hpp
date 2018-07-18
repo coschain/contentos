@@ -1,9 +1,12 @@
 # pragma once
 #include "hsql/sql/Expr.h"
+#include <iostream>
+
 
 namespace dorothy {
 
-    typedef hsql::Expr Expr;
+    using Expr = hsql::Expr;
+    using OperatorType = hsql::OperatorType;
 
     enum ConditionType {
         conNull,
@@ -21,4 +24,6 @@ namespace dorothy {
     };
     
     Condition make_condition(Expr* , Expr* );
+    
+    void catch_expression(Expr*, std::vector<Expr*>& );
 }

@@ -1,5 +1,6 @@
 #include <dorothy/util.hpp>
 
+
 namespace dorothy {
      Condition make_condition(Expr* left, Expr* right){
         Condition condition;
@@ -23,6 +24,14 @@ namespace dorothy {
                 break;
         }
         return condition;
+    }
+    
+    void catch_expression(Expr* expr, std::vector<Expr*>& expr_v){
+        if(expr == nullptr) return;
+        if(expr -> opType == OperatorType::kOpEquals)
+            expr_v.push_back(expr);
+        catch_expression(expr->expr, expr_v);
+        catch_expression(expr->expr2, expr_v);
     }
 
 }

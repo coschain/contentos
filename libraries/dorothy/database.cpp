@@ -71,7 +71,54 @@ namespace dorothy {
     {
         initialize_index<account_index, by_id>("account", "id");
         initialize_index<account_index, by_name>("account", "name");
-//        initialize_index<account_index, by_next_vesting_withdrawal>("account", "next_vesting_withdrawal");
+        initialize_index<account_index, by_next_vesting_withdrawal>("account", "next_vesting_withdrawal");
+        initialize_index<account_index, by_last_post>("account", "last_post");
+        initialize_index<account_index, by_balance>("account", "balance");
+        initialize_index<account_index, by_vesting_shares>("account", "vesting_shares");
+        initialize_index<account_index, by_post_count>("account", "post_count");
+        initialize_index<account_index, by_vote_count>("account", "vote_count");
+        initialize_index<admin_index, by_id>("admin", "id");
+        initialize_index<admin_index, by_name>("admin", "name");
+        initialize_index<owner_authority_history_index, by_id>("owner_authority_history", "id");
+        initialize_index<owner_authority_history_index, by_account>("owner_authority_history", "account");
+        initialize_index<block_summary_index, by_id>("block_summary", "id");
+        initialize_index<comment_index, by_id>("comment", "id");
+        initialize_index<comment_index, by_cashout_time>("comment", "cashout_time");
+        initialize_index<comment_index, by_permlink>("comment", "permlink");
+        initialize_index<comment_index, by_root>("comment", "root");
+        initialize_index<comment_index, by_parent>("comment", "parent");
+        initialize_index<comment_index, by_last_update>("comment", "last_update");
+        initialize_index<comment_index, by_author_last_update>("comment", "author_last_update");
+        initialize_index<comment_vote_index, by_id>("comment_vote", "id");
+        initialize_index<comment_vote_index, by_comment_voter>("comment_vote", "comment_voter");
+        initialize_index<comment_vote_index, by_voter_comment>("comment_vote", "voter_comment");
+        initialize_index<comment_vote_index, by_voter_last_update>("comment_vote", "voter_last_update");
+        initialize_index<comment_vote_index, by_comment_weight_voter>("comment_vote", "comment_weight_voter");
+
+        // cc: the comment_report's attribute reports could not be reflect.
+        // should implement visit method in report_info_type
+        
+//        initialize_index<comment_report_index, by_id>("comment_report", "id");
+//        initialize_index<comment_report_index, by_comment>("comment_report", "comment");
+//        initialize_index<comment_report_index, by_total_credit>("comment_report", "total_credit");
+//        initialize_index<comment_report_index, by_last_update>("comment_report", "last_update");
+        
+        initialize_index<dynamic_global_property_index, by_id>("global_property", "id");
+        initialize_index<dynamic_global_reward_property_index, by_id>("global_reward_property", "id");
+        initialize_index<operation_index, by_location>("operation", "id");
+        initialize_index<operation_index, by_transaction_id>("operation", "transaction_id");
+        initialize_index<operation_index, by_location>("operation", "location");
+        initialize_index<transaction_index, by_id>("transaction", "id");
+        initialize_index<transaction_index, by_trx_id>("transaction", "trx_id");
+        initialize_index<transaction_index, by_expiration>("transaction", "expiration");
+        initialize_index<witness_index, by_id>("witness", "id");
+        initialize_index<witness_index, by_name>("witness", "name");
+        initialize_index<witness_index, by_schedule_time>("witness", "schedule_time");
+        initialize_index<witness_vote_index, by_id>("witness_vote", "id");
+        initialize_index<witness_vote_index, by_account_witness>("witness_vote", "account_witness");
+        initialize_index<witness_vote_index, by_witness_account>("witness_vote", "witness_account");
+        initialize_index<witness_schedule_index, by_id>("witness_schedule", "id");
+        
     }
     
     
@@ -141,23 +188,28 @@ namespace dorothy {
         // lower_bound could do some filter. But it's hard to adapt any situation.
         // so I instead it from searching whole table.
         
-        auto callback = (conditions.empty())? cmp_default : cmp_conditions;
-        
-        auto current = idx.begin();
-        if(current != idx.end()) {
-            for(; current != idx.end(); ++current)
-            {
-                fc::variant v;
-                fc::to_variant((*current), v);
-                if(callback(v, conditions))
-                    columns.push_back(v);
+        try {
+            auto callback = (conditions.empty())? cmp_default : cmp_conditions;
+            
+            auto current = idx.begin();
+            if(current != idx.end()) {
+                for(; current != idx.end(); ++current)
+                {
+                    fc::variant v;
+                    fc::to_variant((*current), v);
+                    if(callback(v, conditions))
+                        columns.push_back(v);
+                }
+                if(columns.empty())
+                    std::cerr << "no items match the conditions" << std::endl;
+                else
+                    print_columns(columns, fields);
             }
-            print_columns(columns, fields);
+            else{
+                std::cerr << "empty" << std::endl;
+            }
         }
-        else{
-            std::cout << "empty" << std::endl;
-        }
-
+        catch (const fc::key_not_found_exception&){}
     }
     
     
@@ -184,8 +236,10 @@ namespace dorothy {
                 auto key = itr -> first;
                 auto value = itr -> second;
                 auto it = longest_values.find(key);
-                if(it == longest_values.end())
-                    longest_values[key] = value.length() > 4 ? value.length() : 4;
+                if(it == longest_values.end()){
+                    auto length = (value.length() > key.length()) ? value.length(): key.length();
+                    longest_values[key] = length > 4 ? length : 4;
+                }
                 else{
                     auto length = value.length();
                     if(length > longest_values[key])
@@ -258,7 +312,7 @@ namespace dorothy {
     {
         std::vector<Expr*> expr_v;
         if (stmt -> whereClause != nullptr) {
-            _catch_expression(stmt -> whereClause, expr_v);
+            catch_expression(stmt -> whereClause, expr_v);
         }
         for(Expr* expr:expr_v){
             conditions.push_back(make_condition(expr->expr, expr->expr2));
@@ -269,12 +323,6 @@ namespace dorothy {
         });
     }
     
-    void database::_catch_expression(Expr* expr, std::vector<Expr*>& expr_v){
-        if(expr == nullptr) return;
-        if(expr -> opType == OperatorType::kOpEquals)
-            expr_v.push_back(expr);
-        _catch_expression(expr->expr, expr_v);
-        _catch_expression(expr->expr2, expr_v);
-    }
+
 
 }

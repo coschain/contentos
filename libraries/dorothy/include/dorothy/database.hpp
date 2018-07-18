@@ -12,6 +12,10 @@
 #include <contento/chain/global_reward_property_object.hpp>
 #include <contento/chain/comment_object.hpp>
 #include <contento/chain/account_object.hpp>
+#include <contento/chain/block_summary_object.hpp>
+#include <contento/chain/history_object.hpp>
+#include <contento/chain/transaction_object.hpp>
+#include <contento/chain/witness_objects.hpp>
 #include <fc/variant.hpp>
 
 using bprinter::TablePrinter;
@@ -21,13 +25,7 @@ using namespace contento::chain;
 typedef std::pair<std::string, uint> column;
 
 namespace dorothy {
-    using hsql::OperatorType;
-
-    typedef hsql::Expr Expr;
     
-   
-    
-
     class database {
         public:
 
@@ -61,7 +59,7 @@ namespace dorothy {
             void _parse_fields(const hsql::SelectStatement*, std::vector<std::string>&);
             // copy Condition into vector is ok here. It's tiny.
             void _parse_conditions(const hsql::SelectStatement*, std::vector<Condition>&);
-            void _catch_expression(Expr*, std::vector<Expr*>& );
+
 
     };
 }
