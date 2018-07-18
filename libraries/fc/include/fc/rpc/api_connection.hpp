@@ -88,6 +88,8 @@ namespace fc {
 
             virtual api_id_type register_api( api_connection& conn )const override
             {  FC_ASSERT( false ); return api_id_type(); }
+            virtual api_id_type register_api2( bapi::binary_api_connection& conn )const override
+            {  FC_ASSERT( false ); return api_id_type(); }
 
             api_id_type                         _api_id;
             std::weak_ptr<fc::api_connection>   _api_connection;
@@ -459,11 +461,11 @@ namespace fc {
     * it a pure virtual method in the base class which is overridden by the subclass's
     * implementation).
     */
-   template< typename Interface, typename Transform >
-   api_id_type api< Interface, Transform >::register_api( api_connection& conn )const
-   {
-      return conn.register_api( *this );
-   }
+//   template< typename Interface, typename Transform >
+//   api_id_type api< Interface, Transform >::register_api( api_connection& conn )const
+//   {
+//      return conn.register_api( *this );
+//   }
 
    template< typename T >
    api<T> api_base::as()
