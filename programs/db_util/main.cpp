@@ -62,15 +62,15 @@ int main(int argc, char** argv) {
     dorothy::database database;
     database.open(blockchain_dir);
 
-     std::string sql("select * from comment where id = 1");
-     database.query(sql);
-//    std::string sql;
-//    std::cout << "\n>> ";
-//    while (std::getline(std::cin, sql))
-//    {
-//        database.query(sql);
-//        std::cout << "\n>> ";
-//    }
+//     std::string sql("select * from comment where id = 1");
+//     database.query(sql);
+    std::string sql;
+    std::cout << "\n>> ";
+    while (std::getline(std::cin, sql))
+    {
+        database.query(sql);
+        std::cout << "\n>> ";
+    }
     database.close();
     std::cout << "db_util quit" << std::endl;
 }
