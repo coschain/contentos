@@ -18,6 +18,10 @@ file(GLOB CONTENTO_TESTS "contento/*.cpp")
 add_executable( contento_test ${CONTENTO_TESTS} ${COMMON_SOURCES} )
 target_link_libraries( contento_test contento_chain contento_protocol contento_app contento_account_history  contento_witness contento_debug_node fc ${PLATFORM_SPECIFIC_LIBS} )
 
+file(GLOB MIX_TESTS "mix/*.cpp")
+add_executable( mix_test ${MIX_TESTS} ${COMMON_SOURCES} )
+target_link_libraries( mix_test contento_chain contento_protocol contento_app contento_account_history  contento_witness contento_debug_node fc ${PLATFORM_SPECIFIC_LIBS} )
+
 if(MSVC)
   set_source_files_properties( tests/serialization_tests.cpp PROPERTIES COMPILE_FLAGS "/bigobj" )
 endif(MSVC)
