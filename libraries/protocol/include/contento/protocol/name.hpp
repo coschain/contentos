@@ -4,7 +4,7 @@
 #include <fc/reflect/reflect.hpp>
 #include <iosfwd>
 
-namespace contento { namespace chain {
+namespace contento { namespace protocol {
    using std::string;
 
    static constexpr uint64_t char_to_symbol( char c ) {
@@ -38,12 +38,20 @@ namespace contento { namespace chain {
       return name;
    }
 
-#define N(X) contento::chain::string_to_name(#X)
+#define N(X) contento::protocol::string_to_name(#X)
 
    struct name {
       uint64_t value = 0;
       bool empty()const { return 0 == value; }
       bool good()const  { return !empty();   }
+
+      uint32_t size() const {
+          return value == 0 ? 0 : 13;
+      }
+
+      uint32_t length() const {
+          return value == 0 ? 0 : 13;
+      }
 
       name( const char* str )   { set(str);           } 
       name( const string& str ) { set( str.c_str() ); }
@@ -54,7 +62,7 @@ namespace contento { namespace chain {
       name( T v ):value(v){}
       name(){}
 
-      explicit operator string()const;
+      operator string()const;
 
       string to_string() const { return string(*this); }
 
@@ -98,11 +106,11 @@ namespace contento { namespace chain {
       return names;
    }
 
-} } // contento::chain
+} } // contento::protocol
 
 namespace std {
-   template<> struct hash<contento::chain::name> : private hash<uint64_t> {
-      typedef contento::chain::name argument_type;
+   template<> struct hash<contento::protocol::name> : private hash<uint64_t> {
+      typedef contento::protocol::name argument_type;
       typedef typename hash<uint64_t>::result_type result_type;
       result_type operator()(const argument_type& name) const noexcept
       {
@@ -113,9 +121,9 @@ namespace std {
 
 namespace fc {
   class variant;
-  void to_variant(const contento::chain::name& c, fc::variant& v);
-  void from_variant(const fc::variant& v, contento::chain::name& check);
+  void to_variant(const contento::protocol::name& c, fc::variant& v);
+  void from_variant(const fc::variant& v, contento::protocol::name& check);
 } // fc
 
 
-FC_REFLECT( contento::chain::name, (value) )
+FC_REFLECT( contento::protocol::name, (value) )

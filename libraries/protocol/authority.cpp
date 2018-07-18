@@ -48,6 +48,7 @@ bool is_councillor(const string& name) {
             name.compare("councillor4") == 0;
 }
 
+// TODOO: 
 bool is_valid_account_name( const string& name )
 {
 #if CONTENTO_MIN_ACCOUNT_NAME_LENGTH < 3

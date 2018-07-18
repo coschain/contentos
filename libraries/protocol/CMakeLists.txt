@@ -15,6 +15,7 @@ add_library( contento_protocol
              asset.cpp
              version.cpp
              get_config.cpp
+             name.cpp
 
              ${HEADERS}
            )

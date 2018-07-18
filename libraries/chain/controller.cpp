@@ -93,7 +93,7 @@ bool controller::is_producing_block() const {
 
 const account_object& controller::get_account( account_name name )const
 { try {
-   return my->db.get<account_object, by_name>(name.to_string());
+   return my->db.get<account_object, by_name>(name);
 } FC_CAPTURE_AND_RETHROW( (name) ) }
 
 

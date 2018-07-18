@@ -15,6 +15,7 @@ using std::string;
 using std::function;
 using std::pair;
 using namespace fc;
+using namespace protocol;
 
 namespace impl {
   struct abi_from_variant;

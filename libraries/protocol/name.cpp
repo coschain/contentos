@@ -1,16 +1,16 @@
-#include <contento/chain/name.hpp>
+#include <contento/protocol/name.hpp>
 #include <fc/variant.hpp>
 #include <boost/algorithm/string.hpp>
 #include <fc/exception/exception.hpp>
-#include <contento/chain/exceptions.hpp>
 
-namespace contento { namespace chain { 
+
+namespace contento { namespace protocol { 
 
    void name::set( const char* str ) {
       const auto len = strnlen(str, 14);
-      EOS_ASSERT(len <= 13, name_type_exception, "Name is longer than 13 characters (${name}) ", ("name", string(str)));
+      FC_ASSERT(len <= 13, "Name is longer than 13 characters (${name}) ", ("name", string(str)));
       value = string_to_name(str);
-      EOS_ASSERT(to_string() == string(str), name_type_exception,
+      FC_ASSERT(to_string() == string(str),
                  "Name not properly normalized (name: ${name}, normalized: ${normalized}) ",
                  ("name", string(str))("normalized", to_string()));
    }
@@ -32,9 +32,9 @@ namespace contento { namespace chain {
       return str;
    }
 
-} } /// contento::chain
+} } /// contento::protocol
 
 namespace fc {
-  void to_variant(const contento::chain::name& c, fc::variant& v) { v = std::string(c); }
-  void from_variant(const fc::variant& v, contento::chain::name& check) { check = v.get_string(); }
+  void to_variant(const contento::protocol::name& c, fc::variant& v) { v = std::string(c); }
+  void from_variant(const fc::variant& v, contento::protocol::name& check) { check = v.get_string(); }
 } // fc

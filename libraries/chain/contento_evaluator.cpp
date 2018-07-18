@@ -1482,7 +1482,7 @@ void vote_evaluator::do_apply( const vote_operation& o )
 //      new_rshares = util::evaluate_reward_curve( new_rshares );
 //      old_rshares = util::evaluate_reward_curve( old_rshares );
 
-      uint64_t max_vote_weight = 0;
+      //uint64_t max_vote_weight = 0;
 
       /** this verifies uniqueness of voter
        *

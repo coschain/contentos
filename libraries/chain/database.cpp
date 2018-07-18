@@ -856,7 +856,7 @@ signed_block database::_generate_block(
    pending_block.previous = head_block_id();
    pending_block.timestamp = when;
    pending_block.transaction_merkle_root = pending_block.calculate_merkle_root();
-   pending_block.witness = witness_owner;
+   pending_block.witness = witness_owner.to_string();
 //    if( has_hardfork( CONTENTO_HARDFORK_0_5__54 ) )
 //    {
       const auto& witness = get_witness( witness_owner );

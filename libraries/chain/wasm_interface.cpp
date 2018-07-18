@@ -1,12 +1,11 @@
 #include <contento/chain/wasm_interface.hpp>
 #include <contento/chain/apply_context.hpp>
 #include <contento/chain/controller.hpp>
-#include <contento/chain/transaction_context.hpp>
-#include <contento/chain/producer_schedule.hpp>
+//#include <contento/chain/transaction_context.hpp>
 #include <contento/chain/exceptions.hpp>
 #include <boost/core/ignore_unused.hpp>
-#include <contento/chain/authorization_manager.hpp>
-#include <contento/chain/resource_limits.hpp>
+//#include <contento/chain/authorization_manager.hpp>
+//#include <contento/chain/resource_limits.hpp>
 #include <contento/chain/wasm_interface_private.hpp>
 #include <contento/chain/wasm_contento_validation.hpp>
 #include <contento/chain/wasm_contento_injection.hpp>
@@ -136,34 +135,15 @@ class privileged_api : public context_aware_api {
        * @param net_weight - the weight for determining share of network capacity
        * @param cpu_weight - the weight for determining share of compute capacity
        */
-      void set_resource_limits( account_name account, int64_t ram_bytes, int64_t net_weight, int64_t cpu_weight) {
-         EOS_ASSERT(ram_bytes >= -1, wasm_execution_error, "invalid value for ram resource limit expected [-1,INT64_MAX]");
-         EOS_ASSERT(net_weight >= -1, wasm_execution_error, "invalid value for net resource weight expected [-1,INT64_MAX]");
-         EOS_ASSERT(cpu_weight >= -1, wasm_execution_error, "invalid value for cpu resource weight expected [-1,INT64_MAX]");
-         if( context.control.get_mutable_resource_limits_manager().set_account_limits(account, ram_bytes, net_weight, cpu_weight) ) {
-            context.trx_context.validate_ram_usage.insert( account );
-         }
+      void set_resource_limits( ) {
       }
 
-      void get_resource_limits( account_name account, int64_t& ram_bytes, int64_t& net_weight, int64_t& cpu_weight ) {
-         context.control.get_resource_limits_manager().get_account_limits( account, ram_bytes, net_weight, cpu_weight);
+      void get_resource_limits() {
+         
       }
 
-      int64_t set_proposed_producers( array_ptr<char> packed_producer_schedule, size_t datalen) {
-////Y
-         //         datastream<const char*> ds( packed_producer_schedule, datalen );
-//         vector<producer_key> producers;
-//         fc::raw::unpack(ds, producers);
-//         EOS_ASSERT(producers.size() <= config::max_producers, wasm_execution_error, "Producer schedule exceeds the maximum producer count for this chain");
-//         // check that producers are unique
-//         std::set<account_name> unique_producers;
-//         for (const auto& p: producers) {
-//            EOS_ASSERT( context.is_account(p.producer_name), wasm_execution_error, "producer schedule includes a nonexisting account" );
-//            EOS_ASSERT( p.block_signing_key.valid(), wasm_execution_error, "producer schedule includes an invalid key" );
-//            unique_producers.insert(p.producer_name);
-//         }
-//         EOS_ASSERT( producers.size() == unique_producers.size(), wasm_execution_error, "duplicate producer name in producer schedule" );
-         return 0;////Y context.control.set_proposed_producers( std::move(producers) );
+      int64_t set_proposed_producers() {
+         return 0;
       }
 
       uint32_t get_blockchain_parameters_packed( array_ptr<char> packed_blockchain_parameters, size_t buffer_size) {
@@ -1697,18 +1677,18 @@ REGISTER_INTRINSICS(compiler_builtins,
 REGISTER_INTRINSICS(privileged_api,
    (is_feature_active,                int(int64_t)                          )
    (activate_feature,                 void(int64_t)                         )
-   (get_resource_limits,              void(int64_t,int,int,int)             )
-   (set_resource_limits,              void(int64_t,int64_t,int64_t,int64_t) )
-   (set_proposed_producers,           int64_t(int,int)                      )
+//    (get_resource_limits,              void(int64_t,int,int,int)             )
+//    (set_resource_limits,              void(int64_t,int64_t,int64_t,int64_t) )
+//    (set_proposed_producers,           int64_t(int,int)                      )
    (get_blockchain_parameters_packed, int(int, int)                         )
    (set_blockchain_parameters_packed, void(int,int)                         )
    (is_privileged,                    int(int64_t)                          )
    (set_privileged,                   void(int64_t, int)                    )
 );
 
-REGISTER_INJECTED_INTRINSICS(transaction_context,
-   (checktime,      void())
-);
+// REGISTER_INJECTED_INTRINSICS(transaction_context,
+//    (checktime,      void())
+// );
 
 REGISTER_INTRINSICS(producer_api,
    (get_active_producers,      int(int, int) )

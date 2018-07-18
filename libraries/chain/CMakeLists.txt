@@ -37,7 +37,7 @@ add_library( contento_chain
              util/reward.cpp
 
              merkle.cpp
-             name.cpp
+             transaction_context.cpp
              contento_contract.cpp
              contento_contract_abi.cpp
 

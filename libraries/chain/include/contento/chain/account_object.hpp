@@ -24,7 +24,9 @@ namespace contento { namespace chain {
       public:
          template<typename Constructor, typename Allocator>
          account_object( Constructor&& c, allocator< Allocator > a )
-            :json_metadata( a )
+            :json_metadata( a ),
+             code( a ),
+             abi( a )
          {
             c(*this);
          };

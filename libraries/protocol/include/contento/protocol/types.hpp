@@ -2,6 +2,7 @@
 #include <contento/protocol/config.hpp>
 #include <contento/protocol/fixed_string.hpp>
 #include <contento/protocol/chain_id_type.hpp>
+#include <contento/protocol/name.hpp>
 
 #include <fc/container/flat_fwd.hpp>
 #include <fc/io/varint.hpp>
@@ -69,7 +70,7 @@ namespace contento {
 
       typedef fc::ecc::private_key        private_key_type;
       //typedef fc::sha256                  chain_id_type;
-      typedef fixed_string_16             account_name_type;
+      typedef name                        account_name_type;
       typedef fc::ripemd160               block_id_type;
       typedef fc::ripemd160               checksum_type;
       typedef fc::ripemd160               transaction_id_type;
