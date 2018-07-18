@@ -1,4 +1,4 @@
-#include <eosio/vm/webassembly/binaryen.hpp>
+#include <eosio/chian/webassembly/binaryen.hpp>
 //#include <eosio/chain/apply_context.hpp>
 
 #include <wasm-binary.h>

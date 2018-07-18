@@ -1,17 +1,17 @@
-#include <eosio/vm/controller.hpp>
-#include <eosio/vm/transaction_context.hpp>
+#include <eosio/chain/controller.hpp>
+#include <eosio/chain/transaction_context.hpp>
 
 #include <eosio/chain/account_object.hpp>
 //#include <eosio/chain/block_summary_object.hpp>
 //#include <eosio/chain/global_property_object.hpp>
-#include <eosio/vm/contract_table_objects.hpp>
+#include <eosio/chain/contract_table_objects.hpp>
 //#include <eosio/chain/generated_transaction_object.hpp>
 
 #include <chainbase/chainbase.hpp>
 #include <fc/io/json.hpp>
 #include <fc/scoped_exit.hpp>
 
-#include <eosio/vm/eosio_contract.hpp>
+#include <eosio/chain/eosio_contract.hpp>
 
 namespace eosio { namespace chain {
 

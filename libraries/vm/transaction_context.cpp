@@ -1,6 +1,6 @@
-#include <eosio/vm/apply_context.hpp>
-#include <eosio/vm/transaction_context.hpp>
-#include <eosio/vm/exceptions.hpp>
+#include <eosio/chain/apply_context.hpp>
+#include <eosio/chain/transaction_context.hpp>
+#include <eosio/chain/exceptions.hpp>
 //#include <eosio/chain/generated_transaction_object.hpp>
 #include <eosio/chain/global_property_object.hpp>
 
