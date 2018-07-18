@@ -4,6 +4,7 @@
  */
 #pragma once
 
+#include <contento/chain/database_exceptions.hpp>
 #include <fc/exception/exception.hpp>
 #include <boost/core/typeinfo.hpp>
 
@@ -70,8 +71,8 @@
 
 namespace contento { namespace chain {
 
-   FC_DECLARE_EXCEPTION( chain_exception,
-                         3000000, "blockchain exception" )
+   //FC_DECLARE_EXCEPTION( chain_exception,
+   //                      3000000, "blockchain exception" )
    /**
     *  chain_exception
     *   |- chain_type_exception
@@ -119,12 +120,12 @@ namespace contento { namespace chain {
    FC_DECLARE_DERIVED_EXCEPTION( fork_database_exception, chain_exception,
                                  3020000, "fork database exception" )
 
-      FC_DECLARE_DERIVED_EXCEPTION( unlinkable_block_exception, chain_exception,
-                                    3020001, "unlinkable block" )
+      //FC_DECLARE_DERIVED_EXCEPTION( unlinkable_block_exception, chain_exception,
+      //                              3020001, "unlinkable block" )
 
 
-   FC_DECLARE_DERIVED_EXCEPTION( block_validate_exception, chain_exception,
-                                 3030000, "block exception" )
+   //FC_DECLARE_DERIVED_EXCEPTION( block_validate_exception, chain_exception,
+   //                              3030000, "block exception" )
 
       FC_DECLARE_DERIVED_EXCEPTION( block_tx_output_exception,   block_validate_exception,
                                     3030001, "transaction outputs in block do not match transaction outputs from applying block" )
@@ -138,8 +139,8 @@ namespace contento { namespace chain {
                                     3030005, "block is too old to push" )
 
 
-   FC_DECLARE_DERIVED_EXCEPTION( transaction_exception,             chain_exception,
-                                 3040000, "transaction exception" )
+   //FC_DECLARE_DERIVED_EXCEPTION( transaction_exception,             chain_exception,
+   //                              3040000, "transaction exception" )
 
       FC_DECLARE_DERIVED_EXCEPTION( tx_decompression_error,      transaction_exception,
                                     3040001, "Error decompressing transaction" )

@@ -90,8 +90,8 @@ database_impl::database_impl( database& self )
    : _self(self), _evaluator_registry(self) {}
 
 database::database()
-   : ctrl(*this),
-     _my( new database_impl(*this) ) {}
+   : _my( new database_impl(*this) ),
+     ctrl(*this) {}
 
 database::~database()
 {
@@ -1268,7 +1268,7 @@ void database::clear_null_account_balance()
 
    if( null_account.reward_vesting_balance.amount > 0 )
    {
-      const auto& gpo = get_dynamic_global_properties();
+      //const auto& gpo = get_dynamic_global_properties();
 
       total_steem += null_account.reward_vesting_steem;
 

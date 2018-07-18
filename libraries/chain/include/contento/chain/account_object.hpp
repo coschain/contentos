@@ -7,6 +7,7 @@
 #include <contento/chain/contento_object_types.hpp>
 #include <contento/chain/witness_objects.hpp>
 #include <contento/chain/shared_authority.hpp>
+#include <contento/chain/types.hpp>
 
 #include <boost/multi_index/composite_key.hpp>
 

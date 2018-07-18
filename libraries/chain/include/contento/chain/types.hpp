@@ -106,18 +106,18 @@ namespace contento { namespace chain {
    using table_name       = name;
 
 
-  // using block_id_type       = fc::sha256;
-   using checksum_type       = fc::sha256;
+   using block_id_type       = protocol::block_id_type;
+   using checksum_type       = protocol::checksum_type;
    using checksum256_type    = fc::sha256;
    using checksum512_type    = fc::sha512;
    using checksum160_type    = fc::ripemd160;
-   //using transaction_id_type = checksum_type;
-   using digest_type         = checksum_type;
-   using weight_type         = uint16_t;
+   using transaction_id_type = protocol::transaction_id_type;
+   using digest_type         = protocol::digest_type;
+   using weight_type         = protocol::weight_type;
    using block_num_type      = uint32_t;
    //using share_type          = int64_t;
    using int128_t            = __int128;
-   using uint128_t           = unsigned __int128;
+   //using uint128_t           = unsigned __int128;
    using bytes               = vector<char>;
 
 
