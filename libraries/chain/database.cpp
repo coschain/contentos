@@ -90,7 +90,8 @@ database_impl::database_impl( database& self )
    : _self(self), _evaluator_registry(self) {}
 
 database::database()
-   : _my( new database_impl(*this) ) {}
+   : ctrl(*this),
+     _my( new database_impl(*this) ) {}
 
 database::~database()
 {

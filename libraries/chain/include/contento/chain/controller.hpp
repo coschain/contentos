@@ -12,7 +12,7 @@ namespace chainbase {
 namespace contento { namespace chain {
     class apply_context;
    struct controller_impl;
-   using chainbase::database;
+   //using chainbase::database;
 
    using apply_handler = std::function<void(apply_context&)>;
 
@@ -21,7 +21,7 @@ namespace contento { namespace chain {
    class controller {
       public:
 
-         controller();
+         controller(chainbase::database &db);
          ~controller();
 
          void add_indices();

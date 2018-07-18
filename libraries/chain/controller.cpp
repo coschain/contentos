@@ -30,9 +30,10 @@ struct controller_impl {
       apply_handlers[receiver][make_pair(contract,action)] = v;
    }
 
-   controller_impl( controller& s  )
+   controller_impl( controller& s, chainbase::database &db )
    :self(s),
-    wasmif( wasm_interface::binaryen ),
+    db(db),
+    wasmif( wasm_interface::vm_type::binaryen )
    {
 
 #define SET_APP_HANDLER( receiver, contract, action) \
@@ -40,8 +41,6 @@ struct controller_impl {
 
    SET_APP_HANDLER( contento, contento, setcode );
    SET_APP_HANDLER( contento, contento, setabi );
-
-   SET_APP_HANDLER( contento, contento, canceldelay );
 
    }
 
@@ -75,10 +74,11 @@ struct controller_impl {
              || (code == action_blacklist_exception::code_value)
              || (code == key_blacklist_exception::code_value);
    }
+};
 
 
-controller::controller()
-:my( new controller_impl( *this ) )
+controller::controller(chainbase::database &db)
+:my( new controller_impl( *this, db ))
 {
 }
 
