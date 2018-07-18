@@ -39,24 +39,24 @@ namespace fc {
             std::weak_ptr< fc::bapi::binary_api_connection > _binary_api_connection;
       };
 
-//      template<typename R, typename Arg0, typename ... Args>
-//      std::function<R(Args...)> bind_first_arg( const std::function<R(Arg0,Args...)>& f, Arg0 a0 )
-//      {
-//         return [=]( Args... args ) { return f( a0, args... ); };
-//      }
-//      template<typename R>
-//      R call_generic( const std::function<R()>& f, variants::const_iterator a0, variants::const_iterator e )
-//      {
-//         return f();
-//      }
+      template<typename R, typename Arg0, typename ... Args>
+      std::function<R(Args...)> bind_first_arg( const std::function<R(Arg0,Args...)>& f, Arg0 a0 )
+      {
+         return [=]( Args... args ) { return f( a0, args... ); };
+      }
+      template<typename R>
+      R call_generic( const std::function<R()>& f, variants::const_iterator a0, variants::const_iterator e )
+      {
+         return f();
+      }
 
-//      template<typename R, typename Arg0, typename ... Args>
-//      R call_generic( const std::function<R(Arg0,Args...)>& f, variants::const_iterator a0, variants::const_iterator e )
-//      {
-//         FC_ASSERT( a0 != e );
-//         return  call_generic<R,Args...>( bind_first_arg<R,Arg0,Args...>( f, a0->as< typename std::decay<Arg0>::type >() ), a0+1, e );
-//      }
-//
+      template<typename R, typename Arg0, typename ... Args>
+      R call_generic( const std::function<R(Arg0,Args...)>& f, variants::const_iterator a0, variants::const_iterator e )
+      {
+         FC_ASSERT( a0 != e );
+         return  call_generic<R,Args...>( bind_first_arg<R,Arg0,Args...>( f, a0->as< typename std::decay<Arg0>::type >() ), a0+1, e );
+      }
+
       template<typename R, typename ... Args>
       std::function<variant(const fc::variants&)> to_generic( const std::function<R(Args...)>& f )
       {
@@ -396,13 +396,13 @@ namespace fc {
    {
       auto api_con = _api_con;
       auto gapi = &api;
-      return [=]( const params_type& args ) { 
+      return [=]( const params_type& args ) -> auto {
          auto con = api_con.lock();
          FC_ASSERT( con, "not connected" );
 
          fc::datastream<const char*> ds( args.data(), args.size() );
-         auto api_result = gapi->call_generic( f, args ); 
-         return con->register_api( api_result );
+         auto api_result = gapi->call_generic( f, ds );
+         return  fc::raw::pack<api_id_type>( con->register_api( api_result ) );
       };
    }
    template<typename Interface, typename Adaptor, typename ... Args>
@@ -429,7 +429,7 @@ namespace fc {
    {
       auto api_con = _api_con;
       auto gapi = &api;
-      return [=]( const variants& args ) -> auto {
+      return [=]( const params_type& args ) -> auto {
          auto con = api_con.lock();
          FC_ASSERT( con, "not connected" );
 
@@ -437,7 +437,7 @@ namespace fc {
          auto api_result = gapi->call_generic( f, ds );
          if( !api_result )
             return result_type();
-         return api_result->register_api( *con );
+         return fc::raw::pack(api_result->register_api2( *con ));
       };
    }
 

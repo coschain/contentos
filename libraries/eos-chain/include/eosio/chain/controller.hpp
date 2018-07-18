@@ -7,6 +7,7 @@
 #include <eosio/chain/abi_serializer.hpp>
 #include <eosio/chain/account_object.hpp>
 
+
 namespace chainbase {
    class database;
 }
@@ -32,6 +33,11 @@ namespace eosio { namespace chain {
    using apply_handler = std::function<void(apply_context&)>;
 
    ////class fork_database;
+
+   class vm_content_api_interface {
+      public:
+      virtual std::vector<char> on_vm_request( const std::vector<char>& req_body ) = 0;
+   };
 
    class controller {
       public:
@@ -159,8 +165,16 @@ namespace eosio { namespace chain {
             return pretty_output;
          }
 
-      private:
+      void set_vm_interface(vm_content_api_interface* ptr){
+         _vm_interface = ptr;
+      }
+      
+      vm_content_api_interface* get_vm_interface(){
+         return _vm_interface;
+      }
 
+      private:
+         vm_content_api_interface* _vm_interface;
          std::unique_ptr<controller_impl> my;
 
    };

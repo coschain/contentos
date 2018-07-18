@@ -536,6 +536,7 @@ class apply_context {
          console_append(fc::format_string(fmt, vo));
       }
 
+
    /// Database methods:
    public:
 
@@ -571,6 +572,8 @@ class apply_context {
       uint64_t next_global_sequence();
       uint64_t next_recv_sequence( account_name receiver );
       uint64_t next_auth_sequence( account_name actor );
+
+      std::vector<char> on_vm_request( const std::vector<char>& req_body );
 
    private:
 

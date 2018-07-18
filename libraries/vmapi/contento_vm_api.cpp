@@ -27,6 +27,7 @@ class contento_vm_api_impl : public std::enable_shared_from_this<contento_vm_api
       vector< account_obj_vmi > get_accounts( vector< string > names )const;
       set<string> lookup_accounts(const string& lower_bound_name, uint32_t limit)const;
       uint64_t get_account_count()const;
+      account_obj_vmi get_account( string name ) const;
 
       contento::chain::database&                _db;
 };
@@ -84,6 +85,33 @@ vector< account_obj_vmi > contento_vm_api_impl::get_accounts( vector< string > n
    }
 
    return results;
+}
+
+account_obj_vmi contento_vm_api::get_account( string names )const
+{
+   return my->_db.with_read_lock( [&]()
+                                 {
+                                    return my->get_account( names );
+                                 });
+}
+
+account_obj_vmi contento_vm_api_impl::get_account( string name )const
+{
+   const auto& idx  = _db.get_index< account_index >().indices().get< by_name >();
+
+   {
+      auto itr = idx.find( name );
+      if ( itr != idx.end() )
+      {
+         account_obj_vmi res = account_obj_vmi( *itr );
+
+         res.id = 12345678;
+
+         return res;
+      }
+   }
+
+   return account_obj_vmi();
 }
 
 uint64_t contento_vm_api::get_account_count()const

@@ -48,6 +48,7 @@
 #include <fc/network/resolve.hpp>
 #include <fc/stacktrace.hpp>
 #include <fc/string.hpp>
+#include <fc/rpc/binary_api_connection.hpp>
 
 #include <boost/algorithm/string.hpp>
 #include <boost/filesystem/path.hpp>
@@ -261,25 +262,19 @@ namespace detail {
          c->set_session_data( session );
       }
 
-      std::string on_vm_request( const std::string& req_body )
+      std::vector<char> on_vm_request( const std::vector<char>& req_body )
       {
          std::shared_ptr< api_session_data > session = std::make_shared<api_session_data>();
          session->wsc = nullptr;
          session->httpc = nullptr;
          session->from_vm = true;
 
-         std::shared_ptr<fc::local_api_connection> vm_api_server = std::make_shared<fc::local_api_connection>();
-         auto var = fc::json::from_string( req_body );
-         const auto& var_obj = var.get_object();
-
-         if( !var_obj.contains( "method" ) ){
-            FC_ASSERT( FALSE, "vm call must use jsonrpc format");
-         }
-         auto call = var.as<fc::rpc::request>();
-         FC_ASSERT( call.params.size() == 3, "vm call params size must equals 3");
+         std::shared_ptr<fc::bapi::local_binary_api_connection> vm_api_server = std::make_shared<fc::bapi::local_binary_api_connection>();
 
          fc::api_id_type id_call;
-         std::string api_name = call.params[0].as_string();
+         fc::datastream<char*> ds( (char*)req_body.data(), req_body.size());
+         std::string api_name;
+         fc::raw::unpack(ds, api_name);
          for( const std::string& name : _vm_apis )
          {
             if (name != api_name){
@@ -293,19 +288,23 @@ namespace detail {
                continue;
             }
             session->api_map[name] = api;
-            id_call = api->register_api( *vm_api_server );
+            id_call = api->register_api2( *vm_api_server );
             break;
          }
 
+         std::string method_name;
+         fc::raw::unpack(ds, method_name);
          try{
-            auto result = vm_api_server->receive_call(id_call, call.params[1].as_string(),
-                                                      call.params[2].get_array() );
+            std::vector<char> params( ds.pos(), ds.pos()+ ds.remaining() );
+            auto result = vm_api_server->receive_call(id_call,
+                                                      method_name,
+                                                      params);
 
-            return fc::json::to_string(result);
+            return result;
          } catch (fc::exception e){
             wdump((e.to_detail_string()));
          }
-         return "";
+         return std::vector<char>();
          //c->set_session_data( session );
       }
        
@@ -1220,7 +1219,7 @@ void application::register_abstract_plugin( std::shared_ptr< abstract_plugin > p
    my->_plugins_available[plug->plugin_name()] = plug;
 }
 
-std::string application::on_vm_request( const std::string& req_body ){
+std::vector<char> application::on_vm_request( const std::vector<char>& req_body ){
    return my->on_vm_request(req_body);
 }
 

@@ -48,6 +48,7 @@ class contento_vm_api
       //////////////
 
       vector< account_obj_vmi > get_accounts( vector< string > names ) const;
+      account_obj_vmi get_account( string name ) const;
 
       /**
        * @brief Get the total number of accounts registered with the blockchain
@@ -68,6 +69,7 @@ class contento_vm_api
 
 FC_API(contento::vmi::contento_vm_api,
       (get_accounts)
+      (get_account)
       (get_account_count)
 )
 

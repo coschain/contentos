@@ -2,6 +2,7 @@
 #include <fc/variant.hpp>
 #include <fc/optional.hpp>
 #include <fc/api.hpp>
+#include <fc/rpc/binary_api_connection.hpp>
 #include <fc/any.hpp>
 #include <memory>
 #include <vector>
@@ -461,11 +462,11 @@ namespace fc {
     * it a pure virtual method in the base class which is overridden by the subclass's
     * implementation).
     */
-//   template< typename Interface, typename Transform >
-//   api_id_type api< Interface, Transform >::register_api( api_connection& conn )const
-//   {
-//      return conn.register_api( *this );
-//   }
+   template< typename Interface, typename Transform >
+   api_id_type api< Interface, Transform >::register_api( api_connection& conn )const
+   {
+      return conn.register_api( *this );
+   }
 
    template< typename T >
    api<T> api_base::as()

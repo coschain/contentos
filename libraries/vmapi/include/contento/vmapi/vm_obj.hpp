@@ -25,7 +25,7 @@ using namespace std;
    {
       account_obj_vmi(){}
       account_obj_vmi( const chain::account_object& a ) :
-         id( a.id ),
+         id( a.id._id ),
          name( a.name ),
          memo_key( a.memo_key ),
          json_metadata( to_string( a.json_metadata ) ),
@@ -62,12 +62,12 @@ using namespace std;
 
          }
 
-         account_id_type   id;
+         int64_t   id;
 
          account_name_type name;
-         authority         owner;
-         authority         active;
-         authority         posting;
+//         authority         owner;
+//         authority         active;
+//         authority         posting;
          public_key_type   memo_key;
          string            json_metadata;
          account_name_type proxy;
@@ -125,20 +125,23 @@ using namespace std;
 } }
 
 FC_REFLECT( contento::vmi::account_obj_vmi,
-           (id)(owner)(active)(posting)(name)(memo_key)(json_metadata)(proxy)(last_account_update)
-           (created)
-           (comment_count)(lifetime_vote_count)(post_count)(can_vote)(voting_power)(last_vote_time)
-           (balance)
-           (savings_balance)
-           (savings_withdraw_requests)
-           (reward_steem_balance)
-           (reward_vesting_balance)(reward_vesting_steem)
-           (vesting_shares)(delegated_vesting_shares)(received_vesting_shares)
-           (vesting_withdraw_rate)(next_vesting_withdrawal)(withdrawn)(to_withdraw)(withdraw_routes)
-           (curation_rewards)
-           (posting_rewards)
-           (witnesses_voted_for)
-           (last_post)(last_root_post)
+           (id)
+           //(name)(memo_key)(json_metadata)(proxy)
+//           (last_account_update)
+//           (created)
+//           (comment_count)(lifetime_vote_count)(post_count)(can_vote)(voting_power)(last_vote_time)
+//           (balance)
+//           (savings_balance)
+//           (savings_withdraw_requests)
+//           (reward_steem_balance)
+//           (reward_vesting_balance)(reward_vesting_steem)
+//           (vesting_shares)(delegated_vesting_shares)(received_vesting_shares)
+//           (vesting_withdraw_rate)(next_vesting_withdrawal)(withdrawn)(to_withdraw)(withdraw_routes)
+//           (curation_rewards)
+//           (posting_rewards)
+//           (witnesses_voted_for)
+//           (last_post)
+           (last_root_post)
            )
 
 
