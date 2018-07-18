@@ -391,6 +391,16 @@ namespace contento {
                clang::SourceLocation e(clang::Lexer::getLocForEndOfToken(_e, 0, sm, compiler_instance.getLangOpts()));
                auto macrostr = string(sm.getCharacterData(b), sm.getCharacterData(e)-sm.getCharacterData(b));
 
+               // trim all comments
+               regex r_multi_line_comment(R"(/\*[\s\S]*?\*/)");
+               regex r_single_line_comment(R"(//.*)");
+
+               macrostr = regex_replace(macrostr, r_multi_line_comment, "");
+               macrostr = regex_replace(macrostr, r_single_line_comment, "");
+
+               regex r_new_line(R"(\s)");
+               macrostr = regex_replace(macrostr, r_new_line, "");
+
                regex r(R"(FC_API\s*\(\s*(.+?)\s*,((?:.+?)*)\s*\))");
                smatch smatch;
                auto res = regex_search(macrostr, smatch, r);

@@ -85,6 +85,7 @@ string abi_generator::translate_type(const string& type_name) {
   else if (type_name == "short"              || type_name == "int16_t")  built_in_type = "int16";
   else if (type_name == "char"               || type_name == "int8_t")   built_in_type = "int8";
   else if (type_name == "double")   built_in_type = "float64";
+  else if (boost::starts_with(type_name, "oid<"))   built_in_type = "id_type";
   else {
      static auto types = contento::chain::common_type_defs();
      auto itr = std::find_if( types.begin(), types.end(),
@@ -563,7 +564,7 @@ clang::QualType abi_generator::add_typedef(const clang::QualType& tqt, size_t re
   abi_typedef.type = translate_type(underlying_type_name);
   const auto* td = find_type(abi_typedef.new_type_name);
 
-  if(!td && !is_struct_specialization(underlying_type) ) {
+  if(!td && (!is_struct_specialization(underlying_type) || abi_typedef.type == "id_type") ) {
     output->types.push_back(abi_typedef);
   } else {
     if(td) ABI_ASSERT(abi_typedef.type == td->type);

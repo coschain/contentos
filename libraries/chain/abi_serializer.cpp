@@ -84,6 +84,8 @@ namespace contento { namespace chain {
 
       built_in_types.emplace("checksum160",               pack_unpack<checksum160_type>());
       built_in_types.emplace("checksum256",               pack_unpack<checksum256_type>());
+      built_in_types.emplace("sha256",               pack_unpack<checksum256_type>());
+
       built_in_types.emplace("checksum512",               pack_unpack<checksum512_type>());
 
       built_in_types.emplace("public_key_type",           pack_unpack<public_key_type>());
@@ -97,6 +99,7 @@ namespace contento { namespace chain {
       built_in_types.emplace("future_extensions",                 pack_unpack<future_extensions>());
       built_in_types.emplace("variant_object",                 pack_unpack<fc::variant_object>());
 
+      built_in_types.emplace("id_type",                 pack_unpack<int64_t>());
 
 
       //built_in_types.emplace("symbol",                    pack_unpack<symbol>());
@@ -183,16 +186,47 @@ namespace contento { namespace chain {
          return type_name(string(type).substr(0, type.size()-2));
       } else if ( is_optional(type) ) {
          return type_name(string(type).substr(0, type.size()-1));
-      }  else if ( is_map(type) ) {
-         return type_name(string(type).substr(1, type.size()-2));
       } else {
        return type;
       }
    }
 
+   type_name abi_serializer::fundamental_map_key_type(const type_name& type)const{
+      string kv = string(type).substr(1, type.size()-2);
+      std::vector<std::string> vecSegTag;
+      boost::split(vecSegTag, kv,boost::is_any_of(","));
+      return type_name(vecSegTag[0]);
+   }
+   type_name abi_serializer::fundamental_map_value_type(const type_name& type)const{
+      string kv = string(type).substr(1, type.size()-2);
+      std::vector<std::string> vecSegTag;
+      boost::split(vecSegTag, kv,boost::is_any_of(","));
+      return type_name(vecSegTag[1]);
+   }
+
    bool abi_serializer::_is_type(const type_name& rtype, size_t recursion_depth)const {
       if( ++recursion_depth > max_recursion_depth) return false;
-      auto type = fundamental_type(rtype);
+
+      if( is_array(rtype) ){
+         type_name new_type(string(rtype).substr(0, rtype.size()-2));
+         return _is_type(new_type,recursion_depth);
+      }
+      else if( is_optional(rtype) ){
+         type_name new_type(string(rtype).substr(0, rtype.size()-1));
+         return _is_type(new_type,recursion_depth);
+      }
+      else if ( is_map(rtype) ){
+         type_name key_type = fundamental_map_key_type(rtype);
+         if ( !_is_type(key_type, recursion_depth) ){
+            return false;
+         }
+         type_name value_type = fundamental_map_value_type(rtype);
+         if ( !_is_type(value_type, recursion_depth) ){
+            return false;
+         }
+         return true;
+      }
+      auto type = rtype;
       if( built_in_types.find(type) != built_in_types.end() ) return true;
       if( typedefs.find(type) != typedefs.end() ) return _is_type(typedefs.find(type)->second, recursion_depth);
       if( structs.find(type) != structs.end() ) return true;

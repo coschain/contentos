@@ -59,6 +59,8 @@ struct abi_serializer {
    int       get_integer_size(const type_name& type) const;
    bool      is_struct(const type_name& type)const;
    type_name fundamental_type(const type_name& type)const;
+   type_name fundamental_map_key_type(const type_name& type)const;
+   type_name fundamental_map_value_type(const type_name& type)const;
 
    const struct_def& get_struct(const type_name& type)const;
 
