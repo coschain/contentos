@@ -40,7 +40,6 @@ add_library( contento_chain
              name.cpp
              contento_contract.cpp
              contento_contract_abi.cpp
-             chain_id_type.cpp
 
               wast_to_wasm.cpp
               wasm_interface.cpp

@@ -4,8 +4,8 @@
  */
 #pragma once
 #include <contento/chain/name.hpp>
-#include <contento/chain/chain_id_type.hpp>
 #include <contento/chain/contento_object_types.hpp>
+#include <contento/protocol/types.hpp>
 
 #include <chainbase/chainbase.hpp>
 

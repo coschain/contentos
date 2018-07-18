@@ -5,6 +5,7 @@ add_library( contento_protocol
 
              types.cpp
              authority.cpp
+             chain_id_type.cpp
              operations.cpp
              sign_state.cpp
              operation_util_impl.cpp

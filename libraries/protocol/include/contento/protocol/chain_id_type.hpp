@@ -17,7 +17,7 @@ namespace contento {
       class read_only;
    }
 
-namespace chain {
+namespace protocol {
 
    struct chain_id_type : public fc::sha256 {
       using fc::sha256::sha256;
@@ -37,7 +37,7 @@ namespace chain {
       void reflector_verify()const;
 
       private:
-         chain_id_type() = default;
+         // chain_id_type() = default;
 
          // Some exceptions are unfortunately necessary:
          template<typename T>
@@ -51,10 +51,10 @@ namespace chain {
          friend struct ::hello; // TODO: Rushed hack to support bnet_plugin. Need a better solution.
    };
 
-} }  // namespace contento::chain
+} }  // namespace contento::protocol
 
 namespace fc {
   class variant;
-  void to_variant(const contento::chain::chain_id_type& cid, fc::variant& v);
-  void from_variant(const fc::variant& v, contento::chain::chain_id_type& cid);
+  void to_variant(const contento::protocol::chain_id_type& cid, fc::variant& v);
+  void from_variant(const fc::variant& v, contento::protocol::chain_id_type& cid);
 } // fc
