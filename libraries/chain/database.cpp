@@ -1,5 +1,4 @@
 #include <contento/protocol/contento_operations.hpp>
-
 #include <contento/chain/block_summary_object.hpp>
 #include <contento/chain/compound.hpp>
 #include <contento/chain/custom_operation_interpreter.hpp>
@@ -2719,7 +2718,7 @@ void database::apply_transaction(const signed_transaction& trx, uint32_t skip)
    notify_on_applied_transaction( trx );
 }
 
-void database::_apply_transaction(const signed_transaction& trx)
+std::shared_ptr<transaction_context> database::_apply_transaction(const signed_transaction& trx)
 { try {
    _current_trx_id = trx.id();
    uint32_t skip = get_node_properties().skip_flags;
@@ -2788,6 +2787,7 @@ void database::_apply_transaction(const signed_transaction& trx)
    notify_on_pre_apply_transaction( trx );
 
    //Finally process the operations
+   auto trx_ctx = std::make_shared<transaction_context>(ctrl, trx, trx_id);
    _current_op_in_trx = 0;
    for( const auto& op : trx.operations )
    { try {
@@ -2796,7 +2796,7 @@ void database::_apply_transaction(const signed_transaction& trx)
      } FC_CAPTURE_AND_RETHROW( (op) );
    }
    _current_trx_id = transaction_id_type();
-
+   return trx_ctx;
 } FC_CAPTURE_AND_RETHROW( (trx) ) }
 
 void database::apply_operation(const operation& op)

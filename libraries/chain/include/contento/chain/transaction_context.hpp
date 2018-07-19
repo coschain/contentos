@@ -1,8 +1,8 @@
 #pragma once
-#include <eosio/chain/controller.hpp>
-#include <eosio/chain/trace.hpp>
+#include <contento/chain/controller.hpp>
+#include <contento/chain/trace.hpp>
 
-namespace eosio { namespace chain {
+namespace contento { namespace chain {
 
    class transaction_context {
       private:

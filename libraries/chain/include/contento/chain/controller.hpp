@@ -30,7 +30,8 @@ namespace contento { namespace chain {
          chainbase::database& db()const;
 
          const account_object&                 get_account( account_name n )const;
-
+         const dynamic_global_property_object& get_global_properties() const;
+         const time_point_sec head_block_time() const;
          const apply_handler* find_apply_handler( account_name contract, scope_name scope, action_name act )const;
          wasm_interface& get_wasm_interface();
 

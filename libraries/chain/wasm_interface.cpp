@@ -1,7 +1,7 @@
 #include <contento/chain/wasm_interface.hpp>
 #include <contento/chain/apply_context.hpp>
 #include <contento/chain/controller.hpp>
-//#include <contento/chain/transaction_context.hpp>
+#include <contento/chain/transaction_context.hpp>
 #include <contento/chain/exceptions.hpp>
 #include <boost/core/ignore_unused.hpp>
 //#include <contento/chain/authorization_manager.hpp>
@@ -55,7 +55,7 @@ namespace contento { namespace chain {
 	 }
 
    void wasm_interface::apply( const digest_type& code_id, const shared_string& code, apply_context& context ) {
-      my->get_instantiated_module(code_id, code, context.trx_context)->apply(context);
+      my->get_instantiated_module(code_id, code/*, context.trx_context*/)->apply(context);
    }
 
    wasm_instantiated_module_interface::~wasm_instantiated_module_interface() {}
@@ -149,26 +149,27 @@ class privileged_api : public context_aware_api {
       uint32_t get_blockchain_parameters_packed( array_ptr<char> packed_blockchain_parameters, size_t buffer_size) {
          auto& gpo = context.control.get_global_properties();
 
-         auto s = fc::raw::pack_size( gpo.configuration );
+         auto s = fc::raw::pack_size( gpo );
          if( buffer_size == 0 ) return s;
 
          if ( s <= buffer_size ) {
             datastream<char*> ds( packed_blockchain_parameters, s );
-            fc::raw::pack(ds, gpo.configuration);
+            fc::raw::pack(ds, gpo);
             return s;
          }
          return 0;
       }
 
       void set_blockchain_parameters_packed( array_ptr<char> packed_blockchain_parameters, size_t datalen) {
-         datastream<const char*> ds( packed_blockchain_parameters, datalen );
-         chain::chain_config cfg;
-         fc::raw::unpack(ds, cfg);
-         cfg.validate();
-         context.db.modify( context.control.get_global_properties(),
-            [&]( auto& gprops ) {
-                 gprops.configuration = cfg;
-         });
+       //   TODOO:    
+      //    datastream<const char*> ds( packed_blockchain_parameters, datalen );
+      //    chain::chain_config cfg;
+      //    fc::raw::unpack(ds, cfg);
+      //    cfg.validate();
+      //    context.db.modify( context.control.get_global_properties(),
+      //       [&]( auto& gprops ) {
+      //            gprops.configuration = cfg;
+      //    });
       }
 
       bool is_privileged( account_name n )const {
@@ -887,7 +888,8 @@ class system_api : public context_aware_api {
       using context_aware_api::context_aware_api;
 
       uint64_t current_time() {
-         return static_cast<uint64_t>( context.control.pending_block_time().time_since_epoch().count() );
+            // TODOO: more precision
+         return static_cast<uint64_t>( context.control.head_block_time().sec_since_epoch() );
       }
 
       uint64_t publication_time() {
@@ -965,7 +967,7 @@ class console_api : public context_aware_api {
    public:
       console_api( apply_context& ctx )
       : context_aware_api(ctx,true)
-      , ignore(!ctx.control.contracts_console()) {}
+      , ignore(false) {}
 
       // Kept as intrinsic rather than implementing on WASM side (using prints_l and strlen) because strlen is faster on native side.
       void prints(null_terminated_ptr str) {
@@ -1284,8 +1286,8 @@ class transaction_api : public context_aware_api {
 
       void send_inline( array_ptr<char> data, size_t data_len ) {
          //TODO: Why is this limit even needed? And why is it not consistently checked on actions in input or deferred transactions
-         FC_ASSERT( data_len < context.control.get_global_properties().configuration.max_inline_action_size,
-                    "inline action too big" );
+      //  TODOO:  FC_ASSERT( data_len < context.control.get_global_properties().configuration.max_inline_action_size,
+      //               "inline action too big" );
 
          action act;
          fc::raw::unpack<action>(data, data_len, act);

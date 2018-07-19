@@ -1,6 +1,6 @@
 #include <algorithm>
 #include <contento/chain/apply_context.hpp>
-//#include <contento/chain/transaction_context.hpp>
+#include <contento/chain/transaction_context.hpp>
 #include <contento/chain/exceptions.hpp>
 #include <contento/chain/wasm_interface.hpp>
 //#include <contento/chain/generated_transaction_object.hpp>
@@ -235,14 +235,14 @@ void apply_context::reset_console() {
 }
 
 bytes apply_context::get_packed_transaction() {
-    // TODO:
-   //auto r = fc::raw::pack( static_cast<const transaction&>(trx_context.trx) );
-    auto r = fc::raw::pack( static_cast<const protocol::transaction&>(protocol::signed_transaction()) );
+    // TODOO:
+   auto r = fc::raw::pack( static_cast<const transaction&>(trx_context.trx) );
+    //auto r = fc::raw::pack( static_cast<const protocol::transaction&>(protocol::signed_transaction()) );
    return r;
 }
 
 void apply_context::update_db_usage( const account_name& payer, int64_t delta ) {
-   /*if( delta > 0 ) {
+   /* TODOO: if( delta > 0 ) {
       if( !(privileged || payer == account_name(receiver)) ) {
          require_authorization( payer );
       }
@@ -254,7 +254,7 @@ void apply_context::update_db_usage( const account_name& payer, int64_t delta ) 
 
 int apply_context::get_action( uint32_t type, uint32_t index, char* buffer, size_t buffer_size )const
 {
-    /* TODO:
+    /* TODOO:
    const auto& trx = trx_context.trx;
    const action* act_ptr = nullptr;
 

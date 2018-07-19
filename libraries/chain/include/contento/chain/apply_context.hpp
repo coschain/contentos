@@ -451,10 +451,10 @@ class apply_context {
 
    /// Constructor
    public:
-      apply_context(controller& con, const action& a, uint32_t depth=0)
+      apply_context(controller& con, transaction_context& trx_ctx, const action& a, uint32_t depth=0)
       :control(con)
       ,db(con.db())
-      //,trx_context(trx_ctx)
+      ,trx_context(trx_ctx)
       ,act(a)
       ,receiver(act.account)
       //,used_authorizations(act.authorization.size(), false)
@@ -582,7 +582,7 @@ class apply_context {
 
       controller&                   control;
       chainbase::database&          db;  ///< database where state is stored
-      //transaction_context&          trx_context; ///< transaction context in which the action is running
+      transaction_context&          trx_context; ///< transaction context in which the action is running
       const action&                 act; ///< message being applied
       account_name                  receiver; ///< the code that is currently running
       //vector<bool> used_authorizations; ///< Parallel to act.authorization; tracks which permissions have been used while processing the message

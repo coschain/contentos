@@ -3,6 +3,7 @@
  */
 #pragma once
 #include <contento/chain/global_property_object.hpp>
+#include <contento/chain/transaction_context.hpp>
 #include <contento/chain/hardfork.hpp>
 #include <contento/chain/node_property_object.hpp>
 #include <contento/chain/fork_database.hpp>
@@ -438,7 +439,7 @@ namespace contento { namespace chain {
          void apply_block( const signed_block& next_block, uint32_t skip = skip_nothing );
          void apply_transaction( const signed_transaction& trx, uint32_t skip = skip_nothing );
          void _apply_block( const signed_block& next_block );
-         void _apply_transaction( const signed_transaction& trx );
+         std::shared_ptr<transaction_context> _apply_transaction( const signed_transaction& trx );
          void apply_operation( const operation& op );
 
 

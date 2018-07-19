@@ -1,7 +1,7 @@
 #include <contento/chain/controller.hpp>
 
 #include <contento/chain/contract_table_objects.hpp>
-
+#include <contento/chain/global_property_object.hpp>
 #include <chainbase/chainbase.hpp>
 #include <fc/io/json.hpp>
 
@@ -80,6 +80,16 @@ struct controller_impl {
 controller::controller(chainbase::database &db)
 :my( new controller_impl( *this, db ))
 {
+}
+
+const dynamic_global_property_object& controller::get_global_properties() const
+{
+   return my->db.get< dynamic_global_property_object >();
+}
+
+const time_point_sec controller::head_block_time()const
+{
+   return get_global_properties().time;
 }
 
 void controller::add_indices() {
