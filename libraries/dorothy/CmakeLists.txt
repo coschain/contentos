@@ -3,7 +3,7 @@ cmake_minimum_required( VERSION 2.8.12 )
 
 add_definitions("-DUSE_BOOST_KARMA")
 
-find_library(SQLPARSER sqlparser)
+## find_library(SQLPARSER sqlparser)
 
 file(GLOB HEADERS "include/dorothy/*.hpp")
 
@@ -18,7 +18,8 @@ target_link_libraries( dorothy
     chainbase
     contento_chain
     contento_protocol
-    ${SQLPARSER}
+    ## ${SQLPARSER}
+    sqlparser
     ${CMAKE_DL_LIBS}
     ${PLATFORM_SPECIFIC_LIBS}
 )
