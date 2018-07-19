@@ -7,7 +7,7 @@
 using namespace contento::chain;
 using namespace contento::protocol;
 
-namespace contento { namespace test {
+namespace contento { namespace mixtest {
 
     class mix_fixture : public clean_database_fixture
     {
@@ -18,4 +18,4 @@ namespace contento { namespace test {
     
 }}
 
-#endif /* contento_global_fixture_hpp */
+#endif 

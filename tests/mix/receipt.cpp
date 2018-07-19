@@ -1,15 +1,15 @@
-#ifdef IS_TEST_NET
+//#ifdef IS_TEST_NET
 #include <boost/test/unit_test.hpp>
 
 #include <contento/chain/account_object.hpp>
 #include <contento/chain/comment_object.hpp>
 #include <contento/protocol/contento_operations.hpp>
 
-#include "fixtures/mix_fixture.hpp"
+#include "include/mix_fixture.hpp"
 
 using namespace contento::chain;
 using namespace contento::protocol;
-using namespace contento::test;
+using namespace contento::mixtest;
 
 static uint64_t inc_time() {
     static uint64_t t = 30;
@@ -39,25 +39,25 @@ static bool comment_exists(database &db, std::string author, std::string permlin
     return db.find_comment(account_name_type(author), permlink) != 0;
 }
 
-BOOST_FIXTURE_TEST_SUITE( trx_return_type, mix_fixture )
+BOOST_FIXTURE_TEST_SUITE( trx_receipt, mix_fixture )
 
-BOOST_AUTO_TEST_CASE( robustness )
+BOOST_AUTO_TEST_CASE( testone )
 {
     // alice published a post. bob replied.  ACTORS((alice)(bob));
+    ACTORS((alice)(bob));
     post_comment(db, "alice", "a002", "hello", "world", "", "life", alice_post_key);
     post_comment(db, "bob", "b002", "", "nice post", "alice", "a002", bob_post_key);
     BOOST_TEST_REQUIRE( comment_exists(db, "alice", "a002") );
     BOOST_TEST_REQUIRE( comment_exists(db, "bob", "b002") );
     
     // report fee should be valid and affordable.
+    /*
     ACTORS((user1));
     fund("user1", 100);
     BOOST_REQUIRE_THROW( report_comment(db, "user1", "alice", "a002", "0.000 TESTS", "porn", false, false, user1_private_key), fc::exception );
-    BOOST_REQUIRE_THROW( report_comment(db, "user1", "alice", "a002", "-0.000 TESTS", "porn", false, false, user1_private_key), fc::exception );
-    BOOST_REQUIRE_THROW( report_comment(db, "user1", "alice", "a002", "-1.234 TESTS", "porn", false, false, user1_private_key), fc::exception );
-    BOOST_REQUIRE_THROW( report_comment(db, "user1", "alice", "a002", "1000000000.000 TESTS", "porn", false, false, user1_private_key), fc::exception );
+    */
 }
 
 BOOST_AUTO_TEST_SUITE_END()
 
-#endif // IS_TEST_NET
+//#endif // IS_TEST_NET

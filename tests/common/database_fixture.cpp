@@ -171,8 +171,8 @@ live_database_fixture::~live_database_fixture()
 
 fc::ecc::private_key database_fixture::generate_private_key(string seed)
 {
-   static const fc::ecc::private_key committee = fc::ecc::private_key::regenerate( fc::sha256::hash( string( "init_key" ) ) );
-   if( seed == "init_key" )
+   static const fc::ecc::private_key committee = fc::ecc::private_key::regenerate( fc::sha256::hash( init_key_name ) );
+   if( seed == init_key_name )
       return committee;
    return fc::ecc::private_key::regenerate( fc::sha256::hash( seed ) );
 }
