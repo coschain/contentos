@@ -554,6 +554,13 @@ public:
     virtual Literal callTable(Index index, LiteralList& arguments, WasmType result, SubType& instance) = 0;
     virtual void growMemory(Address oldSize, Address newSize) = 0;
     virtual void trap(const char* why) = 0;
+      
+      enum InfoType {
+          InfoTypeRunExpression,
+          
+          InfoTypeCount
+      };
+      virtual void report(InfoType type, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3)  {}
 
     // the default impls for load and store switch on the sizes. you can either
     // customize load/store, or the sub-functions which they call
@@ -900,6 +907,38 @@ public:
       void trap(const char* why) override {
         instance.externalInterface->trap(why);
       }
+        
+        
+        void reportVisit(Expression *curr) {
+            
+            #define REPORT_EXTERNAL2(p1, p2)  \
+                 if (instance.externalInterface) { \
+                   instance.externalInterface->report( \
+                      ModuleInstanceBase::ExternalInterface::InfoTypeRunExpression, \
+                      (uintptr_t)(curr->_id), \
+                      (uintptr_t)(p1), \
+                      (uintptr_t)(p2) ); }
+            
+            #define REPORT_EXTERNAL1(p)  REPORT_EXTERNAL2(p, 0)
+            #define REPORT_EXTERNAL(...) REPORT_EXTERNAL2(0, 0)
+            
+            //---
+            
+            if ( curr->is<CallImport>() ) {
+                CallImport *import = static_cast<CallImport *>(curr);
+                REPORT_EXTERNAL1( instance.wasm.getImport(import->target) );
+            } else {
+                REPORT_EXTERNAL();
+            }
+            
+            //---
+            
+            #undef REPORT_EXTERNAL
+            #undef REPORT_EXTERNAL1
+            #undef REPORT_EXTERNAL2
+        }
+        
+        
     };
 
     if (callDepth > maxCallDepth) externalInterface->trap("stack limit");

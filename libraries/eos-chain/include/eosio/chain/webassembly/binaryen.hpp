@@ -132,6 +132,24 @@ struct interpreter_interface : ModuleInstance::ExternalInterface {
    void store32(Address addr, int32_t value) override { store_memory(addr, value); }
    void store64(Address addr, int64_t value) override { store_memory(addr, value); }
 
+    void report(InfoType type, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3) override {
+        if (type != InfoTypeRunExpression)
+            return;
+        
+        if (arg1 <= wasm::Expression::InvalidId || arg1 >= wasm::Expression::NumExpressionIds)
+            return;
+        
+        wasm::Expression::Id expr_id = static_cast<wasm::Expression::Id>(arg1);
+        if (expr_id == wasm::Expression::CallImportId) {
+            // todo: get cycles of import function
+        } else {
+            // todo: get cycles of normal expression
+        }
+        
+        // todo: report cycles to context...
+        
+    }
+    
    linear_memory_type&          memory;
    call_indirect_table_type&    table;
    import_lut_type&             import_lut;

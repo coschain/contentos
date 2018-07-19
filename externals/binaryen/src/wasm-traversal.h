@@ -75,6 +75,8 @@ struct Visitor {
       return static_cast<SubType*>(this)-> \
           visit##CLASS_TO_VISIT(static_cast<CLASS_TO_VISIT*>(curr))
 
+    static_cast<SubType*>(this)->reportVisit(curr);
+    
     switch (curr->_id) {
       case Expression::Id::BlockId: DELEGATE(Block);
       case Expression::Id::IfId: DELEGATE(If);
@@ -105,6 +107,9 @@ struct Visitor {
 
     #undef DELEGATE
   }
+
+  // called just before visiting the expression
+  void reportVisit(Expression* curr) {}
 };
 
 // Visit with a single unified visitor, called on every node, instead of
