@@ -98,10 +98,10 @@ namespace contento { namespace chain {
    template<typename T>
    using shared_set = boost::interprocess::set<T, std::less<T>, allocator<T>>;
    using name             = protocol::name;
-   using action_name      = name;
-   using scope_name       = name;
-   using account_name     = name;
-   using table_name       = name;
+   using action_name      = protocol::name;
+   using scope_name       = protocol::name;
+   using account_name     = protocol::name;
+   using table_name       = protocol::name;
 
 
    using block_id_type       = protocol::block_id_type;

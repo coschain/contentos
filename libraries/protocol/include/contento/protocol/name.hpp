@@ -1,11 +1,12 @@
 #pragma once
-//#include <contento/protocol/fixed_string.hpp>
-#include <string>
+//#include <string>
 #include <fc/reflect/reflect.hpp>
 #include <iosfwd>
+#include <fc/variant.hpp>
+#include <boost/algorithm/string.hpp>
+#include <fc/exception/exception.hpp>
 
 namespace contento { namespace protocol {
-   using std::string;
 
    static constexpr uint64_t char_to_symbol( char c ) {
       if( c >= 'a' && c <= 'z' )
@@ -41,7 +42,14 @@ namespace contento { namespace protocol {
 #define N(X) contento::protocol::string_to_name(#X)
 
    struct name {
-      uint64_t value = 0;
+      name(){}
+      name( const char* str )   { set(str);           } 
+      name( const std::string& str ) { set( str.c_str() ); }
+      name( const name& n ) { value = n.value; }
+      name( const uint64_t& v ):value(v) {}
+
+      operator std::string()const;
+
       bool empty()const { return 0 == value; }
       bool good()const  { return !empty();   }
 
@@ -53,25 +61,14 @@ namespace contento { namespace protocol {
           return value == 0 ? 0 : 13;
       }
 
-      name( const char* str )   { set(str);           } 
-      name( const string& str ) { set( str.c_str() ); }
-
       void set( const char* str );
-
-      template<typename T>
-      name( T v ):value(v){}
-      name(){}
-
-      operator string()const;
-
-      string to_string() const { return string(*this); }
 
       name& operator=( uint64_t v ) {
          value = v;
          return *this;
       }
 
-      name& operator=( const string& n ) {
+      name& operator=( const std::string& n ) {
          value = name(n).value;
          return *this;
       }
@@ -80,8 +77,24 @@ namespace contento { namespace protocol {
          return *this;
       }
 
+      name& operator=( const name& n ) {
+          value = n.value;
+          return *this;
+      }
+
+      friend std::string operator + ( const name& a, const std::string& b ) {
+        return std::string(a) + b;
+      }
+      friend std::string operator + ( const std::string& a, const name& b ) {
+        return a + std::string(b);
+      }
+
+    //   friend std::string operator + ( const name& a, const name& b ) {
+    //     return std::string(a) + std::string(b);
+    //   }
+
       friend std::ostream& operator << ( std::ostream& out, const name& n ) {
-         return out << string(n);
+         return out << std::string(n);
       }
 
       friend bool operator < ( const name& a, const name& b ) { return a.value < b.value; }
@@ -95,9 +108,11 @@ namespace contento { namespace protocol {
 
       friend bool operator != ( const name& a, const name& b ) { return a.value != b.value; }
 
-      operator bool()const            { return value; }
-      operator uint64_t()const        { return value; }
-      operator unsigned __int128()const       { return value; }
+    //   operator bool()const            { return value; }
+    uint64_t to_uint64_t() const        { return value; }
+    //   operator unsigned __int128()const       { return value; }
+
+      uint64_t value = 0;
    };
 
 

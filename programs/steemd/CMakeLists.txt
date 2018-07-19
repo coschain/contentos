@@ -25,8 +25,6 @@ if( STEEM_STATIC_BUILD )
       contento_protocol
       fc
       # wasm asmjs passes cfg ast support
-      eosio_chain
-      eosio_testing
       ${CMAKE_DL_LIBS}
       ${PLATFORM_SPECIFIC_LIBS}
    )
@@ -41,8 +39,6 @@ else( STEEM_STATIC_BUILD )
       contento_protocol
       fc
       # wasm asmjs passes cfg ast support
-      eosio_chain
-      eosio_testing
       ${CMAKE_DL_LIBS}
       ${PLATFORM_SPECIFIC_LIBS}
    )

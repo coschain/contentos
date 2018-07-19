@@ -22,9 +22,9 @@ class binaryen_instantiated_module : public wasm_instantiated_module_interface {
       }
 
       void apply(apply_context& context) override {
-         LiteralList args = {Literal(uint64_t(context.receiver)),
-	                     Literal(uint64_t(context.act.account)),
-                             Literal(uint64_t(context.act.name))};
+         LiteralList args = {Literal(context.receiver.to_uint64_t()),
+	                     Literal(context.act.account.to_uint64_t()),
+                             Literal(context.act.name.to_uint64_t())};
          call("apply", args, context);
       }
 

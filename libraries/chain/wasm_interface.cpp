@@ -147,6 +147,7 @@ class privileged_api : public context_aware_api {
       }
 
       uint32_t get_blockchain_parameters_packed( array_ptr<char> packed_blockchain_parameters, size_t buffer_size) {
+            /*
          auto& gpo = context.control.get_global_properties();
 
          auto s = fc::raw::pack_size( gpo );
@@ -157,6 +158,7 @@ class privileged_api : public context_aware_api {
             fc::raw::pack(ds, gpo);
             return s;
          }
+         */
          return 0;
       }
 
@@ -1076,7 +1078,7 @@ class console_api : public context_aware_api {
 
       void printn(const name& value) {
          if ( !ignore ) {
-            context.console_append(value.to_string());
+            context.console_append(value);
          }
       }
 

@@ -8,18 +8,15 @@ namespace contento { namespace protocol {
 
    void name::set( const char* str ) {
       const auto len = strnlen(str, 14);
-      FC_ASSERT(len <= 13, "Name is longer than 13 characters (${name}) ", ("name", string(str)));
+      FC_ASSERT(len <= 13, "Name is longer than 13 characters (${name}) ", ("name", std::string(str)));
       value = string_to_name(str);
-      FC_ASSERT(to_string() == string(str),
-                 "Name not properly normalized (name: ${name}, normalized: ${normalized}) ",
-                 ("name", string(str))("normalized", to_string()));
    }
 
    // keep in sync with name::to_string() in contract definition for name
-   name::operator string()const {
+   name::operator std::string()const {
      static const char* charmap = ".12345abcdefghijklmnopqrstuvwxyz";
 
-      string str(13,'.');
+      std::string str(13,'.');
 
       uint64_t tmp = value;
       for( uint32_t i = 0; i <= 12; ++i ) {
