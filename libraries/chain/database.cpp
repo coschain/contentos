@@ -2791,7 +2791,7 @@ std::shared_ptr<transaction_context> database::_apply_transaction(const signed_t
    _current_op_in_trx = 0;
    for( const auto& op : trx.operations )
    { try {
-      apply_operation(op);
+      apply_operation(op, trx_ctx);
       ++_current_op_in_trx;
      } FC_CAPTURE_AND_RETHROW( (op) );
    }
@@ -2799,11 +2799,11 @@ std::shared_ptr<transaction_context> database::_apply_transaction(const signed_t
    return trx_ctx;
 } FC_CAPTURE_AND_RETHROW( (trx) ) }
 
-void database::apply_operation(const operation& op)
+void database::apply_operation(const operation& op, std::shared_ptr<transaction_context> ctx)
 {
    operation_notification note(op);
    notify_pre_apply_operation( note );
-   _my->_evaluator_registry.get_evaluator( op ).apply( op );
+   _my->_evaluator_registry.get_evaluator( op ).apply( op, ctx );
    notify_post_apply_operation( note );
 }
 
