@@ -1350,15 +1350,14 @@ public:
       FC_ASSERT( data_len < context.control.get_global_properties().configuration.max_inline_action_size,
                 "inline action too big" );
 
-//      std::string query = std::string(query_str, data_len);
-//      std::vector<char> vec(data_len);
-//      char* ptr = query_str.value;
-//      vec.assign(ptr, ptr + data_len);
-//      std::vector<char> result = context.on_vm_request(vec);
-//
-//      memcpy( out_result, result.data(), result.size() );
-
-      return 0;//result.size();
+      std::string query = std::string(query_str, data_len);
+      std::vector<char> vec(data_len);
+      const char* ptr = query_str;
+      vec.assign(ptr, ptr + data_len);
+      std::vector<char> result = context.on_vm_request(vec);
+      if ( length >= result.size() )
+         memcpy( out_result, result.data(), result.size() );
+      return result.size();
    }
 
 };
