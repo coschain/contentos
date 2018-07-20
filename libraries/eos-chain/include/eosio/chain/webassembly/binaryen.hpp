@@ -34,8 +34,22 @@ struct intrinsic_registrator {
    }
 };
 
-using import_lut_type = unordered_map<uintptr_t, intrinsic_registrator::intrinsic_fn>;
+struct intrinsic_price_registrator {
+    typedef uint64_t price_type;
+    
+    static auto& get_map(){
+        static map<string, price_type> _map;
+        return _map;
+    };
+        
+    intrinsic_price_registrator(const char* name, price_type price)
+    {
+        get_map()[string(name)] = price;
+    }
+};
 
+using import_info_type = pair<intrinsic_registrator::intrinsic_fn, intrinsic_price_registrator::price_type>;
+using import_lut_type = unordered_map<uintptr_t, import_info_type>;
 
 struct interpreter_interface : ModuleInstance::ExternalInterface {
    interpreter_interface(linear_memory_type& memory, call_indirect_table_type& table, import_lut_type& import_lut, const unsigned& initial_memory_size, apply_context& context)
@@ -53,9 +67,9 @@ struct interpreter_interface : ModuleInstance::ExternalInterface {
 
    Literal callImport(Import *import, LiteralList &args) override
    {
-      auto fn_iter = import_lut.find((uintptr_t)import);
-      EOS_ASSERT(fn_iter != import_lut.end(), wasm_execution_error, "unknown import ${m}:${n}", ("m", import->module.c_str())("n", import->module.c_str()));
-      return fn_iter->second(this, args);
+      auto info_iter = import_lut.find((uintptr_t)import);
+      EOS_ASSERT(info_iter != import_lut.end(), wasm_execution_error, "unknown import ${m}:${n}", ("m", import->module.c_str())("n", import->module.c_str()));
+      return info_iter->second.first(this, args);
    }
 
    Literal callTable(Index index, LiteralList& arguments, WasmType result, ModuleInstance& instance) override
@@ -709,11 +723,17 @@ struct intrinsic_function_invoker_wrapper<Ret (Cls::*)(Params...) const volatile
 #define __INTRINSIC_NAME(LABEL, SUFFIX) LABEL##SUFFIX
 #define _INTRINSIC_NAME(LABEL, SUFFIX) __INTRINSIC_NAME(LABEL,SUFFIX)
 
-#define _REGISTER_BINARYEN_INTRINSIC(CLS, MOD, METHOD, WASM_SIG, NAME, SIG)\
-   static eosio::chain::webassembly::binaryen::intrinsic_registrator _INTRINSIC_NAME(__binaryen_intrinsic_fn, __COUNTER__) (\
-      MOD "." NAME,\
-      eosio::chain::webassembly::binaryen::intrinsic_function_invoker_wrapper<SIG>::type::fn<&CLS::METHOD>()\
-   );\
+#define _REGISTER_BINARYEN_INTRINSIC_WITH_PRICE(PRICE, CLS, MOD, METHOD, WASM_SIG, NAME, SIG)\
+    static eosio::chain::webassembly::binaryen::intrinsic_registrator _INTRINSIC_NAME(__binaryen_intrinsic_fn, __COUNTER__) (\
+        MOD "." NAME,\
+        eosio::chain::webassembly::binaryen::intrinsic_function_invoker_wrapper<SIG>::type::fn<&CLS::METHOD>()\
+    );\
+    static eosio::chain::webassembly::binaryen::intrinsic_price_registrator _INTRINSIC_NAME(__binaryen_intrinsic_price, __COUNTER__) (\
+        MOD "." NAME,\
+        PRICE\
+    );
 
+#define _REGISTER_BINARYEN_INTRINSIC(CLS, MOD, METHOD, WASM_SIG, NAME, SIG)\
+    _REGISTER_BINARYEN_INTRINSIC_WITH_PRICE(0, CLS, MOD, METHOD, WASM_SIG, NAME, SIG)
 
 } } } }// eosio::chain::webassembly::wavm
