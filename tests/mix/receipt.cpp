@@ -41,7 +41,56 @@ static bool comment_exists(database &db, std::string author, std::string permlin
 
 BOOST_FIXTURE_TEST_SUITE( trx_receipt, mix_fixture )
 
-BOOST_AUTO_TEST_CASE( testone )
+    //1.正常值测试
+    //2.边缘值测试
+    //3.非法值测试
+BOOST_AUTO_TEST_CASE( normal )
+{
+    //填写要花费的gas
+    //发起虚拟机交易
+    //检查receipt中的消耗gas，消耗相应gas
+    //检查自己的COC余额，减少gas对应COC
+    
+    //填写要花费的gas
+    //发起普通交易
+    //检查receipt中的消耗gas，不应消耗gas
+    //检查自己的COC余额，不变
+   
+    //
+}
+
+BOOST_AUTO_TEST_CASE( invalid ) 
+{
+    //填写要花费的gas
+    //发起虚拟机交易，执行非法操作（未执行vm就失败）
+    //验证交易失败 #怎么知道交易失败？有返回值？
+    //检查receipt中的消耗gas，不应消耗gas
+    //检查自己的COC余额，不变
+    
+    //填写要花费的gas
+    //发起虚拟机交易，执行非法操作（已执行vm后失败）
+    //验证交易失败
+    //检查receipt中的消耗gas，消耗相应gas
+    //检查自己的COC余额，减少
+
+    //填写要花费的gas，gas=0
+    //发起虚拟机交易
+    //验证交易失败，gas不足
+    //检查自己的COC余额
+
+    //填写要花费的gas，gas=MAX_INT
+    //发起虚拟机交易
+    //检查receipt中的消耗gas
+    //检查自己的COC余额，减少gas对应COC
+
+    //填写要花费的gas，gas<require
+    //发起虚拟机交易
+    //验证交易失败，gas不足
+    //检查receipt中的消耗gas，应该消耗一部分
+    //检查自己的COC余额，应该减少一部分
+}
+
+BOOST_AUTO_TEST_CASE( testtwo )
 {
     // alice published a post. bob replied.  ACTORS((alice)(bob));
     ACTORS((alice)(bob));
