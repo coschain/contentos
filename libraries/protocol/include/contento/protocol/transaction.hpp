@@ -104,8 +104,8 @@ namespace contento { namespace protocol {
    };
 
    struct transaction_invoice {
-         int status = 200;
-         int gas_usage = 0;
+         uint32_t status = 200;
+         uint32_t gas_usage = 0;
    };
 
    struct transaction_wrapper {
@@ -126,14 +126,18 @@ namespace contento { namespace protocol {
                           const flat_set< account_name_type >& posting_approvals = flat_set< account_name_type >());
 
 
-   struct annotated_signed_transaction : public signed_transaction {
+   struct annotated_signed_transaction {
       annotated_signed_transaction(){}
-      annotated_signed_transaction( const signed_transaction& trx )
-      :signed_transaction(trx),transaction_id(trx.id()){}
+      annotated_signed_transaction( const signed_transaction& trx ){
+            sig_trx = trx;
+      }
 
-      transaction_id_type transaction_id;
-      uint32_t            block_num = 0;
-      uint32_t            transaction_num = 0;
+      transaction_id_type       transaction_id;
+      uint32_t                  block_num = 0;
+      uint32_t                  transaction_num = 0;
+
+      signed_transaction        sig_trx;
+      transaction_invoice       invoice;
    };
 
 
@@ -142,8 +146,9 @@ namespace contento { namespace protocol {
 } } // contento::protocol
 
 FC_REFLECT( contento::protocol::transaction, (ref_block_num)(ref_block_prefix)(expiration)(operations)(extensions) )
-FC_REFLECT_DERIVED( contento::protocol::signed_transaction, (contento::protocol::transaction), (signatures) )
-FC_REFLECT_DERIVED( contento::protocol::annotated_signed_transaction, (contento::protocol::signed_transaction), (transaction_id)(block_num)(transaction_num) );
+FC_REFLECT_DERIVED( contento::protocol::signed_transaction, (contento::protocol::transaction), (signatures) );
+
+FC_REFLECT( contento::protocol::annotated_signed_transaction, (sig_trx)(invoice)(transaction_id)(block_num)(transaction_num) );
 
 FC_REFLECT( contento::protocol::transaction_invoice, (status)(gas_usage) );
 FC_REFLECT( contento::protocol::transaction_wrapper, (sig_trx)(invoice) );

@@ -524,7 +524,7 @@ public:
          return tx;
    } FC_CAPTURE_AND_RETHROW( (account_name)(creator_account_name)(broadcast) ) }
 
-   signed_transaction set_voting_proxy(string account_to_modify, string proxy, bool broadcast /* = false */)
+   annotated_signed_transaction set_voting_proxy(string account_to_modify, string proxy, bool broadcast /* = false */)
    { try {
       account_witness_proxy_operation op;
       op.account = account_to_modify;
@@ -697,8 +697,11 @@ public:
          try {
             auto result = _remote_net_broadcast->broadcast_transaction_synchronous( tx );
             annotated_signed_transaction rtrx(tx);
+            rtrx.transaction_id = tx.id();
             rtrx.block_num = result.get_object()["block_num"].as_uint64();
             rtrx.transaction_num = result.get_object()["trx_num"].as_uint64();
+            rtrx.invoice.status = result.get_object()["status"].as_uint64();
+            rtrx.invoice.gas_usage = result.get_object()["gas_usage"].as_uint64();
             return rtrx;
          }
          catch (const fc::exception& e)

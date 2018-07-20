@@ -2259,8 +2259,11 @@ annotated_signed_transaction database_api::get_transaction( transaction_id_type 
          FC_ASSERT( blk.valid() );
          FC_ASSERT( blk->transactions.size() > itr->trx_in_block );
          annotated_signed_transaction result = blk->transactions[itr->trx_in_block].sig_trx;
-         result.block_num       = itr->block;
-         result.transaction_num = itr->trx_in_block;
+         result.transaction_id = blk->transactions[itr->trx_in_block].sig_trx.id();
+         result.block_num         = itr->block;
+         result.transaction_num   = itr->trx_in_block;
+         result.invoice.status    = blk->transactions[itr->trx_in_block].invoice.status;
+         result.invoice.gas_usage = blk->transactions[itr->trx_in_block].invoice.gas_usage;
          return result;
       }
       FC_ASSERT( false, "Unknown Transaction ${t}", ("t",id));
