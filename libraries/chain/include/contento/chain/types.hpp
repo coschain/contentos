@@ -116,7 +116,7 @@ namespace contento { namespace chain {
    //using share_type          = int64_t;
    using int128_t            = __int128;
    //using uint128_t           = unsigned __int128;
-   using bytes               = vector<char>;
+   using bytes               = protocol::bytes;
 
 
    /**

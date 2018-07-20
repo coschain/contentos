@@ -2,6 +2,7 @@
 #include <contento/protocol/base.hpp>
 #include <contento/protocol/block_header.hpp>
 #include <contento/protocol/asset.hpp>
+#include <contento/protocol/types.hpp>
 
 #include <fc/utf8.hpp>
 #include <fc/crypto/equihash.hpp>
@@ -908,6 +909,43 @@ namespace contento { namespace protocol {
       void get_required_active_authorities( flat_set< account_name_type >& a ) const { a.insert( delegator ); }
       void validate() const;
    };
+
+   struct vm_operation : public base_operation {
+      account_name_type          caller;
+      account_name_type          contract_account;
+      name                       action_name;
+      bytes                      data;
+
+      vm_operation() {}
+
+      template<typename T, std::enable_if_t<std::is_base_of<bytes, T>::value>* = nullptr>
+      vm_operation( const T& value ) {
+         contract_account     = T::get_account();
+         action_name        = T::get_name();
+         data.assign(value.data(), value.data() + value.size());
+      }
+
+      template<typename T, std::enable_if_t<!std::is_base_of<bytes, T>::value>* = nullptr>
+      vm_operation( const T& value ) {
+         contract_account     = T::get_account();
+         action_name        = T::get_name();
+         data        = fc::raw::pack(value);
+      }
+
+      vm_operation( account_name_type account, name name, const bytes& data )
+            : contract_account(account), action_name(name), data(data) {
+      }
+
+      template<typename T>
+      T as()const {
+         FC_ASSERT( contract_account == T::get_account() );
+         FC_ASSERT( action_name == T::get_name()  );
+         return fc::raw::unpack<T>(data);
+      }
+
+      void get_required_active_authorities( flat_set< account_name_type >& a ) const { a.insert( caller ); }
+      void validate() const;
+   };
 } } // contento::protocol
 
 
@@ -1001,3 +1039,4 @@ FC_REFLECT( contento::protocol::change_recovery_account_operation, (account_to_r
 FC_REFLECT( contento::protocol::decline_voting_rights_operation, (account)(decline) );
 FC_REFLECT( contento::protocol::claim_reward_balance_operation, (account)(reward_steem)(reward_sbd)(reward_vests) )
 FC_REFLECT( contento::protocol::delegate_vesting_shares_operation, (delegator)(delegatee)(vesting_shares) );
+FC_REFLECT( contento::protocol::vm_operation, (caller)(contract_account)(action_name)(data) )

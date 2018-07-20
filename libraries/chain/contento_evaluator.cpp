@@ -2460,4 +2460,7 @@ void delegate_vesting_shares_evaluator::do_apply( const delegate_vesting_shares_
    }
 }
 
+void vm_evaluator::do_apply( const vm_operation& o ) 
+{}
+
 } } // contento::chain

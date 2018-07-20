@@ -508,4 +508,10 @@ namespace contento { namespace protocol {
       FC_ASSERT( vesting_shares >= asset( 0, VESTS_SYMBOL ), "Delegation cannot be negative" );
    }
 
+   void vm_operation::validate() const {
+      validate_account_name( caller );
+      validate_account_name( contract_account );
+      validate_account_name( action_name );
+   }
+
 } } // contento::protocol

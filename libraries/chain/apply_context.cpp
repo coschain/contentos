@@ -14,19 +14,19 @@ using boost::container::flat_set;
 
 namespace contento { namespace chain {
 
-static inline void print_debug(account_name receiver, const action_trace& ar) {
-   if (!ar.console.empty()) {
-      auto prefix = fc::format_string(
-                                      "\n[(${a},${n})->${r}]",
-                                      fc::mutable_variant_object()
-                                      ("a", ar.act.account)
-                                      ("n", ar.act.name)
-                                      ("r", receiver));
-      dlog(prefix + ": CONSOLE OUTPUT BEGIN =====================\n"
-           + ar.console
-           + prefix + ": CONSOLE OUTPUT END   =====================" );
-   }
-}
+// static inline void print_debug(account_name receiver, const action_trace& ar) {
+//    if (!ar.console.empty()) {
+//       auto prefix = fc::format_string(
+//                                       "\n[(${a},${n})->${r}]",
+//                                       fc::mutable_variant_object()
+//                                       ("a", ar.act.account)
+//                                       ("n", ar.act.name)
+//                                       ("r", receiver));
+//       dlog(prefix + ": CONSOLE OUTPUT BEGIN =====================\n"
+//            + ar.console
+//            + prefix + ": CONSOLE OUTPUT END   =====================" );
+//    }
+// }
 
 action_trace apply_context::exec_one()
 {
