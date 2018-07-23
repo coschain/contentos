@@ -143,8 +143,8 @@ namespace eosio { namespace chain {
 // We still keep supporting old macros REGISTER_INTRINSICS & REGISTER_INJECTED_INTRINSICS.
 // Intrinsics defined by old macros have a price of zero.
 //
-#define _INFO_PRICE_1(...)  ((__VA_ARGS__),0) _INFO_PRICE_2
-#define _INFO_PRICE_2(...)  ((__VA_ARGS__),0) _INFO_PRICE_1
+#define _INFO_PRICE_1(...)  ((__VA_ARGS__),nullptr) _INFO_PRICE_2
+#define _INFO_PRICE_2(...)  ((__VA_ARGS__),nullptr) _INFO_PRICE_1
 #define _INFO_PRICE_1_END
 #define _INFO_PRICE_2_END
 #define _ADD_PRICE(INFO)    BOOST_PP_CAT(_INFO_PRICE_1 INFO, _END)

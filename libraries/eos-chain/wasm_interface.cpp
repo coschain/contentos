@@ -1818,6 +1818,8 @@ REGISTER_INTRINSICS(console_api,
    (printhex,              void(int, int) )
 );
 
+
+
 REGISTER_INTRINSICS(context_free_transaction_api,
    (read_transaction,       int(int, int)            )
    (transaction_size,       int()                    )
@@ -1836,7 +1838,7 @@ REGISTER_INTRINSICS(transaction_api,
 
 REGISTER_INTRINSICS(context_free_api,
    (get_context_free_data, int(int, int, int) )
-)
+);
 
 REGISTER_INTRINSICS(memory_api,
    (memcpy,                 int(int, int, int)  )
@@ -1844,6 +1846,8 @@ REGISTER_INTRINSICS(memory_api,
    (memcmp,                 int(int, int, int)  )
    (memset,                 int(int, int, int)  )
 );
+
+ 
 
 REGISTER_INJECTED_INTRINSICS(softfloat_api,
       (_eosio_f32_add,       float(float, float)    )

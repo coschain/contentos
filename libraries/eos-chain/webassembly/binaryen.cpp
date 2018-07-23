@@ -93,7 +93,7 @@ std::unique_ptr<wasm_instantiated_module_interface> binaryen_runtime::instantiat
 
             if (intrinsic_itr != intrinsic_map.end()) {
 
-                intrinsic_price_registrator::price_type price = 0;
+                intrinsic_price_registrator::price_fn price = intrinsic_price_registrator::price(0);
                 if (price_itr != price_map.end())
                     price = price_itr->second;
 

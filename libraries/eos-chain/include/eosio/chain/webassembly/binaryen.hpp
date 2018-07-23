@@ -35,20 +35,24 @@ struct intrinsic_registrator {
 };
 
 struct intrinsic_price_registrator {
-    typedef uint64_t price_type;
+    using price_fn = std::function<uint64_t(apply_context*, Literal&)>;
     
     static auto& get_map(){
-        static map<string, price_type> _map;
+        static map<string, price_fn> _map;
         return _map;
     };
         
-    intrinsic_price_registrator(const char* name, price_type price)
+    intrinsic_price_registrator(const char* name, price_fn fn)
     {
-        get_map()[string(name)] = price;
+        get_map()[string(name)] = fn;
+    }
+    
+    static price_fn price(uint64_t r) {
+        return [=](apply_context*, Literal&) { return r; };
     }
 };
 
-using import_info_type = pair<intrinsic_registrator::intrinsic_fn, intrinsic_price_registrator::price_type>;
+using import_info_type = pair<intrinsic_registrator::intrinsic_fn, intrinsic_price_registrator::price_fn>;
 using import_lut_type = unordered_map<uintptr_t, import_info_type>;
 
 struct interpreter_interface : ModuleInstance::ExternalInterface {
@@ -714,6 +718,47 @@ struct intrinsic_function_invoker_wrapper<Ret (Cls::*)(Params...) const volatile
    using type = intrinsic_function_invoker<Ret, Ret (Cls::*)(Params...) const volatile, Cls, Params...>;
 };
 
+template<typename> struct intrinsic_wasm_ret;
+
+template<typename Ret, typename... Params>
+struct intrinsic_wasm_ret<Ret(Params...)> {
+    using type = Ret;
+};
+
+    
+template<typename R>
+struct intrinsic_price_function_wrapper {
+    using f_type = uint64_t(*)(apply_context*, R);
+    using price_fn = intrinsic_price_registrator::price_fn;
+
+    intrinsic_price_function_wrapper(f_type f) : _fp(f) {}
+    
+    price_fn fn() {
+        return [=](apply_context *context, Literal& v) {
+            return _fp? _fp( context, convert_literal_to_native<R>(v) ) : 0;
+        };
+    }
+
+    f_type _fp;
+};
+
+template<>
+struct intrinsic_price_function_wrapper<void> {
+    using f_type = uint64_t(*)(apply_context*);
+    using price_fn = intrinsic_price_registrator::price_fn;
+        
+    intrinsic_price_function_wrapper(f_type f) : _fp(f) {}
+
+    price_fn fn() {
+        return [=](apply_context *context, Literal&) {
+            return _fp? _fp( context ) : 0;
+        };
+    }
+    
+    f_type _fp;
+};
+
+
 #define _ADD_PAREN_1(...) ((__VA_ARGS__)) _ADD_PAREN_2
 #define _ADD_PAREN_2(...) ((__VA_ARGS__)) _ADD_PAREN_1
 #define _ADD_PAREN_1_END
@@ -730,10 +775,11 @@ struct intrinsic_function_invoker_wrapper<Ret (Cls::*)(Params...) const volatile
     );\
     static eosio::chain::webassembly::binaryen::intrinsic_price_registrator _INTRINSIC_NAME(__binaryen_intrinsic_price, __COUNTER__) (\
         MOD "." NAME,\
-        PRICE\
+        eosio::chain::webassembly::binaryen::intrinsic_price_function_wrapper\
+            <eosio::chain::webassembly::binaryen::intrinsic_wasm_ret<WASM_SIG>::type>(PRICE).fn()\
     );
 
 #define _REGISTER_BINARYEN_INTRINSIC(CLS, MOD, METHOD, WASM_SIG, NAME, SIG)\
-    _REGISTER_BINARYEN_INTRINSIC_WITH_PRICE(0, CLS, MOD, METHOD, WASM_SIG, NAME, SIG)
+    _REGISTER_BINARYEN_INTRINSIC_WITH_PRICE(nullptr, CLS, MOD, METHOD, WASM_SIG, NAME, SIG)
 
 } } } }// eosio::chain::webassembly::wavm
