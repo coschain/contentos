@@ -113,6 +113,7 @@ class block_stats_object;
 class reward_fund_object;
 class vesting_delegation_object;
 class vesting_delegation_expiration_object;
+/*
 class table_id_object;
 class key_value_object;
 class index64_object;
@@ -120,7 +121,7 @@ class index128_object;
 class index256_object;
 class index_double_object;
 class index_long_double_object;
-class account_sequence_object;
+class account_sequence_object;*/
 
 typedef oid< dynamic_global_property_object         > dynamic_global_property_id_type;
 typedef oid< dynamic_global_reward_property_object  > dynamic_global_reward_property_id_type;

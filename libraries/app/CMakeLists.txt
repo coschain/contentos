@@ -9,7 +9,7 @@ add_library( contento_app
              ${HEADERS}
            )
 
-target_link_libraries( contento_app contento_chain contento_protocol contento_tags contento_follow contento_witness contento_mf_plugins fc graphene_net graphene_utilities )
+target_link_libraries( contento_app contento_chain contento_protocol contento_tags contento_follow contento_witness contento_mf_plugins contento_vmapi fc graphene_net graphene_utilities )
 target_include_directories( contento_app
                             PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" )
 

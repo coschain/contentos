@@ -29,6 +29,7 @@
 #include <contento/chain/contento_objects.hpp>
 #include <contento/chain/contento_object_types.hpp>
 #include <contento/chain/database_exceptions.hpp>
+#include <contento/vmapi/contento_vm_api.hpp>
 
 #include <fc/time.hpp>
 
@@ -279,12 +280,12 @@ namespace detail {
 
          fc::api_id_type id_call;
          std::string api_name = call.params[0].as_string();
-         for( const std::string& name : _public_apis )
+         for( const std::string& name : _vm_apis )
          {
-            api_context ctx( *_self, name, session );
             if (name != api_name){
                continue;
             }
+            api_context ctx( *_self, name, session );
             fc::api_ptr api = create_api_by_name( ctx );
             if( !api )
             {
@@ -293,6 +294,7 @@ namespace detail {
             }
             session->api_map[name] = api;
             id_call = api->register_api( *vm_api_server );
+            break;
          }
 
          try{
@@ -340,6 +342,7 @@ namespace detail {
       {
          _self->register_api_factory< login_api >( "login_api" );
          _self->register_api_factory< database_api >( "database_api" );
+         _self->register_api_factory< contento_vm_api >( "contento_vm_api" );
          _self->register_api_factory< network_node_api >( "network_node_api" );
          _self->register_api_factory< network_broadcast_api >( "network_broadcast_api" );
       }
@@ -478,6 +481,9 @@ namespace detail {
                _public_apis.push_back( name );
             }
          }
+
+         _vm_apis.push_back("contento_vm_api");
+
          _running = true;
 
          if( !read_only )
@@ -1024,6 +1030,7 @@ namespace detail {
       std::map<string, std::shared_ptr<abstract_plugin> > _plugins_enabled;
       flat_map< std::string, std::function< fc::api_ptr( const api_context& ) > >   _api_factories_by_name;
       std::vector< std::string >                       _public_apis;
+      std::vector< std::string >                       _vm_apis;
       int32_t                                          _max_block_age = -1;
       uint64_t                                         _shared_file_size;
 

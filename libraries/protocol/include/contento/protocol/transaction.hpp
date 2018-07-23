@@ -61,6 +61,7 @@ namespace contento { namespace protocol {
 
    struct signed_transaction : public transaction
    {
+
       signed_transaction( const transaction& trx = transaction() )
          : transaction(trx){}
 
@@ -102,6 +103,18 @@ namespace contento { namespace protocol {
       void clear() { operations.clear(); signatures.clear(); }
    };
 
+   struct transaction_invoice {
+         int status = 200;
+         int gas_usage = 0;
+   };
+
+   struct transaction_wrapper {
+         signed_transaction sig_trx;
+         transaction_invoice invoice;
+
+         digest_type merkle_digest()const;
+   };
+
    void verify_authority( const vector<operation>& ops, const flat_set<public_key_type>& sigs,
                           const authority_getter& get_active,
                           const authority_getter& get_owner,
@@ -131,3 +144,6 @@ namespace contento { namespace protocol {
 FC_REFLECT( contento::protocol::transaction, (ref_block_num)(ref_block_prefix)(expiration)(operations)(extensions) )
 FC_REFLECT_DERIVED( contento::protocol::signed_transaction, (contento::protocol::transaction), (signatures) )
 FC_REFLECT_DERIVED( contento::protocol::annotated_signed_transaction, (contento::protocol::signed_transaction), (transaction_id)(block_num)(transaction_num) );
+
+FC_REFLECT( contento::protocol::transaction_invoice, (status)(gas_usage) );
+FC_REFLECT( contento::protocol::transaction_wrapper, (sig_trx)(invoice) );

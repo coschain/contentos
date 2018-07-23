@@ -711,14 +711,18 @@ void database::_push_transaction( const signed_transaction& trx )
    if( !_pending_tx_session.valid() )
       _pending_tx_session = start_undo_session( true );
 
+    // wrap transaction with invoice
+    transaction_wrapper trx_wrapper;
+    trx_wrapper.sig_trx = trx;
+
    // Create a temporary undo session as a child of _pending_tx_session.
    // The temporary session will be discarded by the destructor if
    // _apply_transaction fails.  If we make it to merge(), we
    // apply the changes.
 
    auto temp_session = start_undo_session( true );
-   _apply_transaction( trx );
-   _pending_tx.push_back( trx );
+   _apply_transaction( trx_wrapper );
+   _pending_tx.push_back( trx_wrapper );
 
    notify_changed_objects();
    // The transaction applied successfully. Merge its changes into the pending block session.
@@ -789,15 +793,15 @@ signed_block database::_generate_block(
 
       uint64_t postponed_tx_count = 0;
       // pop pending state (reset to head block state)
-      for( const signed_transaction& tx : _pending_tx )
+      for( const transaction_wrapper& trx_wrapper : _pending_tx )
       {
          // Only include transactions that have not expired yet for currently generating block,
          // this should clear problem transactions and allow block production to continue
 
-         if( tx.expiration < when )
+         if( trx_wrapper.sig_trx.expiration < when )
             continue;
 
-         uint64_t new_total_size = total_block_size + fc::raw::pack_size( tx );
+         uint64_t new_total_size = total_block_size + fc::raw::pack_size( trx_wrapper );
 
          // postpone transaction if it would make block too big
          if( new_total_size >= maximum_block_size )
@@ -809,11 +813,11 @@ signed_block database::_generate_block(
          try
          {
             auto temp_session = start_undo_session( true );
-            _apply_transaction( tx );
+            _apply_transaction( trx_wrapper );
             temp_session.squash();
 
-            total_block_size += fc::raw::pack_size( tx );
-            pending_block.transactions.push_back( tx );
+            total_block_size += fc::raw::pack_size( trx_wrapper );
+            pending_block.transactions.push_back( trx_wrapper );
          }
          catch ( const fc::exception& e )
          {
@@ -2335,12 +2339,12 @@ void database::init_genesis( uint64_t init_supply )
 }
 
 
-void database::validate_transaction( const signed_transaction& trx )
+void database::validate_transaction( const transaction_wrapper& trx_wrapper )
 {
    database::with_write_lock( [&]()
    {
       auto session = start_undo_session( true );
-      _apply_transaction( trx );
+      _apply_transaction( trx_wrapper );
       session.undo();
    });
 }
@@ -2551,7 +2555,7 @@ void database::_apply_block( const signed_block& next_block )
       );
 //   }
 
-   for( const auto& trx : next_block.transactions )
+   for( const auto& trx_wrapper : next_block.transactions )
    {
       /* We do not need to push the undo state for each transaction
        * because they either all apply and are valid or the
@@ -2559,7 +2563,7 @@ void database::_apply_block( const signed_block& next_block )
        * for transactions when validating broadcast transactions or
        * when building a block.
        */
-      apply_transaction( trx, skip );
+      apply_transaction( trx_wrapper, skip );
       ++_current_trx_in_block;
    }
 
@@ -2712,14 +2716,17 @@ try {
    }
 } FC_CAPTURE_AND_RETHROW() }
 
-void database::apply_transaction(const signed_transaction& trx, uint32_t skip)
+void database::apply_transaction(const transaction_wrapper& trx_wrapper, uint32_t skip)
 {
-   detail::with_skip_flags( *this, skip, [&]() { _apply_transaction(trx); });
-   notify_on_applied_transaction( trx );
+   detail::with_skip_flags( *this, skip, [&]() { _apply_transaction(trx_wrapper); });
+   notify_on_applied_transaction( trx_wrapper.sig_trx );
 }
 
-std::shared_ptr<transaction_context> database::_apply_transaction(const signed_transaction& trx)
+
+std::shared_ptr<transaction_context> database::_apply_transaction(const transaction_wrapper& trx_wrapper)
 { try {
+   auto trx = trx_wrapper.sig_trx;
+
    _current_trx_id = trx.id();
    uint32_t skip = get_node_properties().skip_flags;
 
@@ -2796,8 +2803,10 @@ std::shared_ptr<transaction_context> database::_apply_transaction(const signed_t
      } FC_CAPTURE_AND_RETHROW( (op) );
    }
    _current_trx_id = transaction_id_type();
+
    return trx_ctx;
-} FC_CAPTURE_AND_RETHROW( (trx) ) }
+} FC_CAPTURE_AND_RETHROW( (trx_wrapper) ) }
+
 
 void database::apply_operation(const operation& op, std::shared_ptr<transaction_context> ctx)
 {
