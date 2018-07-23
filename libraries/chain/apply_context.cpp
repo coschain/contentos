@@ -28,79 +28,50 @@ namespace contento { namespace chain {
 //    }
 // }
 
-action_trace apply_context::exec_one()
+void apply_context::exec_one()
 {
-   auto start = fc::time_point::now();
-
    //const auto& cfg = control.get_global_properties().configuration;
    try {
       const auto &a = control.get_account(receiver);
       privileged = a.privileged;
-      auto native = control.find_apply_handler(receiver, act.account, act.name);
+      auto native = control.find_apply_handler(receiver, op.contract_name, op.action_name);
       if( native ) {
          (*native)(*this);
+         return;
       }
 
       if( a.code.size() > 0
-          && !(act.account == config::system_account_name && act.name == N(setcode) && receiver == config::system_account_name) )
+          && !(op.contract_name == config::system_account_name && op.action_name == N(setcode) && receiver == config::system_account_name) )
       {
          try {
             control.get_wasm_interface().apply(a.code_version, a.code, *this);
          } catch ( const wasm_exit& ){}
       }
 
-
    } FC_CAPTURE_AND_RETHROW((_pending_console_output.str()));
 
-   action_receipt r;
-   r.receiver         = receiver;
-   r.act_digest       = digest_type::hash(act);
-   r.global_sequence  = next_global_sequence();
-   r.recv_sequence    = next_recv_sequence( receiver );
-
-   const auto& account_sequence = db.get<account_sequence_object, by_name>(act.account);
-   r.code_sequence    = account_sequence.code_sequence;
-   r.abi_sequence     = account_sequence.abi_sequence;
-
-   action_trace t(r);
-   //t.trx_id = trx_context.id;
-   t.act = act;
-   t.console = _pending_console_output.str();
-
-   //trx_context.executed.emplace_back( move(r) );
-
-
+   // TODOO: print debug
    reset_console();
-
-   t.elapsed = fc::time_point::now() - start;
-   return t;
 }
 
 void apply_context::exec()
 {
    _notified.push_back(receiver);
-   trace = exec_one();
+   exec_one();
    for( uint32_t i = 1; i < _notified.size(); ++i ) {
       receiver = _notified[i];
-      trace.inline_traces.emplace_back( exec_one() );
+      exec_one();
    }
 
-////Y
-  //  if( _cfa_inline_actions.size() > 0 || _inline_actions.size() > 0 ) {
-  //     EOS_ASSERT( recurse_depth < control.get_global_properties().configuration.max_inline_action_depth,
-  //                 transaction_exception, "inline action recursion depth reached" );
-  //  }
+   if(_inline_ops.size() > 0 ) {
+      EOS_ASSERT( recurse_depth < 10, /*TODOO: put this in config*/
+                  transaction_exception, "inline vm_operation recursion depth reached" );
+   }
 
-  //  for( const auto& inline_action : _cfa_inline_actions ) {
-  //     trace.inline_traces.emplace_back();
-  //     trx_context.dispatch_action( trace.inline_traces.back(), inline_action, inline_action.account, true, recurse_depth + 1 );
-  //  }
-/*
-   for( const auto& inline_action : _inline_actions ) {
+   for( const auto& inline_op : _inline_ops ) {
       trace.inline_traces.emplace_back();
-      trx_context.dispatch_action( trace.inline_traces.back(), inline_action, inline_action.account, false, recurse_depth + 1 );
+      trx_context.apply( inline_op, inline_op.contract_name, false, recurse_depth + 1 );
    }
- */
 
 } /// exec()
 
@@ -143,11 +114,11 @@ void apply_context::require_recipient( account_name recipient ) {
 
 
 /*
- *  This will execute an action after checking the authorization. Inline transactions are
+ *  This will execute an vm_operation after checking the authorization. Inline transactions are
  *  implicitly authorized by the current receiver (running code). This method has significant
  *  security considerations and several options have been considered:
  *
- *  1. priviledged accounts (those marked as such by block producers) can authorize any action
+ *  1. priviledged accounts (those marked as such by block producers) can authorize any vm_operation
  *  2. all other actions are only authorized by 'receiver' which means the following:
  *         a. the user must set permissions on their account to allow the 'receiver' to act on their behalf
  *
@@ -157,17 +128,17 @@ void apply_context::require_recipient( account_name recipient ) {
  *   ask the user for permission to take certain actions rather than making it implicit. This way users
  *   can better understand the security risk.
  */
-void apply_context::execute_inline( action&& a ) {
-   auto* code = control.db().find<account_object, by_name>(a.account);
+void apply_context::execute_inline( vm_operation&& op ) {
+   auto* code = control.db().find<account_object, by_name>(op.contract_name);
    EOS_ASSERT( code != nullptr, action_validate_exception,
-               "inline action's code account ${account} does not exist", ("account", a.account) );
+               "inline vm_operation's code account ${account} does not exist", ("account", op.contract_name) );
 
     /*
    for( const auto& auth : a.authorization ) {
       auto* actor = control.db().find<account_object, by_name>(auth.actor);
 
       EOS_ASSERT( actor != nullptr, action_validate_exception,
-                  "inline action's authorizing actor ${account} does not exist", ("account", auth.actor) );
+                  "inline vm_operation's authorizing actor ${account} does not exist", ("account", auth.actor) );
    }*/
 
    // No need to check authorization if: replaying irreversible blocks; contract is privileged; or, contract is calling itself.
@@ -185,18 +156,18 @@ void apply_context::execute_inline( action&& a ) {
      
 
       //QUESTION: Is it smart to allow a deferred transaction that has been delayed for some time to get away
-      //          with sending an inline action that requires a delay even though the decision to send that inline
-      //          action was made at the moment the deferred transaction was executed with potentially no forewarning?
+      //          with sending an inline vm_operation that requires a delay even though the decision to send that inline
+      //          vm_operation was made at the moment the deferred transaction was executed with potentially no forewarning?
    }*/
 
-   _inline_actions.emplace_back( move(a) );
+   _inline_ops.emplace_back( move(op) );
 }
 
 ////Y
-// void apply_context::execute_context_free_inline( action&& a ) {
+// void apply_context::execute_context_free_inline( vm_operation&& a ) {
 //    auto* code = control.db().find<account_object, by_name>(a.account);
 //    EOS_ASSERT( code != nullptr, action_validate_exception,
-//                "inline action's code account ${account} does not exist", ("account", a.account) );
+//                "inline vm_operation's code account ${account} does not exist", ("account", a.account) );
 
 //    EOS_ASSERT( a.authorization.size() == 0, action_validate_exception,
 //                "context-free actions cannot have authorizations" );
@@ -256,7 +227,7 @@ int apply_context::get_action( uint32_t type, uint32_t index, char* buffer, size
 {
     /* TODOO:
    const auto& trx = trx_context.trx;
-   const action* act_ptr = nullptr;
+   const vm_operation* act_ptr = nullptr;
 
    if( type == 0 ) {
       ////Y
@@ -271,7 +242,7 @@ int apply_context::get_action( uint32_t type, uint32_t index, char* buffer, size
       act_ptr = &trx.actions[index];
    }
 
-   FC_ASSERT(act_ptr, "action is not found" );
+   FC_ASSERT(act_ptr, "vm_operation is not found" );
 
    auto ps = fc::raw::pack_size( *act_ptr );
    if( ps <= buffer_size ) {

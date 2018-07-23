@@ -1,6 +1,7 @@
 #pragma once
 #include <contento/chain/controller.hpp>
 #include <contento/chain/trace.hpp>
+#include <contento/protocol/contento_operations.hpp>
 
 namespace contento { namespace chain {
 
@@ -30,18 +31,14 @@ namespace contento { namespace chain {
 
          void add_ram_usage( account_name account, int64_t ram_delta );
 
+         void apply( const vm_operation& op, account_name receiver, bool context_free = false, uint32_t recurse_depth = 0 );
+         inline void apply( const vm_operation& op, bool context_free = false ) {
+            apply(op, op.contract_name, context_free);
+         };
       private:
 
          friend struct controller_impl;
          friend class apply_context;
-
-         void dispatch_action( action_trace& trace, const action& a, account_name receiver, bool context_free = false, uint32_t recurse_depth = 0 );
-         inline void dispatch_action( action_trace& trace, const action& a, bool context_free = false ) {
-            dispatch_action(trace, a, a.account, context_free);
-         };
-         void record_transaction( const transaction_id_type& id, fc::time_point_sec expire );
-
-         void validate_cpu_usage_to_bill( int64_t u, bool check_minimum = true )const;
 
       /// Fields:
       public:

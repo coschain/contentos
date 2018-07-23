@@ -1,5 +1,6 @@
 #include <contento/chain/contento_evaluator.hpp>
 #include <contento/chain/database.hpp>
+#include <contento/chain/action.hpp>
 #include <contento/chain/custom_operation_interpreter.hpp>
 #include <contento/chain/contento_objects.hpp>
 #include <contento/chain/witness_objects.hpp>
@@ -2460,7 +2461,8 @@ void delegate_vesting_shares_evaluator::do_apply( const delegate_vesting_shares_
    }
 }
 
-void vm_evaluator::do_apply( const vm_operation& o ) 
-{}
+void vm_evaluator::do_apply( const vm_operation& o )  {
+    ctx->apply(o);
+}
 
 } } // contento::chain

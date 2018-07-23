@@ -22,8 +22,8 @@ namespace contento { namespace chain {
 void apply_contento_setcode(apply_context& context) {
 
    auto& db = context.db;
-   auto  act = context.act.data_as<setcode>();
-   context.require_authorization(act.account);
+   auto  act = context.op.as<setcode>();
+   // TODOO: context.require_authorization(act.account);
 
    FC_ASSERT( act.vmtype == 0 );
    FC_ASSERT( act.vmversion == 0 );
@@ -54,13 +54,13 @@ void apply_contento_setcode(apply_context& context) {
 
    });
 
-    /* TODO:
+    /* TODOO:
    const auto& account_sequence = db.get<account_sequence_object, by_name>(act.account);
    db.modify( account_sequence, [&]( auto& aso ) {
       aso.code_sequence += 1;
    });*/
 
-    /* TODO:
+    /* TODOO:
     if (new_size != old_size) {
       context.trx_context.add_ram_usage( act.account, new_size - old_size );
    }*/
@@ -68,9 +68,9 @@ void apply_contento_setcode(apply_context& context) {
 
 void apply_contento_setabi(apply_context& context) {
    auto& db  = context.db;
-   auto  act = context.act.data_as<setabi>();
+   auto  act = context.op.as<setabi>();
 
-   context.require_authorization(act.account);
+   // TODOO: context.require_authorization(act.account);
 
    const auto& account = db.get<account_object,by_name>(act.account);
 
@@ -84,13 +84,13 @@ void apply_contento_setabi(apply_context& context) {
       if( abi_size > 0 )
          memcpy( (void*)a.abi.data(), act.abi.data(), abi_size );
    });
-    /* TODO:
+    /* TODOO:
    const auto& account_sequence = db.get<account_sequence_object, by_name>(act.account);
    db.modify( account_sequence, [&]( auto& aso ) {
       aso.abi_sequence += 1;
    });
      */
-    /* TODO:
+    /* TODOO:
    if (new_size != old_size) {
       context.trx_context.add_ram_usage( act.account, new_size - old_size );
    }*/

@@ -5,6 +5,7 @@
 #pragma once
 #include <contento/chain/controller.hpp>
 #include <contento/protocol/transaction.hpp>
+#include <contento/protocol/contento_operations.hpp>
 #include <contento/chain/contract_table_objects.hpp>
 #include <fc/utility.hpp>
 #include <sstream>
@@ -451,13 +452,12 @@ class apply_context {
 
    /// Constructor
    public:
-      apply_context(controller& con, transaction_context& trx_ctx, const action& a, uint32_t depth=0)
+      apply_context(controller& con, transaction_context& trx_ctx, const vm_operation& a, uint32_t depth=0)
       :control(con)
       ,db(con.db())
       ,trx_context(trx_ctx)
-      ,act(a)
-      ,receiver(act.account)
-      //,used_authorizations(act.authorization.size(), false)
+      ,op(a)
+      ,receiver(op.contract_name)
       ,recurse_depth(depth)
       ,idx64(*this)
       ,idx128(*this)
@@ -472,10 +472,10 @@ class apply_context {
    /// Execution methods:
    public:
 
-      action_trace exec_one();
+      void exec_one();
       void exec();
-      void execute_inline( action&& a );
-      ////Y void execute_context_free_inline( action&& a );
+      void execute_inline( vm_operation&& a );
+      ////Y void execute_context_free_inline( vm_operation&& a );
       ////Y
       // void schedule_deferred_transaction( const uint128_t& sender_id, account_name payer, transaction&& trx, bool replace_existing );
       // bool cancel_deferred_transaction( const uint128_t& sender_id, account_name sender );
@@ -503,12 +503,12 @@ class apply_context {
       bool is_account(const account_name& account)const;
 
       /**
-       * Requires that the current action be delivered to account
+       * Requires that the current vm_operation be delivered to account
        */
       void require_recipient(account_name account);
 
       /**
-       * Return true if the current action has already been scheduled to be
+       * Return true if the current vm_operation has already been scheduled to be
        * delivered to the specified account.
        */
       bool has_recipient(account_name account)const;
@@ -582,10 +582,9 @@ class apply_context {
 
       controller&                   control;
       chainbase::database&          db;  ///< database where state is stored
-      transaction_context&          trx_context; ///< transaction context in which the action is running
-      const action&                 act; ///< message being applied
+      transaction_context&          trx_context; ///< transaction context in which the vm_operation is running
+      const vm_operation&           op; ///< message being applied
       account_name                  receiver; ///< the code that is currently running
-      //vector<bool> used_authorizations; ///< Parallel to act.authorization; tracks which permissions have been used while processing the message
       uint32_t                      recurse_depth; ///< how deep inline actions can recurse
       bool                          privileged   = false;
       bool                          context_free = false;
@@ -603,11 +602,8 @@ class apply_context {
 
       iterator_cache<key_value_object>    keyval_cache;
       vector<account_name>                _notified; ///< keeps track of new accounts to be notifed of current message
-      vector<action>                      _inline_actions; ///< queued inline messages
-      ////Y vector<action>                      _cfa_inline_actions; ///< queued inline messages
+      vector<vm_operation>                _inline_ops; ///< queued inline messages
       std::ostringstream                  _pending_console_output;
-
-      //bytes                               _cached_trx;
 };
 
 using apply_handler = std::function<void(apply_context&)>;

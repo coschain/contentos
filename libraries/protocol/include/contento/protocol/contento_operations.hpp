@@ -912,7 +912,7 @@ namespace contento { namespace protocol {
 
    struct vm_operation : public base_operation {
       account_name_type          caller;
-      account_name_type          contract_account;
+      account_name_type          contract_name;
       name                       action_name;
       bytes                      data;
 
@@ -920,25 +920,25 @@ namespace contento { namespace protocol {
 
       template<typename T, std::enable_if_t<std::is_base_of<bytes, T>::value>* = nullptr>
       vm_operation( const T& value ) {
-         contract_account     = T::get_account();
+         contract_name     = T::get_account();
          action_name        = T::get_name();
          data.assign(value.data(), value.data() + value.size());
       }
 
       template<typename T, std::enable_if_t<!std::is_base_of<bytes, T>::value>* = nullptr>
       vm_operation( const T& value ) {
-         contract_account     = T::get_account();
+         contract_name     = T::get_account();
          action_name        = T::get_name();
          data        = fc::raw::pack(value);
       }
 
       vm_operation( account_name_type account, name name, const bytes& data )
-            : contract_account(account), action_name(name), data(data) {
+            : contract_name(account), action_name(name), data(data) {
       }
 
       template<typename T>
       T as()const {
-         FC_ASSERT( contract_account == T::get_account() );
+         FC_ASSERT( contract_name == T::get_account() );
          FC_ASSERT( action_name == T::get_name()  );
          return fc::raw::unpack<T>(data);
       }
@@ -1039,4 +1039,4 @@ FC_REFLECT( contento::protocol::change_recovery_account_operation, (account_to_r
 FC_REFLECT( contento::protocol::decline_voting_rights_operation, (account)(decline) );
 FC_REFLECT( contento::protocol::claim_reward_balance_operation, (account)(reward_steem)(reward_sbd)(reward_vests) )
 FC_REFLECT( contento::protocol::delegate_vesting_shares_operation, (delegator)(delegatee)(vesting_shares) );
-FC_REFLECT( contento::protocol::vm_operation, (caller)(contract_account)(action_name)(data) )
+FC_REFLECT( contento::protocol::vm_operation, (caller)(contract_name)(action_name)(data) )

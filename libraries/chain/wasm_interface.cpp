@@ -947,17 +947,17 @@ class action_api : public context_aware_api {
       :context_aware_api(ctx,true){}
 
       int read_action_data(array_ptr<char> memory, size_t buffer_size) {
-         auto s = context.act.data.size();
+         auto s = context.op.data.size();
          if( buffer_size == 0 ) return s;
 
          auto copy_size = std::min( buffer_size, s );
-         memcpy( memory, context.act.data.data(), copy_size );
+         memcpy( memory, context.op.data.data(), copy_size );
 
          return copy_size;
       }
 
       int action_data_size() {
-         return context.act.data.size();
+         return context.op.data.size();
       }
 
       name current_receiver() {
@@ -1291,9 +1291,9 @@ class transaction_api : public context_aware_api {
       //  TODOO:  FC_ASSERT( data_len < context.control.get_global_properties().configuration.max_inline_action_size,
       //               "inline action too big" );
 
-         action act;
-         fc::raw::unpack<action>(data, data_len, act);
-         context.execute_inline(std::move(act));
+         vm_operation op;
+         fc::raw::unpack<vm_operation>(data, data_len, op);
+         context.execute_inline(std::move(op));
       }
 
       void send_context_free_inline( array_ptr<char> data, size_t data_len ) {
