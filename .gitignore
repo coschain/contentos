@@ -36,6 +36,8 @@ tests/plugin_test
 tests/intense_test
 tests/performance_test
 
+libraries/sql-parser
+
 doxygen
 
 build
