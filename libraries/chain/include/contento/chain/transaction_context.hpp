@@ -1,6 +1,5 @@
 #pragma once
 #include <contento/chain/controller.hpp>
-#include <contento/chain/trace.hpp>
 #include <contento/protocol/contento_operations.hpp>
 
 namespace contento { namespace chain {

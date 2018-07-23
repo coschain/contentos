@@ -69,7 +69,6 @@ void apply_context::exec()
    }
 
    for( const auto& inline_op : _inline_ops ) {
-      trace.inline_traces.emplace_back();
       trx_context.apply( inline_op, inline_op.contract_name, false, recurse_depth + 1 );
    }
 

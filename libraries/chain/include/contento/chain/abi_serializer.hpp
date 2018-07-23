@@ -4,7 +4,6 @@
  */
 #pragma once
 #include <contento/chain/abi_def.hpp>
-#include <contento/chain/trace.hpp>
 #include <contento/chain/exceptions.hpp>
 #include <fc/variant_object.hpp>
 
@@ -128,14 +127,14 @@ namespace impl {
    template<typename T>
    constexpr bool single_type_requires_abi_v() {
 
-      return /*std::is_base_of<transaction, T>::value ||
+      return true; /*  TODOO: std::is_base_of<transaction, T>::value ||
              std::is_same<T, packed_transaction>::value ||
              std::is_same<T, transaction_trace>::value ||
              std::is_same<T, transaction_receipt>::value ||
               std::is_same<T, signed_transaction>::value ||
-              std::is_same<T, signed_block>::value ||*/
+              std::is_same<T, signed_block>::value ||
              std::is_same<T, action_trace>::value ||       
-             std::is_same<T, action>::value;
+             std::is_same<T, action>::value;*/
 
    }
 
@@ -260,6 +259,7 @@ namespace impl {
        * @param resolver
        * @return
        */
+      /* TODOO: 
       template<typename Resolver>
       static void add(mutable_variant_object &out, const char* name, const action& act, Resolver resolver, size_t recursion_depth) {
          FC_ASSERT( ++recursion_depth < abi_serializer::max_recursion_depth, "recursive definition, max_recursion_depth" );
@@ -286,7 +286,7 @@ namespace impl {
             mvo("data", act.data);
          }
          out(name, std::move(mvo));
-      }
+      }*/
 
       /**
        * overload of to_variant_object for packed_transaction
@@ -407,6 +407,7 @@ namespace impl {
        * this type has members which must be directly translated by the ABI so it is
        * exploded and processed explicitly
        */
+      /* TODOO: 
       template<typename Resolver>
       static void extract( const variant& v, action& act, Resolver resolver, size_t recursion_depth )
       {
@@ -417,9 +418,9 @@ namespace impl {
          from_variant(vo["account"], act.account);
          from_variant(vo["name"], act.name);
 
-         /*if (vo.contains("authorization")) {
+         if (vo.contains("authorization")) {
             from_variant(vo["authorization"], act.authorization);
-         }*/
+         }
 
          bool valid_empty_data = false;
          if( vo.contains( "data" ) ) {
@@ -451,6 +452,7 @@ namespace impl {
          EOS_ASSERT(valid_empty_data || !act.data.empty(), packed_transaction_type_exception,
                     "Failed to deserialize data for ${account}:${name}", ("account", act.account)("name", act.name));
       }
+      */
 
        /*
       template<typename Resolver>

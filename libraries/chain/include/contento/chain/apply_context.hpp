@@ -596,8 +596,6 @@ class apply_context {
       generic_index<index_double_object>                             idx_double;
       generic_index<index_long_double_object>                        idx_long_double;
 
-      action_trace                                trace;
-
    private:
 
       iterator_cache<key_value_object>    keyval_cache;

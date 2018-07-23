@@ -1,6 +1,5 @@
 #include <contento/chain/contento_evaluator.hpp>
 #include <contento/chain/database.hpp>
-#include <contento/chain/action.hpp>
 #include <contento/chain/custom_operation_interpreter.hpp>
 #include <contento/chain/contento_objects.hpp>
 #include <contento/chain/witness_objects.hpp>
