@@ -200,14 +200,12 @@ void apply_context::remove_table( const table_id_object& tid ) {
 }
 
 void apply_context::reset_console() {
-   //_pending_console_output = std::ostringstream();
-   //_pending_console_output.setf( std::ios::scientific, std::ios::floatfield );
+   _pending_console_output = std::ostringstream();
+   _pending_console_output.setf( std::ios::scientific, std::ios::floatfield );
 }
 
 bytes apply_context::get_packed_transaction() {
-    // TODOO:
    auto r = fc::raw::pack( static_cast<const transaction&>(trx_context.trx) );
-    //auto r = fc::raw::pack( static_cast<const protocol::transaction&>(protocol::signed_transaction()) );
    return r;
 }
 
