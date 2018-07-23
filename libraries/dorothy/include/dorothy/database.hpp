@@ -16,7 +16,7 @@
 #include <contento/chain/history_object.hpp>
 #include <contento/chain/transaction_object.hpp>
 #include <contento/chain/witness_objects.hpp>
-#include <fc/variant.hpp>
+
 
 using bprinter::TablePrinter;
 
@@ -36,19 +36,29 @@ namespace dorothy {
             void close();
 
             void initialize_indexes();
+            void initialize_indexed_query();
         
             template<typename INDEX, typename TAG> void initialize_index(std::string&&, std::string&&);
+            template<typename INDEX, typename TAG, typename KEY_TYPE>
+            void add_indexed_query(std::string&&, std::string&& );
         
+            template<typename INDEX, typename TAG, typename KEY_TYPE>
+            void add_indexed_query(std::string&&, std::string&&, std::string&&);
             
             void query(const std::string& );
         
-        template<typename INDEX, typename TAG> void query_table(const hsql::SelectStatement*, const std::string, const std::vector<std::string>&, const std::vector<Condition>&);
+            template<typename INDEX, typename TAG> void query_table(const hsql::SelectStatement*, const std::string, const std::vector<std::string>&, const std::vector<Condition>&);
+        
+            template<typename INDEX, typename TAG, typename KEY_TYPE> void query_indexed_table(const hsql::SelectStatement* , const std::string , const std::vector<std::string>& , const std::string , const std::vector<Condition>&);
         
             void print_columns(std::vector<fc::variant>&, const std::vector<std::string>& );
         
             std::shared_ptr<chainbase::database> _chain_db;
             std::vector<std::string> _table_names;
-            std::map<std::string, std::function<void(const hsql::SelectStatement*, const std::string, const std::vector<std::string>&, const std::vector<Condition>&)>> _tables;
+            std::map<std::string, std::function<void(const hsql::SelectStatement*, const std::string, const std::vector<std::string>&,const std::vector<Condition>&)>> _tables;
+        
+            std::map<std::string, std::function<void(const hsql::SelectStatement*, const std::string, const std::vector<std::string>&,const std::vector<Condition>&)>> _indexed_tables;
+        
             std::map<std::string, std::vector<std::string>> _selected_fields;
         
         private:

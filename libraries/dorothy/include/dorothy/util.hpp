@@ -1,6 +1,7 @@
 # pragma once
 #include "hsql/sql/Expr.h"
 #include <iostream>
+#include <fc/variant.hpp>
 
 
 namespace dorothy {
@@ -15,12 +16,18 @@ namespace dorothy {
         conInt,
     };
     
+//    struct Condition {
+//        ConditionType conType;
+//        char* name;
+//        char* sval;
+//        float fval;
+//        int64_t ival;
+//    };
+    
     struct Condition {
-        ConditionType conType;
+        ConditionType conType=ConditionType::conNull;
         char* name;
-        char* sval;
-        float fval;
-        int64_t ival;
+        fc::variant val;
     };
     
     Condition make_condition(Expr* , Expr* );

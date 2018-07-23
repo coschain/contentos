@@ -22,13 +22,13 @@ namespace dorothy {
             try {
                 switch(con.conType){
                     case ConditionType::conString:
-                        if(v[name].as_string() == std::string(con.sval))
+                        if(v[name].as_string() == con.val.as_string())
                             results.push_back(true);
                         else
                             results.push_back(false);
                         break;
                     case ConditionType::conInt:
-                        if(v[name].as_int64() == con.ival)
+                        if(v[name].as_int64() == con.val.as_int64())
                             results.push_back(true);
                         else
                             results.push_back(false);

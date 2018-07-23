@@ -57,6 +57,7 @@ namespace dorothy {
     {
         _chain_db->open(dir);
         initialize_indexes();
+        initialize_indexed_query();
     }
     
     void database::close()
@@ -113,12 +114,78 @@ namespace dorothy {
         initialize_index<transaction_index, by_expiration>("transaction", "expiration");
         initialize_index<witness_index, by_id>("witness", "id");
         initialize_index<witness_index, by_name>("witness", "name");
-        initialize_index<witness_index, by_schedule_time>("witness", "schedule_time");
+        initialize_index<witness_index, by_schedule_time>("witness", "virtual_scheduled_time");
         initialize_index<witness_vote_index, by_id>("witness_vote", "id");
         initialize_index<witness_vote_index, by_account_witness>("witness_vote", "account_witness");
         initialize_index<witness_vote_index, by_witness_account>("witness_vote", "witness_account");
         initialize_index<witness_schedule_index, by_id>("witness_schedule", "id");
         
+    }
+    
+    void database::initialize_indexed_query(){
+        add_indexed_query<account_index, by_id, account_id_type>("account", "id");
+        add_indexed_query<account_index, by_name, account_name_type>("account", "name");
+        add_indexed_query<account_index, by_next_vesting_withdrawal, contento::time_point_sec>("account", "next_vesting_withdrawal", "id");
+        add_indexed_query<account_index, by_balance, asset>("account", "balance", "id");
+        add_indexed_query<account_index, by_vesting_shares, asset>("account", "vesting_shares", "id");
+        add_indexed_query<admin_index, by_id, admin_id_type>("admin", "id");
+        add_indexed_query<admin_index, by_name, account_name_type>("admin", "name");
+        add_indexed_query<owner_authority_history_index, by_id, owner_authority_history_id_type>("owner_authority_history", "id");
+        add_indexed_query<comment_index, by_id, comment_id_type>("comment", "id");
+        add_indexed_query<comment_index, by_cashout_time, contento::time_point_sec>("comment", "cashout_time", "id");
+        add_indexed_query<comment_index, by_permlink, account_name_type>("comment", "author", "permlink");
+        add_indexed_query<comment_index, by_root, comment_id_type>("comment", "root_comment", "id");
+        add_indexed_query<comment_vote_index, by_id, comment_vote_id_type>("comment_vote", "id");
+        add_indexed_query<comment_vote_index, by_comment_voter, comment_id_type>("comment_vote", "comment", "voter");
+        add_indexed_query<comment_vote_index, by_voter_comment, account_id_type>("comment_vote", "voter", "comment");
+        add_indexed_query<operation_index, by_id, operation_id_type>("operation", "id");
+        add_indexed_query<operation_index, by_transaction_id, transaction_id_type>("operation", "trx_id", "id");
+        add_indexed_query<transaction_index, by_id, transaction_object_id_type>("transaction", "id");
+        add_indexed_query<witness_index, by_id, witness_id_type>("witness", "id");
+        add_indexed_query<witness_index, by_name, account_name_type>("witness", "name");
+        add_indexed_query<witness_index, by_schedule_time, fc::uint128>("witness", "virtual_scheduled_time", "id");
+        add_indexed_query<witness_vote_index, by_id, witness_vote_id_type>("witness_vote", "id");
+        add_indexed_query<witness_vote_index, by_account_witness, account_id_type>("witness_vote", "account", "witness");
+        add_indexed_query<witness_vote_index, by_witness_account, witness_id_type>("witness_vote", "witness", "account");
+        add_indexed_query<witness_schedule_index, by_id, witness_schedule_id_type>("witness_schedule", "id");
+    }
+    
+    // the where-clause conditions could contain one key or two keys
+    // alway the first key as main key to be used in lower-bound for querying process.
+    template<typename INDEX, typename TAG, typename KEY_TYPE>
+    void database::add_indexed_query(std::string&& table_name, std::string&& main_key)
+    {
+        auto find_table_name = std::find(_table_names.begin(), _table_names.end(), table_name);
+        if(find_table_name == _table_names.end()){
+            std::cerr << "table " << table_name << " didn't register" << std::endl;
+            return;
+        }
+        else{
+            auto key = table_name + "|" + main_key;
+            auto f = [this, main_key](const hsql::SelectStatement* stmt, const std::string table_name, const std::vector<std::string>& fields, const std::vector<Condition>& conditions){return query_indexed_table<INDEX, TAG, KEY_TYPE>(stmt, table_name, fields, main_key, conditions);};
+            _indexed_tables[key] = f;
+        }
+    }
+    
+    template<typename INDEX, typename TAG, typename KEY_TYPE>
+    void database::add_indexed_query(std::string&& table_name, std::string&& main_key, std::string&& second_key)
+    {
+        auto find_table_name = std::find(_table_names.begin(), _table_names.end(), table_name);
+        if(find_table_name == _table_names.end()){
+            std::cerr << "table " << table_name << " didn't register" << std::endl;
+            return;
+        }
+        else{
+            // in practical, as using union index, passing main key only is ok.
+            // and of course, keys order is not importance.
+            auto key0 = table_name + "|" + main_key;
+            auto key1 = table_name + "|" + main_key + "|" + second_key;
+            auto key2 = table_name + "|" + second_key + "|" + main_key;
+            auto f = [this, main_key](const hsql::SelectStatement* stmt, const std::string table_name, const std::vector<std::string>& fields, const std::vector<Condition>& conditions){return query_indexed_table<INDEX, TAG, KEY_TYPE>(stmt, table_name, fields, main_key, conditions);};
+            _indexed_tables[key0] = f;
+            _indexed_tables[key1] = f;
+            _indexed_tables[key2] = f;
+        }
     }
     
     
@@ -154,14 +221,29 @@ namespace dorothy {
         _parse_conditions(stmt, conditions);
         
         
+        // when using indexed search, the order by argument will be ignored.
+        // otherwise, the normol searching mode will be active.
+        if(!conditions.empty())
+        {
+            std::string indexed_table_key = table_name;
+            for(auto c: conditions)
+                indexed_table_key += ("|" + std::string(c.name));
+            
+            auto choose_indexed_search = _indexed_tables.find(indexed_table_key);
+            if (choose_indexed_search != _indexed_tables.end()){
+                auto query_indexed_functor = _indexed_tables.at(indexed_table_key);
+                query_indexed_functor(stmt, table_name, fields, conditions);
+                return;
+            }
+        }
+        
         if (stmt->order != nullptr)
             order_by = stmt -> order -> at(0) -> expr -> name;
         else
             order_by = "id";
         
-        
         auto table_key = table_name + "|" + order_by;
-        
+
         auto itr = _tables.find(table_key);
 
         if(itr == _tables.end()) {
@@ -171,26 +253,24 @@ namespace dorothy {
             else
                 std::cerr << "the order condition: " << order_by << "is invalid" << std::endl;
         } else {
-             auto query_functor = _tables.at(table_key);
-               
+            auto query_functor = _tables.at(table_key);
             query_functor(stmt, table_name, fields, conditions);
-            
         }
     }
 
+
     template<typename INDEX, typename TAG>
-    void database::query_table(const hsql::SelectStatement* stmt, const std::string table_name, const std::vector<std::string>& fields,
-                               const std::vector<Condition>& conditions)
+    void database::query_table(const hsql::SelectStatement* stmt, const std::string table_name, const std::vector<std::string>& fields, const std::vector<Condition>& conditions)
     {
-        
+
         const auto& idx = _chain_db ->get_index<INDEX>().indices().template get<TAG>();
         std::vector<fc::variant> columns;
         // lower_bound could do some filter. But it's hard to adapt any situation.
         // so I instead it from searching whole table.
-        
+
         try {
             auto callback = (conditions.empty())? cmp_default : cmp_conditions;
-            
+
             auto current = idx.begin();
             if(current != idx.end()) {
                 for(; current != idx.end(); ++current)
@@ -212,6 +292,54 @@ namespace dorothy {
         catch (const fc::key_not_found_exception&){}
     }
     
+    template<typename INDEX, typename TAG, typename KEY_TYPE>
+    void database::query_indexed_table(const hsql::SelectStatement* stmt, const std::string table_name, const std::vector<std::string>& fields, const std::string main_key, const std::vector<Condition>& conditions)
+    {
+
+        const auto& idx = _chain_db ->get_index<INDEX>().indices().template get<TAG>();
+        std::vector<fc::variant> columns;
+        
+        Condition con;
+        
+        for(auto c: conditions){
+            if(std::string(c.name) == main_key)
+                con = c;
+        }
+        
+        if(con.conType == ConditionType::conNull){
+            std::cerr << "could not find" << main_key  << "in conditions" << std::endl;
+            return;
+        }
+        
+        auto callback = (conditions.empty())? cmp_default : cmp_conditions;
+        
+        try {
+            KEY_TYPE k;
+            fc::from_variant(con.val, k);
+            auto current = idx.lower_bound(k);
+            if(current != idx.end()){
+                for(;current != idx.end();++current)
+                {
+                    fc::variant v;
+                    fc::to_variant((*current), v);
+                    if(v[main_key.c_str()].as_string() != con.val.as_string())
+                        break;
+                    if(callback(v, conditions))
+                        columns.push_back(v);
+                }
+            }
+            else {
+                std::cerr << "empty" << std::endl;
+            }
+
+            if(columns.empty())
+                std::cerr << "no items match the conditions" << std::endl;
+            else
+                print_columns(columns, fields);
+        }
+        catch (const fc::key_not_found_exception&){}
+
+    }
     
     void database::print_columns(std::vector<fc::variant>& columns, const std::vector<std::string>& fields)
     {
