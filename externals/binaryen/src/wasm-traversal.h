@@ -29,6 +29,7 @@
 
 #include "wasm.h"
 #include "support/threads.h"
+#include "support/scope_exit.h"
 
 namespace wasm {
 
@@ -74,6 +75,9 @@ struct Visitor {
     #define DELEGATE(CLASS_TO_VISIT) \
       return static_cast<SubType*>(this)-> \
           visit##CLASS_TO_VISIT(static_cast<CLASS_TO_VISIT*>(curr))
+
+      scope_exit report_on_exit([this,curr](){
+      });
 
     switch (curr->_id) {
       case Expression::Id::BlockId: DELEGATE(Block);
