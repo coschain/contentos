@@ -99,9 +99,13 @@ void apply_context::require_authorization( const account_name& account ) {
     contento::protocol::authority posting = contento::protocol::authority(db.get< contento::chain::account_authority_object, contento::chain::by_account >( account ).posting);
 
     const contento::protocol::chain_id_type& chain_id = CONTENTO_CHAIN_ID;
-    //flat_set<public_key_type> trx_pubs = trx_context.trx.get_signature_keys(chain_id);
-    flat_set<public_key_type> trx_pubs; 
-    
+    flat_set<public_key_type> trx_pubs = trx_context.trx.get_signature_keys(chain_id);
+
+    for( const auto& k : posting.key_auths ) {
+        if( trx_pubs.find( k.first ) != trx_pubs.end() ) {
+            return;
+        }
+    }
     for( const auto& k : active.key_auths ) {
         if( trx_pubs.find( k.first ) != trx_pubs.end() ) {
             return;
@@ -112,11 +116,7 @@ void apply_context::require_authorization( const account_name& account ) {
             return;
         }
     }
-    for( const auto& k : posting.key_auths ) {
-        if( trx_pubs.find( k.first ) != trx_pubs.end() ) {
-            return;
-        }
-    }
+    
     EOS_ASSERT( false, missing_auth_exception, "missing authority of ${account}", ("account",account));
     
     /*
