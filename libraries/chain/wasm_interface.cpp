@@ -1331,8 +1331,8 @@ public:
    using context_aware_api::context_aware_api;
 
    int on_content_call( array_ptr<const char> query_str, size_t data_len, array_ptr<char> out_result, size_t length ) {
-      FC_ASSERT( data_len < context.control.get_global_properties().configuration.max_inline_action_size,
-                "inline action too big" );
+//      FC_ASSERT( data_len < context.control.get_global_properties().configuration.max_inline_action_size,
+//                "inline action too big" );
 
       std::string query = std::string(query_str, data_len);
       std::vector<char> vec(data_len);
@@ -1844,7 +1844,7 @@ REGISTER_INTRINSICS(transaction_api,
 REGISTER_INTRINSICS(content_api,
    (on_content_call,           int(int, int, int, int)      )
 );
-   
+
 /*
 REGISTER_INTRINSICS(context_free_api,
    (get_context_free_data, int(int, int, int) )

@@ -16,7 +16,6 @@ namespace contento { namespace vmi {
 
 using namespace contento::chain;
 using namespace contento::protocol;
-using namespace contento::app;
 
 using namespace std;
 
