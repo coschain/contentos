@@ -1116,7 +1116,7 @@ FC_API( contento::wallet::wallet_api,
 
 //        (get_active_witnesses)
 //        (get_miner_queue)
-//        (get_transaction)
+        (get_transaction)
       )
 
 FC_REFLECT( contento::wallet::memo_data, (from)(to)(nonce)(check)(encrypted) )

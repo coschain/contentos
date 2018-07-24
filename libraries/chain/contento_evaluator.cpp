@@ -1020,7 +1020,7 @@ void transfer_evaluator::do_apply( const transfer_operation& o )
 
 void transfer_to_vesting_evaluator::do_apply( const transfer_to_vesting_operation& o )
 {
-   CONTENTOS_OP_CLOSE_ASSERT();
+   //CONTENTOS_OP_CLOSE_ASSERT();
    const auto& from_account = _db.get_account(o.from);
    const auto& to_account = o.to.size() ? _db.get_account(o.to) : from_account;
 

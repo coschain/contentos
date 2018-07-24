@@ -220,7 +220,7 @@ add_subdirectory( programs )
 #add_subdirectory( contracts )
 add_subdirectory( tools )
 
-#add_subdirectory( tests )
+add_subdirectory( tests )
 
 if (ENABLE_INSTALLER)
 

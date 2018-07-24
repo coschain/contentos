@@ -334,6 +334,8 @@ namespace detail {
            //_pending_trx_db(std::make_shared<graphene::db::object_database>()),
            _chain_db(std::make_shared<chain::database>())
       {
+          //controller::config cfg;
+           //control.reset(cfg);
       }
 
       ~application_impl(){}
@@ -1025,6 +1027,7 @@ namespace detail {
       std::shared_ptr<fc::http::websocket_server>      _websocket_server;
       std::shared_ptr<fc::http::websocket_tls_server>  _websocket_tls_server;
        std::shared_ptr<fc::http::server>      _http_server;
+       //unique_ptr<controller> control;
 
       std::map<string, std::shared_ptr<abstract_plugin> > _plugins_available;
       std::map<string, std::shared_ptr<abstract_plugin> > _plugins_enabled;

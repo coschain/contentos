@@ -168,12 +168,14 @@ namespace contento { namespace app {
              for( size_t trx_num = 0; trx_num < b.transactions.size(); ++trx_num )
              {
                 const auto& trx_wrapper = b.transactions[trx_num];
+                auto status = trx_wrapper.invoice.status;
+                auto gas_usage = trx_wrapper.invoice.gas_usage;
                 auto id = trx_wrapper.sig_trx.id();
                 auto itr = _callbacks.find(id);
                 if( itr == _callbacks.end() ) continue;
                 confirmation_callback callback = itr->second;
                 itr->second = [](variant){};
-                callback( fc::variant(transaction_confirmation( id, block_num, int32_t(trx_num), false )) );
+                callback( fc::variant(transaction_confirmation( id, block_num, int32_t(trx_num), false, status, gas_usage )) );
              }
           }
 
@@ -194,7 +196,7 @@ namespace contento { namespace app {
 
                 confirmation_callback callback = cb_it->second;
                 transaction_id_type txid_byval = txid;    // can't pass in by reference as it's going to be deleted
-                callback( fc::variant(transaction_confirmation{ txid_byval, block_num, -1, true}) );
+                callback( fc::variant(transaction_confirmation{ txid_byval, block_num, -1, true, 500, 0}) );//expiration default status code 500
 
                 _callbacks.erase( cb_it );
              }

@@ -321,11 +321,9 @@ optional<signed_block> database::fetch_block_by_id( const block_id_type& id )con
 
       if( tmp && tmp->id() == id )
          return tmp;
-
       tmp.reset();
       return tmp;
    }
-
    return b->data;
 } FC_CAPTURE_AND_RETHROW() }
 
@@ -4046,6 +4044,18 @@ void database::retally_witness_vote_counts( bool force )
          } );
       }
    }
+}
+
+// just for link error
+asset database::to_sbd( const asset& steem )const
+{
+    return asset(0);
+}
+
+// just for link error
+asset database::to_steem( const asset& sbd )const
+{
+    return asset(0);
 }
 
 } } //contento::chain
