@@ -1922,4 +1922,32 @@ std::istream& operator>>(std::istream& in, wasm_interface::vm_type& runtime) {
    return in;
 }
 
+//
+// prices for basic intrinsics
+//
+    SET_BASIC_INTRINSIC_PRICE( wasm::Expression::BlockId,         0 );
+    SET_BASIC_INTRINSIC_PRICE( wasm::Expression::IfId,            0 );
+    SET_BASIC_INTRINSIC_PRICE( wasm::Expression::LoopId,          0 );
+    SET_BASIC_INTRINSIC_PRICE( wasm::Expression::BreakId,         0 );
+    SET_BASIC_INTRINSIC_PRICE( wasm::Expression::SwitchId,        0 );
+    SET_BASIC_INTRINSIC_PRICE( wasm::Expression::CallId,          0 );
+    SET_BASIC_INTRINSIC_PRICE( wasm::Expression::CallImportId,    0 );
+    SET_BASIC_INTRINSIC_PRICE( wasm::Expression::CallIndirectId,  0 );
+    SET_BASIC_INTRINSIC_PRICE( wasm::Expression::GetLocalId,      0 );
+    SET_BASIC_INTRINSIC_PRICE( wasm::Expression::SetLocalId,      0 );
+    SET_BASIC_INTRINSIC_PRICE( wasm::Expression::GetGlobalId,     0 );
+    SET_BASIC_INTRINSIC_PRICE( wasm::Expression::SetGlobalId,     0 );
+    SET_BASIC_INTRINSIC_PRICE( wasm::Expression::LoadId,          0 );
+    SET_BASIC_INTRINSIC_PRICE( wasm::Expression::StoreId,         0 );
+    SET_BASIC_INTRINSIC_PRICE( wasm::Expression::ConstId,         0 );
+    SET_BASIC_INTRINSIC_PRICE( wasm::Expression::UnaryId,         0 );
+    SET_BASIC_INTRINSIC_PRICE( wasm::Expression::BinaryId,        0 );
+    SET_BASIC_INTRINSIC_PRICE( wasm::Expression::SelectId,        0 );
+    SET_BASIC_INTRINSIC_PRICE( wasm::Expression::DropId,          0 );
+    SET_BASIC_INTRINSIC_PRICE( wasm::Expression::ReturnId,        0 );
+    SET_BASIC_INTRINSIC_PRICE( wasm::Expression::HostId,          0 );
+    SET_BASIC_INTRINSIC_PRICE( wasm::Expression::NopId,           0 );
+    SET_BASIC_INTRINSIC_PRICE( wasm::Expression::UnreachableId,   0 );
+
+
 } } /// eosio::chain

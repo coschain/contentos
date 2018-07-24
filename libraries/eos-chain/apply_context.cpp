@@ -546,5 +546,9 @@ uint64_t apply_context::next_auth_sequence( account_name actor ) {
    return rs.auth_sequence;
 }
 
+void apply_context::add_action_price(uint64_t price, int wasm_expr_id) {
+
+}
+
 
 } } /// eosio::chain

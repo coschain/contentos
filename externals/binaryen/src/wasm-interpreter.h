@@ -926,7 +926,7 @@ public:
             
             if ( curr->is<CallImport>() ) {
                 CallImport *import = static_cast<CallImport *>(curr);
-                REPORT_EXTERNAL1( instance.wasm.getImport(import->target) );
+                REPORT_EXTERNAL2( instance.wasm.getImport(import->target), &(last_call.value) );
             } else {
                 REPORT_EXTERNAL();
             }

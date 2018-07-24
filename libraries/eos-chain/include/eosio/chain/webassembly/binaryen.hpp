@@ -41,7 +41,7 @@ struct intrinsic_price_registrator {
         static map<string, price_fn> _map;
         return _map;
     };
-        
+    
     intrinsic_price_registrator(const char* name, price_fn fn)
     {
         get_map()[string(name)] = fn;
@@ -50,11 +50,36 @@ struct intrinsic_price_registrator {
     static price_fn price(uint64_t r) {
         return [=](apply_context*, Literal&) { return r; };
     }
+    
+    static auto& get_basic_map() {
+        static map<wasm::Expression::Id, uint64_t> _map;
+        return _map;
+    }
+    
+    intrinsic_price_registrator(int expr_id, uint64_t price)
+    {
+        if (expr_id >= wasm::Expression::InvalidId && expr_id < wasm::Expression::NumExpressionIds) {
+            get_basic_map()[(wasm::Expression::Id)expr_id] = price;
+        }
+    }
+    
+    static uint64_t get_basic_price(int expr_id) {
+        uint64_t price = 0;
+        if (expr_id >= wasm::Expression::InvalidId && expr_id < wasm::Expression::NumExpressionIds) {
+            auto m = get_basic_map();
+            auto it = m.find((wasm::Expression::Id)expr_id);
+            if (it != m.end()) {
+                price = it->second;
+            }
+        }
+        
+        return price;
+    }
 };
 
 using import_info_type = pair<intrinsic_registrator::intrinsic_fn, intrinsic_price_registrator::price_fn>;
 using import_lut_type = unordered_map<uintptr_t, import_info_type>;
-
+    
 struct interpreter_interface : ModuleInstance::ExternalInterface {
    interpreter_interface(linear_memory_type& memory, call_indirect_table_type& table, import_lut_type& import_lut, const unsigned& initial_memory_size, apply_context& context)
    :memory(memory),table(table),import_lut(import_lut), current_memory_size(initial_memory_size), context(context)
@@ -158,14 +183,20 @@ struct interpreter_interface : ModuleInstance::ExternalInterface {
             return;
         
         wasm::Expression::Id expr_id = static_cast<wasm::Expression::Id>(arg1);
+        uint64_t price = 0;
         if (expr_id == wasm::Expression::CallImportId) {
-            // todo: get cycles of import function
+            
+            auto info_iter = import_lut.find(arg2);
+            if (info_iter != import_lut.end()) {
+                Literal result = *(Literal *)arg3;
+                price = info_iter->second.second( &context, result );
+            }
+            
         } else {
-            // todo: get cycles of normal expression
+            price = intrinsic_price_registrator::get_basic_price(expr_id);
         }
         
-        // todo: report cycles to context...
-        
+        context.add_action_price( price, expr_id );
     }
     
    linear_memory_type&          memory;
@@ -781,5 +812,8 @@ struct intrinsic_price_function_wrapper<void> {
 
 #define _REGISTER_BINARYEN_INTRINSIC(CLS, MOD, METHOD, WASM_SIG, NAME, SIG)\
     _REGISTER_BINARYEN_INTRINSIC_WITH_PRICE(nullptr, CLS, MOD, METHOD, WASM_SIG, NAME, SIG)
+
+#define _SET_BINARYEN_BASIC_INTRINSIC_PRICE(EXPR_ID, PRICE) \
+    static eosio::chain::webassembly::binaryen::intrinsic_price_registrator _INTRINSIC_NAME(__binaryen_basic_intrinsic_price, __COUNTER__) ((int)(EXPR_ID), (uint64_t)(PRICE));
 
 } } } }// eosio::chain::webassembly::wavm

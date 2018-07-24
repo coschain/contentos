@@ -572,6 +572,8 @@ class apply_context {
       uint64_t next_global_sequence();
       uint64_t next_recv_sequence( account_name receiver );
       uint64_t next_auth_sequence( account_name actor );
+    
+      void add_action_price(uint64_t price, int wasm_expr_id);
 
    private:
 
