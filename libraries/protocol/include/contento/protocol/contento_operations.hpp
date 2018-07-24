@@ -932,8 +932,8 @@ namespace contento { namespace protocol {
          data        = fc::raw::pack(value);
       }
 
-      vm_operation( account_name_type account, name name, const bytes& data )
-            : contract_name(account), action_name(name), data(data) {
+      vm_operation( account_name_type account, account_name_type contract, name action, const bytes& data )
+            : caller(account), contract_name(contract), action_name(action), data(data) {
       }
 
       template<typename T>

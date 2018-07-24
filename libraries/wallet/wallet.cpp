@@ -54,6 +54,8 @@
 #include <fc/thread/scoped_lock.hpp>
 #include <fc/smart_ref_impl.hpp>
 
+#include <contento/chain/wast_to_wasm.hpp>
+
 #ifndef WIN32
 # include <sys/types.h>
 # include <sys/stat.h>
@@ -2508,6 +2510,60 @@ annotated_signed_transaction      wallet_api::send_private_message( string from,
 
    return my->sign_transaction( tx, broadcast );
 }
+
+annotated_signed_transaction wallet_api::set_contract(string accountname, string contract_dir, bool broadcast ) {
+      signed_transaction tx;
+      
+      auto set_code_callback = [&]() {
+            std::string wast;
+            fc::path cpath(contract_dir);
+
+            if( cpath.filename().generic_string() == "." ) cpath = cpath.parent_path();
+
+            auto wastPath = (cpath / (cpath.filename().generic_string()+".wasm")).generic_string();
+            if (!fc::exists(wastPath))
+                  wastPath = (cpath / (cpath.filename().generic_string()+".wast")).generic_string();
+
+            std::cout << "Reading WAST/WASM from " + wastPath + "..." << std::endl;
+            fc::read_file_contents(wastPath, wast);
+            FC_ASSERT( !wast.empty(), "no wast file found ${f}", ("f", wastPath) );
+            vector<uint8_t> wasm;
+            const string binary_wasm_header("\x00\x61\x73\x6d", 4);
+            if(wast.compare(0, 4, binary_wasm_header) == 0) {
+                  std::cout << "Using already assembled WASM..." << std::endl;
+                  wasm = vector<uint8_t>(wast.begin(), wast.end());
+            }
+            else {
+                  std::cout << "Assembling WASM..." << std::endl;
+                  wasm = wast_to_wasm(wast);
+            }
+
+            tx.operations.push_back( vm_operation(N(account), N(""), N(""), bytes(wasm.begin(), wasm.end()) ) );
+      };
+
+      auto set_abi_callback = [&]() {
+            fc::path cpath(contract_dir);
+            if( cpath.filename().generic_string() == "." ) 
+                  cpath = cpath.parent_path();
+
+            auto abiPath = (cpath / (cpath.filename().generic_string()+".abi")).generic_string();
+
+            FC_ASSERT( fc::exists( abiPath ), "no abi file found ${f}", ("f", abiPath)  );
+
+            try {
+                  tx.operations.push_back( vm_operation(N(account), N(""), N(""), fc::raw::pack(fc::json::from_file(abiPath).as<abi_def>())) );
+            } EOS_RETHROW_EXCEPTIONS(abi_type_exception,  "Fail to parse ABI JSON")
+      };
+
+
+      set_code_callback();
+      set_abi_callback();
+      std::cout << "Publishing contract..." << std::endl;
+      tx.validate();
+      
+      return my->sign_transaction( tx, broadcast );
+}
+
 message_body wallet_api::try_decrypt_message( const message_api_obj& mo ) {
    message_body result;
 

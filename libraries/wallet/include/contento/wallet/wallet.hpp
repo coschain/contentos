@@ -954,6 +954,15 @@ class wallet_api
       annotated_signed_transaction prove( string challenged, bool broadcast );
 
       /**
+       * 
+       * 
+       * @param accountname The account who want to publish a contract
+       * @param contract_dir filepath of .wast and .abi file
+       * @param broadcast true if you wish to broadcast the transaction
+       */
+      annotated_signed_transaction set_contract(string accountname, string contract_dir, bool broadcast);
+
+      /**
        *  Account operations have sequence numbers from 0 to N where N is the most recent operation. This method
        *  returns operations in the range [from-limit, from]
        *
@@ -1117,6 +1126,9 @@ FC_API( contento::wallet::wallet_api,
 //        (get_active_witnesses)
 //        (get_miner_queue)
         (get_transaction)
+
+        /// contract api
+        (set_contract)
       )
 
 FC_REFLECT( contento::wallet::memo_data, (from)(to)(nonce)(check)(encrypted) )
