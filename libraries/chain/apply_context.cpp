@@ -93,11 +93,10 @@ bool apply_context::is_account( const account_name& account )const {
 }
 
 void apply_context::require_authorization( const account_name& account ) {
-    std::string name = account.to_string();
     //todo ... change impl to use steem's db to verify accout's sig
-    contento::protocol::authority active = contento::protocol::authority(db.get< contento::chain::account_authority_object, contento::chain::by_account >( name ).active);
-    contento::protocol::authority owner = contento::protocol::authority(db.get< contento::chain::account_authority_object, contento::chain::by_account >( name ).owner);
-    contento::protocol::authority posting = contento::protocol::authority(db.get< contento::chain::account_authority_object, contento::chain::by_account >( name ).posting);
+    contento::protocol::authority active = contento::protocol::authority(db.get< contento::chain::account_authority_object, contento::chain::by_account >( account ).active);
+    contento::protocol::authority owner = contento::protocol::authority(db.get< contento::chain::account_authority_object, contento::chain::by_account >( account ).owner);
+    contento::protocol::authority posting = contento::protocol::authority(db.get< contento::chain::account_authority_object, contento::chain::by_account >( account ).posting);
 
     const contento::protocol::chain_id_type& chain_id = CONTENTO_CHAIN_ID;
     //flat_set<public_key_type> trx_pubs = trx_context.trx.get_signature_keys(chain_id);

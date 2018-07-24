@@ -171,7 +171,7 @@ int main( int argc, char** argv )
          wallet_cli->format_result( name_formatter.first, name_formatter.second );
 
       boost::signals2::scoped_connection closed_connection(con->closed.connect([=]{
-         cerr << "Server has disconnected us.\n";
+                  std::cerr << "Server has disconnected us.\n";
          wallet_cli->stop();
       }));
       (void)(closed_connection);
