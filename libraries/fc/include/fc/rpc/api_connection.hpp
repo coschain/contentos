@@ -2,7 +2,7 @@
 #include <fc/variant.hpp>
 #include <fc/optional.hpp>
 #include <fc/api.hpp>
-#include <fc/rpc/binary_api_connection.hpp>
+//#include <fc/rpc/binary_api_connection.hpp>
 #include <fc/any.hpp>
 #include <memory>
 #include <vector>

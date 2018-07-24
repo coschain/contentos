@@ -34,6 +34,7 @@
 #include <fc/rpc/websocket_api.hpp>
 #include <fc/api.hpp>
 #include <fc/smart_ref_impl.hpp>
+#include <fc/rpc/binary_api_connection.hpp>
 
 
 namespace contento { namespace delayed_node {

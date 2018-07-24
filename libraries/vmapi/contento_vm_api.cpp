@@ -1,6 +1,6 @@
+#include <contento/vmapi/contento_vm_api.hpp>
 #include <contento/app/api_context.hpp>
 #include <contento/app/application.hpp>
-#include <contento/vmapi/contento_vm_api.hpp>
 
 #include <boost/range/iterator_range.hpp>
 #include <boost/algorithm/string.hpp>
@@ -104,9 +104,6 @@ account_obj_vmi contento_vm_api_impl::get_account( string name )const
       if ( itr != idx.end() )
       {
          account_obj_vmi res = account_obj_vmi( *itr );
-
-         res.id = 12345678;
-
          return res;
       }
    }

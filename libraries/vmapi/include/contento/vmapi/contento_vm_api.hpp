@@ -1,15 +1,16 @@
 #pragma once
 
-#include <contento/chain/database.hpp>
-#include <contento/chain/contento_objects.hpp>
 #include <contento/chain/contento_object_types.hpp>
 #include "vm_obj.hpp"
+#include <contento/chain/database.hpp>
+#include <contento/chain/contento_objects.hpp>
 #include <contento/app/api_context.hpp>
 
 
 #include <fc/api.hpp>
 #include <fc/optional.hpp>
 #include <fc/variant_object.hpp>
+#include <fc/rpc/binary_api_connection.hpp>
 
 #include <fc/network/ip.hpp>
 
