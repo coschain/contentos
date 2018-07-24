@@ -5,6 +5,7 @@
 #pragma once
 
 #include <fc/crypto/sha256.hpp>
+#include <fc/string.hpp>
 
 struct hello;
 
@@ -22,6 +23,9 @@ namespace protocol {
    struct chain_id_type : public fc::sha256 {
       using fc::sha256::sha256;
 
+       chain_id_type(const fc::string& str):fc::sha256(str){
+      }
+       
       template<typename T>
       inline friend T& operator<<( T& ds, const chain_id_type& cid ) {
         ds.write( cid.data(), cid.data_size() );
