@@ -5,6 +5,7 @@
 #include <contento/account_by_key/account_by_key_objects.hpp>
 
 #include <fc/api.hpp>
+#include <fc/rpc/binary_api_connection.hpp>
 
 namespace contento { namespace account_by_key {
 

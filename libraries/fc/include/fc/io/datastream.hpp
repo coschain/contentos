@@ -10,6 +10,7 @@ namespace detail
   NO_RETURN void throw_datastream_range_error( const char* file, size_t len, int64_t over );
 }
 
+   namespace raw{
 /**
  *  The purpose of this datastream is to provide a fast, effecient, means
  *  of calculating the amount of data "about to be written" and then
@@ -177,6 +178,24 @@ inline datastream<ST>& operator>>(datastream<ST>& ds, uint8_t& d) {
   return ds;
 }
 
+} // raw
+
+   //https://en.cppreference.com/w/cpp/language/adl
+   // for easy use include order
+   template< typename T>
+   class datastream : public fc::raw::datastream<T>{
+   public:
+      datastream( T start, size_t s ): fc::raw::datastream<T>(start, s) {}
+   };
+
+   template<>
+   class datastream<size_t> : public fc::raw::datastream<size_t>{
+   public:
+      datastream(size_t s = 0): fc::raw::datastream<size_t>(s) {}
+   };
 
 } // namespace fc
+//template<typename T>
+//using fc::datastream<T> = fc::raw::datastream<T>;
+
 

@@ -1,8 +1,10 @@
 #include <fc/api.hpp>
 #include <fc/log/logger.hpp>
 #include <fc/rpc/api_connection.hpp>
-#include <fc/rpc/websocket_api.hpp>
+#include <fc/rpc/binary_api_connection.hpp>
 
+#include <fc/rpc/websocket_api.hpp>
+#include "api_binary.hpp"
 class calculator
 {
    public:
@@ -54,14 +56,16 @@ using namespace fc::rpc;
 
 int main( int argc, char** argv )
 {
+   call_binary_api_test();
    try {
       fc::api<calculator> calc_api( std::make_shared<some_calculator>() );
-
+      fc::api_ptr  ptr_calc = std::make_shared< fc::api< calculator > >(calc_api);
       fc::http::websocket_server server;
       server.on_connection([&]( const websocket_connection_ptr& c ){
                auto wsc = std::make_shared<websocket_api_connection>(*c);
                auto login = std::make_shared<login_api>();
                login->calc = calc_api;
+               //ptr_calc->register_api( *wsc );
                wsc->register_api(fc::api<login_api>(login));
                c->set_session_data( wsc );
           });

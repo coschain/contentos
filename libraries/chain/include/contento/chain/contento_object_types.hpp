@@ -235,6 +235,7 @@ namespace fc
 namespace fc {
 
 }
+FC_REFLECT_TEMPLATE( (typename T), chainbase::oid<T>, (_id))
 
 FC_REFLECT_ENUM( contento::chain::object_type,
                  (dynamic_global_property_object_type)

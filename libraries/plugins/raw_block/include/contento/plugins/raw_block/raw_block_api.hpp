@@ -4,6 +4,7 @@
 #include <contento/chain/contento_object_types.hpp>
 
 #include <fc/api.hpp>
+#include <fc/rpc/binary_api_connection.hpp>
 
 namespace contento { namespace app {
    struct api_context;
