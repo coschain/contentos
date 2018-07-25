@@ -2,6 +2,7 @@
 #pragma once
 
 #include <fc/api.hpp>
+#include <fc/rpc/binary_api_connection.hpp>
 
 #include <contento/plugins/block_info/block_info.hpp>
 

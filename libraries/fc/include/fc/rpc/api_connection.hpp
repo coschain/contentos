@@ -2,6 +2,7 @@
 #include <fc/variant.hpp>
 #include <fc/optional.hpp>
 #include <fc/api.hpp>
+//#include <fc/rpc/binary_api_connection.hpp>
 #include <fc/any.hpp>
 #include <memory>
 #include <vector>
@@ -87,6 +88,8 @@ namespace fc {
             {  return _api_id;    }
 
             virtual api_id_type register_api( api_connection& conn )const override
+            {  FC_ASSERT( false ); return api_id_type(); }
+            virtual api_id_type register_api2( bapi::binary_api_connection& conn )const override
             {  FC_ASSERT( false ); return api_id_type(); }
 
             api_id_type                         _api_id;

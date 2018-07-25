@@ -2,7 +2,7 @@
 add_executable( bip_lock bip_lock.cpp )
 target_link_libraries( bip_lock fc )
 
-add_executable( api api.cpp )
+add_executable( api api.cpp api_binary.cpp api_binary.hpp)
 target_link_libraries( api fc )
 
 if( ECC_IMPL STREQUAL secp256k1 )

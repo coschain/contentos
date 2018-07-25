@@ -11,7 +11,7 @@
 #ifdef IS_TEST_NET
 #define CONTENTO_INIT_PRIVATE_KEY                (fc::ecc::private_key::regenerate(fc::sha256::hash(std::string("init_key"))))
 #define CONTENTO_INIT_PUBLIC_KEY_STR             (std::string( contento::protocol::public_key_type(CONTENTO_INIT_PRIVATE_KEY.get_public_key()) ))
-#define CONTENTO_CHAIN_ID                        (fc::sha256::hash("testnet"))
+#define CONTENTO_CHAIN_ID                        (contento::protocol::chain_id_type("testnet"))
 
 #define VESTS_SYMBOL  (uint64_t(6) | (uint64_t('V') << 8) | (uint64_t('E') << 16) | (uint64_t('S') << 24) | (uint64_t('T') << 32) | (uint64_t('S') << 40)) ///< VESTS with 6 digits of precision
 #define COC_SYMBOL (uint64_t(4) | (uint64_t('C') << 8) | (uint64_t('O') << 16) | (uint64_t('C') << 24))

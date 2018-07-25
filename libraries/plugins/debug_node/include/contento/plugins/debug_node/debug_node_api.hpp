@@ -5,6 +5,7 @@
 #include <string>
 
 #include <fc/api.hpp>
+#include <fc/rpc/binary_api_connection.hpp>
 #include <fc/optional.hpp>
 #include <fc/variant_object.hpp>
 

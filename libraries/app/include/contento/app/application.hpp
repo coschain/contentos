@@ -34,6 +34,7 @@
 #include <fc/rpc/websocket_api.hpp>
 
 #include <boost/program_options.hpp>
+#include <vector>
 
 namespace contento { namespace app {
    namespace detail { class application_impl; }
@@ -119,7 +120,7 @@ namespace contento { namespace app {
           */
          fc::api_ptr create_api_by_name( const api_context& ctx );
 
-         std::string on_vm_request( const std::string& req_body );
+         std::vector<char> on_vm_request( const std::vector<char>& req_body );
 
          void get_max_block_age( int32_t& result );
 

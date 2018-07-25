@@ -936,8 +936,8 @@ namespace contento { namespace protocol {
 
       vm_operation( account_name_type caller, account_name_type account,
                     name name, const bytes& data )
-            : caller(caller), contract_name(account), action_name(name), data(data) {
-      }
+            : caller(caller), contract_name(account), action_name(name), data(data) {}
+
 
       template<typename T>
       T as()const {
