@@ -27,6 +27,27 @@ namespace contento { namespace test {
     {
         
     }
+
+    vm_operation create_setcode(const name& contract_name, const bytes& code){
+        return vm_operation {
+            contract_name,
+            setcode{
+                .account    = contract_name,
+                .vmtype     = 0,
+                .vmverson   = 0,
+                .code       = code
+            }
+        };
+    }
+    vm_operation create_setabi(const name& contract_name, const abi_def& code){
+        return vm_operation {
+            contract_name,
+            setabi{
+                .account    = contract_name,
+                .abi        = fc::raw::pack(abi)
+            }
+        };
+    }
     
     void contento_fixture::init_apis()
     {

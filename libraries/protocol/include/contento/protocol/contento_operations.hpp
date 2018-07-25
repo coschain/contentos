@@ -919,21 +919,24 @@ namespace contento { namespace protocol {
       vm_operation() {}
 
       template<typename T, std::enable_if_t<std::is_base_of<bytes, T>::value>* = nullptr>
-      vm_operation( const T& value ) {
+      vm_operation( account_name_type caller, const T& value )
+      :caller(caller) {
          contract_name     = T::get_account();
          action_name        = T::get_name();
          data.assign(value.data(), value.data() + value.size());
       }
 
       template<typename T, std::enable_if_t<!std::is_base_of<bytes, T>::value>* = nullptr>
-      vm_operation( const T& value ) {
+      vm_operation( account_name_type caller, const T& value )
+      :caller(caller) {
          contract_name     = T::get_account();
          action_name        = T::get_name();
          data        = fc::raw::pack(value);
       }
 
-      vm_operation( account_name_type account, name name, const bytes& data )
-            : contract_name(account), action_name(name), data(data) {
+      vm_operation( account_name_type caller, account_name_type account,
+                    name name, const bytes& data )
+            : caller(caller), contract_name(account), action_name(name), data(data) {
       }
 
       template<typename T>
