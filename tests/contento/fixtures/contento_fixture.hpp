@@ -10,9 +10,6 @@
 
 #include <contento/app/api.hpp>
 #include "../../common/database_fixture.hpp"
-#include <contento/protocol/types.hpp>
-#include <contento/protocol/contento_operations.hpp>
-#include <contento/chain/abi_def.hpp>
 
 using namespace contento::chain;
 using namespace contento::protocol;
@@ -33,9 +30,6 @@ namespace contento { namespace test {
         fc::ecc::private_key get_councillor_private_key(int which);
         static int get_councillor_count();
         static std::string get_councillor_account_name(int which);
-        vm_operation create_setcode(const name& contract_name, const bytes& code);
-        vm_operation create_setabi(const name& contract_name, const abi_def& code);
-        
 
         fc::variant rpc(std::string api, std::string method, fc::variants args = fc::variants());
         
