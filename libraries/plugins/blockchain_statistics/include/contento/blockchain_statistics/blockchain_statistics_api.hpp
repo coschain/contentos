@@ -3,6 +3,7 @@
 #include <contento/blockchain_statistics/blockchain_statistics_plugin.hpp>
 
 #include <fc/api.hpp>
+#include <fc/rpc/binary_api_connection.hpp>
 
 namespace contento { namespace app {
    struct api_context;

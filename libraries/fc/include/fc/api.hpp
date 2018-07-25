@@ -3,8 +3,7 @@
 #include <fc/any.hpp>
 #include <functional>
 #include <boost/config.hpp>
-
-// ms visual c++ (as of 2013) doesn't accept the standard syntax for calling a 
+// ms visual c++ (as of 2013) doesn't accept the standard syntax for calling a
 // templated member function (foo->template bar();)
 #ifdef _MSC_VER
 # define FC_CALL_MEMBER_TEMPLATE_KEYWORD
@@ -43,6 +42,10 @@ namespace fc {
 
   class api_connection;
 
+  namespace bapi {
+      class binary_api_connection;
+  }
+
   typedef uint32_t api_id_type;
 
   class api_base
@@ -54,6 +57,7 @@ namespace fc {
         virtual uint64_t get_handle()const = 0;
 
         virtual api_id_type register_api( api_connection& conn )const = 0;
+        virtual api_id_type register_api2( fc::bapi::binary_api_connection& conn )const = 0;
 
         // defined in api_connection.hpp
         template< typename T >
@@ -88,7 +92,11 @@ namespace fc {
       friend bool operator == ( const api& a, const api& b ) { return a._data == b._data && a._vtable == b._vtable;    }
       friend bool operator != ( const api& a, const api& b ) { return !(a._data == b._data && a._vtable == b._vtable); }
       virtual uint64_t get_handle()const override { return uint64_t(_data.get()); }
-      virtual api_id_type register_api( api_connection& conn )const override;    // defined in api_connection.hpp
+
+//      template< typename T >
+//      virtual api_id_type register_api( T& conn )const override;    // defined in api_connection.hpp
+     virtual api_id_type register_api( api_connection& conn )const override;
+     virtual api_id_type register_api2( fc::bapi::binary_api_connection& conn )const override;
 
       vtable_type& operator*()const  { FC_ASSERT( _vtable ); return *_vtable; }
       vtable_type* operator->()const {  FC_ASSERT( _vtable ); return _vtable.get(); }

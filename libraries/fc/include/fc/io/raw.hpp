@@ -18,6 +18,8 @@
 namespace fc {
     namespace raw {
 
+    //   using datastream_st = fc::datastream<size_t>;
+
     template<typename Stream, typename Arg0, typename... Args>
     inline void pack( Stream& s, const Arg0& a0, Args... args ) {
        pack( s, a0 );
@@ -127,7 +129,7 @@ namespace fc {
     template<typename Stream, typename T>
     inline void pack( Stream& s, const std::shared_ptr<T>& v)
     {
-      fc::raw::pack( s, *v );
+      pack( s, *v );
     }
 
     template<typename Stream, typename T, size_t N>
@@ -140,7 +142,7 @@ namespace fc {
     inline void unpack( Stream& s, std::shared_ptr<T>& v)
     { try {
       v = std::make_shared<T>();
-      fc::raw::unpack( s, *v );
+      unpack( s, *v );
     } FC_RETHROW_EXCEPTIONS( warn, "std::shared_ptr<T>", ("type",fc::get_typename<T>::name()) ) }
 
     template<typename Stream> inline void pack( Stream& s, const signed_int& v ) {
@@ -187,45 +189,45 @@ namespace fc {
     template<typename Stream, typename T> inline void unpack( Stream& s, const T& vi )
     {
        T tmp;
-       fc::raw::unpack( s, tmp );
+       unpack( s, tmp );
        FC_ASSERT( vi == tmp );
     }
 
     template<typename Stream> inline void pack( Stream& s, const char* v ) { fc::raw::pack( s, fc::string(v) ); }
 
     template<typename Stream, typename T>
-    void pack( Stream& s, const safe<T>& v ) { fc::raw::pack( s, v.value ); }
+    void pack( Stream& s, const safe<T>& v ) { pack( s, v.value ); }
 
     template<typename Stream, typename T>
-    void unpack( Stream& s, fc::safe<T>& v ) { fc::raw::unpack( s, v.value ); }
+    void unpack( Stream& s, fc::safe<T>& v ) { unpack( s, v.value ); }
 
     template<typename Stream, typename T, unsigned int S, typename Align>
     void pack( Stream& s, const fc::fwd<T,S,Align>& v ) {
-       fc::raw::pack( *v );
+       pack( *v );
     }
 
     template<typename Stream, typename T, unsigned int S, typename Align>
     void unpack( Stream& s, fc::fwd<T,S,Align>& v ) {
-       fc::raw::unpack( *v );
+       unpack( *v );
     }
     template<typename Stream, typename T>
-    void pack( Stream& s, const fc::smart_ref<T>& v ) { fc::raw::pack( s, *v ); }
+    void pack( Stream& s, const fc::smart_ref<T>& v ) { pack( s, *v ); }
 
     template<typename Stream, typename T>
-    void unpack( Stream& s, fc::smart_ref<T>& v ) { fc::raw::unpack( s, *v ); }
+    void unpack( Stream& s, fc::smart_ref<T>& v ) { unpack( s, *v ); }
 
     // optional
     template<typename Stream, typename T>
     void pack( Stream& s, const fc::optional<T>& v ) {
-      fc::raw::pack( s, bool(!!v) );
-      if( !!v ) fc::raw::pack( s, *v );
+      pack( s, bool(!!v) );
+      if( !!v ) pack( s, *v );
     }
 
     template<typename Stream, typename T>
     void unpack( Stream& s, fc::optional<T>& v )
     { try {
-      bool b; fc::raw::unpack( s, b );
-      if( b ) { v = T(); fc::raw::unpack( s, *v ); }
+      bool b; unpack( s, b );
+      if( b ) { v = T(); unpack( s, *v ); }
     } FC_RETHROW_EXCEPTIONS( warn, "optional<${type}>", ("type",fc::get_typename<T>::name() ) ) }
 
     // std::vector<char>
@@ -265,8 +267,18 @@ namespace fc {
        v=(b!=0);
     }
 
-    namespace detail {
+    //https://en.cppreference.com/w/cpp/language/adl
+    // for easy use include order
+    template<typename Stream, typename T>
+    void pack_strip_namespace( Stream& s, const T& v ) {
+       pack(s, v);
+    }
+    template<typename Stream, typename T>
+    void unpack_strip_namespace( Stream& s, T& v ) {
+       unpack(s, v);
+    }
 
+    namespace detail {
       template<typename Stream, typename Class>
       struct pack_object_visitor {
         pack_object_visitor(const Class& _c, Stream& _s)
@@ -274,7 +286,7 @@ namespace fc {
 
         template<typename T, typename C, T(C::*p)>
         void operator()( const char* name )const {
-          fc::raw::pack( s, c.*p );
+          fc::raw::pack_strip_namespace( s, c.*p );
         }
         private:
           const Class& c;
@@ -289,7 +301,7 @@ namespace fc {
         template<typename T, typename C, T(C::*p)>
         inline void operator()( const char* name )const
         { try {
-          fc::raw::unpack( s, c.*p );
+          fc::raw::unpack_strip_namespace( s, c.*p );
         } FC_RETHROW_EXCEPTIONS( warn, "Error unpacking field ${field}", ("field",name) ) }
         private:
           Class&  c;
@@ -372,7 +384,7 @@ namespace fc {
       auto itr = value.begin();
       auto end = value.end();
       while( itr != end ) {
-        fc::raw::pack( s, *itr );
+        pack( s, *itr );
         ++itr;
       }
     }
@@ -385,7 +397,7 @@ namespace fc {
       for( uint32_t i = 0; i < size.value; ++i )
       {
           T tmp;
-          fc::raw::unpack( s, tmp );
+          unpack( s, tmp );
           value.insert( std::move(tmp) );
       }
     }
@@ -393,14 +405,14 @@ namespace fc {
 
     template<typename Stream, typename K, typename V>
     inline void pack( Stream& s, const std::pair<K,V>& value ) {
-       fc::raw::pack( s, value.first );
-       fc::raw::pack( s, value.second );
+       pack( s, value.first );
+       pack( s, value.second );
     }
     template<typename Stream, typename K, typename V>
     inline void unpack( Stream& s, std::pair<K,V>& value )
     {
-       fc::raw::unpack( s, value.first );
-       fc::raw::unpack( s, value.second );
+       unpack( s, value.first );
+       unpack( s, value.second );
     }
 
    template<typename Stream, typename K, typename V>
@@ -409,7 +421,7 @@ namespace fc {
       auto itr = value.begin();
       auto end = value.end();
       while( itr != end ) {
-        fc::raw::pack( s, *itr );
+        pack( s, *itr );
         ++itr;
       }
     }
@@ -423,7 +435,7 @@ namespace fc {
       for( uint32_t i = 0; i < size.value; ++i )
       {
           std::pair<K,V> tmp;
-          fc::raw::unpack( s, tmp );
+          unpack( s, tmp );
           value.insert( std::move(tmp) );
       }
     }
@@ -433,7 +445,7 @@ namespace fc {
       auto itr = value.begin();
       auto end = value.end();
       while( itr != end ) {
-        fc::raw::pack( s, *itr );
+        pack( s, *itr );
         ++itr;
       }
     }
@@ -446,7 +458,7 @@ namespace fc {
       for( uint32_t i = 0; i < size.value; ++i )
       {
           std::pair<K,V> tmp;
-          fc::raw::unpack( s, tmp );
+          unpack( s, tmp );
           value.insert( std::move(tmp) );
       }
     }
@@ -457,7 +469,7 @@ namespace fc {
       auto itr = value.begin();
       auto end = value.end();
       while( itr != end ) {
-        fc::raw::pack( s, *itr );
+        pack( s, *itr );
         ++itr;
       }
     }
@@ -470,7 +482,7 @@ namespace fc {
       auto itr = value.begin();
       auto end = value.end();
       while( itr != end ) {
-        fc::raw::unpack( s, *itr );
+        unpack( s, *itr );
         ++itr;
       }
     }
@@ -481,42 +493,42 @@ namespace fc {
       auto itr = value.begin();
       auto end = value.end();
       while( itr != end ) {
-        fc::raw::pack( s, *itr );
+        pack( s, *itr );
         ++itr;
       }
     }
 
     template<typename Stream, typename T>
     inline void unpack( Stream& s, std::vector<T>& value ) {
-      unsigned_int size; fc::raw::unpack( s, size );
+      unsigned_int size; unpack( s, size );
       FC_ASSERT( size.value*sizeof(T) < MAX_ARRAY_ALLOC_SIZE );
       value.resize(size.value);
       auto itr = value.begin();
       auto end = value.end();
       while( itr != end ) {
-        fc::raw::unpack( s, *itr );
+        unpack( s, *itr );
         ++itr;
       }
     }
 
     template<typename Stream, typename T>
     inline void pack( Stream& s, const std::set<T>& value ) {
-      fc::raw::pack( s, unsigned_int((uint32_t)value.size()) );
+      pack( s, unsigned_int((uint32_t)value.size()) );
       auto itr = value.begin();
       auto end = value.end();
       while( itr != end ) {
-        fc::raw::pack( s, *itr );
+        pack( s, *itr );
         ++itr;
       }
     }
 
     template<typename Stream, typename T>
     inline void unpack( Stream& s, std::set<T>& value ) {
-      unsigned_int size; fc::raw::unpack( s, size );
+      unsigned_int size; unpack( s, size );
       for( uint64_t i = 0; i < size.value; ++i )
       {
         T tmp;
-        fc::raw::unpack( s, tmp );
+        unpack( s, tmp );
         value.insert( std::move(tmp) );
       }
     }
@@ -525,31 +537,31 @@ namespace fc {
 
     template<typename Stream, typename T>
     inline void pack( Stream& s, const T& v ) {
-      fc::raw::detail::if_reflected< typename fc::reflector<T>::is_defined >::pack(s,v);
+      detail::if_reflected< typename fc::reflector<T>::is_defined >::pack(s,v);
     }
     template<typename Stream, typename T>
     inline void unpack( Stream& s, T& v )
     { try {
-      fc::raw::detail::if_reflected< typename fc::reflector<T>::is_defined >::unpack(s,v);
+      detail::if_reflected< typename fc::reflector<T>::is_defined >::unpack(s,v);
     } FC_RETHROW_EXCEPTIONS( warn, "error unpacking ${type}", ("type",fc::get_typename<T>::name() ) ) }
 
     template<typename T>
     inline size_t pack_size(  const T& v )
     {
       datastream<size_t> ps;
-      fc::raw::pack(ps,v );
+      pack(ps,v );
       return ps.tellp();
     }
 
     template<typename T>
     inline std::vector<char> pack(  const T& v ) {
       datastream<size_t> ps;
-      fc::raw::pack(ps,v );
+      pack(ps,v );
       std::vector<char> vec(ps.tellp());
 
       if( vec.size() ) {
         datastream<char*>  ds( vec.data(), size_t(vec.size()) );
-        fc::raw::pack(ds,v);
+        pack(ds,v);
       }
       return vec;
     }
@@ -557,12 +569,12 @@ namespace fc {
     template<typename T, typename... Next>
     inline std::vector<char> pack(  const T& v, Next... next ) {
       datastream<size_t> ps;
-      fc::raw::pack(ps,v,next...);
+      pack(ps,v,next...);
       std::vector<char> vec(ps.tellp());
 
       if( vec.size() ) {
         datastream<char*>  ds( vec.data(), size_t(vec.size()) );
-        fc::raw::pack(ds,v,next...);
+        pack(ds,v,next...);
       }
       return vec;
     }
@@ -574,7 +586,7 @@ namespace fc {
       T tmp;
       if( s.size() ) {
         datastream<const char*>  ds( s.data(), size_t(s.size()) );
-        fc::raw::unpack(ds,tmp);
+        unpack(ds,tmp);
       }
       return tmp;
     } FC_RETHROW_EXCEPTIONS( warn, "error unpacking ${type}", ("type",fc::get_typename<T>::name() ) ) }
@@ -584,14 +596,14 @@ namespace fc {
     { try  {
       if( s.size() ) {
         datastream<const char*>  ds( s.data(), size_t(s.size()) );
-        fc::raw::unpack(ds,tmp);
+        unpack(ds,tmp);
       }
     } FC_RETHROW_EXCEPTIONS( warn, "error unpacking ${type}", ("type",fc::get_typename<T>::name() ) ) }
 
     template<typename T>
     inline void pack( char* d, uint32_t s, const T& v ) {
       datastream<char*> ds(d,s);
-      fc::raw::pack(ds,v );
+      pack(ds,v );
     }
 
     template<typename T>
@@ -599,7 +611,7 @@ namespace fc {
     { try {
       T v;
       datastream<const char*>  ds( d, s );
-      fc::raw::unpack(ds,v);
+      unpack(ds,v);
       return v;
     } FC_RETHROW_EXCEPTIONS( warn, "error unpacking ${type}", ("type",fc::get_typename<T>::name() ) ) }
 
@@ -607,7 +619,7 @@ namespace fc {
     inline void unpack( const char* d, uint32_t s, T& v )
     { try {
       datastream<const char*>  ds( d, s );
-      fc::raw::unpack(ds,v);
+      unpack(ds,v);
     } FC_RETHROW_EXCEPTIONS( warn, "error unpacking ${type}", ("type",fc::get_typename<T>::name() ) ) }
 
    template<typename Stream>
@@ -619,7 +631,7 @@ namespace fc {
       typedef void result_type;
       template<typename T> void operator()( const T& v )const
       {
-         fc::raw::pack( stream, v );
+         pack( stream, v );
       }
    };
 
@@ -632,7 +644,7 @@ namespace fc {
       typedef void result_type;
       template<typename T> void operator()( T& v )const
       {
-         fc::raw::unpack( stream, v );
+         unpack( stream, v );
       }
    };
 
@@ -640,14 +652,14 @@ namespace fc {
     template<typename Stream, typename... T>
     void pack( Stream& s, const static_variant<T...>& sv )
     {
-       fc::raw::pack( s, unsigned_int(sv.which()) );
+       pack( s, unsigned_int(sv.which()) );
        sv.visit( pack_static_variant<Stream>(s) );
     }
 
     template<typename Stream, typename... T> void unpack( Stream& s, static_variant<T...>& sv )
     {
        unsigned_int w;
-       fc::raw::unpack( s, w );
+       unpack( s, w );
        sv.set_which(w.value);
        sv.visit( unpack_static_variant<Stream>(s) );
     }

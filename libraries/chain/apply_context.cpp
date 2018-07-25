@@ -524,5 +524,11 @@ uint64_t apply_context::next_recv_sequence( account_name receiver ) {
    return rs.recv_sequence;
 }
 
+std::vector<char> apply_context::on_vm_request( const std::vector<char>& req_body ){
+   FC_ASSERT(FALSE, "todo");
+   //return control.get_vm_interface()->on_vm_request(req_body);
+}
+
+
 
 } } /// contento::chain

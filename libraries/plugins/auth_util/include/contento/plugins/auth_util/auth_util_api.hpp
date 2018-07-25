@@ -4,6 +4,7 @@
 #include <contento/protocol/types.hpp>
 
 #include <fc/api.hpp>
+#include <fc/rpc/binary_api_connection.hpp>
 #include <fc/crypto/sha256.hpp>
 
 #include <string>

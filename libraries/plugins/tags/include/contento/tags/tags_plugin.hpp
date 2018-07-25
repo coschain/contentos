@@ -8,6 +8,7 @@
 
 #include <fc/thread/future.hpp>
 #include <fc/api.hpp>
+#include <fc/rpc/binary_api_connection.hpp>
 
 namespace contento { namespace tags {
 using namespace contento::chain;
