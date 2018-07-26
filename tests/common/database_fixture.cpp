@@ -62,7 +62,7 @@ clean_database_fixture::clean_database_fixture()
    vest( "initminer", 10000 );
 
    // Fill up the rest of the required miners
-   for( int i = CONTENTO_NUM_INIT_MINERS; i < CONTENTO_MAX_WITNESSES; i++ )
+   for( int i = CONTENTO_NUM_INIT_MINERS; i < 5; i++ )
    {
       account_create( CONTENTO_INIT_MINER_NAME + fc::to_string( i ), init_account_pub_key );
       fund( CONTENTO_INIT_MINER_NAME + fc::to_string( i ), CONTENTO_MIN_PRODUCER_REWARD.amount.value );
