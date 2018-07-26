@@ -10,6 +10,8 @@ namespace contento { namespace chain {
 
 using type_name      = string;
 using field_name     = string;
+//using action_name    = string;
+using action_name16    = string;
 
 struct type_def {
    type_def() = default;
@@ -35,6 +37,19 @@ struct field_def {
    }
 };
 
+struct return_def {
+   return_def() = default;
+   return_def(const type_name& type)
+   :type(type)
+   {}
+
+   type_name  type;
+
+   bool operator==(const return_def& other) const {
+      return type == other.type;
+   }
+};
+
 struct struct_def {
    struct_def() = default;
    struct_def(const type_name& name, const type_name& base, const vector<field_def>& fields)
@@ -44,19 +59,20 @@ struct struct_def {
    type_name            name;
    type_name            base;
    vector<field_def>    fields;
+   return_def           ret;
 
    bool operator==(const struct_def& other) const {
-      return std::tie(name, base, fields) == std::tie(other.name, other.base, other.fields);
+      return std::tie(name, base, fields, ret) == std::tie(other.name, other.base, other.fields, ret);
    }
 };
 
 struct action_def {
    action_def() = default;
-   action_def(const action_name& name, const type_name& type, const string& ricardian_contract)
+   action_def(const action_name16& name, const type_name& type, const string& ricardian_contract)
    :name(name), type(type), ricardian_contract(ricardian_contract)
    {}
 
-   action_name name;
+   action_name16 name;
    type_name   type;
    string      ricardian_contract;
 };
@@ -123,7 +139,8 @@ vector<type_def> common_type_defs();
 
 FC_REFLECT( contento::chain::type_def                         , (new_type_name)(type) )
 FC_REFLECT( contento::chain::field_def                        , (name)(type) )
-FC_REFLECT( contento::chain::struct_def                       , (name)(base)(fields) )
+FC_REFLECT( contento::chain::return_def                       , (type) )
+FC_REFLECT( contento::chain::struct_def                       , (name)(base)(fields)(ret) )
 FC_REFLECT( contento::chain::action_def                       , (name)(type)(ricardian_contract) )
 FC_REFLECT( contento::chain::table_def                        , (name)(index_type)(key_names)(key_types)(type) )
 FC_REFLECT( contento::chain::clause_pair                      , (id)(body) )

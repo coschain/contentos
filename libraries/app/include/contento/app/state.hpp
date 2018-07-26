@@ -97,15 +97,16 @@ namespace contento { namespace app {
       map<uint64_t,applied_operation>         vote_history;
       map<uint64_t,applied_operation>         other_history;
       set<string>                             witness_votes;
-      vector<pair<string,uint32_t>>            tags_usage;
-      vector<pair<account_name_type,uint32_t>> guest_bloggers;
+      // TO YYK SUPPORT
+      map<string,uint32_t>                      tags_usage;
+      map<account_name_type,uint32_t>           guest_bloggers;
 
-      optional<map<uint32_t,extended_limit_order>> open_orders;
-      optional<vector<string>>                comments; /// permlinks for this user
-      optional<vector<string>>                blog; /// blog posts for this user
-      optional<vector<string>>                feed; /// feed posts for this user
-      optional<vector<string>>                recent_replies; /// blog posts for this user
-      optional<vector<string>>                recommended; /// posts recommened for this user
+      map<uint32_t,extended_limit_order>      open_orders;
+      vector<string>                          comments; /// permlinks for this user
+      vector<string>                          blog; /// blog posts for this user
+      vector<string>                          feed; /// feed posts for this user
+      vector<string>                          recent_replies; /// blog posts for this user
+      vector<string>                          recommended; /// posts recommened for this user
    };
 
 

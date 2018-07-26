@@ -14,6 +14,14 @@ vector<type_def> common_type_defs() {
    types.push_back( type_def{"block_id_type", "checksum256"} );
    types.push_back( type_def{"weight_type", "uint16"} );
 
+   types.push_back( type_def{"account_name_type", "name"} );
+   types.push_back( type_def{"share_type", "int64"} );
+   types.push_back( type_def{"id_type", "int64"} );
+   types.push_back( type_def{"digest_type", "checksum256"} );
+
+   types.push_back( type_def{"checksum_type", "checksum160"} );
+
+
    return types;
 }
 

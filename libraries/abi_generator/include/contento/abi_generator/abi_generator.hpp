@@ -292,6 +292,12 @@ namespace contento {
          bool is_vector(const string& type_name);
          string add_vector(const clang::QualType& qt, size_t recursion_depth);
 
+         bool is_map(const clang::QualType& qt);
+         bool is_map(const string& type_name);
+         string add_map(const clang::QualType& qt, size_t recursion_depth);
+
+      bool check_container_support(string type_name, size_t recursion_depth = 0);
+
          bool is_struct(const clang::QualType& qt);
          string add_struct(const clang::QualType& qt, string full_type_name, size_t recursion_depth);
 
@@ -303,6 +309,11 @@ namespace contento {
 
          QualType get_vector_element_type(const clang::QualType& qt);
          string get_vector_element_type(const string& type_name);
+         string get_map_element_type(const string& type_name, bool key);
+
+         QualType get_map_key_element_type(const clang::QualType& qt);
+         QualType get_map_value_element_type(const clang::QualType& qt);
+
 
          clang::QualType get_named_type_if_elaborated(const clang::QualType& qt);
 
@@ -366,7 +377,7 @@ namespace contento {
 
                auto* id = token.getIdentifierInfo();
                if( id == nullptr ) return;
-               if( id->getName() != "contento_ABI" ) return;
+               if( id->getName() != "FC_API" ) return;
 
                const auto& sm = compiler_instance.getSourceManager();
                auto file_name = sm.getFilename(range.getBegin());
@@ -380,7 +391,7 @@ namespace contento {
                clang::SourceLocation e(clang::Lexer::getLocForEndOfToken(_e, 0, sm, compiler_instance.getLangOpts()));
                auto macrostr = string(sm.getCharacterData(b), sm.getCharacterData(e)-sm.getCharacterData(b));
 
-               regex r(R"(contento_ABI\s*\(\s*(.+?)\s*,((?:.+?)*)\s*\))");
+               regex r(R"(FC_API\s*\(\s*(.+?)\s*,((?:.+?)*)\s*\))");
                smatch smatch;
                auto res = regex_search(macrostr, smatch, r);
                ABI_ASSERT( res );

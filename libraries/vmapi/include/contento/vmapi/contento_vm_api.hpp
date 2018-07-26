@@ -68,10 +68,6 @@ class contento_vm_api
 
 } }
 
-FC_API(contento::vmi::contento_vm_api,
-      (get_accounts)
-      (get_account)
-      (get_account_count)
-)
+FC_API(contento::vmi::contento_vm_api, (get_accounts)(get_account)(get_account_count))
 
 

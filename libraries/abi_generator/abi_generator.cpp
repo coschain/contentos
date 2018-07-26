@@ -81,6 +81,7 @@ string abi_generator::translate_type(const string& type_name) {
 
   else if (type_name == "long long"          || type_name == "int64_t")  built_in_type = "int64";
   else if (type_name == "long"               || type_name == "int32_t")  built_in_type = "int32";
+  else if (type_name == "int"                )  built_in_type = "int32";
   else if (type_name == "short"              || type_name == "int16_t")  built_in_type = "int16";
   else if (type_name == "char"               || type_name == "int8_t")   built_in_type = "int8";
   else if (type_name == "double")   built_in_type = "float64";
@@ -140,14 +141,19 @@ bool abi_generator::inspect_type_methods_for_actions(const Decl* decl) { try {
       string field_type_name = add_type(qt, 0);
 
       field_def struct_field{field_name, field_type_name};
-      ABI_ASSERT(is_builtin_type(get_vector_element_type(struct_field.type))
-        || find_struct(get_vector_element_type(struct_field.type))
-        || find_type(get_vector_element_type(struct_field.type))
-        , "Unknown type ${type} [${abi}]",("type",struct_field.type)("abi",*output));
+
+       check_container_support(field_type_name);
 
       type_size[string(struct_field.type)] = is_vector(struct_field.type) ? 0 : ast_context->getTypeSize(qt);
       abi_struct.fields.push_back(struct_field);
     }
+
+    clang::QualType qt = method->getReturnType().getNonReferenceType();
+    qt.setLocalFastQualifiers(0);
+    string ret_type_name = add_type(qt, 0);
+    abi_struct.ret = { ret_type_name };
+
+    check_container_support(ret_type_name);
 
     abi_struct.name = method_name;
     abi_struct.base = "";
@@ -453,12 +459,31 @@ bool abi_generator::is_vector(const clang::QualType& vqt) {
     qt = qt->getAs<clang::ElaboratedType>()->getNamedType();
 
   return isa<clang::TemplateSpecializationType>(qt.getTypePtr()) \
-    && boost::starts_with( get_type_name(qt, false), "vector");
+   && ( boost::starts_with( get_type_name(qt, false), "vector") || boost::starts_with( get_type_name(qt, false), "optional")
+       || boost::starts_with( get_type_name(qt, true), "boost::container::flat_set")
+       || boost::starts_with( get_type_name(qt, true), "std::set")
+       || boost::starts_with( get_type_name(qt, true), "fc::array")
+       || boost::starts_with( get_type_name(qt, false), "deque")
+       );
 }
 
 bool abi_generator::is_vector(const string& type_name) {
   return boost::ends_with(type_name, "[]");
 }
+
+bool abi_generator::is_map(const clang::QualType& vqt){
+   QualType qt(vqt);
+
+   if ( is_elaborated(qt) )
+      qt = qt->getAs<clang::ElaboratedType>()->getNamedType();
+
+   return isa<clang::TemplateSpecializationType>(qt.getTypePtr()) \
+   && ( boost::starts_with( get_type_name(qt, false), "map") || boost::starts_with( get_type_name(qt, false), "flat_map") || boost::starts_with( get_type_name(qt, true), "std::pair") );
+}
+bool abi_generator::is_map(const string& type_name){
+   return boost::starts_with(type_name, "{") && boost::ends_with(type_name, "}");
+}
+
 
 bool abi_generator::is_struct_specialization(const clang::QualType& qt) {
   return is_struct(qt) && isa<clang::TemplateSpecializationType>(qt.getTypePtr());
@@ -467,7 +492,7 @@ bool abi_generator::is_struct_specialization(const clang::QualType& qt) {
 bool abi_generator::is_struct(const clang::QualType& sqt) {
   clang::QualType qt(sqt);
   const auto* type = qt.getTypePtr();
-  return !is_vector(qt) && (type->isStructureType() || type->isClassType());
+  return !is_vector(qt) && !is_map(qt) && (type->isStructureType() || type->isClassType());
 }
 
 clang::QualType abi_generator::get_vector_element_type(const clang::QualType& qt) {
@@ -477,10 +502,33 @@ clang::QualType abi_generator::get_vector_element_type(const clang::QualType& qt
   return arg0.getAsType();
 }
 
+QualType abi_generator::get_map_key_element_type(const clang::QualType& qt){
+   const auto* tst = clang::dyn_cast<const clang::TemplateSpecializationType>(qt.getTypePtr());
+   ABI_ASSERT(tst != nullptr);
+   const clang::TemplateArgument& arg0 = tst->getArg(0);
+   return arg0.getAsType();
+}
+QualType abi_generator::get_map_value_element_type(const clang::QualType& qt){
+   const auto* tst = clang::dyn_cast<const clang::TemplateSpecializationType>(qt.getTypePtr());
+   ABI_ASSERT(tst != nullptr);
+   const clang::TemplateArgument& arg0 = tst->getArg(1);
+   return arg0.getAsType();
+}
+
 string abi_generator::get_vector_element_type(const string& type_name) {
   if( is_vector(type_name) )
     return type_name.substr(0, type_name.size()-2);
   return type_name;
+}
+
+string abi_generator::get_map_element_type(const string& type_name, bool key) {
+   if( is_map(type_name) ){
+      string kv = type_name.substr(1, type_name.size()-2);
+      std::vector<std::string> vecSegTag;
+      boost::split(vecSegTag, kv,boost::is_any_of(","));
+      return vecSegTag[key ? 0 : 1];
+   }
+   return type_name;
 }
 
 string abi_generator::get_type_name(const clang::QualType& qt, bool with_namespace=false) {
@@ -505,6 +553,10 @@ clang::QualType abi_generator::add_typedef(const clang::QualType& tqt, size_t re
   if ( is_vector(underlying_type) ) {
     underlying_type_name = add_vector(underlying_type, recursion_depth);
   }
+
+   if ( is_map(underlying_type) ) {
+      underlying_type_name = add_map(underlying_type, recursion_depth);
+   }
 
   type_def abi_typedef;
   abi_typedef.new_type_name = new_type_name;
@@ -563,14 +615,44 @@ string abi_generator::add_vector(const clang::QualType& vqt, size_t recursion_de
   clang::QualType qt(get_named_type_if_elaborated(vqt));
 
   auto vector_element_type = get_vector_element_type(qt);
-  ABI_ASSERT(!is_vector(vector_element_type), "Only one-dimensional arrays are supported");
 
-  add_type(vector_element_type, recursion_depth);
+   bool is_two_dimens = false;
+   if ( is_vector(vector_element_type) ){
+      vector_element_type = get_vector_element_type(vector_element_type);
+      ABI_ASSERT(!is_vector(vector_element_type), "Only two-dimensional arrays are supported");
+      is_two_dimens = true;
+   }
 
-  auto vector_element_type_str = translate_type(get_type_name(vector_element_type));
+  string result = add_type(vector_element_type, recursion_depth);
+
+  auto vector_element_type_str = translate_type(result);
   vector_element_type_str += "[]";
 
+   if (is_two_dimens)
+      vector_element_type_str += "[]";
+
   return vector_element_type_str;
+}
+
+string abi_generator::add_map(const clang::QualType& vqt, size_t recursion_depth){
+   ABI_ASSERT( ++recursion_depth < max_recursion_depth, "recursive definition, max_recursion_depth" );
+
+   clang::QualType qt(get_named_type_if_elaborated(vqt));
+
+   auto key_element_type = get_map_key_element_type(qt);
+   ABI_ASSERT(!is_map(key_element_type), "nested map did not supported");
+   string key_desc = add_type(key_element_type, recursion_depth);
+
+   auto value_element_type = get_map_value_element_type(qt);
+   ABI_ASSERT(!is_map(value_element_type), "nested map did not supported");
+   string value_desc = add_type(value_element_type, recursion_depth);
+
+   auto map_key_element_type_str = translate_type(key_desc);
+   auto map_value_element_type_str = translate_type(value_desc);
+
+   string result = "{";
+   result += map_key_element_type_str + "," + map_value_element_type_str + "}";
+   return result;
 }
 
 string abi_generator::add_type(const clang::QualType& tqt, size_t recursion_depth) {
@@ -600,9 +682,18 @@ string abi_generator::add_type(const clang::QualType& tqt, size_t recursion_dept
     return is_type_def ? type_name : vector_type_name;
   }
 
+   if ( is_map(qt) ){
+      auto map_type_name = add_map(qt, recursion_depth);
+      return is_type_def ? type_name : map_type_name;
+   }
+
   if( is_struct(qt) ) {
     return add_struct(qt, full_type_name, recursion_depth);
   }
+
+   if ( qt.getTypePtr()->isEnumeralType() ){
+      return "int64";
+   }
 
   ABI_ASSERT(false, "types can only be: vector, struct, class or a built-in type. (${type}) ", ("type",get_type_name(qt)));
   return type_name;
@@ -615,11 +706,38 @@ clang::QualType abi_generator::get_named_type_if_elaborated(const clang::QualTyp
   return qt;
 }
 
+bool abi_generator::check_container_support(string type_name, size_t recursion_depth ){
+
+   ABI_ASSERT(recursion_depth <= 2, "recursion_depth must less 3");
+
+   if ( is_map(type_name) ){
+      string key_type = get_map_element_type(type_name, true);
+      check_container_support(key_type, recursion_depth + 1 );
+      string value_type = get_map_element_type(type_name, false);
+      check_container_support(value_type, recursion_depth + 1 );
+
+   } else if ( is_vector(type_name) ){
+      string vec_type = get_vector_element_type(type_name);
+      check_container_support(vec_type, recursion_depth + 1 );
+   }
+   else {
+      ABI_ASSERT(is_builtin_type(get_vector_element_type(type_name))
+                 || find_struct(get_vector_element_type(type_name))
+                 || find_type(get_vector_element_type(type_name))
+                 , "Unknown type ${type} [${abi}]",("type",type_name)("abi",*output));
+   }
+
+   return true;
+}
+
+
 string abi_generator::add_struct(const clang::QualType& sqt, string full_name, size_t recursion_depth) {
 
   ABI_ASSERT( ++recursion_depth < max_recursion_depth, "recursive definition, max_recursion_depth" );
 
   clang::QualType qt(get_named_type_if_elaborated(sqt));
+
+   std::cout << "start add struct: " << full_name << std::endl;
 
   if( full_name.empty() ) {
     full_name = get_type_name(qt, true);
@@ -658,13 +776,16 @@ string abi_generator::add_struct(const clang::QualType& sqt, string full_name, s
     clang::QualType qt = field->getType();
 
     string field_name = field->getNameAsString();
+
+     if (field_name == "account_auths" ){
+        int a= 0;
+     }
+
     string field_type_name = add_type(qt, recursion_depth);
 
     field_def struct_field{field_name, field_type_name};
-    ABI_ASSERT(is_builtin_type(get_vector_element_type(struct_field.type))
-      || find_struct(get_vector_element_type(struct_field.type))
-      || find_type(get_vector_element_type(struct_field.type))
-      , "Unknown type ${type} [${abi}]",("type",struct_field.type)("abi",*output));
+
+   check_container_support(struct_field.type);
 
     type_size[string(struct_field.type)] = is_vector(struct_field.type) ? 0 : ast_context->getTypeSize(qt);
     abi_struct.fields.push_back(struct_field);

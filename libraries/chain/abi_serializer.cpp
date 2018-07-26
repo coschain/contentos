@@ -86,8 +86,18 @@ namespace contento { namespace chain {
       built_in_types.emplace("checksum256",               pack_unpack<checksum256_type>());
       built_in_types.emplace("checksum512",               pack_unpack<checksum512_type>());
 
+      built_in_types.emplace("public_key_type",           pack_unpack<public_key_type>());
       built_in_types.emplace("public_key",                pack_unpack<public_key_type>());
       built_in_types.emplace("signature",                 pack_unpack<signature_type>());
+      built_in_types.emplace("signature_type",            pack_unpack<signature_type>());
+
+      built_in_types.emplace("operation",                 pack_unpack<operation>());
+
+      built_in_types.emplace("block_header_extensions_type",                 pack_unpack<block_header_extensions_type>());
+      built_in_types.emplace("future_extensions",                 pack_unpack<future_extensions>());
+      built_in_types.emplace("variant_object",                 pack_unpack<fc::variant_object>());
+
+
 
       //built_in_types.emplace("symbol",                    pack_unpack<symbol>());
       //built_in_types.emplace("symbol_code",               pack_unpack<symbol_code>());
@@ -160,6 +170,10 @@ namespace contento { namespace chain {
       return ends_with(string(type), "[]");
    }
 
+   bool abi_serializer::is_map(const type_name& type)const {
+      return ends_with(string(type), "}") && starts_with(string(type), "{");
+   }
+
    bool abi_serializer::is_optional(const type_name& type)const {
       return ends_with(string(type), "?");
    }
@@ -169,6 +183,8 @@ namespace contento { namespace chain {
          return type_name(string(type).substr(0, type.size()-2));
       } else if ( is_optional(type) ) {
          return type_name(string(type).substr(0, type.size()-1));
+      }  else if ( is_map(type) ) {
+         return type_name(string(type).substr(1, type.size()-2));
       } else {
        return type;
       }

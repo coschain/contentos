@@ -16,6 +16,9 @@ using std::pair;
 using namespace fc;
 using namespace protocol;
 
+
+using name16 = std::string;
+
 namespace impl {
   struct abi_from_variant;
   struct abi_to_variant;
@@ -32,8 +35,8 @@ struct abi_serializer {
 
    map<type_name, type_name>  typedefs;
    map<type_name, struct_def> structs;
-   map<name,type_name>        actions;
-   map<name,type_name>        tables;
+   map<name16,type_name>        actions;
+   map<name16,type_name>        tables;
    map<uint64_t, string>      error_messages;
 
    typedef std::function<fc::variant(fc::datastream<const char*>&, bool, bool)>  unpack_function;
@@ -46,6 +49,7 @@ struct abi_serializer {
 
    type_name resolve_type(const type_name& t)const;
    bool      is_array(const type_name& type)const;
+   bool      is_map(const type_name& type)const;
    bool      is_optional(const type_name& type)const;
    bool      is_type(const type_name& type)const {
       return _is_type(type, 0);
