@@ -765,8 +765,9 @@ struct intrinsic_price_function_wrapper {
     intrinsic_price_function_wrapper(f_type f) : _fp(f) {}
     
     price_fn fn() {
-        return [=](apply_context *context, Literal& v) {
-            return _fp? _fp( context, convert_literal_to_native<R>(v) ) : 0;
+        f_type fp = _fp;
+        return [fp](apply_context *context, Literal& v) {
+            return fp? fp( context, convert_literal_to_native<R>(v) ) : 0;
         };
     }
 
@@ -775,14 +776,15 @@ struct intrinsic_price_function_wrapper {
 
 template<>
 struct intrinsic_price_function_wrapper<void> {
-    using f_type = uint64_t(*)(apply_context*);
+    using f_type = uint64_t(*)(apply_context*, void*);
     using price_fn = intrinsic_price_registrator::price_fn;
         
     intrinsic_price_function_wrapper(f_type f) : _fp(f) {}
 
     price_fn fn() {
-        return [=](apply_context *context, Literal&) {
-            return _fp? _fp( context ) : 0;
+        f_type fp = _fp;
+        return [fp](apply_context *context, Literal&) {
+            return fp? fp( context, nullptr ) : 0;
         };
     }
     
