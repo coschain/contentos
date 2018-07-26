@@ -23,7 +23,8 @@ namespace protocol {
    struct chain_id_type : public fc::sha256 {
       using fc::sha256::sha256;
 
-       chain_id_type(const fc::string& str):fc::sha256(str){
+      chain_id_type(const fc::sha256& s) {
+        memcpy(_hash, s._hash, sizeof(_hash));
       }
        
       template<typename T>
