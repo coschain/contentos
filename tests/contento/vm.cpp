@@ -1,4 +1,4 @@
-#ifdef IS_TEST_NET
+//#ifdef IS_TEST_NET
 #include <boost/test/unit_test.hpp>
 
 #include <contento/chain/account_object.hpp>
@@ -48,15 +48,15 @@ static void set_code(database &db, fc::ecc::private_key key, const name& contrac
 
 BOOST_FIXTURE_TEST_SUITE( vm, contento_fixture )
 
-BOOST_AUTO_TEST_CASE( setcode )
+BOOST_AUTO_TEST_CASE( setcodes )
 {
-    ACTORS((hector));
+    ACTORS((hector)(jesse));
     fund("hector", 100);
     bytes code; // TODOO:
-    set_code(db, hector_post_key, N(hector), code);
+    //set_code(db, hector_post_key, N(hector), code);
     
     //BOOST_REQUIRE_THROW( report_comment(db, "user3", "bob", "b001", "1.000 TESTS", "porn", true, true, user3_private_key), fc::exception );
-    //BOOST_REQUIRE_NO_THROW( grant_admin(db, get_councillor_account_name(0), get_councillor_private_key(0), "user3", admin_type::comment_delete, true) );
+    BOOST_REQUIRE_NO_THROW( set_code(db, hector_post_key, N(hector), code) );
     
     //BOOST_TEST_REQUIRE( comment_exists(db, "alice", "a001") );
     
@@ -64,4 +64,4 @@ BOOST_AUTO_TEST_CASE( setcode )
 
 BOOST_AUTO_TEST_SUITE_END()
 
-#endif // IS_TEST_NET
+//#endif // IS_TEST_NET
