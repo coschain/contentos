@@ -958,9 +958,10 @@ class wallet_api
        * 
        * @param accountname The account who want to publish a contract
        * @param contract_dir filepath of .wast and .abi file
+       * @param contract_name name of the contract
        * @param broadcast true if you wish to broadcast the transaction
        */
-      annotated_signed_transaction set_contract(string accountname, string contract_dir, bool broadcast);
+      annotated_signed_transaction set_contract(string accountname, string contract_dir, string contract_name, bool broadcast);
 
       /**
        *  Account operations have sequence numbers from 0 to N where N is the most recent operation. This method
