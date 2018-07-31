@@ -35,7 +35,7 @@ struct intrinsic_registrator {
 };
 
 struct intrinsic_price_registrator {
-    using price_fn = std::function<uint64_t(apply_context*, Literal&)>;
+    using price_fn = std::function<uint64_t(apply_context*, Literal&, LiteralList&)>;
     
     static auto& get_map(){
         static map<string, price_fn> _map;
@@ -48,7 +48,7 @@ struct intrinsic_price_registrator {
     }
     
     static price_fn price(uint64_t r) {
-        return [=](apply_context*, Literal&) { return r; };
+        return [=](apply_context*, Literal&, LiteralList&) { return r; };
     }
     
     static auto& get_basic_map() {
@@ -175,27 +175,29 @@ struct interpreter_interface : ModuleInstance::ExternalInterface {
    void store32(Address addr, int32_t value) override { store_memory(addr, value); }
    void store64(Address addr, int64_t value) override { store_memory(addr, value); }
 
-    void report(InfoType type, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3) override {
+    void report(InfoType type, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3, uintptr_t arg4) override {
         if (type != InfoTypeRunExpression)
             return;
-        
+
         if (arg1 <= wasm::Expression::InvalidId || arg1 >= wasm::Expression::NumExpressionIds)
             return;
-        
+
         wasm::Expression::Id expr_id = static_cast<wasm::Expression::Id>(arg1);
         uint64_t price = 0;
         if (expr_id == wasm::Expression::CallImportId) {
-            
+
             auto info_iter = import_lut.find(arg2);
             if (info_iter != import_lut.end()) {
                 Literal result = *(Literal *)arg3;
-                price = info_iter->second.second( &context, result );
+                LiteralList args = *(LiteralList *)arg4;
+                auto pf = info_iter->second.second;
+                price = pf( &context, result, args );
             }
-            
+
         } else {
             price = intrinsic_price_registrator::get_basic_price(expr_id);
         }
-        
+
         context.add_action_price( price, expr_id );
     }
     
@@ -749,48 +751,107 @@ struct intrinsic_function_invoker_wrapper<Ret (Cls::*)(Params...) const volatile
    using type = intrinsic_function_invoker<Ret, Ret (Cls::*)(Params...) const volatile, Cls, Params...>;
 };
 
-template<typename> struct intrinsic_wasm_ret;
-
-template<typename Ret, typename... Params>
-struct intrinsic_wasm_ret<Ret(Params...)> {
-    using type = Ret;
-};
-
+////////////////
     
-template<typename R>
-struct intrinsic_price_function_wrapper {
-    using f_type = uint64_t(*)(apply_context*, R);
-    using price_fn = intrinsic_price_registrator::price_fn;
-
-    intrinsic_price_function_wrapper(f_type f) : _fp(f) {}
-    
-    price_fn fn() {
-        f_type fp = _fp;
-        return [fp](apply_context *context, Literal& v) {
-            return fp? fp( context, convert_literal_to_native<R>(v) ) : 0;
+    template<typename R, typename Arg0, typename...Args>
+    inline std::function<uint64_t(apply_context*, R, Args...)> intrinsic_price_bind_first_arg( std::function<uint64_t(apply_context*, R, Arg0, Args...)>&fn, Arg0 arg0) {
+        return [=](apply_context* context, R r, Args...args) {
+            return fn( context, r, arg0, args... );
         };
     }
-
-    f_type _fp;
-};
-
-template<>
-struct intrinsic_price_function_wrapper<void> {
-    using f_type = uint64_t(*)(apply_context*, void*);
-    using price_fn = intrinsic_price_registrator::price_fn;
+    
+    template<typename R>
+    inline uint64_t intrinsic_price_wrap_call( std::function<uint64_t(apply_context*, R)> fn, apply_context* context, Literal& ret, const LiteralList::iterator& params_it ) {
+        return fn( context, convert_literal_to_native<R>(ret) );
+    }
+    
+    template<typename R, typename Arg>
+    inline uint64_t intrinsic_price_wrap_call( std::function<uint64_t(apply_context*, R, Arg)> fn, apply_context* context, Literal& ret, const LiteralList::iterator& params_it ) {
+        return fn( context, convert_literal_to_native<R>(ret), convert_literal_to_native<Arg>(*params_it) );
+    }
+    
+    template<typename R, typename Arg0, typename...Args>
+    inline uint64_t intrinsic_price_wrap_call( std::function<uint64_t(apply_context*, R, Arg0, Args...)> fn, apply_context* context, Literal& ret, const LiteralList::iterator& params_it ) {
+        auto next_fn = intrinsic_price_bind_first_arg( fn, convert_literal_to_native<Arg0>(*params_it) );
+        return intrinsic_price_wrap_call( next_fn, context, ret, params_it + 1 );
+    }
+    
+    template<typename Arg0, typename...Args>
+    inline std::function<uint64_t(apply_context*, void*, Args...)> intrinsic_price_bind_first_arg( std::function<uint64_t(apply_context*, void*, Arg0, Args...)>&fn, Arg0 arg0) {
+        return [=](apply_context* context, void* r, Args...args) {
+            return fn( context, r, arg0, args... );
+        };
+    }
+    
+    template<>
+    inline uint64_t intrinsic_price_wrap_call( std::function<uint64_t(apply_context*, void*)> fn, apply_context* context, Literal& ret, const LiteralList::iterator& params_it ) {
+        return fn( context, nullptr );
+    }
+    
+    template<typename Arg>
+    inline uint64_t intrinsic_price_wrap_call( std::function<uint64_t(apply_context*, void*, Arg)> fn, apply_context* context, Literal& ret, const LiteralList::iterator& params_it ) {
+        return fn( context, nullptr, convert_literal_to_native<Arg>(*params_it) );
+    }
+    
+    template<typename Arg0, typename...Args>
+    inline uint64_t intrinsic_price_wrap_call( std::function<uint64_t(apply_context*, void*, Arg0, Args...)> fn, apply_context* context, Literal& ret, const LiteralList::iterator& params_it ) {
+        auto next_fn = intrinsic_price_bind_first_arg( fn, convert_literal_to_native<Arg0>(*params_it) );
+        return intrinsic_price_wrap_call( next_fn, context, ret, params_it + 1 );
+    }
+    
+    template <typename> struct intrinsic_price_function_wrapper;
+    
+    template <typename R, typename...Args>
+    struct intrinsic_price_function_wrapper< uint64_t(apply_context*, R, Args...) > {
         
-    intrinsic_price_function_wrapper(f_type f) : _fp(f) {}
-
-    price_fn fn() {
-        f_type fp = _fp;
-        return [fp](apply_context *context, Literal&) {
-            return fp? fp( context, nullptr ) : 0;
-        };
-    }
+        using f_type = uint64_t(apply_context*, R, Args...);
+        using f_ptr_type = f_type*;
+        using functor_type = std::function<f_type>;
+        using price_fn = intrinsic_price_registrator::price_fn;
+        
+        intrinsic_price_function_wrapper( f_ptr_type fp ): _fp(fp) { }
+        
+        price_fn fn() {
+            functor_type fp = _fp;
+            return [fp] (apply_context* context, Literal& ret, LiteralList& args) {
+                return intrinsic_price_wrap_call( fp, context, ret, args.begin() );
+            };
+        }
+        
+        functor_type _fp;
+    };
     
-    f_type _fp;
-};
-
+    template <typename...Args>
+    struct intrinsic_price_function_wrapper< uint64_t(apply_context*, void*, Args...) > {
+        
+        using f_type = uint64_t(apply_context*, void*, Args...);
+        using f_ptr_type = f_type*;
+        using functor_type = std::function<f_type>;
+        using price_fn = intrinsic_price_registrator::price_fn;
+        
+        intrinsic_price_function_wrapper( f_ptr_type fp ): _fp(fp) { }
+        
+        price_fn fn() {
+            functor_type fp = _fp;
+            return [fp] (apply_context* context, Literal& ret, LiteralList& args) {
+                return intrinsic_price_wrap_call( fp, context, ret, args.begin() );
+            };
+        }
+        
+        functor_type _fp;
+    };
+    
+    template <typename> struct intrinsic_price_wasm_sig;
+    
+    template <typename R, typename...Args>
+    struct intrinsic_price_wasm_sig<R(Args...)> {
+        using f_type = uint64_t(apply_context*, R, Args...);
+    };
+    template <typename...Args>
+    struct intrinsic_price_wasm_sig<void(Args...)> {
+        using f_type = uint64_t(apply_context*, void*, Args...);
+    };
+    
 
 #define _ADD_PAREN_1(...) ((__VA_ARGS__)) _ADD_PAREN_2
 #define _ADD_PAREN_2(...) ((__VA_ARGS__)) _ADD_PAREN_1
@@ -809,7 +870,7 @@ struct intrinsic_price_function_wrapper<void> {
     static eosio::chain::webassembly::binaryen::intrinsic_price_registrator _INTRINSIC_NAME(__binaryen_intrinsic_price, __COUNTER__) (\
         MOD "." NAME,\
         eosio::chain::webassembly::binaryen::intrinsic_price_function_wrapper\
-            <eosio::chain::webassembly::binaryen::intrinsic_wasm_ret<WASM_SIG>::type>(PRICE).fn()\
+            <eosio::chain::webassembly::binaryen::intrinsic_price_wasm_sig<WASM_SIG>::f_type>(PRICE).fn()\
     );
 
 #define _REGISTER_BINARYEN_INTRINSIC(CLS, MOD, METHOD, WASM_SIG, NAME, SIG)\

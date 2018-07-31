@@ -560,7 +560,7 @@ public:
           
           InfoTypeCount
       };
-      virtual void report(InfoType type, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3)  {}
+      virtual void report(InfoType type, uintptr_t arg1, uintptr_t arg2, uintptr_t arg3, uintptr_t arg4)  {}
 
     // the default impls for load and store switch on the sizes. you can either
     // customize load/store, or the sub-functions which they call
@@ -752,6 +752,8 @@ public:
       RuntimeExpressionRunner(ModuleInstanceBase& instance, FunctionScope& scope) : instance(instance), scope(scope) {}
 
       Flow last_call;
+      LiteralList last_call_args;
+      
       Flow generateArguments(const ExpressionList& operands, LiteralList& arguments) {
         NOTE_ENTER_("generateArguments");
         arguments.reserve(operands.size());
@@ -761,6 +763,7 @@ public:
           NOTE_EVAL1(flow.value);
           arguments.push_back(flow.value);
         }
+
         return Flow();
       }
 
@@ -769,11 +772,15 @@ public:
         NOTE_NAME(curr->target);
         LiteralList arguments;
         Flow flow = generateArguments(curr->operands, arguments);
-        if (flow.breaking()) return flow;
+          if (flow.breaking()) {
+              last_call_args = arguments;
+              return flow;
+          }
         Flow ret = instance.callFunctionInternal(curr->target, arguments);
 #ifdef WASM_INTERPRETER_DEBUG
         std::cout << "(returned to " << scope.function->name << ")\n";
 #endif
+          last_call_args = arguments;
         return ret;
       }
 
@@ -787,8 +794,13 @@ public:
         NOTE_ENTER("CallImport");
         LiteralList arguments;
         Flow flow = generateArguments(curr->operands, arguments);
-        if (flow.breaking()) return flow;
-        return instance.externalInterface->callImport(instance.wasm.getImport(curr->target), arguments);
+          if (flow.breaking()) {
+              last_call_args = arguments;
+              return flow;
+          }
+        Flow ret = instance.externalInterface->callImport(instance.wasm.getImport(curr->target), arguments);
+          last_call_args = arguments;
+          return ret;
       }
 
       Flow visitCallImport(CallImport *curr) {
@@ -801,11 +813,19 @@ public:
         NOTE_ENTER("CallIndirect");
         LiteralList arguments;
         Flow flow = generateArguments(curr->operands, arguments);
-        if (flow.breaking()) return flow;
+          if (flow.breaking()) {
+              last_call_args = arguments;
+              return flow;
+          }
         Flow target = this->visit(curr->target);
-        if (target.breaking()) return target;
+          if (target.breaking()) {
+              last_call_args = arguments;
+              return target;
+          }
         Index index = target.value.geti32();
-        return instance.externalInterface->callTable(index, arguments, curr->type, *instance.self());
+        Flow ret = instance.externalInterface->callTable(index, arguments, curr->type, *instance.self());
+          last_call_args = arguments;
+          return ret;
       }
 
       Flow visitCallIndirect(CallIndirect *curr) {
@@ -911,22 +931,24 @@ public:
         
         void reportVisit(Expression *curr) {
             
-            #define REPORT_EXTERNAL2(p1, p2)  \
+            #define REPORT_EXTERNAL3(p1, p2, p3)  \
                  if (instance.externalInterface) { \
                    instance.externalInterface->report( \
                       ModuleInstanceBase::ExternalInterface::InfoTypeRunExpression, \
                       (uintptr_t)(curr->_id), \
                       (uintptr_t)(p1), \
-                      (uintptr_t)(p2) ); }
+                      (uintptr_t)(p2), \
+                      (uintptr_t)(p3) ); }
             
-            #define REPORT_EXTERNAL1(p)  REPORT_EXTERNAL2(p, 0)
-            #define REPORT_EXTERNAL(...) REPORT_EXTERNAL2(0, 0)
+            #define REPORT_EXTERNAL2(p1, p2)  REPORT_EXTERNAL3(p1, p2, 0)
+            #define REPORT_EXTERNAL1(p)       REPORT_EXTERNAL3(p, 0, 0)
+            #define REPORT_EXTERNAL(...)      REPORT_EXTERNAL3(0, 0, 0)
             
             //---
             
             if ( curr->is<CallImport>() ) {
                 CallImport *import = static_cast<CallImport *>(curr);
-                REPORT_EXTERNAL2( instance.wasm.getImport(import->target), &(last_call.value) );
+                REPORT_EXTERNAL3( instance.wasm.getImport(import->target), &(last_call.value), &last_call_args );
             } else {
                 REPORT_EXTERNAL();
             }
@@ -936,6 +958,7 @@ public:
             #undef REPORT_EXTERNAL
             #undef REPORT_EXTERNAL1
             #undef REPORT_EXTERNAL2
+            #undef REPORT_EXTERNAL3
         }
         
         

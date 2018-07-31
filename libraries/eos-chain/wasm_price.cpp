@@ -1,12 +1,12 @@
 #include "wasm_price.hpp"
 
 #define WASM_PRICE_FN_CONST_IMPL(PRICE)                 { return (uint64_t)(PRICE); }
-#define WASM_PRICE_FN_CONST(NAME, RET_TYPE, PRICE)      WASM_PRICE_FN_DECL(NAME, RET_TYPE) WASM_PRICE_FN_CONST_IMPL(PRICE)
+#define WASM_PRICE_FN_CONST(NAME, SIG, PRICE)           WASM_PRICE_FN_DECL(NAME, SIG) WASM_PRICE_FN_CONST_IMPL(PRICE)
 
-#define _WASM_PRICE_FN_INFO_NAME(NAME, RET_TYPE)        NAME
-#define _WASM_PRICE_FN_INFO_RET(NAME, RET_TYPE)         RET_TYPE
-#define _WASM_PRICE_FN_CONST(R, PREFIX, INFO)           WASM_PRICE_FN_CONST(_WASM_PRICE_FN_INFO_NAME INFO, _WASM_PRICE_FN_INFO_RET INFO, BOOST_PP_CAT(PREFIX, _WASM_PRICE_FN_INFO_NAME INFO))
-#define WASM_PRICE_FN_CONSTS(SEQ)                       BOOST_PP_SEQ_FOR_EACH(_WASM_PRICE_FN_CONST, WASM_PRICE_FN_, SEQ)
+#define _WASM_PRICE_FN_INFO_NAME(NAME, SIG)             NAME
+#define _WASM_PRICE_FN_INFO_SIG(NAME, SIG)              SIG
+#define _WASM_PRICE_FN_CONST(R, PREFIX, INFO)           WASM_PRICE_FN_CONST(_WASM_PRICE_FN_INFO_NAME INFO, _WASM_PRICE_FN_INFO_SIG INFO, BOOST_PP_CAT(PREFIX, _WASM_PRICE_FN_INFO_NAME INFO))
+#define WASM_PRICE_FN_CONSTS(SEQ)                       BOOST_PP_SEQ_FOR_EACH(_WASM_PRICE_FN_CONST, WASM_PRICE_FN_, WASM_PRICE_FN_WRAP_SEQ(SEQ))
 
 //
 // constant prices for intrinsic functions
@@ -283,263 +283,297 @@
 #define WASM_PRICE_FN__eosio_ui64_to_f64                                     0
 
 namespace eosio { namespace chain { namespace wasm_price {
+    
+    /*
+     A price function returns uint64_t price value based on given intrinsic operands and result.
+     
+     For example, __eqtf2 has a wasm signature of int(int64_t, int64_t, int64_t, int64_t).
+     So that the intrinsic takes 4 int64_t operands and returns an int.
+     Its price function will be `uint64_t eosio::chain::wasm_price::__eqtf2(apply_context*, int, int64_t, int64_t, int64_t, int64_t)`,
+     which returns uint64_t price based on __eqtf2's result (2nd arg) and operands (3rd, 4th, 5th and 6th arg).
+     
+     An apply_context* is given as the 1st arg of price functions for even more complex price logics.
+     
+     For intrincs that return nothing (i.e. void), the 2nd arg of their price functions will be a (void*)nullptr.
+     */
+    
+    ///////////////////////////////////
+    //
+    // complex price functions
+    //
+    ///////////////////////////////////
+    
+    // none so far...
+    
+    
 
+    ///////////////////////////////////
+    //
+    // constant price functions
+    //
+    ///////////////////////////////////
+    
+    /*
+     WASM_PRICE_FN_CONSTS macro defines price functions that simply return constant values.
+     The constant price for intrinsic X will be WASM_PRICE_FN_##X.
+     */
+    
+    
     // call_depth_api
     WASM_PRICE_FN_CONSTS(
-                        ((call_depth_assert,  void))
-                        );
+                         (call_depth_assert,  (void*)               )
+                         );
     
     // compiler_builtins
     WASM_PRICE_FN_CONSTS(
-                        ((__ashlti3,     void))
-                        ((__ashrti3,     void))
-                        ((__lshlti3,     void))
-                        ((__lshrti3,     void))
-                        ((__divti3,      void))
-                        ((__udivti3,     void))
-                        ((__modti3,      void))
-                        ((__umodti3,     void))
-                        ((__multi3,      void))
-                        ((__addtf3,      void))
-                        ((__subtf3,      void))
-                        ((__multf3,      void))
-                        ((__divtf3,      void))
-                        ((__eqtf2,       int))
-                        ((__netf2,       int))
-                        ((__getf2,       int))
-                        ((__gttf2,       int))
-                        ((__lttf2,       int))
-                        ((__letf2,       int))
-                        ((__cmptf2,      int))
-                        ((__unordtf2,    int))
-                        ((__negtf2,      void))
-                        ((__floatsitf,   void))
-                        ((__floatunsitf, void))
-                        ((__floatditf,   void))
-                        ((__floatunditf, void))
-                        ((__floattidf,   double))
-                        ((__floatuntidf, double))
-                        ((__floatsidf,   double))
-                        ((__extendsftf2, void))
-                        ((__extenddftf2, void))
-                        ((__fixtfti,     void))
-                        ((__fixtfdi,     int64_t))
-                        ((__fixtfsi,     int))
-                        ((__fixunstfti,  void))
-                        ((__fixunstfdi,  int64_t))
-                        ((__fixunstfsi,  int))
-                        ((__fixsfti,     void))
-                        ((__fixdfti,     void))
-                        ((__fixunssfti,  void))
-                        ((__fixunsdfti,  void))
-                        ((__trunctfdf2,  double))
-                        ((__trunctfsf2,  float))
-                        );
+                         (__ashlti3,     (void*, int, int64_t, int64_t, int)               )
+                         (__ashrti3,     (void*, int, int64_t, int64_t, int)               )
+                         (__lshlti3,     (void*, int, int64_t, int64_t, int)               )
+                         (__lshrti3,     (void*, int, int64_t, int64_t, int)               )
+                         (__divti3,      (void*, int, int64_t, int64_t, int64_t, int64_t)  )
+                         (__udivti3,     (void*, int, int64_t, int64_t, int64_t, int64_t)  )
+                         (__modti3,      (void*, int, int64_t, int64_t, int64_t, int64_t)  )
+                         (__umodti3,     (void*, int, int64_t, int64_t, int64_t, int64_t)  )
+                         (__multi3,      (void*, int, int64_t, int64_t, int64_t, int64_t)  )
+                         (__addtf3,      (void*, int, int64_t, int64_t, int64_t, int64_t)  )
+                         (__subtf3,      (void*, int, int64_t, int64_t, int64_t, int64_t)  )
+                         (__multf3,      (void*, int, int64_t, int64_t, int64_t, int64_t)  )
+                         (__divtf3,      (void*, int, int64_t, int64_t, int64_t, int64_t)  )
+                         (__eqtf2,       (int, int64_t, int64_t, int64_t, int64_t)        )
+                         (__netf2,       (int, int64_t, int64_t, int64_t, int64_t)        )
+                         (__getf2,       (int, int64_t, int64_t, int64_t, int64_t)        )
+                         (__gttf2,       (int, int64_t, int64_t, int64_t, int64_t)        )
+                         (__lttf2,       (int, int64_t, int64_t, int64_t, int64_t)        )
+                         (__letf2,       (int, int64_t, int64_t, int64_t, int64_t)        )
+                         (__cmptf2,      (int, int64_t, int64_t, int64_t, int64_t)        )
+                         (__unordtf2,    (int, int64_t, int64_t, int64_t, int64_t)        )
+                         (__negtf2,      (void*, int, int64_t, int64_t)                   )
+                         (__floatsitf,   (void*, int, int)                                )
+                         (__floatunsitf, (void*, int, int)                                )
+                         (__floatditf,   (void*, int, int64_t)                            )
+                         (__floatunditf, (void*, int, int64_t)                            )
+                         (__floattidf,   (double, int64_t, int64_t)                      )
+                         (__floatuntidf, (double, int64_t, int64_t)                      )
+                         (__floatsidf,   (double, int)                                    )
+                         (__extendsftf2, (void*, int, float)                               )
+                         (__extenddftf2, (void*, int, double)                              )
+                         (__fixtfti,     (void*, int, int64_t, int64_t)                    )
+                         (__fixtfdi,     (int64_t, int64_t, int64_t)                      )
+                         (__fixtfsi,     (int, int64_t, int64_t)                          )
+                         (__fixunstfti,  (void*, int, int64_t, int64_t)                    )
+                         (__fixunstfdi,  (int64_t, int64_t, int64_t)                      )
+                         (__fixunstfsi,  (int, int64_t, int64_t)                          )
+                         (__fixsfti,     (void*, int, float)                               )
+                         (__fixdfti,     (void*, int, double)                              )
+                         (__fixunssfti,  (void*, int, float)                               )
+                         (__fixunsdfti,  (void*, int, double)                              )
+                         (__trunctfdf2,  (double, int64_t, int64_t)                       )
+                         (__trunctfsf2,  (float, int64_t, int64_t)                        )
+                         );
     
     // privileged_api
     WASM_PRICE_FN_CONSTS(
-                        ((is_feature_active,                int))
-                        ((activate_feature,                 void))
-                        ((get_resource_limits,              void))
-                        ((set_resource_limits,              void))
-                        ((set_proposed_producers,           int64_t))
-                        ((get_blockchain_parameters_packed, int))
-                        ((set_blockchain_parameters_packed, void))
-                        ((is_privileged,                    int))
-                        ((set_privileged,                   void))
-                        );
+                         (is_feature_active,                (int, int64_t)                          )
+                         (activate_feature,                 (void*, int64_t)                         )
+                         (get_resource_limits,              (void*, int64_t,int,int,int)             )
+                         (set_resource_limits,              (void*, int64_t,int64_t,int64_t,int64_t) )
+                         (set_proposed_producers,           (int64_t, int,int)                      )
+                         (get_blockchain_parameters_packed, (int, int, int)                         )
+                         (set_blockchain_parameters_packed, (void*, int,int)                         )
+                         (is_privileged,                    (int, int64_t)                          )
+                         (set_privileged,                   (void*, int64_t, int)                    )
+                         );
     
     // transaction_context
     WASM_PRICE_FN_CONSTS(
-                        ((checktime,      void))
-                        );
+                         (checktime,      (void*))
+                         );
     
     // producer_api
     WASM_PRICE_FN_CONSTS(
-                        ((get_active_producers,      int))
-                        );
+                         (get_active_producers,      (int, int, int) )
+                         );
     
     // database_api
     WASM_PRICE_FN_CONSTS(
-                        ((db_store_i64,        int))
-                        ((db_update_i64,       void))
-                        ((db_remove_i64,       void))
-                        ((db_get_i64,          int))
-                        ((db_next_i64,         int))
-                        ((db_previous_i64,     int))
-                        ((db_find_i64,         int))
-                        ((db_lowerbound_i64,   int))
-                        ((db_upperbound_i64,   int))
-                        ((db_end_i64,          int))
-                        
-                        DECL_DB_SECONDARY_INDEX_METHODS_SIMPLE(idx64)
-                        DECL_DB_SECONDARY_INDEX_METHODS_SIMPLE(idx128)
-                        DECL_DB_SECONDARY_INDEX_METHODS_ARRAY(idx256)
-                        DECL_DB_SECONDARY_INDEX_METHODS_SIMPLE(idx_double)
-                        DECL_DB_SECONDARY_INDEX_METHODS_SIMPLE(idx_long_double)
-                        );
+                         (db_store_i64,        (int, int64_t,int64_t,int64_t,int64_t,int,int))
+                         (db_update_i64,       (void*, int,int64_t,int,int))
+                         (db_remove_i64,       (void*, int))
+                         (db_get_i64,          (int, int, int, int))
+                         (db_next_i64,         (int, int, int))
+                         (db_previous_i64,     (int, int, int))
+                         (db_find_i64,         (int, int64_t,int64_t,int64_t,int64_t))
+                         (db_lowerbound_i64,   (int, int64_t,int64_t,int64_t,int64_t))
+                         (db_upperbound_i64,   (int, int64_t,int64_t,int64_t,int64_t))
+                         (db_end_i64,          (int, int64_t,int64_t,int64_t))
+                         
+                         DECL_DB_SECONDARY_INDEX_METHODS_SIMPLE(idx64)
+                         DECL_DB_SECONDARY_INDEX_METHODS_SIMPLE(idx128)
+                         DECL_DB_SECONDARY_INDEX_METHODS_ARRAY(idx256)
+                         DECL_DB_SECONDARY_INDEX_METHODS_SIMPLE(idx_double)
+                         DECL_DB_SECONDARY_INDEX_METHODS_SIMPLE(idx_long_double)
+                         );
     
     // crypto_api
     WASM_PRICE_FN_CONSTS(
-                        ((assert_recover_key,     void))
-                        ((recover_key,            int))
-                        ((assert_sha256,          void))
-                        ((assert_sha1,            void))
-                        ((assert_sha512,          void))
-                        ((assert_ripemd160,       void))
-                        ((sha1,                   void))
-                        ((sha256,                 void))
-                        ((sha512,                 void))
-                        ((ripemd160,              void))
-                        );
+                         (assert_recover_key,     (void*, int, int, int, int, int) )
+                         (recover_key,            (int, int, int, int, int, int)  )
+                         (assert_sha256,          (void*, int, int, int)           )
+                         (assert_sha1,            (void*, int, int, int)           )
+                         (assert_sha512,          (void*, int, int, int)           )
+                         (assert_ripemd160,       (void*, int, int, int)           )
+                         (sha1,                   (void*, int, int, int)           )
+                         (sha256,                 (void*, int, int, int)           )
+                         (sha512,                 (void*, int, int, int)           )
+                         (ripemd160,              (void*, int, int, int)           )
+                         );
     
     // permission_api
     WASM_PRICE_FN_CONSTS(
-                        ((check_transaction_authorization, int))
-                        ((check_permission_authorization,  int))
-                        ((get_permission_last_used,        int64_t))
-                        ((get_account_creation_time,       int64_t))
-                        );
+                         (check_transaction_authorization, (int, int, int, int, int, int, int)                  )
+                         (check_permission_authorization,  (int, int64_t, int64_t, int, int, int, int, int64_t) )
+                         (get_permission_last_used,        (int64_t, int64_t, int64_t) )
+                         (get_account_creation_time,       (int64_t, int64_t) )
+                         );
     
     // system_api
     WASM_PRICE_FN_CONSTS(
-                        ((current_time, int64_t))
-                        ((publication_time,   int64_t))
-                        );
+                         (current_time, (int64_t)       )
+                         (publication_time,   (int64_t) )
+                         );
     
     // context_free_system_api
     WASM_PRICE_FN_CONSTS(
-                        ((abort,                void))
-                        ((eosio_assert,         void))
-                        ((eosio_assert_message, void))
-                        ((eosio_assert_code,    void))
-                        ((eosio_exit,           void))
-                        );
+                         (abort,                (void*)              )
+                         (eosio_assert,         (void*, int, int)      )
+                         (eosio_assert_message, (void*, int, int, int) )
+                         (eosio_assert_code,    (void*, int, int64_t)  )
+                         (eosio_exit,           (void*, int)           )
+                         );
     
     // action_api
     WASM_PRICE_FN_CONSTS(
-                        ((read_action_data,       int))
-                        ((action_data_size,       int))
-                        ((current_receiver,   int64_t))
-                        );
+                         (read_action_data,       (int, int, int)  )
+                         (action_data_size,       (int)          )
+                         (current_receiver,   (int64_t)          )
+                         );
     
     // authorization_api
     WASM_PRICE_FN_CONSTS(
-                         ((require_recipient,    void))
-                         ((require_auth,         void))
-                         ((require_auth2,        void))
-                         ((has_auth,              int))
-                         ((is_account,            int))
+                         (require_recipient,     (void*, int64_t)          )
+                         (require_auth,          (void*, int64_t)          )
+                         (require_auth2,         (void*, int64_t, int64_t) )
+                         (has_auth,              (int, int64_t)           )
+                         (is_account,            (int, int64_t)           )
                          );
     
     // console_api
     WASM_PRICE_FN_CONSTS(
-                        ((prints,                void))
-                        ((prints_l,              void))
-                        ((printi,                void))
-                        ((printui,               void))
-                        ((printi128,             void))
-                        ((printui128,            void))
-                        ((printsf,               void))
-                        ((printdf,               void))
-                        ((printqf,               void))
-                        ((printn,                void))
-                        ((printhex,              void))
-                        );
+                         (prints,                (void*, int)      )
+                         (prints_l,              (void*, int, int) )
+                         (printi,                (void*, int64_t)  )
+                         (printui,               (void*, int64_t)  )
+                         (printi128,             (void*, int)      )
+                         (printui128,            (void*, int)      )
+                         (printsf,               (void*, float)    )
+                         (printdf,               (void*, double)   )
+                         (printqf,               (void*, int)      )
+                         (printn,                (void*, int64_t)  )
+                         (printhex,              (void*, int, int) )
+                         );
     
     // context_free_transaction_api
     WASM_PRICE_FN_CONSTS(
-                        ((read_transaction,       int))
-                        ((transaction_size,       int))
-                        ((expiration,             int))
-                        ((tapos_block_prefix,     int))
-                        ((tapos_block_num,        int))
-                        ((get_action,             int))
-                        );
+                         (read_transaction,       (int, int, int)            )
+                         (transaction_size,       (int)                    )
+                         (expiration,             (int)                    )
+                         (tapos_block_prefix,     (int)                    )
+                         (tapos_block_num,        (int)                    )
+                         (get_action,             (int, int, int, int, int) )
+                         );
     
     // transaction_api
     WASM_PRICE_FN_CONSTS(
-                        ((send_inline,               void))
-                        ((send_context_free_inline,  void))
-                        ((send_deferred,             void))
-                        ((cancel_deferred,           int))
-                        );
+                         (send_inline,               (void*, int, int)               )
+                         (send_context_free_inline,  (void*, int, int)               )
+                         (send_deferred,             (void*, int, int64_t, int, int, int32_t) )
+                         (cancel_deferred,           (int, int)                     )
+                         );
     
     // context_free_api
     WASM_PRICE_FN_CONSTS(
-                        ((get_context_free_data, int))
-                        );
+                         (get_context_free_data, (int, int, int, int) )
+                         );
     
     // memory_api
     WASM_PRICE_FN_CONSTS(
-                        ((memcpy,                 int))
-                        ((memmove,                int))
-                        ((memcmp,                 int))
-                        ((memset,                 int))
-                        );
+                         (memcpy,                 (int, int, int, int)  )
+                         (memmove,                (int, int, int, int)  )
+                         (memcmp,                 (int, int, int, int)  )
+                         (memset,                 (int, int, int, int)  )
+                         );
     
     // softfloat_api
     WASM_PRICE_FN_CONSTS(
-                        ((_eosio_f32_add,       float))
-                        ((_eosio_f32_sub,       float))
-                        ((_eosio_f32_mul,       float))
-                        ((_eosio_f32_div,       float))
-                        ((_eosio_f32_min,       float))
-                        ((_eosio_f32_max,       float))
-                        ((_eosio_f32_copysign,  float))
-                        ((_eosio_f32_abs,       float))
-                        ((_eosio_f32_neg,       float))
-                        ((_eosio_f32_sqrt,      float))
-                        ((_eosio_f32_ceil,      float))
-                        ((_eosio_f32_floor,     float))
-                        ((_eosio_f32_trunc,     float))
-                        ((_eosio_f32_nearest,   float))
-                        ((_eosio_f32_eq,        int))
-                        ((_eosio_f32_ne,        int))
-                        ((_eosio_f32_lt,        int))
-                        ((_eosio_f32_le,        int))
-                        ((_eosio_f32_gt,        int))
-                        ((_eosio_f32_ge,        int))
-                        ((_eosio_f64_add,       double))
-                        ((_eosio_f64_sub,       double))
-                        ((_eosio_f64_mul,       double))
-                        ((_eosio_f64_div,       double))
-                        ((_eosio_f64_min,       double))
-                        ((_eosio_f64_max,       double))
-                        ((_eosio_f64_copysign,  double))
-                        ((_eosio_f64_abs,       double))
-                        ((_eosio_f64_neg,       double))
-                        ((_eosio_f64_sqrt,      double))
-                        ((_eosio_f64_ceil,      double))
-                        ((_eosio_f64_floor,     double))
-                        ((_eosio_f64_trunc,     double))
-                        ((_eosio_f64_nearest,   double))
-                        ((_eosio_f64_eq,        int))
-                        ((_eosio_f64_ne,        int))
-                        ((_eosio_f64_lt,        int))
-                        ((_eosio_f64_le,        int))
-                        ((_eosio_f64_gt,        int))
-                        ((_eosio_f64_ge,        int))
-                        ((_eosio_f32_promote,    double))
-                        ((_eosio_f64_demote,     float))
-                        ((_eosio_f32_trunc_i32s, int))
-                        ((_eosio_f64_trunc_i32s, int))
-                        ((_eosio_f32_trunc_i32u, int))
-                        ((_eosio_f64_trunc_i32u, int))
-                        ((_eosio_f32_trunc_i64s, int64_t))
-                        ((_eosio_f64_trunc_i64s, int64_t))
-                        ((_eosio_f32_trunc_i64u, int64_t))
-                        ((_eosio_f64_trunc_i64u, int64_t))
-                        ((_eosio_i32_to_f32,     float))
-                        ((_eosio_i64_to_f32,     float))
-                        ((_eosio_ui32_to_f32,    float))
-                        ((_eosio_ui64_to_f32,    float))
-                        ((_eosio_i32_to_f64,     double))
-                        ((_eosio_i64_to_f64,     double))
-                        ((_eosio_ui32_to_f64,    double))
-                        ((_eosio_ui64_to_f64,    double))
-                        );
-
+                         (_eosio_f32_add,       (float, float, float)    )
+                         (_eosio_f32_sub,       (float, float, float)    )
+                         (_eosio_f32_mul,       (float, float, float)    )
+                         (_eosio_f32_div,       (float, float, float)    )
+                         (_eosio_f32_min,       (float, float, float)    )
+                         (_eosio_f32_max,       (float, float, float)    )
+                         (_eosio_f32_copysign,  (float, float, float)    )
+                         (_eosio_f32_abs,       (float, float)           )
+                         (_eosio_f32_neg,       (float, float)           )
+                         (_eosio_f32_sqrt,      (float, float)           )
+                         (_eosio_f32_ceil,      (float, float)           )
+                         (_eosio_f32_floor,     (float, float)           )
+                         (_eosio_f32_trunc,     (float, float)           )
+                         (_eosio_f32_nearest,   (float, float)           )
+                         (_eosio_f32_eq,        (int, float, float)      )
+                         (_eosio_f32_ne,        (int, float, float)      )
+                         (_eosio_f32_lt,        (int, float, float)      )
+                         (_eosio_f32_le,        (int, float, float)      )
+                         (_eosio_f32_gt,        (int, float, float)      )
+                         (_eosio_f32_ge,        (int, float, float)      )
+                         (_eosio_f64_add,       (double, double, double) )
+                         (_eosio_f64_sub,       (double, double, double) )
+                         (_eosio_f64_mul,       (double, double, double) )
+                         (_eosio_f64_div,       (double, double, double) )
+                         (_eosio_f64_min,       (double, double, double) )
+                         (_eosio_f64_max,       (double, double, double) )
+                         (_eosio_f64_copysign,  (double, double, double) )
+                         (_eosio_f64_abs,       (double, double)         )
+                         (_eosio_f64_neg,       (double, double)         )
+                         (_eosio_f64_sqrt,      (double, double)         )
+                         (_eosio_f64_ceil,      (double, double)         )
+                         (_eosio_f64_floor,     (double, double)         )
+                         (_eosio_f64_trunc,     (double, double)         )
+                         (_eosio_f64_nearest,   (double, double)         )
+                         (_eosio_f64_eq,        (int, double, double)    )
+                         (_eosio_f64_ne,        (int, double, double)    )
+                         (_eosio_f64_lt,        (int, double, double)    )
+                         (_eosio_f64_le,        (int, double, double)    )
+                         (_eosio_f64_gt,        (int, double, double)    )
+                         (_eosio_f64_ge,        (int, double, double)    )
+                         (_eosio_f32_promote,    (double, float)         )
+                         (_eosio_f64_demote,     (float, double)         )
+                         (_eosio_f32_trunc_i32s, (int, float)            )
+                         (_eosio_f64_trunc_i32s, (int, double)           )
+                         (_eosio_f32_trunc_i32u, (int, float)            )
+                         (_eosio_f64_trunc_i32u, (int, double)           )
+                         (_eosio_f32_trunc_i64s, (int64_t, float)        )
+                         (_eosio_f64_trunc_i64s, (int64_t, double)       )
+                         (_eosio_f32_trunc_i64u, (int64_t, float)        )
+                         (_eosio_f64_trunc_i64u, (int64_t, double)       )
+                         (_eosio_i32_to_f32,     (float, int32_t)        )
+                         (_eosio_i64_to_f32,     (float, int64_t)        )
+                         (_eosio_ui32_to_f32,    (float, int32_t)        )
+                         (_eosio_ui64_to_f32,    (float, int64_t)        )
+                         (_eosio_i32_to_f64,     (double, int32_t)       )
+                         (_eosio_i64_to_f64,     (double, int64_t)       )
+                         (_eosio_ui32_to_f64,    (double, int32_t)       )
+                         (_eosio_ui64_to_f64,    (double, int64_t)       )
+                         );
     
     
 }}} // eosio::chain::wasm_price
