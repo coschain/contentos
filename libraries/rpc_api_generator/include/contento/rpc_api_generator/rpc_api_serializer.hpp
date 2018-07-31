@@ -4,7 +4,7 @@
  */
 #pragma once
 #include <contento/rpc_api_generator/rpc_api_def.hpp>
-#include <fc/exception/exceptions.hpp>
+#include <fc/exception/exception.hpp>
 #include <fc/variant_object.hpp>
 
 namespace contento { namespace rpc_api {
@@ -14,7 +14,6 @@ using std::string;
 using std::function;
 using std::pair;
 using namespace fc;
-using namespace protocol;
 
 
 using name16 = std::string;

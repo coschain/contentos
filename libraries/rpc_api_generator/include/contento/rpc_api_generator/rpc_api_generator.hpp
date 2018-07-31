@@ -8,7 +8,7 @@
 #include <fstream>
 #include <sstream>
 
-#include <contento/rpc_api_generator/rpc_abi_serializer.hpp>
+#include <contento/rpc_api_generator/rpc_api_serializer.hpp>
 #include <fc/io/json.hpp>
 
 //clashes with something deep in the AST includes in clang 6 and possibly other versions of clang
@@ -42,7 +42,7 @@ using namespace clang::tooling;
 namespace cl = llvm::cl;
 
 namespace contento {
-   using namespace contento::chain;
+   using namespace contento::rpc_api;
 
    FC_DECLARE_EXCEPTION( abi_generation_exception, 999999, "Unable to generate abi" );
 

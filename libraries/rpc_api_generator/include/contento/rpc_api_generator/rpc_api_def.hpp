@@ -6,13 +6,27 @@
 
 //#include <contento/chain/types.hpp>
 
+#include <fc/io/raw.hpp>
+#include <fc/variant.hpp>
+#include <fc/reflect/variant.hpp>
+
+typedef std::vector<char>                bytes;
+
 namespace contento { namespace rpc_api {
+
+   using std::string;
+   using std::map;
+   using std::set;
+   using std::vector;
 
 using type_name      = string;
 using field_name     = string;
-//using action_name    = string;
+using action_name    = string;
 using action_name16    = string;
+   using table_name = string;
+   using name = string;
 
+   
 struct type_def {
    type_def() = default;
    type_def(const type_name& new_type_name, const type_name& type)
@@ -110,6 +124,7 @@ struct error_message {
    string   error_msg;
 };
 
+   typedef vector<std::pair<uint16_t,vector<char>>> extensions_type;
 struct abi_def {
    abi_def() = default;
    abi_def(const vector<type_def>& types, const vector<struct_def>& structs, const vector<action_def>& actions, const vector<table_def>& tables, const vector<clause_pair>& clauses, const vector<error_message>& error_msgs)
@@ -133,17 +148,16 @@ struct abi_def {
 };
 
 abi_def contento_contract_abi(const abi_def& contento_system_abi);
-vector<type_def> common_type_defs();
 
 } } /// namespace contento::chain
 
-FC_REFLECT( contento::chain::type_def                         , (new_type_name)(type) )
-FC_REFLECT( contento::chain::field_def                        , (name)(type) )
-FC_REFLECT( contento::chain::return_def                       , (type) )
-FC_REFLECT( contento::chain::struct_def                       , (name)(base)(fields)(ret) )
-FC_REFLECT( contento::chain::action_def                       , (name)(type)(ricardian_contract) )
-FC_REFLECT( contento::chain::table_def                        , (name)(index_type)(key_names)(key_types)(type) )
-FC_REFLECT( contento::chain::clause_pair                      , (id)(body) )
-FC_REFLECT( contento::chain::error_message                    , (error_code)(error_msg) )
-FC_REFLECT( contento::chain::abi_def                          , (version)(types)(structs)(actions)(tables)
+FC_REFLECT( contento::rpc_api::type_def                         , (new_type_name)(type) )
+FC_REFLECT( contento::rpc_api::field_def                        , (name)(type) )
+FC_REFLECT( contento::rpc_api::return_def                       , (type) )
+FC_REFLECT( contento::rpc_api::struct_def                       , (name)(base)(fields)(ret) )
+FC_REFLECT( contento::rpc_api::action_def                       , (name)(type)(ricardian_contract) )
+FC_REFLECT( contento::rpc_api::table_def                        , (name)(index_type)(key_names)(key_types)(type) )
+FC_REFLECT( contento::rpc_api::clause_pair                      , (id)(body) )
+FC_REFLECT( contento::rpc_api::error_message                    , (error_code)(error_msg) )
+FC_REFLECT( contento::rpc_api::abi_def                          , (version)(types)(structs)(actions)(tables)
                                                              (ricardian_clauses)(error_messages)(abi_extensions) )

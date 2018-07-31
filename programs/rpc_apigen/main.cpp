@@ -1,10 +1,10 @@
 #include <fc/exception/exception.hpp>
 #include <fc/io/json.hpp>
-#include <contento/abi_generator/abi_generator.hpp>
+#include <contento/rpc_api_generator/rpc_api_generator.hpp>
 #include <fc/variant_object.hpp>
 
 using namespace contento;
-using namespace contento::chain;
+using namespace contento::rpc_api;
 
 using mvo = fc::mutable_variant_object;
 
@@ -88,7 +88,7 @@ int main(int argc, const char **argv) { abi_def output; try {
    if(!result) {
       result = Tool.run(create_factory(abi_verbose, abi_opt_sfs, abi_context, output, contract, actions).get());
       if(!result) {
-         abi_serializer(output).validate();
+         rpc_api_serializer(output).validate();
          fc::variant vabi;
          to_variant(output, vabi);
 
