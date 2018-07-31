@@ -3,6 +3,29 @@
 
 namespace contento {
 
+   vector<type_def> common_type_defs() {
+      vector<type_def> types;
+
+      types.push_back( type_def{"account_name", "name"} );
+      types.push_back( type_def{"permission_name", "name"} );
+      types.push_back( type_def{"action_name", "name"} );
+      types.push_back( type_def{"table_name", "name"} );
+      types.push_back( type_def{"transaction_id_type", "checksum256"} );
+      types.push_back( type_def{"block_id_type", "checksum256"} );
+      types.push_back( type_def{"weight_type", "uint16"} );
+
+      types.push_back( type_def{"account_name_type", "name"} );
+      types.push_back( type_def{"share_type", "int64"} );
+      types.push_back( type_def{"id_type", "int64"} );
+      types.push_back( type_def{"digest_type", "checksum256"} );
+
+      types.push_back( type_def{"checksum_type", "checksum160"} );
+
+
+      return types;
+   }
+
+
 void rpc_api_generator::set_target_contract(const string& contract, const vector<string>& actions) {
   target_contract = contract;
   target_actions  = actions;
@@ -87,9 +110,9 @@ string rpc_api_generator::translate_type(const string& type_name) {
   else if (type_name == "double")   built_in_type = "float64";
   else if (boost::starts_with(type_name, "oid<"))   built_in_type = "id_type";
   else {
-     static auto types = contento::chain::common_type_defs();
+     static auto types = common_type_defs();
      auto itr = std::find_if( types.begin(), types.end(),
-                              [&type_name]( const contento::chain::type_def& t ) { return t.new_type_name == type_name; } );
+                              [&type_name]( const contento::rpc_api::type_def& t ) { return t.new_type_name == type_name; } );
      if( itr != types.end()) {
         built_in_type = itr->type;
      }

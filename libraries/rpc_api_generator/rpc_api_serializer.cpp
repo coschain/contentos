@@ -2,15 +2,17 @@
  *  @file
  *  @copyright defined in eos/LICENSE.txt
  */
-#include <contento/chain/abi_serializer.hpp>
-#include <contento/chain/contract_types.hpp>
+#include <contento/rpc_api_generator/rpc_api_serializer.hpp>
+//#include <contento/chain/contract_types.hpp>
 //#include <contento/chain/authority.hpp>
-#include <contento/chain/chain_config.hpp>
+//#include <contento/chain/chain_config.hpp>
 //#include <contento/chain/transaction.hpp>
-#include <contento/chain/util/asset.hpp>
+//#include <contento/chain/util/asset.hpp>
 #include <fc/io/raw.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <fc/io/varint.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/range/algorithm_ext/erase.hpp>
 
 using namespace boost;
 
@@ -28,7 +30,7 @@ namespace contento { namespace rpc_api {
 
    template <typename T>
    auto pack_unpack() {
-      return std::make_pair<abi_serializer::unpack_function, abi_serializer::pack_function>(
+      return std::make_pair<rpc_api_serializer::unpack_function, rpc_api_serializer::pack_function>(
          []( fc::datastream<const char*>& stream, bool is_array, bool is_optional) -> fc::variant  {
             if( is_array )
                return variant_from_stream<vector<T>>(stream);
@@ -47,12 +49,12 @@ namespace contento { namespace rpc_api {
       );
    }
 
-   abi_serializer::abi_serializer( const abi_def& abi ) {
+   rpc_api_serializer::rpc_api_serializer( const abi_def& abi ) {
       configure_built_in_types();
       set_abi(abi);
    }
 
-   void abi_serializer::configure_built_in_types() {
+   void rpc_api_serializer::configure_built_in_types() {
 
       built_in_types.emplace("bool",                      pack_unpack<uint8_t>());
       built_in_types.emplace("int8",                      pack_unpack<int8_t>());
@@ -62,53 +64,53 @@ namespace contento { namespace rpc_api {
       built_in_types.emplace("int32",                     pack_unpack<int32_t>());
       built_in_types.emplace("uint32",                    pack_unpack<uint32_t>());
       built_in_types.emplace("int64",                     pack_unpack<int64_t>());
-      built_in_types.emplace("uint64",                    pack_unpack<uint64_t>());
-      built_in_types.emplace("int128",                    pack_unpack<int128_t>());
-      built_in_types.emplace("uint128",                   pack_unpack<uint128_t>());
-      built_in_types.emplace("varint32",                  pack_unpack<fc::signed_int>());
-      built_in_types.emplace("varuint32",                 pack_unpack<fc::unsigned_int>());
+      built_in_types.emplace("uint64",                    pack_unpack<int64_t>());
+      built_in_types.emplace("int128",                    pack_unpack<int64_t>());
+      built_in_types.emplace("uint128",                   pack_unpack<int64_t>());
+      built_in_types.emplace("varint32",                  pack_unpack<int64_t>());
+      built_in_types.emplace("varuint32",                 pack_unpack<int64_t>());
 
       // TODO: Add proper support for floating point types. For now this is good enough.
       built_in_types.emplace("float32",                   pack_unpack<float>());
       built_in_types.emplace("float64",                   pack_unpack<double>());
-      built_in_types.emplace("float128",                  pack_unpack<uint128_t>());
+      built_in_types.emplace("float128",                  pack_unpack<int64_t>());
 
-      built_in_types.emplace("time_point",                pack_unpack<fc::time_point>());
-      built_in_types.emplace("time_point_sec",            pack_unpack<fc::time_point_sec>());
+      built_in_types.emplace("time_point",                pack_unpack<int64_t>());
+      built_in_types.emplace("time_point_sec",            pack_unpack<int64_t>());
       //built_in_types.emplace("block_timestamp_type",      pack_unpack<block_timestamp_type>());
 
-      built_in_types.emplace("name",                      pack_unpack<name>());
+      built_in_types.emplace("name",                      pack_unpack<int64_t>());
 
-      built_in_types.emplace("bytes",                     pack_unpack<bytes>());
-      built_in_types.emplace("string",                    pack_unpack<string>());
+      built_in_types.emplace("bytes",                     pack_unpack<int64_t>());
+      built_in_types.emplace("string",                    pack_unpack<int64_t>());
 
-      built_in_types.emplace("checksum160",               pack_unpack<checksum160_type>());
-      built_in_types.emplace("checksum256",               pack_unpack<checksum256_type>());
-      built_in_types.emplace("sha256",               pack_unpack<checksum256_type>());
+      built_in_types.emplace("checksum160",               pack_unpack<int64_t>());
+      built_in_types.emplace("checksum256",               pack_unpack<int64_t>());
+      built_in_types.emplace("sha256",               pack_unpack<int64_t>());
 
-      built_in_types.emplace("checksum512",               pack_unpack<checksum512_type>());
+      built_in_types.emplace("checksum512",               pack_unpack<int64_t>());
 
-      built_in_types.emplace("public_key_type",           pack_unpack<public_key_type>());
-      built_in_types.emplace("public_key",                pack_unpack<public_key_type>());
-      built_in_types.emplace("signature",                 pack_unpack<signature_type>());
-      built_in_types.emplace("signature_type",            pack_unpack<signature_type>());
+      built_in_types.emplace("public_key_type",           pack_unpack<int64_t>());
+      built_in_types.emplace("public_key",                pack_unpack<int64_t>());
+      built_in_types.emplace("signature",                 pack_unpack<int64_t>());
+      built_in_types.emplace("signature_type",            pack_unpack<int64_t>());
 
-      built_in_types.emplace("operation",                 pack_unpack<operation>());
+      built_in_types.emplace("operation",                 pack_unpack<int64_t>());
 
-      built_in_types.emplace("block_header_extensions_type",                 pack_unpack<block_header_extensions_type>());
-      built_in_types.emplace("future_extensions",                 pack_unpack<future_extensions>());
-      built_in_types.emplace("variant_object",                 pack_unpack<fc::variant_object>());
+      built_in_types.emplace("block_header_extensions_type",                 pack_unpack<int64_t>());
+      built_in_types.emplace("future_extensions",                 pack_unpack<int64_t>());
+      built_in_types.emplace("variant_object",                 pack_unpack<int64_t>());
 
       built_in_types.emplace("id_type",                 pack_unpack<int64_t>());
 
 
       //built_in_types.emplace("symbol",                    pack_unpack<symbol>());
       //built_in_types.emplace("symbol_code",               pack_unpack<symbol_code>());
-       built_in_types.emplace("asset",                     pack_unpack<util::asset>());
+       built_in_types.emplace("asset",                     pack_unpack<int64_t>());
       //built_in_types.emplace("extended_asset",            pack_unpack<extended_asset>());
    }
 
-   void abi_serializer::set_abi(const abi_def& abi) {
+   void rpc_api_serializer::set_abi(const abi_def& abi) {
       typedefs.clear();
       structs.clear();
       actions.clear();
@@ -146,16 +148,16 @@ namespace contento { namespace rpc_api {
       validate();
    }
 
-   bool abi_serializer::is_builtin_type(const type_name& type)const {
+   bool rpc_api_serializer::is_builtin_type(const type_name& type)const {
       return built_in_types.find(type) != built_in_types.end();
    }
 
-   bool abi_serializer::is_integer(const type_name& type) const {
+   bool rpc_api_serializer::is_integer(const type_name& type) const {
       string stype = type;
       return boost::starts_with(stype, "uint") || boost::starts_with(stype, "int");
    }
 
-   int abi_serializer::get_integer_size(const type_name& type) const {
+   int rpc_api_serializer::get_integer_size(const type_name& type) const {
       string stype = type;
       FC_ASSERT( is_integer(type), "${stype} is not an integer type", ("stype",stype));
       if( boost::starts_with(stype, "uint") ) {
@@ -165,23 +167,23 @@ namespace contento { namespace rpc_api {
       }
    }
 
-   bool abi_serializer::is_struct(const type_name& type)const {
+   bool rpc_api_serializer::is_struct(const type_name& type)const {
       return structs.find(resolve_type(type)) != structs.end();
    }
 
-   bool abi_serializer::is_array(const type_name& type)const {
+   bool rpc_api_serializer::is_array(const type_name& type)const {
       return ends_with(string(type), "[]");
    }
 
-   bool abi_serializer::is_map(const type_name& type)const {
+   bool rpc_api_serializer::is_map(const type_name& type)const {
       return ends_with(string(type), "}") && starts_with(string(type), "{");
    }
 
-   bool abi_serializer::is_optional(const type_name& type)const {
+   bool rpc_api_serializer::is_optional(const type_name& type)const {
       return ends_with(string(type), "?");
    }
 
-   type_name abi_serializer::fundamental_type(const type_name& type)const {
+   type_name rpc_api_serializer::fundamental_type(const type_name& type)const {
       if( is_array(type) ) {
          return type_name(string(type).substr(0, type.size()-2));
       } else if ( is_optional(type) ) {
@@ -191,20 +193,20 @@ namespace contento { namespace rpc_api {
       }
    }
 
-   type_name abi_serializer::fundamental_map_key_type(const type_name& type)const{
+   type_name rpc_api_serializer::fundamental_map_key_type(const type_name& type)const{
       string kv = string(type).substr(1, type.size()-2);
       std::vector<std::string> vecSegTag;
       boost::split(vecSegTag, kv,boost::is_any_of(","));
       return type_name(vecSegTag[0]);
    }
-   type_name abi_serializer::fundamental_map_value_type(const type_name& type)const{
+   type_name rpc_api_serializer::fundamental_map_value_type(const type_name& type)const{
       string kv = string(type).substr(1, type.size()-2);
       std::vector<std::string> vecSegTag;
       boost::split(vecSegTag, kv,boost::is_any_of(","));
       return type_name(vecSegTag[1]);
    }
 
-   bool abi_serializer::_is_type(const type_name& rtype, size_t recursion_depth)const {
+   bool rpc_api_serializer::_is_type(const type_name& rtype, size_t recursion_depth)const {
       if( ++recursion_depth > max_recursion_depth) return false;
 
       if( is_array(rtype) ){
@@ -233,13 +235,13 @@ namespace contento { namespace rpc_api {
       return false;
    }
 
-   const struct_def& abi_serializer::get_struct(const type_name& type)const {
+   const struct_def& rpc_api_serializer::get_struct(const type_name& type)const {
       auto itr = structs.find(resolve_type(type) );
       FC_ASSERT( itr != structs.end(), "Unknown struct ${type}", ("type",type) );
       return itr->second;
    }
 
-   void abi_serializer::validate()const {
+   void rpc_api_serializer::validate()const {
       for( const auto& t : typedefs ) { try {
          vector<type_name> types_seen{t.first, t.second};
          auto itr = typedefs.find(t.second);
@@ -276,7 +278,7 @@ namespace contento { namespace rpc_api {
       } FC_CAPTURE_AND_RETHROW( (t)  ) }
    }
 
-   type_name abi_serializer::resolve_type(const type_name& type)const {
+   type_name rpc_api_serializer::resolve_type(const type_name& type)const {
       auto itr = typedefs.find(type);
       if( itr != typedefs.end() ) {
          for( auto i = typedefs.size(); i > 0; --i ) { // avoid infinite recursion
@@ -288,7 +290,7 @@ namespace contento { namespace rpc_api {
       return type;
    }
 
-   void abi_serializer::_binary_to_variant(const type_name& type, fc::datastream<const char *>& stream,
+   void rpc_api_serializer::_binary_to_variant(const type_name& type, fc::datastream<const char *>& stream,
                                           fc::mutable_variant_object& obj, size_t recursion_depth)const {
       FC_ASSERT( ++recursion_depth < max_recursion_depth, "recursive definition, max_recursion_depth" );
       const auto& st = get_struct(type);
@@ -300,7 +302,7 @@ namespace contento { namespace rpc_api {
       }
    }
 
-   fc::variant abi_serializer::_binary_to_variant(const type_name& type, fc::datastream<const char *>& stream, size_t recursion_depth)const
+   fc::variant rpc_api_serializer::_binary_to_variant(const type_name& type, fc::datastream<const char *>& stream, size_t recursion_depth)const
    {
       FC_ASSERT( ++recursion_depth < max_recursion_depth, "recursive definition, max_recursion_depth" );
       type_name rtype = resolve_type(type);
@@ -329,13 +331,13 @@ namespace contento { namespace rpc_api {
       return fc::variant( std::move(mvo) );
    }
 
-   fc::variant abi_serializer::_binary_to_variant(const type_name& type, const bytes& binary, size_t recursion_depth)const{
+   fc::variant rpc_api_serializer::_binary_to_variant(const type_name& type, const bytes& binary, size_t recursion_depth)const{
       FC_ASSERT( ++recursion_depth < max_recursion_depth, "recursive definition, max_recursion_depth" );
       fc::datastream<const char*> ds( binary.data(), binary.size() );
       return _binary_to_variant(type, ds, recursion_depth);
    }
 
-   void abi_serializer::_variant_to_binary(const type_name& type, const fc::variant& var, fc::datastream<char *>& ds, size_t recursion_depth)const
+   void rpc_api_serializer::_variant_to_binary(const type_name& type, const fc::variant& var, fc::datastream<char *>& ds, size_t recursion_depth)const
    { try {
       FC_ASSERT( ++recursion_depth < max_recursion_depth, "recursive definition, max_recursion_depth" );
       auto rtype = resolve_type(type);
@@ -390,7 +392,7 @@ namespace contento { namespace rpc_api {
       }
    } FC_CAPTURE_AND_RETHROW( (type)(var) ) }
 
-   bytes abi_serializer::_variant_to_binary(const type_name& type, const fc::variant& var, size_t recursion_depth)const { try {
+   bytes rpc_api_serializer::_variant_to_binary(const type_name& type, const fc::variant& var, size_t recursion_depth)const { try {
       FC_ASSERT( ++recursion_depth < max_recursion_depth, "recursive definition, max_recursion_depth" );
       if( !is_type(type) ) {
          return var.as<bytes>();
@@ -403,18 +405,18 @@ namespace contento { namespace rpc_api {
       return temp;
    } FC_CAPTURE_AND_RETHROW( (type)(var) ) }
 
-   type_name abi_serializer::get_action_type(name action)const {
+   type_name rpc_api_serializer::get_action_type(name action)const {
       auto itr = actions.find(action);
       if( itr != actions.end() ) return itr->second;
       return type_name();
    }
-   type_name abi_serializer::get_table_type(name action)const {
+   type_name rpc_api_serializer::get_table_type(name action)const {
       auto itr = tables.find(action);
       if( itr != tables.end() ) return itr->second;
       return type_name();
    }
 
-   optional<string> abi_serializer::get_error_message( uint64_t error_code )const {
+   optional<string> rpc_api_serializer::get_error_message( uint64_t error_code )const {
       auto itr = error_messages.find( error_code );
       if( itr == error_messages.end() )
          return optional<string>();
