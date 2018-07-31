@@ -1,10 +1,8 @@
 #ifndef __WASM_PRICE_HPP__
 #define __WASM_PRICE_HPP__
 
-#include <type_traits>
 #include <boost/preprocessor.hpp>
 #include <eosio/chain/apply_context.hpp>
-#include <wasm/wasm.h>
 
 namespace eosio { namespace chain { namespace wasm_price {
 
@@ -93,28 +91,28 @@ namespace eosio { namespace chain { namespace wasm_price {
                         );
     
 #define DECL_DB_SECONDARY_INDEX_METHODS_SIMPLE(IDX) \
-(db_##IDX##_store,          (int, int64_t,int64_t,int64_t,int64_t,int))\
-(db_##IDX##_remove,         (void*, int))\
-(db_##IDX##_update,         (void*, int,int64_t,int))\
-(db_##IDX##_find_primary,   (int, int64_t,int64_t,int64_t,int,int64_t))\
-(db_##IDX##_find_secondary, (int, int64_t,int64_t,int64_t,int,int))\
-(db_##IDX##_lowerbound,     (int, int64_t,int64_t,int64_t,int,int))\
-(db_##IDX##_upperbound,     (int, int64_t,int64_t,int64_t,int,int))\
-(db_##IDX##_end,            (int, int64_t,int64_t,int64_t))\
-(db_##IDX##_next,           (int, int, int))\
-(db_##IDX##_previous,       (int, int, int))
+    (db_##IDX##_store,          (int, int64_t,int64_t,int64_t,int64_t,int))\
+    (db_##IDX##_remove,         (void*, int))\
+    (db_##IDX##_update,         (void*, int,int64_t,int))\
+    (db_##IDX##_find_primary,   (int, int64_t,int64_t,int64_t,int,int64_t))\
+    (db_##IDX##_find_secondary, (int, int64_t,int64_t,int64_t,int,int))\
+    (db_##IDX##_lowerbound,     (int, int64_t,int64_t,int64_t,int,int))\
+    (db_##IDX##_upperbound,     (int, int64_t,int64_t,int64_t,int,int))\
+    (db_##IDX##_end,            (int, int64_t,int64_t,int64_t))\
+    (db_##IDX##_next,           (int, int, int))\
+    (db_##IDX##_previous,       (int, int, int))
     
 #define DECL_DB_SECONDARY_INDEX_METHODS_ARRAY(IDX) \
-(db_##IDX##_store,          (int, int64_t,int64_t,int64_t,int64_t,int,int))\
-(db_##IDX##_remove,         (void*, int))\
-(db_##IDX##_update,         (void*, int,int64_t,int,int))\
-(db_##IDX##_find_primary,   (int, int64_t,int64_t,int64_t,int,int,int64_t))\
-(db_##IDX##_find_secondary, (int, int64_t,int64_t,int64_t,int,int,int))\
-(db_##IDX##_lowerbound,     (int, int64_t,int64_t,int64_t,int,int,int))\
-(db_##IDX##_upperbound,     (int, int64_t,int64_t,int64_t,int,int,int))\
-(db_##IDX##_end,            (int, int64_t,int64_t,int64_t))\
-(db_##IDX##_next,           (int, int, int))\
-(db_##IDX##_previous,       (int, int, int))
+    (db_##IDX##_store,          (int, int64_t,int64_t,int64_t,int64_t,int,int))\
+    (db_##IDX##_remove,         (void*, int))\
+    (db_##IDX##_update,         (void*, int,int64_t,int,int))\
+    (db_##IDX##_find_primary,   (int, int64_t,int64_t,int64_t,int,int,int64_t))\
+    (db_##IDX##_find_secondary, (int, int64_t,int64_t,int64_t,int,int,int))\
+    (db_##IDX##_lowerbound,     (int, int64_t,int64_t,int64_t,int,int,int))\
+    (db_##IDX##_upperbound,     (int, int64_t,int64_t,int64_t,int,int,int))\
+    (db_##IDX##_end,            (int, int64_t,int64_t,int64_t))\
+    (db_##IDX##_next,           (int, int, int))\
+    (db_##IDX##_previous,       (int, int, int))
     
     // database_api
     WASM_PRICE_FN_DECLS(
