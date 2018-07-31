@@ -55,6 +55,7 @@
 #include <fc/smart_ref_impl.hpp>
 
 #include <contento/chain/wast_to_wasm.hpp>
+#include <contento/chain/contract_types.hpp>
 
 #ifndef WIN32
 # include <sys/types.h>
@@ -2541,7 +2542,7 @@ annotated_signed_transaction wallet_api::set_contract(string accountname, string
             }
             
 
-            tx.operations.push_back( vm_operation(accountname, contract_name, "set", bytes(wasm.begin(), wasm.end()) ) );
+            tx.operations.push_back( vm_operation(accountname, setcode{contract_name, 0, 0, bytes(wasm.begin(), wasm.end()) } ) );
       };
 
       auto set_abi_callback = [&]() {
@@ -2554,7 +2555,7 @@ annotated_signed_transaction wallet_api::set_contract(string accountname, string
             FC_ASSERT( fc::exists( abiPath ), "no abi file found ${f}", ("f", abiPath)  );
 
             try {
-                  tx.operations.push_back( vm_operation(accountname, contract_name, "set", fc::raw::pack(fc::json::from_file(abiPath).as<abi_def>())) );
+                  tx.operations.push_back( vm_operation(accountname, setabi{contract_name, fc::raw::pack(fc::json::from_file(abiPath).as<abi_def>()) } ) );
             } EOS_RETHROW_EXCEPTIONS(abi_type_exception,  "Fail to parse ABI JSON")
       };
 
