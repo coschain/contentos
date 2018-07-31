@@ -1,6 +1,6 @@
 #include <fc/exception/exception.hpp>
 #include <fc/io/json.hpp>
-#include <contento/rpc_api_generator/rpc_api_generator.hpp>
+#include <contento/abi_generator/abi_generator.hpp>
 #include <fc/variant_object.hpp>
 
 using namespace contento;
