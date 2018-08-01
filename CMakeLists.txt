@@ -217,7 +217,7 @@ add_subdirectory( externals )
 add_subdirectory( external_plugins )
 add_subdirectory( libraries )
 add_subdirectory( programs )
-#add_subdirectory( contracts )
+add_subdirectory( contracts )
 add_subdirectory( tools )
 
 add_subdirectory( tests )
