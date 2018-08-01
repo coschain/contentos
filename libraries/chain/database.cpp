@@ -808,6 +808,20 @@ signed_block database::_generate_block(
             continue;
          }
 
+         auto temp_session = start_undo_session( true );
+         try{
+             _apply_transaction( trx_wrapper );
+             temp_session.squash();
+
+             total_block_size += fc::raw::pack_size( trx_wrapper );
+             pending_block.transactions.push_back( trx_wrapper );
+         }
+         catch ( const fc::exception& e )
+         {
+             temp_session.undo();
+         }
+
+         /*
          try
          {
             auto temp_session = start_undo_session( true );
@@ -823,13 +837,15 @@ signed_block database::_generate_block(
             //wlog( "Transaction was not processed while generating block due to ${e}", ("e", e) );
             //wlog( "The transaction was ${t}", ("t", tx) );
          }
+         */
       }
       if( postponed_tx_count > 0 )
       {
          wlog( "Postponed ${n} transactions due to block size limit", ("n", postponed_tx_count) );
       }
 
-      _pending_tx_session.reset();
+      //_pending_tx_session.reset();
+      _pending_tx_session.push();
        
 #ifdef IS_TEST_NET
        if( BOOST_UNLIKELY( head_block_id() == block_id_type() && init_genesis_hardforks ) )

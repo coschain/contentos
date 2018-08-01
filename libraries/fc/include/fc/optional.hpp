@@ -230,6 +230,9 @@ namespace fc {
           }
           _valid = false;
       }
+      void push() {
+        ref().push();
+      }
     private:
       template<typename U> friend class optional;
       T&       ref()      { return *ptr(); }
