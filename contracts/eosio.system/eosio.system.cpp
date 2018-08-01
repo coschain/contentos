@@ -54,9 +54,9 @@ namespace eosiosystem {
    void system_contract::setram( uint64_t max_ram_size ) {
       require_auth( _self );
 
-      eosio_assert( _gstate.max_ram_size < max_ram_size, "ram may only be increased" ); /// decreasing ram might result market maker issues
-      eosio_assert( max_ram_size < 1024ll*1024*1024*1024*1024, "ram size is unrealistic" );
-      eosio_assert( max_ram_size > _gstate.total_ram_bytes_reserved, "attempt to set max below reserved" );
+      contento_assert( _gstate.max_ram_size < max_ram_size, "ram may only be increased" ); /// decreasing ram might result market maker issues
+      contento_assert( max_ram_size < 1024ll*1024*1024*1024*1024, "ram size is unrealistic" );
+      contento_assert( max_ram_size > _gstate.total_ram_bytes_reserved, "attempt to set max below reserved" );
 
       auto delta = int64_t(max_ram_size) - int64_t(_gstate.max_ram_size);
       auto itr = _rammarket.find(S(4,RAMCORE));
@@ -76,7 +76,7 @@ namespace eosiosystem {
    void system_contract::setparams( const eosio::blockchain_parameters& params ) {
       require_auth( N(eosio) );
       (eosio::blockchain_parameters&)(_gstate) = params;
-      eosio_assert( 3 <= _gstate.max_authority_depth, "max_authority_depth should be at least 3" );
+      contento_assert( 3 <= _gstate.max_authority_depth, "max_authority_depth should be at least 3" );
       set_blockchain_parameters( params );
    }
 
@@ -88,7 +88,7 @@ namespace eosiosystem {
    void system_contract::rmvproducer( account_name producer ) {
       require_auth( _self );
       auto prod = _producers.find( producer );
-      eosio_assert( prod != _producers.end(), "producer not found" );
+      contento_assert( prod != _producers.end(), "producer not found" );
       _producers.modify( prod, 0, [&](auto& p) {
             p.deactivate();
          });
@@ -96,10 +96,10 @@ namespace eosiosystem {
 
    void system_contract::bidname( account_name bidder, account_name newname, asset bid ) {
       require_auth( bidder );
-      eosio_assert( eosio::name_suffix(newname) == newname, "you can only bid on top-level suffix" );
-      eosio_assert( !is_account( newname ), "account already exists" );
-      eosio_assert( bid.symbol == asset().symbol, "asset must be system token" );
-      eosio_assert( bid.amount > 0, "insufficient bid" );
+      contento_assert( eosio::name_suffix(newname) == newname, "you can only bid on top-level suffix" );
+      contento_assert( !is_account( newname ), "account already exists" );
+      contento_assert( bid.symbol == asset().symbol, "asset must be system token" );
+      contento_assert( bid.amount > 0, "insufficient bid" );
 
       INLINE_ACTION_SENDER(eosio::token, transfer)( N(eosio.token), {bidder,N(active)},
                                                     { bidder, N(eosio.names), bid, std::string("bid name ")+(name{newname}).to_string()  } );
@@ -115,9 +115,9 @@ namespace eosiosystem {
             b.last_bid_time = current_time();
          });
       } else {
-         eosio_assert( current->high_bid > 0, "this auction has already closed" );
-         eosio_assert( bid.amount - current->high_bid > (current->high_bid / 10), "must increase bid by 10%" );
-         eosio_assert( current->high_bidder != bidder, "account is already highest bidder" );
+         contento_assert( current->high_bid > 0, "this auction has already closed" );
+         contento_assert( bid.amount - current->high_bid > (current->high_bid / 10), "must increase bid by 10%" );
+         contento_assert( current->high_bidder != bidder, "account is already highest bidder" );
 
          INLINE_ACTION_SENDER(eosio::token, transfer)( N(eosio.token), {N(eosio.names),N(active)},
                                                        { N(eosio.names), current->high_bidder, asset(current->high_bid),
@@ -159,12 +159,12 @@ namespace eosiosystem {
             if( suffix == newact ) {
                name_bid_table bids(_self,_self);
                auto current = bids.find( newact );
-               eosio_assert( current != bids.end(), "no active bid for name" );
-               eosio_assert( current->high_bidder == creator, "only highest bidder can claim" );
-               eosio_assert( current->high_bid < 0, "auction for name is not closed yet" );
+               contento_assert( current != bids.end(), "no active bid for name" );
+               contento_assert( current->high_bidder == creator, "only highest bidder can claim" );
+               contento_assert( current->high_bid < 0, "auction for name is not closed yet" );
                bids.erase( current );
             } else {
-               eosio_assert( creator == suffix, "only suffix may create this account" );
+               contento_assert( creator == suffix, "only suffix may create this account" );
             }
          }
       }

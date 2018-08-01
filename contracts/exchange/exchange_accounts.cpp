@@ -14,12 +14,12 @@ namespace eosio {
          table->second.emplace( owner, [&]( auto& exa ){
            exa.owner = owner;
            exa.balances[delta.get_extended_symbol()] = delta.amount;
-           eosio_assert( delta.amount >= 0, "overdrawn balance 1" );
+           contento_assert( delta.amount >= 0, "overdrawn balance 1" );
          });
       } else {
          table->second.modify( useraccounts, 0, [&]( auto& exa ) {
            const auto& b = exa.balances[delta.get_extended_symbol()] += delta.amount;
-           eosio_assert( b >= 0, "overdrawn balance 2" );
+           contento_assert( b >= 0, "overdrawn balance 2" );
          });
       }
    }

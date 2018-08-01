@@ -180,7 +180,7 @@ extern "C" {
       WASM_TEST_HANDLER_EX(test_permission, test_account_creation_time);
 
       //unhandled test call
-      eosio_assert(false, "Unknown Test");
+      contento_assert(false, "Unknown Test");
 
    }
 }

@@ -39,8 +39,8 @@ namespace eosio {
          total_lendable.amount -= result.amount;
          interest_shares -= ishares;
 
-         eosio_assert( interest_shares >= 0, "underflow" );
-         eosio_assert( total_lendable.amount >= 0, "underflow" );
+         contento_assert( interest_shares >= 0, "underflow" );
+         contento_assert( total_lendable.amount >= 0, "underflow" );
 
          return result;
       }

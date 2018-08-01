@@ -35,8 +35,8 @@ namespace eosiosystem {
     *
     */
    void system_contract::regproducer( const account_name producer, const eosio::public_key& producer_key, const std::string& url, uint16_t location ) {
-      eosio_assert( url.size() < 512, "url too long" );
-      eosio_assert( producer_key != eosio::public_key(), "public key should not be the default value" );
+      contento_assert( url.size() < 512, "url too long" );
+      contento_assert( producer_key != eosio::public_key(), "public key should not be the default value" );
       require_auth( producer );
 
       auto prod = _producers.find( producer );
@@ -131,19 +131,19 @@ namespace eosiosystem {
    void system_contract::update_votes( const account_name voter_name, const account_name proxy, const std::vector<account_name>& producers, bool voting ) {
       //validate input
       if ( proxy ) {
-         eosio_assert( producers.size() == 0, "cannot vote for producers and proxy at same time" );
-         eosio_assert( voter_name != proxy, "cannot proxy to self" );
+         contento_assert( producers.size() == 0, "cannot vote for producers and proxy at same time" );
+         contento_assert( voter_name != proxy, "cannot proxy to self" );
          require_recipient( proxy );
       } else {
-         eosio_assert( producers.size() <= 30, "attempt to vote for too many producers" );
+         contento_assert( producers.size() <= 30, "attempt to vote for too many producers" );
          for( size_t i = 1; i < producers.size(); ++i ) {
-            eosio_assert( producers[i-1] < producers[i], "producer votes must be unique and sorted" );
+            contento_assert( producers[i-1] < producers[i], "producer votes must be unique and sorted" );
          }
       }
 
       auto voter = _voters.find(voter_name);
-      eosio_assert( voter != _voters.end(), "user must stake before they can vote" ); /// staking creates voter object
-      eosio_assert( !proxy || !voter->is_proxy, "account registered as a proxy is not allowed to use a proxy" );
+      contento_assert( voter != _voters.end(), "user must stake before they can vote" ); /// staking creates voter object
+      contento_assert( !proxy || !voter->is_proxy, "account registered as a proxy is not allowed to use a proxy" );
 
       /**
        * The first time someone votes we calculate and set last_vote_weight, since they cannot unstake until
@@ -166,7 +166,7 @@ namespace eosiosystem {
       if ( voter->last_vote_weight > 0 ) {
          if( voter->proxy ) {
             auto old_proxy = _voters.find( voter->proxy );
-            eosio_assert( old_proxy != _voters.end(), "old proxy not found" ); //data corruption
+            contento_assert( old_proxy != _voters.end(), "old proxy not found" ); //data corruption
             _voters.modify( old_proxy, 0, [&]( auto& vp ) {
                   vp.proxied_vote_weight -= voter->last_vote_weight;
                });
@@ -182,8 +182,8 @@ namespace eosiosystem {
 
       if( proxy ) {
          auto new_proxy = _voters.find( proxy );
-         eosio_assert( new_proxy != _voters.end(), "invalid proxy specified" ); //if ( !voting ) { data corruption } else { wrong vote }
-         eosio_assert( !voting || new_proxy->is_proxy, "proxy not found" );
+         contento_assert( new_proxy != _voters.end(), "invalid proxy specified" ); //if ( !voting ) { data corruption } else { wrong vote }
+         contento_assert( !voting || new_proxy->is_proxy, "proxy not found" );
          if ( new_vote_weight >= 0 ) {
             _voters.modify( new_proxy, 0, [&]( auto& vp ) {
                   vp.proxied_vote_weight += new_vote_weight;
@@ -203,17 +203,17 @@ namespace eosiosystem {
       for( const auto& pd : producer_deltas ) {
          auto pitr = _producers.find( pd.first );
          if( pitr != _producers.end() ) {
-            eosio_assert( !voting || pitr->active() || !pd.second.second /* not from new set */, "producer is not currently registered" );
+            contento_assert( !voting || pitr->active() || !pd.second.second /* not from new set */, "producer is not currently registered" );
             _producers.modify( pitr, 0, [&]( auto& p ) {
                p.total_votes += pd.second.first;
                if ( p.total_votes < 0 ) { // floating point arithmetics can give small negative numbers
                   p.total_votes = 0;
                }
                _gstate.total_producer_vote_weight += pd.second.first;
-               //eosio_assert( p.total_votes >= 0, "something bad happened" );
+               //contento_assert( p.total_votes >= 0, "something bad happened" );
             });
          } else {
-            eosio_assert( !pd.second.second /* not from new set */, "producer is not registered" ); //data corruption
+            contento_assert( !pd.second.second /* not from new set */, "producer is not registered" ); //data corruption
          }
       }
 
@@ -238,8 +238,8 @@ namespace eosiosystem {
 
       auto pitr = _voters.find(proxy);
       if ( pitr != _voters.end() ) {
-         eosio_assert( isproxy != pitr->is_proxy, "action has no effect" );
-         eosio_assert( !isproxy || !pitr->proxy, "account that uses a proxy is not allowed to become a proxy" );
+         contento_assert( isproxy != pitr->is_proxy, "action has no effect" );
+         contento_assert( !isproxy || !pitr->proxy, "account that uses a proxy is not allowed to become a proxy" );
          _voters.modify( pitr, 0, [&]( auto& p ) {
                p.is_proxy = isproxy;
             });
@@ -253,7 +253,7 @@ namespace eosiosystem {
    }
 
    void system_contract::propagate_weight_change( const voter_info& voter ) {
-      eosio_assert( voter.proxy == 0 || !voter.is_proxy, "account registered as a proxy is not allowed to use a proxy" );
+      contento_assert( voter.proxy == 0 || !voter.is_proxy, "account registered as a proxy is not allowed to use a proxy" );
       double new_weight = stake2vote( voter.staked );
       if ( voter.is_proxy ) {
          new_weight += voter.proxied_vote_weight;

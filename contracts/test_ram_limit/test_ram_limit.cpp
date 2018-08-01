@@ -48,7 +48,7 @@ class test_ram_limit : public eosio::contract {
          test_table table(self, self);
          for (int key = from; key <=to; ++key) {
             auto itr = table.find(key);
-            eosio_assert (itr != table.end(), "could not find test_table entry");
+            contento_assert (itr != table.end(), "could not find test_table entry");
             table.erase(itr);
          }
       }
@@ -61,7 +61,7 @@ class test_ram_limit : public eosio::contract {
          for (int key = from; key <=to; ++key) {
             auto itr = table.find(key);
             eosio::print("\nkey=", key);
-            eosio_assert (itr != table.end(), "could not find test_table entry");
+            contento_assert (itr != table.end(), "could not find test_table entry");
             eosio::print(" size=", itr->data.size());
          }
       }

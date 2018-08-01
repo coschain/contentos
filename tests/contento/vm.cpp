@@ -41,7 +41,7 @@ vm_operation create_setabi(const name& contract_name, const abi_def& abi) {
 
 bytes get_code() {
     std::string wast;
-    fc::read_file_contents("/Users/jesse/eos/build/contracts/hello/hello.wast", wast);
+    fc::read_file_contents("/Users/jesse/cmcm/contentos/build/contracts/hello/hello.wast", wast);
     vector<uint8_t> wasm = wast_to_wasm(wast);
     return bytes(wasm.begin(), wasm.end());
 }

@@ -28,7 +28,7 @@ extern "C" {
     *  @param test - 0 to abort, 1 to ignore
     *  @param msg - a null terminated string explaining the reason for failure
     */
-   void  eosio_assert( uint32_t test, const char* msg );
+   void  contento_assert( uint32_t test, const char* msg );
 
    /**
     *  Aborts processing of this action and unwinds all pending changes if the test condition is true

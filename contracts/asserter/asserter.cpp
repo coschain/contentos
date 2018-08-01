@@ -18,9 +18,9 @@ extern "C" {
              assertdef def = eosio::unpack_action_data<assertdef>();
 
              // maybe assert?
-             eosio_assert((uint32_t)def.condition, def.message.c_str());
+             contento_assert((uint32_t)def.condition, def.message.c_str());
           } else if( action == N(provereset) ) {
-             eosio_assert(global_variable == 45, "Global Variable Initialized poorly");
+             contento_assert(global_variable == 45, "Global Variable Initialized poorly");
              global_variable = 100;
           }
        }

@@ -189,17 +189,17 @@ namespace eosio {
          // casts and comparisons, use valid() or !!
          explicit operator bool()const  { return _valid;  }
 
-         T&       operator*()      { eosio_assert(_valid, "dereference of empty optional"); return ref(); }
-         const T& operator*()const { eosio_assert(_valid, "dereference of empty optional"); return ref(); }
+         T&       operator*()      { contento_assert(_valid, "dereference of empty optional"); return ref(); }
+         const T& operator*()const { contento_assert(_valid, "dereference of empty optional"); return ref(); }
 
          T*       operator->()
          {
-            eosio_assert(_valid, "dereference of empty optional");
+            contento_assert(_valid, "dereference of empty optional");
             return ptr();
          }
          const T* operator->()const
          {
-            eosio_assert(_valid, "dereference of empty optional");
+            contento_assert(_valid, "dereference of empty optional");
             return ptr();
          }
 

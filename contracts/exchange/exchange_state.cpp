@@ -19,8 +19,8 @@ namespace eosio {
    }
 
    extended_asset exchange_state::convert_from_exchange( connector& c, extended_asset in ) {
-      eosio_assert( in.contract == supply.contract, "unexpected asset contract input" );
-      eosio_assert( in.symbol== supply.symbol, "unexpected asset symbol input" );
+      contento_assert( in.contract == supply.contract, "unexpected asset contract input" );
+      contento_assert( in.symbol== supply.symbol, "unexpected asset symbol input" );
 
       real_type R(supply.amount - in.amount);
       real_type C(c.balance.amount);
@@ -50,7 +50,7 @@ namespace eosio {
          } else if( sell_symbol == quote_symbol ) {
             from = convert_to_exchange( quote, from );
          } else { 
-            eosio_assert( false, "invalid sell" );
+            contento_assert( false, "invalid sell" );
          }
       } else {
          if( to == base_symbol ) {
@@ -58,7 +58,7 @@ namespace eosio {
          } else if( to == quote_symbol ) {
             from = convert_from_exchange( quote, from ); 
          } else {
-            eosio_assert( false, "invalid conversion" );
+            contento_assert( false, "invalid conversion" );
          }
       }
 
