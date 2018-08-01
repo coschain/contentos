@@ -34,14 +34,16 @@ struct rpc_api_serializer {
 
    map<type_name, type_name>  typedefs;
    map<type_name, struct_def> structs;
-   map<name16,type_name>        actions;
-   map<name16,type_name>        tables;
-   map<uint64_t, string>      error_messages;
+   map<class_name, class_def> classes;
+
+//   map<name16,type_name>        actions;
+//   map<name16,type_name>        tables;
+//   map<uint64_t, string>      error_messages;
 
    typedef std::function<fc::variant(fc::datastream<const char*>&, bool, bool)>  unpack_function;
    typedef std::function<void(const fc::variant&, fc::datastream<char*>&, bool, bool)>  pack_function;
 
-   map<type_name, pair<unpack_function, pack_function>> built_in_types;
+   map<type_name, bool> built_in_types;
    void configure_built_in_types();
 
    void validate()const;

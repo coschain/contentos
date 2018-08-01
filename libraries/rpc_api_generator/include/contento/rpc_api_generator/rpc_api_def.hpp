@@ -11,6 +11,7 @@
 #include <fc/reflect/variant.hpp>
 
 typedef std::vector<char>                bytes;
+typedef std::vector<std::pair<uint16_t,std::vector<char>>> extensions_type;
 
 namespace contento { namespace rpc_api {
 
@@ -25,6 +26,7 @@ using action_name    = string;
 using action_name16    = string;
    using table_name = string;
    using name = string;
+   using class_name = string;
 
    
 struct type_def {
@@ -73,78 +75,70 @@ struct struct_def {
    type_name            name;
    type_name            base;
    vector<field_def>    fields;
-   return_def           ret;
 
    bool operator==(const struct_def& other) const {
-      return std::tie(name, base, fields, ret) == std::tie(other.name, other.base, other.fields, ret);
+      return std::tie(name, base, fields) == std::tie(other.name, other.base, other.fields);
+   }
+};
+
+struct function_def {
+   function_def() = default;
+   function_def(const type_name& name, const return_def& ret, const vector<field_def>& fields)
+   :name(name), fields(fields), ret(ret)
+   {}
+
+   type_name            name;
+   vector<field_def>    fields;
+   return_def           ret;
+
+   bool operator==(const function_def& other) const {
+      return std::tie(name, fields, ret) == std::tie(other.name, other.fields, other.ret);
+   }
+};
+
+struct class_def {
+   class_def() = default;
+   class_def(const class_name& name, const vector<function_def>& functions )
+   :name(name), functions(functions)
+   {}
+
+   class_name              name;
+   vector<function_def>    functions;
+
+   bool operator==(const class_def& other) const {
+      return std::tie(name, functions) == std::tie(other.name, other.functions );
    }
 };
 
 struct action_def {
    action_def() = default;
-   action_def(const action_name16& name, const type_name& type, const string& ricardian_contract)
-   :name(name), type(type), ricardian_contract(ricardian_contract)
+   action_def(const action_name16& name, const type_name& type )
+   :name(name), type(type)
    {}
 
    action_name16 name;
    type_name   type;
-   string      ricardian_contract;
 };
 
-struct table_def {
-   table_def() = default;
-   table_def(const table_name& name, const type_name& index_type, const vector<field_name>& key_names, const vector<type_name>& key_types, const type_name& type)
-   :name(name), index_type(index_type), key_names(key_names), key_types(key_types), type(type)
-   {}
 
-   table_name         name;        // the name of the table
-   type_name          index_type;  // the kind of index, i64, i128i128, etc
-   vector<field_name> key_names;   // names for the keys defined by key_types
-   vector<type_name>  key_types;   // the type of key parameters
-   type_name          type;        // type of binary data stored in this table
-};
-
-struct clause_pair {
-   clause_pair() = default;
-   clause_pair( const string& id, const string& body )
-   : id(id), body(body)
-   {}
-
-   string id;
-   string body;
-};
-
-struct error_message {
-   error_message() = default;
-   error_message( uint64_t error_code, const string& error_msg )
-   : error_code(error_code), error_msg(error_msg)
-   {}
-
-   uint64_t error_code;
-   string   error_msg;
-};
-
-   typedef vector<std::pair<uint16_t,vector<char>>> extensions_type;
 struct abi_def {
    abi_def() = default;
-   abi_def(const vector<type_def>& types, const vector<struct_def>& structs, const vector<action_def>& actions, const vector<table_def>& tables, const vector<clause_pair>& clauses, const vector<error_message>& error_msgs)
+   abi_def(const vector<type_def>& types, const vector<struct_def>& structs, const vector<class_def>& classes)
    :version("contento::abi/1.0")
    ,types(types)
    ,structs(structs)
-   ,actions(actions)
-   ,tables(tables)
-   ,ricardian_clauses(clauses)
-   ,error_messages(error_msgs)
+   ,classes(classes)
    {}
 
-   string                version = "contento::abi/1.0";
+   string                version = "contento::rpc-api/1.0";
    vector<type_def>      types;
    vector<struct_def>    structs;
-   vector<action_def>    actions;
-   vector<table_def>     tables;
-   vector<clause_pair>   ricardian_clauses;
-   vector<error_message> error_messages;
-   extensions_type       abi_extensions;
+   vector<class_def>     classes;
+//   vector<action_def>    actions;
+   //vector<table_def>     tables;
+   //vector<clause_pair>   ricardian_clauses;
+   //vector<error_message> error_messages;
+   //extensions_type       abi_extensions;
 };
 
 abi_def contento_contract_abi(const abi_def& contento_system_abi);
@@ -153,11 +147,9 @@ abi_def contento_contract_abi(const abi_def& contento_system_abi);
 
 FC_REFLECT( contento::rpc_api::type_def                         , (new_type_name)(type) )
 FC_REFLECT( contento::rpc_api::field_def                        , (name)(type) )
+FC_REFLECT( contento::rpc_api::function_def                        , (name)(fields)(ret) )
+
 FC_REFLECT( contento::rpc_api::return_def                       , (type) )
-FC_REFLECT( contento::rpc_api::struct_def                       , (name)(base)(fields)(ret) )
-FC_REFLECT( contento::rpc_api::action_def                       , (name)(type)(ricardian_contract) )
-FC_REFLECT( contento::rpc_api::table_def                        , (name)(index_type)(key_names)(key_types)(type) )
-FC_REFLECT( contento::rpc_api::clause_pair                      , (id)(body) )
-FC_REFLECT( contento::rpc_api::error_message                    , (error_code)(error_msg) )
-FC_REFLECT( contento::rpc_api::abi_def                          , (version)(types)(structs)(actions)(tables)
-                                                             (ricardian_clauses)(error_messages)(abi_extensions) )
+FC_REFLECT( contento::rpc_api::struct_def                       , (name)(base)(fields) )
+FC_REFLECT( contento::rpc_api::class_def                       , (name)(functions) )
+FC_REFLECT( contento::rpc_api::abi_def                          , (version)(types)(structs)(classes) )

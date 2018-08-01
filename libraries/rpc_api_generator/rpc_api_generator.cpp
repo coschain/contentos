@@ -1,12 +1,14 @@
 #include <contento/rpc_api_generator/rpc_api_generator.hpp>
 #include <contento/rpc_api_generator/rpc_api_def.hpp>
+#include <boost/foreach.hpp>
+
 
 namespace contento {
 
    vector<type_def> common_type_defs() {
       vector<type_def> types;
 
-      types.push_back( type_def{"account_name", "name"} );
+      types.push_back( type_def{"account_name", "string16"} );
       types.push_back( type_def{"permission_name", "name"} );
       types.push_back( type_def{"action_name", "name"} );
       types.push_back( type_def{"table_name", "name"} );
@@ -14,7 +16,7 @@ namespace contento {
       types.push_back( type_def{"block_id_type", "checksum256"} );
       types.push_back( type_def{"weight_type", "uint16"} );
 
-      types.push_back( type_def{"account_name_type", "name"} );
+      types.push_back( type_def{"account_name_type", "string16"} );
       types.push_back( type_def{"share_type", "int64"} );
       types.push_back( type_def{"id_type", "int64"} );
       types.push_back( type_def{"digest_type", "checksum256"} );
@@ -26,8 +28,7 @@ namespace contento {
    }
 
 
-void rpc_api_generator::set_target_contract(const string& contract, const vector<string>& actions) {
-  target_contract = contract;
+void rpc_api_generator::set_target_contract(const rpc_api_macro_def_result& actions) {
   target_actions  = actions;
 }
 
@@ -47,9 +48,6 @@ void rpc_api_generator::set_verbose(bool verbose) {
   this->verbose = verbose;
 }
 
-void rpc_api_generator::set_ricardian_contracts(const ricardian_contracts& contracts) {
-  this->rc = contracts;
-}
 
 void rpc_api_generator::set_abi_context(const string& abi_context) {
   this->abi_context = abi_context;
@@ -108,6 +106,8 @@ string rpc_api_generator::translate_type(const string& type_name) {
   else if (type_name == "short"              || type_name == "int16_t")  built_in_type = "int16";
   else if (type_name == "char"               || type_name == "int8_t")   built_in_type = "int8";
   else if (type_name == "double")   built_in_type = "float64";
+  else if (type_name == "fixed_string_16")   built_in_type = "string16";
+
   else if (boost::starts_with(type_name, "oid<"))   built_in_type = "id_type";
   else {
      static auto types = common_type_defs();
@@ -130,10 +130,20 @@ bool rpc_api_generator::inspect_type_methods_for_actions(const Decl* decl) { try
   ABI_ASSERT(type != nullptr);
 
   bool at_least_one_action = false;
+  class_def abi_class;
+  abi_class.name = rec_decl->getNameAsString();
+
+  if ( target_actions.functions_map.find( abi_class.name ) == target_actions.functions_map.end() )
+     return false;
+
+  vector<string>& defined_function = target_actions.functions_map[abi_class.name];
 
   auto export_method = [&](const CXXMethodDecl* method) {
 
     auto method_name = method->getNameAsString();
+
+     if ( std::find(defined_function.begin(),defined_function.end(),method_name ) == defined_function.end() )
+        return;
 
     // Try to get "action" annotation from method comment
     bool raw_comment_is_action = false;
@@ -148,7 +158,14 @@ bool rpc_api_generator::inspect_type_methods_for_actions(const Decl* decl) { try
     }
 
     // Check if current method is listed the contento_ABI macro
-    bool is_action_from_macro = rec_decl->getName().str() == target_contract && std::find(target_actions.begin(), target_actions.end(), method_name) != target_actions.end();
+     bool is_action_from_macro = false;
+
+     string class_name = string(rec_decl->getName().str());
+     if ( target_actions.functions_map.find(class_name) != target_actions.functions_map.end() ){
+        const vector<string>& func_lists = target_actions.functions_map[class_name];
+
+        is_action_from_macro = std::find(func_lists.begin(), func_lists.end(), method_name) != func_lists.end();
+     }
     
     if(!raw_comment_is_action && !is_action_from_macro) {
       return;
@@ -156,7 +173,7 @@ bool rpc_api_generator::inspect_type_methods_for_actions(const Decl* decl) { try
 
     ABI_ASSERT(find_struct(method_name) == nullptr, "action already exists ${method_name}", ("method_name",method_name));
 
-    struct_def abi_struct;
+    function_def func_struct;
     for(const auto* p : method->parameters() ) {
       clang::QualType qt = p->getOriginalType().getNonReferenceType();
       qt.setLocalFastQualifiers(0);
@@ -165,28 +182,25 @@ bool rpc_api_generator::inspect_type_methods_for_actions(const Decl* decl) { try
       string field_type_name = add_type(qt, 0);
 
       field_def struct_field{field_name, field_type_name};
-
-       check_container_support(field_type_name);
-
+      check_container_support(field_type_name);
       type_size[string(struct_field.type)] = is_vector(struct_field.type) ? 0 : ast_context->getTypeSize(qt);
-      abi_struct.fields.push_back(struct_field);
+      func_struct.fields.push_back(struct_field);
     }
 
     clang::QualType qt = method->getReturnType().getNonReferenceType();
     qt.setLocalFastQualifiers(0);
     string ret_type_name = add_type(qt, 0);
-    abi_struct.ret = { ret_type_name };
 
     check_container_support(ret_type_name);
 
-    abi_struct.name = method_name;
-    abi_struct.base = "";
+    func_struct.ret = { ret_type_name };
+    func_struct.name = method_name;
 
-    output->structs.push_back(abi_struct);
+    //output->structs.push_back(abi_struct);
 
     full_types[method_name] = method_name;
 
-    output->actions.push_back({method_name, method_name, rc[method_name]});
+    abi_class.functions.push_back(func_struct);
     at_least_one_action = true;
   };
 
@@ -215,6 +229,7 @@ bool rpc_api_generator::inspect_type_methods_for_actions(const Decl* decl) { try
 
   export_methods(rec_decl);
 
+   output->classes.push_back(abi_class);
   return at_least_one_action;
 
 } FC_CAPTURE_AND_RETHROW() }
@@ -236,102 +251,6 @@ void rpc_api_generator::handle_decl(const Decl* decl) { try {
   bool type_has_actions = inspect_type_methods_for_actions(decl);
   if( type_has_actions ) return;
 
-  // The current Decl doesn't have actions
-  const RawComment* raw_comment = ast_context->getRawCommentForDeclNoCache(decl);
-  if(raw_comment == nullptr) {
-    return;
-  }
-
-  string raw_text = raw_comment->getRawText(source_manager);
-  regex r;
-
-  // If contento_ABI macro was found, we will only check if the current Decl
-  // is intented to be an ABI table record, otherwise we check for both (action or table)
-  if( target_contract.size() )
-    r = regex(R"(@abi (table)((?: [a-z0-9]+)*))");
-  else
-    r = regex(R"(@abi (action|table)((?: [a-z0-9]+)*))");
-
-  smatch smatch;
-  while(regex_search(raw_text, smatch, r))
-  {
-    if(smatch.size() == 3) {
-
-      auto type = smatch[1].str();
-
-      vector<string> params;
-      auto string_params = smatch[2].str();
-      boost::trim(string_params);
-      if(!string_params.empty())
-        boost::split(params, string_params, boost::is_any_of(" "));
-
-      if(type == "action") {
-
-        const auto* action_decl = dyn_cast<CXXRecordDecl>(decl);
-        ABI_ASSERT(action_decl != nullptr);
-
-        auto qt = action_decl->getTypeForDecl()->getCanonicalTypeInternal();
-
-        auto type_name = add_struct(qt, "", 0);
-        ABI_ASSERT(!is_builtin_type(type_name),
-          "A built-in type with the same name exists, try using another name: ${type_name}", ("type_name",type_name));
-
-        if(params.size()==0) {
-          params.push_back( boost::algorithm::to_lower_copy(boost::erase_all_copy(type_name, "_")) );
-        }
-
-        for(const auto& action : params) {
-          const auto* ac = find_action(action);
-          if( ac ) {
-            ABI_ASSERT(ac->type == type_name, "Same action name with different type ${action}",("action",action));
-            continue;
-          }
-          output->actions.push_back({action, type_name, rc[action]});
-        }
-
-      } else if (type == "table") {
-
-        const auto* table_decl = dyn_cast<CXXRecordDecl>(decl);
-        ABI_ASSERT(table_decl != nullptr);
-
-        auto qt = table_decl->getTypeForDecl()->getCanonicalTypeInternal();
-        auto type_name = add_struct(qt, "", 0);
-
-        ABI_ASSERT(!is_builtin_type(type_name),
-          "A built-in type with the same name exists, try using another name: ${type_name}", ("type_name",type_name));
-
-        const auto* s = find_struct(type_name);
-        ABI_ASSERT(s, "Unable to find type ${type}", ("type",type_name));
-
-        table_def table;
-        table.name = boost::algorithm::to_lower_copy(boost::erase_all_copy(type_name, "_"));
-        table.type = type_name;
-
-        if(params.size() >= 1) {
-          table.name = params[0];
-        }
-
-        if(params.size() >= 2) {
-          table.index_type = params[1];
-          ABI_ASSERT(table.index_type == "i64", "Only i64 index is supported. ${index_type}",("index_type",table.index_type));
-        } else { try {
-          guess_index_type(table, *s);
-        } FC_CAPTURE_AND_RETHROW( (type_name) ) }
-
-        try {
-          guess_key_names(table, *s);
-        } FC_CAPTURE_AND_RETHROW( (type_name) )
-
-        //TODO: assert that we are adding the same table
-        const auto* ta = find_table(table.name);
-        if(!ta) {
-          output->tables.push_back(table);
-        }
-      }
-    }
-
-    raw_text = smatch.suffix();
-  }
 
 } FC_CAPTURE_AND_RETHROW() }
 
@@ -365,53 +284,53 @@ bool rpc_api_generator::is_i64_index(const vector<field_def>& fields) {
   return fields.size() >= 1 && is_64bit(fields[0].type);
 }
 
-void rpc_api_generator::guess_index_type(table_def& table, const struct_def s) {
-  vector<field_def> fields;
-  get_all_fields(s, fields);
-  if( is_i64_index(fields) ) {
-    table.index_type = "i64";
-  } else {
-    ABI_ASSERT(false, "Unable to guess index type");
-  }
-}
+//void rpc_api_generator::guess_index_type(table_def& table, const struct_def s) {
+//  vector<field_def> fields;
+//  get_all_fields(s, fields);
+//  if( is_i64_index(fields) ) {
+//    table.index_type = "i64";
+//  } else {
+//    ABI_ASSERT(false, "Unable to guess index type");
+//  }
+//}
 
-void rpc_api_generator::guess_key_names(table_def& table, const struct_def s) {
-
-  vector<field_def> fields;
-  get_all_fields(s, fields);
-
- if( table.index_type == "i64") {
-
-    table.key_names.clear();
-    table.key_types.clear();
-
-    unsigned int key_size = 0;
-    bool valid_key = false;
-    for(auto& f : fields) {
-      table.key_names.emplace_back(f.name);
-      table.key_types.emplace_back(f.type);
-      key_size += type_size[f.type]/8;
-
-      if(table.index_type == "i64" && key_size >= sizeof(uint64_t)) {
-        valid_key = true;
-        break;
-      }
-    }
-
-    ABI_ASSERT(valid_key, "Unable to guess key names");
-  } else {
-    ABI_ASSERT(false, "Unable to guess key names");
-  }
-}
-
-const table_def* rpc_api_generator::find_table(const table_name& name) {
-  for( const auto& ta : output->tables ) {
-    if(ta.name == name) {
-      return &ta;
-    }
-  }
-  return nullptr;
-}
+//void rpc_api_generator::guess_key_names(table_def& table, const struct_def s) {
+//
+//  vector<field_def> fields;
+//  get_all_fields(s, fields);
+//
+// if( table.index_type == "i64") {
+//
+//    table.key_names.clear();
+//    table.key_types.clear();
+//
+//    unsigned int key_size = 0;
+//    bool valid_key = false;
+//    for(auto& f : fields) {
+//      table.key_names.emplace_back(f.name);
+//      table.key_types.emplace_back(f.type);
+//      key_size += type_size[f.type]/8;
+//
+//      if(table.index_type == "i64" && key_size >= sizeof(uint64_t)) {
+//        valid_key = true;
+//        break;
+//      }
+//    }
+//
+//    ABI_ASSERT(valid_key, "Unable to guess key names");
+//  } else {
+//    ABI_ASSERT(false, "Unable to guess key names");
+//  }
+//}
+//
+//const table_def* rpc_api_generator::find_table(const table_name& name) {
+//  for( const auto& ta : output->tables ) {
+//    if(ta.name == name) {
+//      return &ta;
+//    }
+//  }
+//  return nullptr;
+//}
 
 const type_def* rpc_api_generator::find_type(const type_name& new_type_name) {
   for( const auto& td : output->types ) {
@@ -422,14 +341,14 @@ const type_def* rpc_api_generator::find_type(const type_name& new_type_name) {
   return nullptr;
 }
 
-const action_def* rpc_api_generator::find_action(const action_name& name) {
-  for( const auto& ac : output->actions ) {
-    if(ac.name == name) {
-      return &ac;
-    }
-  }
-  return nullptr;
-}
+//const action_def* rpc_api_generator::find_action(const action_name& name) {
+//  for( const auto& ac : output->actions ) {
+//    if(ac.name == name) {
+//      return &ac;
+//    }
+//  }
+//  return nullptr;
+//}
 
 const struct_def* rpc_api_generator::find_struct(const type_name& name) {
   auto rname = resolve_type(name);
@@ -767,7 +686,7 @@ string rpc_api_generator::add_struct(const clang::QualType& sqt, string full_nam
     full_name = get_type_name(qt, true);
   }
 
-  auto name = remove_namespace(full_name);
+  string name = remove_namespace(full_name);
 
   ABI_ASSERT(is_struct(qt), "Only struct and class are supported. ${full_name}",("full_name",full_name));
 
@@ -779,6 +698,22 @@ string rpc_api_generator::add_struct(const clang::QualType& sqt, string full_nam
     return name;
   }
 
+   rpc_api_macro_def_structs macro_def;
+   if ( target_actions.structs_map.find(name) == target_actions.structs_map.end() ){
+      auto td = find_type(translate_type(name));
+      if ( td != nullptr ){
+         if ( target_actions.structs_map.find(td->type) == target_actions.structs_map.end() )
+            ABI_ASSERT(0, "no FC_REFLECT define found");
+         else{
+            macro_def = target_actions.structs_map[td->type];
+         }
+      } else {
+         ABI_ASSERT(0, "no FC_REFLECT define found");
+      }
+   } else {
+      macro_def = target_actions.structs_map[name];
+   }
+
   auto bases = get_struct_bases(qt);
   auto bitr = bases.begin();
   int total_bases = 0;
@@ -786,9 +721,14 @@ string rpc_api_generator::add_struct(const clang::QualType& sqt, string full_nam
   string base_name;
   while( bitr != bases.end() ) {
     auto base_qt = bitr->getType();
+    string base_name_check = get_type_name(base_qt, false);
+
     const auto* record_type = base_qt->getAs<clang::RecordType>();
     if( record_type && is_struct(base_qt) && !record_type->getDecl()->field_empty() ) {
       ABI_ASSERT(total_bases == 0, "Multiple inheritance not supported - ${type}", ("type",full_name));
+
+      ABI_ASSERT( target_actions.structs_map[name].base_struct == base_name_check, "base declare not equal FC_RELECT" );
+
       base_name = add_type(base_qt, recursion_depth);
       ++total_bases;
     }
@@ -801,19 +741,30 @@ string rpc_api_generator::add_struct(const clang::QualType& sqt, string full_nam
 
     string field_name = field->getNameAsString();
 
-     if (field_name == "account_auths" ){
-        int a= 0;
-     }
-
     string field_type_name = add_type(qt, recursion_depth);
 
     field_def struct_field{field_name, field_type_name};
 
-   check_container_support(struct_field.type);
+    check_container_support(struct_field.type);
 
     type_size[string(struct_field.type)] = is_vector(struct_field.type) ? 0 : ast_context->getTypeSize(qt);
-    abi_struct.fields.push_back(struct_field);
+
+     if ( std::find( macro_def.members.begin(),macro_def.members.end(),field_name) != macro_def.members.end() ){
+        abi_struct.fields.push_back(struct_field);
+     } else {
+        std::cout << "warning !!! no serial data: " << name << "::" << field_name << std::endl;
+     }
   }
+
+   map<string, int> sort_value;
+   int n = 0;
+   for( auto value : macro_def.members)
+   {
+      sort_value[value] = n++;
+   }
+   std::sort( abi_struct.fields.begin(), abi_struct.fields.end(), [&](const field_def& a, const field_def& b){
+      return sort_value[a.name] < sort_value[b.name];
+   });
 
   abi_struct.name = resolve_type(name);
   abi_struct.base = base_name;
