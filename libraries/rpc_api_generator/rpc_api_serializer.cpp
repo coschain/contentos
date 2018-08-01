@@ -3,11 +3,6 @@
  *  @copyright defined in eos/LICENSE.txt
  */
 #include <contento/rpc_api_generator/rpc_api_serializer.hpp>
-//#include <contento/chain/contract_types.hpp>
-//#include <contento/chain/authority.hpp>
-//#include <contento/chain/chain_config.hpp>
-//#include <contento/chain/transaction.hpp>
-//#include <contento/chain/util/asset.hpp>
 #include <fc/io/raw.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <fc/io/varint.hpp>
@@ -21,34 +16,6 @@ namespace contento { namespace rpc_api {
    using boost::algorithm::ends_with;
    using std::string;
 
-   template <typename T>
-   inline fc::variant variant_from_stream(fc::datastream<const char*>& stream) {
-      T temp;
-      fc::raw::unpack( stream, temp );
-      return fc::variant(temp);
-   }
-
-   template <typename T>
-   auto pack_unpack() {
-      return std::make_pair<rpc_api_serializer::unpack_function, rpc_api_serializer::pack_function>(
-         []( fc::datastream<const char*>& stream, bool is_array, bool is_optional) -> fc::variant  {
-            if( is_array )
-               return variant_from_stream<vector<T>>(stream);
-            else if ( is_optional )
-               return variant_from_stream<optional<T>>(stream);
-            return variant_from_stream<T>(stream);
-         },
-         []( const fc::variant& var, fc::datastream<char*>& ds, bool is_array, bool is_optional ){
-            if( is_array )
-               fc::raw::pack( ds, var.as<vector<T>>() );
-            else if ( is_optional )
-               fc::raw::pack( ds, var.as<optional<T>>() );
-            else
-               fc::raw::pack( ds,  var.as<T>());
-         }
-      );
-   }
-
    rpc_api_serializer::rpc_api_serializer( const abi_def& abi ) {
       configure_built_in_types();
       set_abi(abi);
@@ -56,66 +23,51 @@ namespace contento { namespace rpc_api {
 
    void rpc_api_serializer::configure_built_in_types() {
 
-      built_in_types.emplace("bool",                      pack_unpack<uint8_t>());
-      built_in_types.emplace("int8",                      pack_unpack<int8_t>());
-      built_in_types.emplace("uint8",                     pack_unpack<uint8_t>());
-      built_in_types.emplace("int16",                     pack_unpack<int16_t>());
-      built_in_types.emplace("uint16",                    pack_unpack<uint16_t>());
-      built_in_types.emplace("int32",                     pack_unpack<int32_t>());
-      built_in_types.emplace("uint32",                    pack_unpack<uint32_t>());
-      built_in_types.emplace("int64",                     pack_unpack<int64_t>());
-      built_in_types.emplace("uint64",                    pack_unpack<int64_t>());
-      built_in_types.emplace("int128",                    pack_unpack<int64_t>());
-      built_in_types.emplace("uint128",                   pack_unpack<int64_t>());
-      built_in_types.emplace("varint32",                  pack_unpack<int64_t>());
-      built_in_types.emplace("varuint32",                 pack_unpack<int64_t>());
-
-      // TODO: Add proper support for floating point types. For now this is good enough.
-      built_in_types.emplace("float32",                   pack_unpack<float>());
-      built_in_types.emplace("float64",                   pack_unpack<double>());
-      built_in_types.emplace("float128",                  pack_unpack<int64_t>());
-
-      built_in_types.emplace("time_point",                pack_unpack<int64_t>());
-      built_in_types.emplace("time_point_sec",            pack_unpack<int64_t>());
-      //built_in_types.emplace("block_timestamp_type",      pack_unpack<block_timestamp_type>());
-
-      built_in_types.emplace("name",                      pack_unpack<int64_t>());
-
-      built_in_types.emplace("bytes",                     pack_unpack<int64_t>());
-      built_in_types.emplace("string",                    pack_unpack<int64_t>());
-
-      built_in_types.emplace("checksum160",               pack_unpack<int64_t>());
-      built_in_types.emplace("checksum256",               pack_unpack<int64_t>());
-      built_in_types.emplace("sha256",               pack_unpack<int64_t>());
-
-      built_in_types.emplace("checksum512",               pack_unpack<int64_t>());
-
-      built_in_types.emplace("public_key_type",           pack_unpack<int64_t>());
-      built_in_types.emplace("public_key",                pack_unpack<int64_t>());
-      built_in_types.emplace("signature",                 pack_unpack<int64_t>());
-      built_in_types.emplace("signature_type",            pack_unpack<int64_t>());
-
-      built_in_types.emplace("operation",                 pack_unpack<int64_t>());
-
-      built_in_types.emplace("block_header_extensions_type",                 pack_unpack<int64_t>());
-      built_in_types.emplace("future_extensions",                 pack_unpack<int64_t>());
-      built_in_types.emplace("variant_object",                 pack_unpack<int64_t>());
-
-      built_in_types.emplace("id_type",                 pack_unpack<int64_t>());
-
-
-      //built_in_types.emplace("symbol",                    pack_unpack<symbol>());
-      //built_in_types.emplace("symbol_code",               pack_unpack<symbol_code>());
-       built_in_types.emplace("asset",                     pack_unpack<int64_t>());
-      //built_in_types.emplace("extended_asset",            pack_unpack<extended_asset>());
+      built_in_types.emplace("bool",                      1);
+      built_in_types.emplace("int8",                      1);
+      built_in_types.emplace("uint8",                     1);
+      built_in_types.emplace("int16",                     1);
+      built_in_types.emplace("uint16",                    1);
+      built_in_types.emplace("int32",                     1);
+      built_in_types.emplace("uint32",                    1);
+      built_in_types.emplace("int64",                     1);
+      built_in_types.emplace("uint64",                    1);
+      built_in_types.emplace("int128",                    1);
+      built_in_types.emplace("uint128",                   1);
+      built_in_types.emplace("varint32",                  1);
+      built_in_types.emplace("varuint32",                 1);
+      built_in_types.emplace("float32",                   1);
+      built_in_types.emplace("float64",                   1);
+      built_in_types.emplace("float128",                  1);
+      built_in_types.emplace("time_point",                1);
+      built_in_types.emplace("time_point_sec",            1);
+      built_in_types.emplace("name",                      1);
+      built_in_types.emplace("bytes",                     1);
+      built_in_types.emplace("string",                    1);
+      built_in_types.emplace("checksum160",               1);
+      built_in_types.emplace("checksum256",               1);
+      built_in_types.emplace("sha256",               1);
+      built_in_types.emplace("checksum512",               1);
+      built_in_types.emplace("public_key_type",           1);
+      built_in_types.emplace("public_key",                1);
+      built_in_types.emplace("signature",                 1);
+      built_in_types.emplace("signature_type",            1);
+      built_in_types.emplace("operation",                 1);
+      built_in_types.emplace("block_header_extensions_type",                 1);
+      built_in_types.emplace("future_extensions",                 1);
+      built_in_types.emplace("variant_object",                 1);
+      built_in_types.emplace("id_type",                 1);
+      built_in_types.emplace("string16",                 1);
+      built_in_types.emplace("asset",                     1);
    }
 
    void rpc_api_serializer::set_abi(const abi_def& abi) {
       typedefs.clear();
       structs.clear();
-      actions.clear();
-      tables.clear();
-      error_messages.clear();
+      classes.clear();
+//      actions.clear();
+//      tables.clear();
+//      error_messages.clear();
 
       for( const auto& st : abi.structs )
          structs[st.name] = st;
@@ -126,24 +78,12 @@ namespace contento { namespace rpc_api {
          typedefs[td.new_type_name] = td.type;
       }
 
-      for( const auto& a : abi.actions )
-         actions[a.name] = a.type;
+      for( const auto& a : abi.classes )
+         classes[a.name] = a;
 
-      for( const auto& t : abi.tables )
-         tables[t.name] = t.type;
-
-      for( const auto& e : abi.error_messages )
-         error_messages[e.error_code] = e.error_msg;
-
-      /**
-       *  The ABI vector may contain duplicates which would make it
-       *  an invalid ABI
-       */
       FC_ASSERT( typedefs.size() == abi.types.size() );
       FC_ASSERT( structs.size() == abi.structs.size() );
-      FC_ASSERT( actions.size() == abi.actions.size() );
-      FC_ASSERT( tables.size() == abi.tables.size() );
-      FC_ASSERT( error_messages.size() == abi.error_messages.size() );
+      FC_ASSERT( classes.size() == abi.classes.size() );
 
       validate();
    }
@@ -269,13 +209,6 @@ namespace contento { namespace rpc_api {
             FC_ASSERT(is_type(field.type) );
          } FC_CAPTURE_AND_RETHROW( (field) ) }
       } FC_CAPTURE_AND_RETHROW( (s) ) }
-      for( const auto& a : actions ) { try {
-        FC_ASSERT(is_type(a.second), "", ("type",a.second) );
-      } FC_CAPTURE_AND_RETHROW( (a)  ) }
-
-      for( const auto& t : tables ) { try {
-        FC_ASSERT(is_type(t.second), "", ("type",t.second) );
-      } FC_CAPTURE_AND_RETHROW( (t)  ) }
    }
 
    type_name rpc_api_serializer::resolve_type(const type_name& type)const {
@@ -290,138 +223,5 @@ namespace contento { namespace rpc_api {
       return type;
    }
 
-   void rpc_api_serializer::_binary_to_variant(const type_name& type, fc::datastream<const char *>& stream,
-                                          fc::mutable_variant_object& obj, size_t recursion_depth)const {
-      FC_ASSERT( ++recursion_depth < max_recursion_depth, "recursive definition, max_recursion_depth" );
-      const auto& st = get_struct(type);
-      if( st.base != type_name() ) {
-         _binary_to_variant(resolve_type(st.base), stream, obj, recursion_depth);
-      }
-      for( const auto& field : st.fields ) {
-         obj( field.name, _binary_to_variant(resolve_type(field.type), stream, recursion_depth) );
-      }
-   }
-
-   fc::variant rpc_api_serializer::_binary_to_variant(const type_name& type, fc::datastream<const char *>& stream, size_t recursion_depth)const
-   {
-      FC_ASSERT( ++recursion_depth < max_recursion_depth, "recursive definition, max_recursion_depth" );
-      type_name rtype = resolve_type(type);
-      auto ftype = fundamental_type(rtype);
-      auto btype = built_in_types.find(ftype );
-      if( btype != built_in_types.end() ) {
-         return btype->second.first(stream, is_array(rtype), is_optional(rtype));
-      }
-      if ( is_array(rtype) ) {
-        fc::unsigned_int size;
-        fc::raw::unpack(stream, size);
-        vector<fc::variant> vars;
-        vars.resize(size);
-        for (auto& var : vars) {
-           var = _binary_to_variant(ftype, stream, recursion_depth);
-        }
-        return fc::variant( std::move(vars) );
-      } else if ( is_optional(rtype) ) {
-        char flag;
-        fc::raw::unpack(stream, flag);
-        return flag ? _binary_to_variant(ftype, stream, recursion_depth) : fc::variant();
-      }
-
-      fc::mutable_variant_object mvo;
-      _binary_to_variant(rtype, stream, mvo, recursion_depth);
-      return fc::variant( std::move(mvo) );
-   }
-
-   fc::variant rpc_api_serializer::_binary_to_variant(const type_name& type, const bytes& binary, size_t recursion_depth)const{
-      FC_ASSERT( ++recursion_depth < max_recursion_depth, "recursive definition, max_recursion_depth" );
-      fc::datastream<const char*> ds( binary.data(), binary.size() );
-      return _binary_to_variant(type, ds, recursion_depth);
-   }
-
-   void rpc_api_serializer::_variant_to_binary(const type_name& type, const fc::variant& var, fc::datastream<char *>& ds, size_t recursion_depth)const
-   { try {
-      FC_ASSERT( ++recursion_depth < max_recursion_depth, "recursive definition, max_recursion_depth" );
-      auto rtype = resolve_type(type);
-
-      auto btype = built_in_types.find(fundamental_type(rtype));
-      if( btype != built_in_types.end() ) {
-         btype->second.second(var, ds, is_array(rtype), is_optional(rtype));
-      } else if ( is_array(rtype) ) {
-         vector<fc::variant> vars = var.get_array();
-         fc::raw::pack(ds, (fc::unsigned_int)vars.size());
-         for (const auto& var : vars) {
-           _variant_to_binary(fundamental_type(rtype), var, ds, recursion_depth);
-         }
-      } else {
-         const auto& st = get_struct(rtype);
-
-         if( var.is_object() ) {
-            const auto& vo = var.get_object();
-
-            if( st.base != type_name() ) {
-               _variant_to_binary(resolve_type(st.base), var, ds, recursion_depth);
-            }
-            for( const auto& field : st.fields ) {
-               if( vo.contains( string(field.name).c_str() ) ) {
-                  _variant_to_binary(field.type, vo[field.name], ds, recursion_depth);
-               }
-               else {
-                  _variant_to_binary(field.type, fc::variant(), ds, recursion_depth);
-                  /// TODO: default construct field and write it out
-                  FC_THROW( "Missing '${f}' in variant object", ("f",field.name) );
-               }
-            }
-         } else if( var.is_array() ) {
-            const auto& va = var.get_array();
-
-            FC_ASSERT( st.base == type_name(), "support for base class as array not yet implemented" );
-            /*if( st.base != type_name() ) {
-               _variant_to_binary(resolve_type(st.base), var, ds, recursive_depth);
-            }
-            */
-            uint32_t i = 0;
-            if (va.size() > 0) {
-               for( const auto& field : st.fields ) {
-                  if( va.size() > i )
-                     _variant_to_binary(field.type, va[i], ds, recursion_depth);
-                  else
-                     _variant_to_binary(field.type, fc::variant(), ds, recursion_depth);
-                  ++i;
-               }
-            }
-         }
-      }
-   } FC_CAPTURE_AND_RETHROW( (type)(var) ) }
-
-   bytes rpc_api_serializer::_variant_to_binary(const type_name& type, const fc::variant& var, size_t recursion_depth)const { try {
-      FC_ASSERT( ++recursion_depth < max_recursion_depth, "recursive definition, max_recursion_depth" );
-      if( !is_type(type) ) {
-         return var.as<bytes>();
-      }
-
-      bytes temp( 1024*1024 );
-      fc::datastream<char*> ds(temp.data(), temp.size() );
-      _variant_to_binary(type, var, ds, recursion_depth);
-      temp.resize(ds.tellp());
-      return temp;
-   } FC_CAPTURE_AND_RETHROW( (type)(var) ) }
-
-   type_name rpc_api_serializer::get_action_type(name action)const {
-      auto itr = actions.find(action);
-      if( itr != actions.end() ) return itr->second;
-      return type_name();
-   }
-   type_name rpc_api_serializer::get_table_type(name action)const {
-      auto itr = tables.find(action);
-      if( itr != tables.end() ) return itr->second;
-      return type_name();
-   }
-
-   optional<string> rpc_api_serializer::get_error_message( uint64_t error_code )const {
-      auto itr = error_messages.find( error_code );
-      if( itr == error_messages.end() )
-         return optional<string>();
-
-      return itr->second;
-   }
 
 } }

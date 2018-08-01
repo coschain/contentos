@@ -57,101 +57,15 @@ namespace contento {
          }                                                                      \
        FC_MULTILINE_MACRO_END \
       )
-   
-   class ricardian_contracts {
-      public:
-         ricardian_contracts() = default;
-         ricardian_contracts( const string& context, const string& contract, const vector<string>& actions ) {
-            ifstream clauses_file( context+"/"+contract+"_rc.md");
-            if ( !clauses_file.good() )
-               wlog("Warning, no ricardian clauses found for ${con}\n", ("con", contract));
-            else
-               parse_clauses( clauses_file );
 
-            for ( auto act : actions ) {
-               ifstream contract_file( context+"/"+contract+"."+act+"_rc.md" );
-               if ( !contract_file.good() )
-                  wlog("Warning, no ricardian contract found for ${act}\n", ("act", act));
-               else {
-                  parse_contract( contract_file );
-               }
-            }   
-         }
+   struct rpc_api_macro_def_structs {
+      string            base_struct;
+      vector<string>    members;
+   };
 
-         vector<clause_pair> get_clauses() {
-            return _clauses;
-         }
-         string operator[]( string key ) {
-            return _contracts[key];
-         }
-      private:
-         inline string is_clause_decl( string line ) {
-            smatch match;
-            if ( regex_match( line, match, regex("(###[ ]+CLAUSE[ ]+NAME[ ]*:[ ]*)(.*)", regex_constants::ECMAScript) ) ) {
-               FC_ASSERT( match.size() == 3, "Error, malformed clause declaration" );
-               return match[2].str();
-            }
-            return {};
-         }
-
-         inline string is_action_decl( string line ) {
-            smatch match;
-            if ( regex_match( line, match, regex("(##[ ]+ACTION[ ]+NAME[ ]*:[ ]*)(.*)", regex_constants::ECMAScript) ) ) {
-               FC_ASSERT( match.size() == 3, "Error, malformed action declaration" );
-               return match[2].str();
-            }
-            return {};
-         }
-
-         void parse_contract( ifstream& contract_file ) {
-            string       line;
-            string       name;
-            string       _name;
-            stringstream body;
-            bool first_time = true;
-            while ( contract_file.peek() != EOF ) {
-               getline( contract_file, line );
-               body << line;
-               if ( !(_name = is_action_decl( line )).empty() ) {
-                  name = _name;
-                  first_time = false;
-               }
-               else
-                  if ( !first_time )
-                     body << line << '\n';
-            }
-
-            _contracts.emplace(name, body.str());
-         }
-
-         void parse_clauses( ifstream& clause_file ) {
-            string        line;
-            string        name;
-            string        _name;
-            stringstream  body;
-            bool first_time = true;
-            while ( clause_file.peek() != EOF ) {
-               getline( clause_file, line );
-
-               if ( !(_name = is_clause_decl( line )).empty() ) {
-                  if ( !first_time ) {
-                     if (body.str().empty() ) {
-                        FC_ASSERT( false, "Error, invalid input in ricardian clauses, no body found" );
-                     }
-                     _clauses.emplace_back( name, body.str() );
-                     body.str("");
-                  }
-                  name = _name;
-                  first_time = false;
-               }
-               else
-                  if ( !first_time )
-                     body << line << '\n';
-            }
-
-         }
-         vector<clause_pair> _clauses;
-         map<string, string> _contracts;
+   struct rpc_api_macro_def_result {
+      map<string, vector<string> > functions_map;
+      map<string, rpc_api_macro_def_structs > structs_map;
    };
 
    /**
@@ -169,8 +83,7 @@ namespace contento {
          string                 abi_context;
          clang::ASTContext*     ast_context;   
          string                 target_contract;
-         vector<string>         target_actions;
-         ricardian_contracts    rc;
+         rpc_api_macro_def_result  target_actions;
 
       public:
 
@@ -218,12 +131,6 @@ namespace contento {
           */
          void set_abi_context(const string& abi_context);
 
-         /**
-          * @brief Set the ricardian_contracts object with parsed contracts and clauses 
-          * @param ricardian_contracts contracts
-          */
-         void set_ricardian_contracts(const ricardian_contracts& contracts);
-
 
          /**
           * @brief Set the single instance of the Clang compiler
@@ -237,7 +144,7 @@ namespace contento {
           */
          void handle_tagdecl_definition(TagDecl* tag_decl);
 
-         void set_target_contract(const string& contract, const vector<string>& actions);
+         void set_target_contract( const rpc_api_macro_def_result& actions);
 
       private:
          bool inspect_type_methods_for_actions(const Decl* decl);
@@ -266,11 +173,11 @@ namespace contento {
 
          bool is_str_index(const vector<field_def>& fields);
 
-         void guess_index_type(table_def& table, const struct_def s);
-
-         void guess_key_names(table_def& table, const struct_def s);
-
-         const table_def* find_table(const table_name& name);
+//         void guess_index_type(table_def& table, const struct_def s);
+//
+//         void guess_key_names(table_def& table, const struct_def s);
+//
+//         const table_def* find_table(const table_name& name);
 
          const type_def* find_type(const type_name& new_type_name);
 
@@ -334,13 +241,14 @@ namespace contento {
       }
    };
 
-   struct find_contento_abi_macro_action : public PreprocessOnlyAction {
 
-         string& contract;
-         vector<string>& actions;
-         const string& abi_context;
+   struct find_contento_rpc_api_macro_action : public PreprocessOnlyAction {
 
-         find_contento_abi_macro_action(string& contract, vector<string>& actions, const string& abi_context
+         string&                    contract;
+         rpc_api_macro_def_result&  actions;
+         const string&              abi_context;
+
+         find_contento_rpc_api_macro_action(string& contract, rpc_api_macro_def_result& actions, const string& abi_context
             ): contract(contract),
             actions(actions), abi_context(abi_context) {
          }
@@ -348,9 +256,9 @@ namespace contento {
          struct callback_handler : public PPCallbacks {
 
             CompilerInstance& compiler_instance;
-            find_contento_abi_macro_action& act;
+            find_contento_rpc_api_macro_action& act;
 
-            callback_handler(CompilerInstance& compiler_instance, find_contento_abi_macro_action& act)
+            callback_handler(CompilerInstance& compiler_instance, find_contento_rpc_api_macro_action& act)
             : compiler_instance(compiler_instance), act(act) {}
 
             string remove_namespace(const string& full_name) {
@@ -376,7 +284,14 @@ namespace contento {
 
                auto* id = token.getIdentifierInfo();
                if( id == nullptr ) return;
-               if( id->getName() != "FC_API" ) return;
+
+               bool is_derived_struct = id->getName() == "FC_REFLECT_DERIVED";
+
+               if( !is_derived_struct &&
+                   id->getName() != "FC_API" &&
+                   id->getName() != "FC_REFLECT"
+                    ) return;
+
 
                const auto& sm = compiler_instance.getSourceManager();
                auto file_name = sm.getFilename(range.getBegin());
@@ -384,7 +299,7 @@ namespace contento {
                   return;
                }
 
-               ABI_ASSERT( md.getMacroInfo()->getNumArgs() == 2 );
+               ABI_ASSERT( md.getMacroInfo()->getNumArgs() == 2 || md.getMacroInfo()->getNumArgs() == 3 );
 
                clang::SourceLocation b(range.getBegin()), _e(range.getEnd());
                clang::SourceLocation e(clang::Lexer::getLocForEndOfToken(_e, 0, sm, compiler_instance.getLangOpts()));
@@ -399,21 +314,53 @@ namespace contento {
 
                regex r_new_line(R"(\s)");
                macrostr = regex_replace(macrostr, r_new_line, "");
+               std::cout << "parser: " << macrostr << std::endl;
 
-               regex r(R"(FC_API\s*\(\s*(.+?)\s*,((?:.+?)*)\s*\))");
+               string regx_str;
+               if ( !is_derived_struct )
+                  regx_str = string(id->getName()) + R"(\s*\(\s*(.+?)\s*,((?:.+?)*)\s*\))" ;
+               else
+                  regx_str = string(id->getName()) + R"(\s*\(\s*(.+?)\s*,\s*(.+?)\s*,((?:.+?)*)\s*\))" ;
+
+               regex r(regx_str);
                smatch smatch;
                auto res = regex_search(macrostr, smatch, r);
                ABI_ASSERT( res );
 
                act.contract = remove_namespace(smatch[1].str());
 
-               auto actions_str = smatch[2].str();
+               auto actions_str = smatch[is_derived_struct ? 3 : 2].str();
                boost::trim(actions_str);
-               actions_str = actions_str.substr(1);
-               actions_str.pop_back();
-               boost::remove_erase_if(actions_str, boost::is_any_of(" ("));
 
-               boost::split(act.actions, actions_str, boost::is_any_of(")"));
+               vector<string> split_result;
+               if ( actions_str.size() > 0 ){
+                  actions_str = actions_str.substr(1);
+                  actions_str.pop_back();
+                  boost::remove_erase_if(actions_str, boost::is_any_of(" ("));
+                  boost::split(split_result, actions_str, boost::is_any_of(")"));
+               }
+
+               if ( is_derived_struct ){
+                  rpc_api_macro_def_structs def_structs;
+                  string base_name = smatch[2].str();
+                  boost::remove_erase_if(base_name, boost::is_any_of(" ()"));
+
+                  def_structs.members     = split_result;
+                  def_structs.base_struct = remove_namespace(base_name);
+
+                  act.actions.structs_map[act.contract] = def_structs;
+               } else if ( id->getName() == "FC_API" ) {
+                  ABI_ASSERT(split_result.size() > 0);
+
+                  if ( act.contract == "tag_api") return;
+
+                  act.actions.functions_map[act.contract] = split_result;
+               } else {
+                  rpc_api_macro_def_structs def_structs;
+                  def_structs.members     = split_result;
+
+                  act.actions.structs_map[act.contract] = def_structs;
+               }
             }
          };
 
@@ -427,7 +374,7 @@ namespace contento {
    };
 
   
-   class generate_abi_action : public ASTFrontendAction {
+   class generate_rpc_api_action : public ASTFrontendAction {
 
       private:
          set<string> parsed_templates;
@@ -435,17 +382,14 @@ namespace contento {
 
       public:
 
-         generate_abi_action(bool verbose, bool opt_sfs, string abi_context,
-                             abi_def& output, const string& contract, const vector<string>& actions) {
+         generate_rpc_api_action(bool verbose, bool opt_sfs, string abi_context,
+                             abi_def& output, const string& contract, const rpc_api_macro_def_result& actions) {
             
-            ricardian_contracts rc( abi_context, contract, actions );
             abi_gen.set_output(output);
             abi_gen.set_verbose(verbose);
             abi_gen.set_abi_context(abi_context);
-            abi_gen.set_target_contract(contract, actions);
-            abi_gen.set_ricardian_contracts( rc );
-            output.ricardian_clauses = rc.get_clauses();
-          
+            abi_gen.set_target_contract(actions);
+
             if(opt_sfs)
                abi_gen.enable_optimizaton(rpc_api_generator::OPT_SINGLE_FIELD_STRUCT);
          }
