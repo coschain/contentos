@@ -1,3 +1,4 @@
+#ifdef __USE_PERMISSION__
 /**
  *  @file
  *  @copyright defined in eos/LICENSE.txt
@@ -66,3 +67,4 @@ extern "C" {
    int64_t get_account_creation_time( account_name account );
 
 }
+#endif

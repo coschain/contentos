@@ -51,8 +51,8 @@ namespace eosio {
       return unpack<T>( buffer, size );
    }
 
-   using ::require_auth;
-   using ::require_recipient;
+  //  using ::require_auth;
+  //  using ::require_recipient;
 
    /**
     *  All of the listed accounts will be added to the set of accounts to be notified
@@ -71,8 +71,8 @@ namespace eosio {
     */
    template<typename... accounts>
    void require_recipient( account_name name, accounts... remaining_accounts ){
-      require_recipient( name );
-      require_recipient( remaining_accounts... );
+      // require_recipient( name );
+      // require_recipient( remaining_accounts... );
    }
 
    struct permission_level {
@@ -90,7 +90,7 @@ namespace eosio {
    };
 
    void require_auth(const permission_level& level) {
-      require_auth2( level.actor, level.permission );
+      // require_auth2( level.actor, level.permission );
    }
 
    /**

@@ -863,27 +863,31 @@ class authorization_api : public context_aware_api {
       using context_aware_api::context_aware_api;
 
    void require_authorization( const account_name& account ) {
-      context.require_authorization( account );
+      //context.require_authorization( account );
    }
 
    bool has_authorization( const account_name& account )const {
-      return context.has_authorization( account );
+      //return context.has_authorization( account );
+      // TODOO:
+      return true;
    }
 
    void require_authorization(const account_name& account,
                                                  const permission_name& permission) {
-      context.require_authorization( account, permission );
+      //context.require_authorization( account, permission );
    }
 
    void require_recipient( account_name recipient ) {
-      context.require_recipient( recipient );
+      //context.require_recipient( recipient );
    }
 
    bool is_account( const account_name& account )const {
-      return context.is_account( account );
+      //return context.is_account( account );
+      return false;
    }
 
-};*/
+};
+*/
 
 class system_api : public context_aware_api {
    public:
@@ -1711,9 +1715,9 @@ REGISTER_INTRINSICS(privileged_api,
    (set_privileged,                   void(int64_t, int)                    )
 );
 
-// REGISTER_INJECTED_INTRINSICS(transaction_context,
-//    (checktime,      void())
-// );
+REGISTER_INJECTED_INTRINSICS(transaction_context,
+   (checktime,      void())
+);
 
 REGISTER_INTRINSICS(producer_api,
    (get_active_producers,      int(int, int) )

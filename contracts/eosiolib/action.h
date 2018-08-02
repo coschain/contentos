@@ -88,15 +88,15 @@ extern "C" {
     *  @brief Add the specified account to set of accounts to be notified
     *  @param name - name of the account to be verified
     */
-   void require_recipient( account_name name );
+   //void require_recipient( account_name name );
 
    /**
     *  Verifies that @ref name exists in the set of provided auths on a action. Throws if not found
     *  @brief Verify specified account exists in the set of provided auths
     *  @param name - name of the account to be verified
     */
-   void require_auth( account_name name );
-   bool has_auth( account_name name );
+   //void require_auth( account_name name );
+   //bool has_auth( account_name name );
 
    /**
     *  Verifies that @ref name exists in the set of provided auths on a action. Throws if not found
@@ -104,9 +104,9 @@ extern "C" {
     *  @param name - name of the account to be verified
     *  @param permission - permission level to be verified
     */
-   void require_auth2( account_name name, permission_name permission );
+   //void require_auth2( account_name name, permission_name permission );
 
-   bool is_account( account_name name );
+   //bool is_account( account_name name );
 
    /**
     *  Send an inline action in the context of this action's parent transaction

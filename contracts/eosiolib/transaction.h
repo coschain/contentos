@@ -113,7 +113,7 @@ extern "C" {
     * @param size - amount of context_free_data[index] to retrieve into buff, 0 to report required size
     * @return size copied, or context_free_data[index].size() if 0 passed for size, or -1 if index not valid
     */
-   int get_context_free_data( uint32_t index, char* buff, size_t size );
+   //int get_context_free_data( uint32_t index, char* buff, size_t size );
 
    ///@ } transactioncapi
 }

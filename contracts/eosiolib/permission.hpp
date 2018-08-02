@@ -1,3 +1,4 @@
+#ifdef __USE_PERMISSION__
 /**
  *  @file
  *  @copyright defined in eos/LICENSE.txt
@@ -96,3 +97,5 @@ namespace eosio {
    }
 
 }
+
+#endif
