@@ -66,6 +66,9 @@ namespace contento {
    struct rpc_api_macro_def_result {
       map<string, vector<string> > functions_map;
       map<string, rpc_api_macro_def_structs > structs_map;
+
+      vector<string> filter_classes;
+      vector<string> filter_functions;
    };
 
    /**
@@ -351,9 +354,6 @@ namespace contento {
                   act.actions.structs_map[act.contract] = def_structs;
                } else if ( id->getName() == "FC_API" ) {
                   ABI_ASSERT(split_result.size() > 0);
-
-                  if ( act.contract == "tag_api") return;
-
                   act.actions.functions_map[act.contract] = split_result;
                } else {
                   rpc_api_macro_def_structs def_structs;

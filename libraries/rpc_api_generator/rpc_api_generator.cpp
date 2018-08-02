@@ -133,14 +133,22 @@ bool rpc_api_generator::inspect_type_methods_for_actions(const Decl* decl) { try
   class_def abi_class;
   abi_class.name = rec_decl->getNameAsString();
 
+   vector<string>& filter_classes = target_actions.filter_classes;
+   if ( std::find( filter_classes.begin(), filter_classes.end(), abi_class.name ) != filter_classes.end() )
+      return false;
+
   if ( target_actions.functions_map.find( abi_class.name ) == target_actions.functions_map.end() )
      return false;
 
   vector<string>& defined_function = target_actions.functions_map[abi_class.name];
 
   auto export_method = [&](const CXXMethodDecl* method) {
-
     auto method_name = method->getNameAsString();
+     string filter_function = abi_class.name + "/" + method_name;
+
+     vector<string>& filter_funs = target_actions.filter_functions;
+     if ( std::find( filter_funs.begin(), filter_funs.end(), filter_function ) != filter_funs.end() )
+        return;
 
      if ( std::find(defined_function.begin(),defined_function.end(),method_name ) == defined_function.end() )
         return;
@@ -611,6 +619,10 @@ string rpc_api_generator::add_type(const clang::QualType& tqt, size_t recursion_
   if( is_builtin_type(type_name) ) {
     return type_name;
   }
+
+   if ( type_name == "market"){
+      int a = 0;
+   }
 
   if( is_typedef(qt) ) {
     qt = add_typedef(qt, recursion_depth);
