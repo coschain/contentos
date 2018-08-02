@@ -50,7 +50,7 @@ namespace contento { namespace protocol {
 //            escrow_transfer_operation,
 //            escrow_dispute_operation,
 //            escrow_release_operation,
-            pow2_operation,
+//            pow2_operation,
 //            escrow_approve_operation,
             transfer_to_savings_operation,
             transfer_from_savings_operation,
