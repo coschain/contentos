@@ -585,6 +585,32 @@ string rpc_api_generator::add_vector(const clang::QualType& vqt, size_t recursio
   return vector_element_type_str;
 }
 
+string rpc_api_generator::add_operation(const clang::QualType& sqt, size_t recursion_depth){
+   ABI_ASSERT( ++recursion_depth < max_recursion_depth, "recursive definition, max_recursion_depth" );
+
+   clang::QualType tqt(get_named_type_if_elaborated(sqt));
+
+   // already add ops
+   if ( output->operations.size() > 0 ){
+      return string("operation");
+   }
+
+   const auto* td_decl = tqt->getAs<clang::TypedefType>()->getDecl();
+   auto underlying_type = td_decl->getUnderlyingType().getUnqualifiedType();
+
+   clang::QualType qt(get_named_type_if_elaborated(underlying_type));
+   std::cout <<  get_type_name(qt, false) << std::endl;
+
+   const auto* tst = clang::dyn_cast<const clang::TemplateSpecializationType>(qt.getTypePtr());
+   ABI_ASSERT(tst != nullptr);
+   for ( int i = 0; i < tst->getNumArgs(); i++){
+      auto arg = tst->getArg(i).getAsType();
+      string op_name = add_type(arg, recursion_depth);
+      output->operations.emplace_back(op_name);
+   }
+   return string("operation");
+}
+
 string rpc_api_generator::add_map(const clang::QualType& vqt, size_t recursion_depth){
    ABI_ASSERT( ++recursion_depth < max_recursion_depth, "recursive definition, max_recursion_depth" );
 
@@ -616,13 +642,15 @@ string rpc_api_generator::add_type(const clang::QualType& tqt, size_t recursion_
   string type_name      = translate_type(get_type_name(qt));
   bool   is_type_def    = false;
 
+
+   if ( type_name == "operation" ){
+      add_operation(qt, recursion_depth);
+      return type_name;
+   }
+
   if( is_builtin_type(type_name) ) {
     return type_name;
   }
-
-   if ( type_name == "market"){
-      int a = 0;
-   }
 
   if( is_typedef(qt) ) {
     qt = add_typedef(qt, recursion_depth);

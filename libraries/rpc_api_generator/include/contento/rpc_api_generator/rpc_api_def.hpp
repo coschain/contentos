@@ -120,7 +120,6 @@ struct action_def {
    type_name   type;
 };
 
-
 struct abi_def {
    abi_def() = default;
    abi_def(const vector<type_def>& types, const vector<struct_def>& structs, const vector<class_def>& classes)
@@ -131,6 +130,9 @@ struct abi_def {
    {}
 
    string                version = "contento::rpc-api/1.0";
+
+   vector<string>      operations;
+
    vector<type_def>      types;
    vector<struct_def>    structs;
    vector<class_def>     classes;
@@ -152,4 +154,4 @@ FC_REFLECT( contento::rpc_api::function_def                        , (name)(fiel
 FC_REFLECT( contento::rpc_api::return_def                       , (type) )
 FC_REFLECT( contento::rpc_api::struct_def                       , (name)(base)(fields) )
 FC_REFLECT( contento::rpc_api::class_def                       , (name)(functions) )
-FC_REFLECT( contento::rpc_api::abi_def                          , (version)(types)(structs)(classes) )
+FC_REFLECT( contento::rpc_api::abi_def                          , (version)(types)(structs)(operations)(classes) )

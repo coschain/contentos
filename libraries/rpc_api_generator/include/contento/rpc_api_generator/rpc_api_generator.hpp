@@ -205,6 +205,9 @@ namespace contento {
          bool is_map(const string& type_name);
          string add_map(const clang::QualType& qt, size_t recursion_depth);
 
+         string add_operation(const clang::QualType& qt, size_t recursion_depth);
+
+
       bool check_container_support(string type_name, size_t recursion_depth = 0);
 
          bool is_struct(const clang::QualType& qt);
