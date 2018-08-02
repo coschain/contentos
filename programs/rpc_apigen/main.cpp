@@ -89,6 +89,10 @@ int main(int argc, const char **argv) {
    rpc_api_macro_def_result actions;
    int result = Tool.run(create_find_macro_factory(contract, actions, abi_context).get());
    if(!result) {
+
+      actions.filter_classes.emplace_back( "tag_api" );
+      actions.filter_functions.emplace_back( "database_api/set_block_applied_callback" );
+
       result = Tool.run(create_factory(abi_verbose, abi_opt_sfs, abi_context, output, contract, actions).get());
       if(!result) {
          rpc_api_serializer(output).validate();
