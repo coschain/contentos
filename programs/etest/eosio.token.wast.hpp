@@ -4368,6 +4368,7 @@ const char* const eosio_token_wast = R"=====(
      (i32.const 96)
     )
    )
+   (nop)
    (return)
   )
   (call $_ZNKSt3__120__vector_base_commonILb1EE20__throw_length_errorEv
@@ -4613,6 +4614,7 @@ const char* const eosio_token_wast = R"=====(
    (call $_ZdlPv
     (get_local $1)
    )
+   (nop)
    (return)
   )
  )
@@ -10197,6 +10199,7 @@ const char* const eosio_token_wast = R"=====(
      (i32.const 32)
     )
    )
+   (nop)
    (return
     (get_local $0)
    )
@@ -10996,6 +10999,7 @@ const char* const eosio_token_wast = R"=====(
        (i32.const 1)
       )
      )
+     (nop)
      (return)
     )
     (i32.store8
@@ -11006,6 +11010,7 @@ const char* const eosio_token_wast = R"=====(
      )
     )
    )
+   (nop)
    (return)
   )
   (call $abort)
@@ -11056,6 +11061,7 @@ const char* const eosio_token_wast = R"=====(
      )
     )
    )
+   (nop)
    (return
     (get_local $0)
    )
@@ -11147,6 +11153,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (i32.const 0)
    )
+   (nop)
    (return
     (get_local $0)
    )
@@ -11649,6 +11656,7 @@ const char* const eosio_token_wast = R"=====(
       )
      )
     )
+    (nop)
     (return
      (get_local $1)
     )
@@ -11662,6 +11670,7 @@ const char* const eosio_token_wast = R"=====(
      (i32.const -2147483648)
     )
    )
+   (nop)
    (return
     (get_local $13)
    )
@@ -12039,6 +12048,7 @@ const char* const eosio_token_wast = R"=====(
       (get_local $7)
      )
     )
+    (nop)
     (return
      (get_local $8)
     )
@@ -12135,6 +12145,7 @@ const char* const eosio_token_wast = R"=====(
     (get_local $7)
     (get_local $3)
    )
+   (nop)
    (return
     (i32.const 0)
    )
@@ -12229,6 +12240,7 @@ const char* const eosio_token_wast = R"=====(
      )
     )
    )
+   (nop)
    (return)
   )
   (i32.store
