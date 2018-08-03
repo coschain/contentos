@@ -163,6 +163,9 @@ const char* const eosio_token_wast = R"=====(
    )
   )
   (set_local $8
+   (current_memory)
+  )
+  (set_local $8
    (i32.const 0)
   )
   (set_local $7
@@ -236,6 +239,9 @@ const char* const eosio_token_wast = R"=====(
         )
        )
       )
+     )
+     (set_local $6
+      (current_memory)
      )
      (set_local $6
       (i32.const 1)
@@ -816,6 +822,9 @@ const char* const eosio_token_wast = R"=====(
         (get_local $8)
        )
       )
+     )
+     (set_local $8
+      (current_memory)
      )
      (set_local $8
       (i32.load
