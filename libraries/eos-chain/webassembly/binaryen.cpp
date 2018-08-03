@@ -89,6 +89,9 @@ std::unique_ptr<wasm_instantiated_module_interface> binaryen_runtime::instantiat
             auto intrinsic_itr = intrinsic_map.find(full_name);
             if (intrinsic_itr != intrinsic_map.end()) {
                import_lut.emplace(make_pair((uintptr_t)import.get(), intrinsic_itr->second));
+                
+                report_wasm_import((uint64_t)(uintptr_t)import.get(), full_name);
+                
                continue;
             }
          }

@@ -3,6 +3,8 @@
 #include "eosio.token.wast.hpp"
 #include "eosio.token.abi.hpp"
 
+#include "benchmark.hpp"
+
 using namespace eosio::chain;
 using namespace eosio::testing;
 
@@ -61,6 +63,8 @@ void test_eosio() {
 }
 
 int main(int argc, char** argv) {
+    wasm_benchmark_init();
     test_eosio();
+    wasm_benchmark_show_result();
     return 0;
 }

@@ -31,6 +31,14 @@
 #include "support/threads.h"
 #include "support/scope_exit.h"
 
+#include <string>
+
+void wasm_benchmark_init();
+void report_wasm_expression(bool begin_or_end, uint64_t expression_id);
+void report_wasm_call_import(bool begin_or_end, uint64_t import);
+void report_wasm_import(uint64_t import, const std::string& name);
+void wasm_benchmark_show_result();
+
 namespace wasm {
 
 template<typename SubType, typename ReturnType = void>
@@ -73,10 +81,12 @@ struct Visitor {
     ASSERT_THROW(curr);
 
     #define DELEGATE(CLASS_TO_VISIT) \
+      report_wasm_expression(true, (uint64_t)(curr->_id));\
       return static_cast<SubType*>(this)-> \
           visit##CLASS_TO_VISIT(static_cast<CLASS_TO_VISIT*>(curr))
-
+      
       scope_exit report_on_exit([this,curr](){
+          report_wasm_expression(false, (uint64_t)(curr->_id));
       });
 
     switch (curr->_id) {

@@ -55,7 +55,12 @@ struct interpreter_interface : ModuleInstance::ExternalInterface {
    {
       auto fn_iter = import_lut.find((uintptr_t)import);
       EOS_ASSERT(fn_iter != import_lut.end(), wasm_execution_error, "unknown import ${m}:${n}", ("m", import->module.c_str())("n", import->module.c_str()));
-      return fn_iter->second(this, args);
+
+       uint64_t import_key = (uint64_t)(uintptr_t)import;
+       report_wasm_call_import(true, import_key);
+       Literal ret = fn_iter->second(this, args);
+       report_wasm_call_import(false, import_key);
+       return ret;
    }
 
    Literal callTable(Index index, LiteralList& arguments, WasmType result, ModuleInstance& instance) override
