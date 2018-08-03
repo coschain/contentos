@@ -213,6 +213,19 @@ endif()
 
 add_subdirectory( externals )
 
+if ("${CORE_SYMBOL_NAME}" STREQUAL "")
+  set( CORE_SYMBOL_NAME "SYS" )
+endif()
+string(TOUPPER ${CORE_SYMBOL_NAME} CORE_SYMBOL_NAME)
+
+string(LENGTH ${CORE_SYMBOL_NAME} CORE_SYMBOL_NAME_LENGTH)
+if (CORE_SYMBOL_NAME_LENGTH GREATER 7)
+  message(FATAL_ERROR "CORE_SYMBOL_NAME length must be between 1 and 7 characters")
+endif()
+
+message( STATUS "Using '${CORE_SYMBOL_NAME}' as CORE symbol name" )
+
+
 # external_plugins needs to be compiled first because libraries/app depends on STEEMIT_EXTERNAL_PLUGINS being fully populated
 add_subdirectory( external_plugins )
 add_subdirectory( libraries )
