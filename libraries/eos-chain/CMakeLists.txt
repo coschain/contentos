@@ -38,6 +38,7 @@ add_library( eosio_chain
 
              webassembly/wavm.cpp
              webassembly/binaryen.cpp
+             wasm_price.cpp
 
              ${HEADERS}
              )
