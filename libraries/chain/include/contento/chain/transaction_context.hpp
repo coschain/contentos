@@ -45,7 +45,6 @@ namespace contento { namespace chain {
          controller&                   control;
          const signed_transaction&     trx;
          transaction_id_type           id;
-         chainbase::database::session  undo_session;
          //transaction_trace_ptr         trace;
          fc::time_point                start;
 

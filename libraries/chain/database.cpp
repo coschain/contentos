@@ -652,9 +652,14 @@ bool database::_push_block(const signed_block& new_block)
 
    try
    {
-      auto session = start_undo_session( true );
-      apply_block(new_block, skip);
-      session.push();
+       if( !( skip & skip_apply_transaction ) )
+       {
+            auto session = start_undo_session( true );
+            apply_block(new_block, skip);
+            session.push();
+       } else {
+            apply_block(new_block, skip);
+       }
    }
    catch( const fc::exception& e )
    {
@@ -906,9 +911,9 @@ signed_block database::_generate_block(
       FC_ASSERT( fc::raw::pack_size(pending_block) <= CONTENTO_MAX_BLOCK_SIZE );
    }
 
-   push_block( pending_block, skip );
-
-   return pending_block;
+    
+    push_block( pending_block, skip | skip_apply_transaction );
+    return pending_block;
 }
 
 /**
@@ -2407,6 +2412,7 @@ void database::apply_block( const signed_block& next_block, uint32_t skip )
    //fc::time_point begin_time = fc::time_point::now();
 
    auto block_num = next_block.block_num();
+   //***********************************************************
    if( _checkpoints.size() && _checkpoints.rbegin()->second != block_id_type() )
    {
       auto itr = _checkpoints.find( block_num );
@@ -2428,6 +2434,7 @@ void database::apply_block( const signed_block& next_block, uint32_t skip )
               | skip_validate_invariants
               ;
    }
+   //***********************************************************
 
    detail::with_skip_flags( *this, skip, [&]()
    {
@@ -2571,17 +2578,19 @@ void database::_apply_block( const signed_block& next_block )
       );
 //   }
 
-   for( const auto& trx_wrapper : next_block.transactions )
-   {
-      /* We do not need to push the undo state for each transaction
-       * because they either all apply and are valid or the
-       * entire block fails to apply.  We only need an "undo" state
-       * for transactions when validating broadcast transactions or
-       * when building a block.
-       */
-      apply_transaction( trx_wrapper, skip );
-      ++_current_trx_in_block;
-   }
+    if( !( skip & skip_apply_transaction ) ){
+        for( const auto& trx_wrapper : next_block.transactions )
+        {
+            /* We do not need to push the undo state for each transaction
+            * because they either all apply and are valid or the
+            * entire block fails to apply.  We only need an "undo" state
+            * for transactions when validating broadcast transactions or
+            * when building a block.
+            */
+            apply_transaction( trx_wrapper, skip );
+            ++_current_trx_in_block;
+        }
+    }
 
    update_global_dynamic_data(next_block);
    update_signing_witness(signing_witness, next_block);
@@ -2806,7 +2815,6 @@ std::shared_ptr<transaction_context> database::_apply_transaction(const transact
          fc::raw::pack( transaction.packed_trx, trx );
       });
    }
-
    notify_on_pre_apply_transaction( trx );
 
    //Finally process the operations
