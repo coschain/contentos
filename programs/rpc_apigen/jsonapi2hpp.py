@@ -106,14 +106,14 @@ def get_all_relation_types( typename ):
     list_info = []
     list_info.append( typename )
     if typename.endswith('[]'):
-        list_info.append( get_all_relation_types(typename[0:-2]) )
+        list_info += get_all_relation_types(typename[0:-2])
     elif typename.startswith('{') and typename.endswith('}'):
         key_value   = typename[1:-1]
         key_str     = key_value.split(',')[0]
         value_str     = key_value.split(',')[1]
 
-        list_info.append( get_all_relation_types(key_str) )
-        list_info.append( get_all_relation_types(value_str) )
+        list_info +=  get_all_relation_types(key_str)
+        list_info +=  get_all_relation_types(value_str)
 
     return list_info
 
@@ -140,6 +140,7 @@ def check_typedef_is_struct( old_type ):
         for types in api_array['structs']:
             if types['name'] == type_found:
                 return True
+
     return False
 
 if __name__ == "__main__":

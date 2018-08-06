@@ -52,13 +52,13 @@ namespace contento { namespace rpc_api {
       built_in_types.emplace("public_key",                1);
       built_in_types.emplace("signature",                 1);
       built_in_types.emplace("signature_type",            1);
-      built_in_types.emplace("block_header_extensions_type",                 1);
-      built_in_types.emplace("future_extensions",                 1);
+      //built_in_types.emplace("block_header_extensions_type",                 1);
+      //built_in_types.emplace("future_extensions",                 1);
       built_in_types.emplace("variant_object",                 1);
       built_in_types.emplace("id_type",                 1);
       built_in_types.emplace("string16",                 1);
       built_in_types.emplace("asset",                     1);
-      built_in_types.emplace("comment_options_extension",                     1);
+      //built_in_types.emplace("comment_options_extension",                     1);
 
 
    }

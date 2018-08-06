@@ -76,7 +76,7 @@ namespace contento {
      */
    class rpc_api_generator {
       private:
-         static constexpr size_t max_recursion_depth = 25; // arbitrary depth to prevent infinite recursion
+         static constexpr size_t max_recursion_depth = 50; // arbitrary depth to prevent infinite recursion
          bool                   verbose;
          int                    optimizations;
          abi_def*               output;
