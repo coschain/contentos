@@ -777,6 +777,12 @@ signed_block database::_generate_block(
    size_t total_block_size = max_block_header_size;
 
    signed_block pending_block;
+   uint32_t skip_new;
+   pending_block.previous = head_block_id();
+
+   if ( _checkpoints.size() && _checkpoints.rbegin()->second != block_id_type() ) {
+       skip_new = process_checkpoints( pending_block, skip );
+   }
 
    with_write_lock( [&]()
    {
@@ -815,7 +821,13 @@ signed_block database::_generate_block(
 
          auto temp_session = start_undo_session( true );
          try{
-             _apply_transaction( trx_wrapper );
+             //_apply_transaction( trx_wrapper );
+
+            detail::with_skip_flags( *this, skip_new, [&]()
+            {
+                _apply_transaction( trx_wrapper );
+            });
+            
              temp_session.squash();
 
              total_block_size += fc::raw::pack_size( trx_wrapper );
@@ -850,7 +862,6 @@ signed_block database::_generate_block(
       }
 
       //_pending_tx_session.reset();
-      _pending_tx_session.push();
        
 #ifdef IS_TEST_NET
        if( BOOST_UNLIKELY( head_block_id() == block_id_type() && init_genesis_hardforks ) )
@@ -875,7 +886,7 @@ signed_block database::_generate_block(
    // However, the push_block() call below will re-create the
    // _pending_tx_session.
 
-   pending_block.previous = head_block_id();
+   //pending_block.previous = head_block_id();
    pending_block.timestamp = when;
    pending_block.transaction_merkle_root = pending_block.calculate_merkle_root();
    pending_block.witness = witness_owner;
@@ -910,6 +921,8 @@ signed_block database::_generate_block(
    {
       FC_ASSERT( fc::raw::pack_size(pending_block) <= CONTENTO_MAX_BLOCK_SIZE );
    }
+   
+   _pending_tx_session.push();
 
     
     push_block( pending_block, skip | skip_apply_transaction );
@@ -2412,7 +2425,7 @@ void database::apply_block( const signed_block& next_block, uint32_t skip )
    //fc::time_point begin_time = fc::time_point::now();
 
    auto block_num = next_block.block_num();
-   //***********************************************************
+   /*
    if( _checkpoints.size() && _checkpoints.rbegin()->second != block_id_type() )
    {
       auto itr = _checkpoints.find( block_num );
@@ -2427,14 +2440,23 @@ void database::apply_block( const signed_block& next_block, uint32_t skip )
               | skip_block_size_check
               | skip_tapos_check
               | skip_authority_check
-              /* | skip_merkle_check While blockchain is being downloaded, txs need to be validated against block headers */
+              // | skip_merkle_check While blockchain is being downloaded, txs need to be validated against block headers 
               | skip_undo_history_check
               | skip_witness_schedule_check
               | skip_validate
               | skip_validate_invariants
               ;
    }
-   //***********************************************************
+   */
+   
+    if ( _checkpoints.size() && _checkpoints.rbegin()->second != block_id_type() ) {
+       auto skip_tmp = process_checkpoints( next_block, skip );
+       if( skip & skip_apply_transaction ) {
+           skip = skip_tmp | skip_apply_transaction;
+       } else {
+           skip = skip_tmp;
+       }
+    }
 
    detail::with_skip_flags( *this, skip, [&]()
    {
@@ -4070,6 +4092,30 @@ void database::retally_witness_vote_counts( bool force )
          } );
       }
    }
+}
+
+uint32_t database::process_checkpoints( const signed_block& next_block, uint32_t skip_old ) {
+      auto block_num = next_block.block_num();
+      auto itr = _checkpoints.find( block_num );
+      if( itr != _checkpoints.end() )
+         FC_ASSERT( next_block.id() == itr->second, "Block did not match checkpoint", ("checkpoint",*itr)("block_id",next_block.id()) );
+      uint32_t skip = skip_old;
+
+      if( _checkpoints.rbegin()->first >= block_num )
+         skip = skip_witness_signature
+              | skip_transaction_signatures
+              | skip_transaction_dupe_check
+              | skip_fork_db
+              | skip_block_size_check
+              | skip_tapos_check
+              | skip_authority_check
+              /* | skip_merkle_check While blockchain is being downloaded, txs need to be validated against block headers */
+              | skip_undo_history_check
+              | skip_witness_schedule_check
+              | skip_validate
+              | skip_validate_invariants
+              ;
+       return skip;
 }
 
 // just for link error

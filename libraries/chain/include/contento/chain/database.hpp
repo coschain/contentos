@@ -446,6 +446,7 @@ namespace contento { namespace chain {
 
          ///Steps involved in applying a new block
          ///@{
+         uint32_t process_checkpoints( const signed_block& next_block , uint32_t skip_old );
 
          const witness_object& validate_block_header( uint32_t skip, const signed_block& next_block )const;
          void create_block_summary(const signed_block& next_block);
