@@ -26,6 +26,8 @@ const char* const eosio_token_wast = R"=====(
  (type $FUNCSIG$fjj (func (param i64 i64) (result f32)))
  (type $FUNCSIG$iii (func (param i32 i32) (result i32)))
  (type $FUNCSIG$viii (func (param i32 i32 i32)))
+ (type $FUNCSIG$iiiiii (func (param i32 i32 i32 i32 i32) (result i32)))
+ (type $FUNCSIG$viiiii (func (param i32 i32 i32 i32 i32)))
  (type $FUNCSIG$i (func (result i32)))
  (import "env" "__addtf3" (func $__addtf3 (param i32 i64 i64 i64 i64)))
  (import "env" "__ashlti3" (func $__ashlti3 (param i32 i64 i64 i32)))
@@ -72,6 +74,7 @@ const char* const eosio_token_wast = R"=====(
  (import "env" "__unordtf2" (func $__unordtf2 (param i64 i64 i64 i64) (result i32)))
  (import "env" "abort" (func $abort))
  (import "env" "action_data_size" (func $action_data_size (result i32)))
+ (import "env" "assert_recover_key" (func $assert_recover_key (param i32 i32 i32 i32 i32)))
  (import "env" "assert_ripemd160" (func $assert_ripemd160 (param i32 i32 i32)))
  (import "env" "assert_sha1" (func $assert_sha1 (param i32 i32 i32)))
  (import "env" "assert_sha256" (func $assert_sha256 (param i32 i32 i32)))
@@ -88,6 +91,7 @@ const char* const eosio_token_wast = R"=====(
  (import "env" "is_account" (func $is_account (param i64) (result i32)))
  (import "env" "memcpy" (func $memcpy (param i32 i32 i32) (result i32)))
  (import "env" "read_action_data" (func $read_action_data (param i32 i32) (result i32)))
+ (import "env" "recover_key" (func $recover_key (param i32 i32 i32 i32 i32) (result i32)))
  (import "env" "require_auth" (func $require_auth (param i64)))
  (import "env" "require_auth2" (func $require_auth2 (param i64 i64)))
  (import "env" "require_recipient" (func $require_recipient (param i64)))
@@ -8986,89 +8990,165 @@ const char* const eosio_token_wast = R"=====(
  (func $_ZN5eosio5token10testcryptoEy (type $FUNCSIG$vij) (param $0 i32) (param $1 i64)
   (local $2 i32)
   (local $3 i32)
+  (local $4 i32)
   (i32.store offset=4
    (i32.const 0)
-   (tee_local $3
+   (tee_local $4
     (i32.sub
      (i32.load offset=4
       (i32.const 0)
      )
-     (i32.const 4256)
+     (i32.const 4384)
     )
    )
   )
   (set_local $2
+   (i32.or
+    (i32.add
+     (get_local $4)
+     (i32.const 48)
+    )
+    (i32.const 1)
+   )
+  )
+  (set_local $3
    (i32.const 100)
   )
   (loop $label$0
    (call $sha1
-    (get_local $3)
+    (i32.add
+     (get_local $4)
+     (i32.const 128)
+    )
     (i32.const 0)
     (i32.add
-     (get_local $3)
-     (i32.const 4224)
+     (get_local $4)
+     (i32.const 4352)
     )
    )
    (call $ripemd160
-    (get_local $3)
+    (i32.add
+     (get_local $4)
+     (i32.const 128)
+    )
     (i32.const 0)
     (i32.add
-     (get_local $3)
-     (i32.const 4192)
+     (get_local $4)
+     (i32.const 4320)
     )
    )
    (call $sha256
-    (get_local $3)
+    (i32.add
+     (get_local $4)
+     (i32.const 128)
+    )
     (i32.const 0)
     (i32.add
-     (get_local $3)
-     (i32.const 4160)
+     (get_local $4)
+     (i32.const 4288)
     )
    )
    (call $sha512
-    (get_local $3)
-    (i32.const 0)
     (i32.add
-     (get_local $3)
-     (i32.const 4096)
+     (get_local $4)
+     (i32.const 128)
     )
-   )
-   (call $assert_sha1
-    (get_local $3)
     (i32.const 0)
     (i32.add
-     (get_local $3)
+     (get_local $4)
      (i32.const 4224)
     )
    )
-   (call $assert_ripemd160
-    (get_local $3)
+   (call $assert_sha1
+    (i32.add
+     (get_local $4)
+     (i32.const 128)
+    )
     (i32.const 0)
     (i32.add
-     (get_local $3)
-     (i32.const 4192)
+     (get_local $4)
+     (i32.const 4352)
+    )
+   )
+   (call $assert_ripemd160
+    (i32.add
+     (get_local $4)
+     (i32.const 128)
+    )
+    (i32.const 0)
+    (i32.add
+     (get_local $4)
+     (i32.const 4320)
     )
    )
    (call $assert_sha256
-    (get_local $3)
+    (i32.add
+     (get_local $4)
+     (i32.const 128)
+    )
     (i32.const 0)
     (i32.add
-     (get_local $3)
-     (i32.const 4160)
+     (get_local $4)
+     (i32.const 4288)
     )
    )
    (call $assert_sha512
-    (get_local $3)
+    (i32.add
+     (get_local $4)
+     (i32.const 128)
+    )
     (i32.const 0)
     (i32.add
-     (get_local $3)
-     (i32.const 4096)
+     (get_local $4)
+     (i32.const 4224)
     )
    )
-   (br_if $label$0
-    (tee_local $2
+   (i32.store8 offset=48
+    (get_local $4)
+    (i32.const 31)
+   )
+   (drop
+    (call $memcpy
+     (get_local $2)
      (i32.add
-      (get_local $2)
+      (get_local $4)
+      (i32.const 4224)
+     )
+     (i32.const 64)
+    )
+   )
+   (drop
+    (call $recover_key
+     (i32.add
+      (get_local $4)
+      (i32.const 4288)
+     )
+     (i32.add
+      (get_local $4)
+      (i32.const 48)
+     )
+     (i32.const 65)
+     (get_local $4)
+     (i32.const 33)
+    )
+   )
+   (call $assert_recover_key
+    (i32.add
+     (get_local $4)
+     (i32.const 4288)
+    )
+    (i32.add
+     (get_local $4)
+     (i32.const 48)
+    )
+    (i32.const 65)
+    (get_local $4)
+    (i32.const 33)
+   )
+   (br_if $label$0
+    (tee_local $3
+     (i32.add
+      (get_local $3)
       (i32.const -1)
      )
     )
@@ -9077,8 +9157,8 @@ const char* const eosio_token_wast = R"=====(
   (i32.store offset=4
    (i32.const 0)
    (i32.add
-    (get_local $3)
-    (i32.const 4256)
+    (get_local $4)
+    (i32.const 4384)
    )
   )
  )

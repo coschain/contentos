@@ -287,6 +287,7 @@ void token::testcrypto( account_name name )
 	checksum160 h_ripemd;
 	checksum256 h_sha256;
 	checksum512 h_sha512;
+	
 	char data[4096];
 	
 	for (int i=0; i<100; i++) {
@@ -299,6 +300,13 @@ void token::testcrypto( account_name name )
 		assert_ripemd160(data, 0, &h_ripemd);
 		assert_sha256(data, 0, &h_sha256);
 		assert_sha512(data, 0, &h_sha512);
+		
+		char sig[65];
+		sig[0] = 31;
+		char pk[33];
+		memcpy(sig + 1, &h_sha512, 64);
+   	recover_key( &h_sha256, sig, 65, pk, sizeof(pk) );
+		assert_recover_key( &h_sha256, sig, 65, pk, sizeof(pk) );
 	}
 }
 
