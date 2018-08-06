@@ -7,6 +7,7 @@
 #include <eosiolib/compiler_builtins.h>
 #include <eosiolib/chain.h>
 #include <math.h>
+#include <eosiolib/crypto.h>
 
 namespace eosio {
 
@@ -280,6 +281,27 @@ void token::testfloat( account_name name )
   eosio_assert( u64 != 0, "oops!" );
 }
 
+void token::testcrypto( account_name name )
+{
+	checksum160 h_sha1;
+	checksum160 h_ripemd;
+	checksum256 h_sha256;
+	checksum512 h_sha512;
+	char data[16];
+	
+	for (int i=0; i<100; i++) {
+		sha1(data, 0, &h_sha1);
+		ripemd160(data, 0, &h_ripemd);
+		sha256(data, 0, &h_sha256);
+		sha512(data, 0, &h_sha512);
+		
+		assert_sha1(data, 0, &h_sha1);
+		assert_ripemd160(data, 0, &h_ripemd);
+		assert_sha256(data, 0, &h_sha256);
+		assert_sha512(data, 0, &h_sha512);
+	}
+}
+
 } /// namespace eosio
 
-EOSIO_ABI( eosio::token, (create)(issue)(transfer)(testcb)(testchain)(testfloat) )
+EOSIO_ABI( eosio::token, (create)(issue)(transfer)(testcb)(testchain)(testfloat)(testcrypto) )

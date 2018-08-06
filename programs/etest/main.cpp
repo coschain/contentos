@@ -51,6 +51,13 @@ transaction_trace_ptr test_float( tester& tester, name foo ) {
                               );
 }
 
+transaction_trace_ptr test_crypto( tester& tester, name foo ) {
+    return tester.push_action( N(eosio.token), N(testcrypto), foo, mutable_variant_object()
+                              ("name",    foo)
+                              );
+}
+
+
 #define CORE_AMOUNT(s)  (s " " CORE_SYMBOL_NAME)
 
 void test_eosio() {
@@ -82,6 +89,7 @@ void test_eosio() {
     trace_ptr = test_compiler_builtins( tester, N(alice) );
     trace_ptr = test_chain( tester, N(alice) );
     trace_ptr = test_float( tester, N(alice) );
+    trace_ptr = test_crypto( tester, N(alice) );
 }
 
 int main(int argc, char** argv) {
