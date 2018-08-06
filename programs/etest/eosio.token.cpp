@@ -5,6 +5,8 @@
 
 #include "eosio.token.hpp"
 #include <eosiolib/compiler_builtins.h>
+#include <eosiolib/chain.h>
+#include <math.h>
 
 namespace eosio {
 
@@ -43,7 +45,7 @@ void token::create( account_name issuer,
        s.issuer        = issuer;
     });
     
-    eosio_assert( test_switch(issure), "oops!");
+    eosio_assert( test_switch(issuer), "oops!");
 }
 
 
@@ -217,6 +219,67 @@ void token::testcb( account_name name )
 	}
 }
 
+void token::testchain( account_name name )
+{
+	account_name active_producers[21];
+	for (int i=0; i<100; i++) {
+  	auto active_prod_size = get_active_producers( active_producers, sizeof(active_producers) );
+  }
+}
+
+void token::testfloat( account_name name )
+{
+	float a = (float)name;
+	double b = a;
+	int32_t i32 = 0;
+	uint32_t u32 = 0;
+	int64_t i64 = 0;
+	uint64_t u64 = 0;
+	
+	for (int i=0; i<100; i++) {
+  	float f = i + 1;
+  	a += f;
+  	a *= f;
+  	a -= f;
+  	a /= f;
+  	a += (a < 1.0);
+  	a += (a <= 1.0);
+  	a += (a > 0.0);
+  	a += (a >= 0.0);
+  	a += (a != 1.0);
+  	a += (a == 1.0);
+  	
+  	double d = f;
+  	b += d;
+  	b *= d;
+  	b -= d;
+  	b /= d;
+  	b += (b < 1.0);
+  	b += (b <= 1.0);
+  	b += (b > 0.0);
+  	b += (b >= 0.0);
+  	b += (b != 1.0);
+  	b += (b == 1.0);
+  	
+  	i32 += (int32_t)f;
+  	i32 += (int32_t)d;
+  	u32 += (uint32_t)f;
+  	u32 += (uint32_t)d;
+  	i64 += (int64_t)f;
+  	i64 += (int64_t)d;
+  	u64 += (uint64_t)f;
+  	u64 += (uint64_t)d;
+  	
+  	f = d;
+  }
+  eosio_assert( a != 0, "oops!" );
+  eosio_assert( b != 0, "oops!" );
+  eosio_assert( i32 != 0, "oops!" );
+  eosio_assert( u32 != 0, "oops!" );
+  eosio_assert( i64 != 0, "oops!" );
+  eosio_assert( u64 != 0, "oops!" );
+}
+
 } /// namespace eosio
 
-EOSIO_ABI( eosio::token, (create)(issue)(transfer)(testcb) )
+EOSIO_ABI( eosio::token, (create)(issue)(transfer)(testcb)(testchain)(testfloat) )

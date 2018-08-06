@@ -24,8 +24,8 @@ const char* const eosio_token_wast = R"=====(
  (type $FUNCSIG$jjj (func (param i64 i64) (result i64)))
  (type $FUNCSIG$ijj (func (param i64 i64) (result i32)))
  (type $FUNCSIG$fjj (func (param i64 i64) (result f32)))
- (type $FUNCSIG$i (func (result i32)))
  (type $FUNCSIG$iii (func (param i32 i32) (result i32)))
+ (type $FUNCSIG$i (func (result i32)))
  (import "env" "__addtf3" (func $__addtf3 (param i32 i64 i64 i64 i64)))
  (import "env" "__ashlti3" (func $__ashlti3 (param i32 i64 i64 i32)))
  (import "env" "__ashrti3" (func $__ashrti3 (param i32 i64 i64 i32)))
@@ -79,6 +79,7 @@ const char* const eosio_token_wast = R"=====(
  (import "env" "db_store_i64" (func $db_store_i64 (param i64 i64 i64 i64 i32 i32) (result i32)))
  (import "env" "db_update_i64" (func $db_update_i64 (param i32 i64 i32 i32)))
  (import "env" "eosio_assert" (func $eosio_assert (param i32 i32)))
+ (import "env" "get_active_producers" (func $get_active_producers (param i32 i32) (result i32)))
  (import "env" "is_account" (func $is_account (param i64) (result i32)))
  (import "env" "memcpy" (func $memcpy (param i32 i32 i32) (result i32)))
  (import "env" "read_action_data" (func $read_action_data (param i32 i32) (result i32)))
@@ -86,63 +87,67 @@ const char* const eosio_token_wast = R"=====(
  (import "env" "require_auth2" (func $require_auth2 (param i64 i64)))
  (import "env" "require_recipient" (func $require_recipient (param i64)))
  (import "env" "send_inline" (func $send_inline (param i32 i32)))
- (table 5 5 anyfunc)
- (elem (i32.const 0) $__wasm_nullptr $_ZN5eosio5token8transferEyyNS_5assetENSt3__112basic_stringIcNS2_11char_traitsIcEENS2_9allocatorIcEEEE $_ZN5eosio5token6createEyNS_5assetE $_ZN5eosio5token6testcbEy $_ZN5eosio5token5issueEyNS_5assetENSt3__112basic_stringIcNS2_11char_traitsIcEENS2_9allocatorIcEEEE)
+ (table 7 7 anyfunc)
+ (elem (i32.const 0) $__wasm_nullptr $_ZN5eosio5token9testfloatEy $_ZN5eosio5token6createEyNS_5assetE $_ZN5eosio5token6testcbEy $_ZN5eosio5token9testchainEy $_ZN5eosio5token8transferEyyNS_5assetENSt3__112basic_stringIcNS2_11char_traitsIcEENS2_9allocatorIcEEEE $_ZN5eosio5token5issueEyNS_5assetENSt3__112basic_stringIcNS2_11char_traitsIcEENS2_9allocatorIcEEEE)
  (memory $0 1)
- (data (i32.const 4) "Pg\00\00")
+ (data (i32.const 4) "`g\00\00")
  (data (i32.const 16) "invalid symbol name\00")
  (data (i32.const 48) "invalid supply\00")
  (data (i32.const 64) "max-supply must be positive\00")
  (data (i32.const 96) "object passed to iterator_to is not in multi_index\00")
  (data (i32.const 160) "token with symbol already exists\00")
  (data (i32.const 208) "cannot create objects in table of another contract\00")
- (data (i32.const 272) "write\00")
- (data (i32.const 288) "magnitude of asset amount must be less than 2^62\00")
- (data (i32.const 352) "error reading iterator\00")
- (data (i32.const 384) "read\00")
- (data (i32.const 400) "memo has more than 256 bytes\00")
- (data (i32.const 432) "token with symbol does not exist, create token before issue\00")
- (data (i32.const 496) "invalid quantity\00")
- (data (i32.const 528) "must issue positive quantity\00")
- (data (i32.const 560) "symbol precision mismatch\00")
- (data (i32.const 592) "quantity exceeds available supply\00")
- (data (i32.const 640) "object passed to modify is not in multi_index\00")
- (data (i32.const 688) "cannot modify objects in table of another contract\00")
- (data (i32.const 752) "attempt to add asset with different symbol\00")
- (data (i32.const 800) "addition underflow\00")
- (data (i32.const 832) "addition overflow\00")
- (data (i32.const 864) "updater cannot change primary key when modifying an object\00")
- (data (i32.const 928) "active\00")
- (data (i32.const 944) "cannot pass end iterator to modify\00")
- (data (i32.const 992) "cannot transfer to self\00")
- (data (i32.const 1024) "to account does not exist\00")
- (data (i32.const 1056) "unable to find key\00")
- (data (i32.const 1088) "must transfer positive quantity\00")
- (data (i32.const 1120) "no balance object found\00")
- (data (i32.const 1152) "overdrawn balance\00")
- (data (i32.const 1184) "attempt to subtract asset with different symbol\00")
- (data (i32.const 1232) "subtraction underflow\00")
- (data (i32.const 1264) "subtraction overflow\00")
- (data (i32.const 1296) "object passed to erase is not in multi_index\00")
- (data (i32.const 1344) "cannot erase objects in table of another contract\00")
- (data (i32.const 1408) "attempt to remove object that was not in multi_index\00")
- (data (i32.const 1472) "onerror\00")
- (data (i32.const 1488) "eosio\00")
- (data (i32.const 1504) "onerror action\'s are only valid from the \"eosio\" system account\00")
- (data (i32.const 1568) "get\00")
- (data (i32.const 9968) "malloc_from_freed was designed to only be called after _heap was completely allocated\00")
+ (data (i32.const 272) "oops!\00")
+ (data (i32.const 288) "write\00")
+ (data (i32.const 304) "magnitude of asset amount must be less than 2^62\00")
+ (data (i32.const 368) "error reading iterator\00")
+ (data (i32.const 400) "read\00")
+ (data (i32.const 416) "memo has more than 256 bytes\00")
+ (data (i32.const 448) "token with symbol does not exist, create token before issue\00")
+ (data (i32.const 512) "invalid quantity\00")
+ (data (i32.const 544) "must issue positive quantity\00")
+ (data (i32.const 576) "symbol precision mismatch\00")
+ (data (i32.const 608) "quantity exceeds available supply\00")
+ (data (i32.const 656) "object passed to modify is not in multi_index\00")
+ (data (i32.const 704) "cannot modify objects in table of another contract\00")
+ (data (i32.const 768) "attempt to add asset with different symbol\00")
+ (data (i32.const 816) "addition underflow\00")
+ (data (i32.const 848) "addition overflow\00")
+ (data (i32.const 880) "updater cannot change primary key when modifying an object\00")
+ (data (i32.const 944) "active\00")
+ (data (i32.const 960) "cannot pass end iterator to modify\00")
+ (data (i32.const 1008) "cannot transfer to self\00")
+ (data (i32.const 1040) "to account does not exist\00")
+ (data (i32.const 1072) "unable to find key\00")
+ (data (i32.const 1104) "must transfer positive quantity\00")
+ (data (i32.const 1136) "no balance object found\00")
+ (data (i32.const 1168) "overdrawn balance\00")
+ (data (i32.const 1200) "attempt to subtract asset with different symbol\00")
+ (data (i32.const 1248) "subtraction underflow\00")
+ (data (i32.const 1280) "subtraction overflow\00")
+ (data (i32.const 1312) "object passed to erase is not in multi_index\00")
+ (data (i32.const 1360) "cannot erase objects in table of another contract\00")
+ (data (i32.const 1424) "attempt to remove object that was not in multi_index\00")
+ (data (i32.const 1488) "onerror\00")
+ (data (i32.const 1504) "eosio\00")
+ (data (i32.const 1520) "onerror action\'s are only valid from the \"eosio\" system account\00")
+ (data (i32.const 1584) "get\00")
+ (data (i32.const 9984) "malloc_from_freed was designed to only be called after _heap was completely allocated\00")
  (export "memory" (memory $0))
  (export "_ZeqRK11checksum256S1_" (func $_ZeqRK11checksum256S1_))
  (export "_ZeqRK11checksum160S1_" (func $_ZeqRK11checksum160S1_))
  (export "_ZneRK11checksum160S1_" (func $_ZneRK11checksum160S1_))
  (export "now" (func $now))
  (export "_ZN5eosio12require_authERKNS_16permission_levelE" (func $_ZN5eosio12require_authERKNS_16permission_levelE))
+ (export "_ZN5eosio11test_switchEy" (func $_ZN5eosio11test_switchEy))
  (export "_ZN5eosio5token6createEyNS_5assetE" (func $_ZN5eosio5token6createEyNS_5assetE))
  (export "_ZN5eosio5token5issueEyNS_5assetENSt3__112basic_stringIcNS2_11char_traitsIcEENS2_9allocatorIcEEEE" (func $_ZN5eosio5token5issueEyNS_5assetENSt3__112basic_stringIcNS2_11char_traitsIcEENS2_9allocatorIcEEEE))
  (export "_ZN5eosio5token11add_balanceEyNS_5assetEy" (func $_ZN5eosio5token11add_balanceEyNS_5assetEy))
  (export "_ZN5eosio5token8transferEyyNS_5assetENSt3__112basic_stringIcNS2_11char_traitsIcEENS2_9allocatorIcEEEE" (func $_ZN5eosio5token8transferEyyNS_5assetENSt3__112basic_stringIcNS2_11char_traitsIcEENS2_9allocatorIcEEEE))
  (export "_ZN5eosio5token11sub_balanceEyNS_5assetE" (func $_ZN5eosio5token11sub_balanceEyNS_5assetE))
  (export "_ZN5eosio5token6testcbEy" (func $_ZN5eosio5token6testcbEy))
+ (export "_ZN5eosio5token9testchainEy" (func $_ZN5eosio5token9testchainEy))
+ (export "_ZN5eosio5token9testfloatEy" (func $_ZN5eosio5token9testfloatEy))
  (export "apply" (func $apply))
  (export "malloc" (func $malloc))
  (export "free" (func $free))
@@ -192,6 +197,79 @@ const char* const eosio_token_wast = R"=====(
     (get_local $0)
    )
   )
+ )
+ (func $_ZN5eosio11test_switchEy (param $0 i64) (result i32)
+  (local $1 i32)
+  (local $2 i32)
+  (set_local $2
+   (i32.const 100)
+  )
+  (block $label$0
+   (block $label$1
+    (block $label$2
+     (block $label$3
+      (block $label$4
+       (block $label$5
+        (block $label$6
+         (br_if $label$6
+          (i32.gt_u
+           (tee_local $1
+            (i32.and
+             (i32.wrap/i64
+              (get_local $0)
+             )
+             (i32.const 255)
+            )
+           )
+           (i32.const 32)
+          )
+         )
+         (block $label$7
+          (br_table $label$7 $label$5 $label$0 $label$0 $label$0 $label$4 $label$0 $label$0 $label$0 $label$0 $label$3 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$2 $label$7
+           (get_local $1)
+          )
+         )
+         (return
+          (i32.const 1)
+         )
+        )
+        (br_if $label$1
+         (i32.eq
+          (get_local $1)
+          (i32.const 64)
+         )
+        )
+        (br_if $label$0
+         (i32.ne
+          (get_local $1)
+          (i32.const 99)
+         )
+        )
+        (return
+         (i32.const 62)
+        )
+       )
+       (return
+        (i32.const 12)
+       )
+      )
+      (return
+       (i32.const 14)
+      )
+     )
+     (return
+      (i32.const 41)
+     )
+    )
+    (return
+     (i32.const 31)
+    )
+   )
+   (set_local $2
+    (i32.const 71)
+   )
+  )
+  (get_local $2)
  )
  (func $_ZN5eosio5token6createEyNS_5assetE (type $FUNCSIG$viji) (param $0 i32) (param $1 i64) (param $2 i32)
   (local $3 i64)
@@ -813,8 +891,86 @@ const char* const eosio_token_wast = R"=====(
     (get_local $8)
    )
   )
+  (set_local $8
+   (i32.const 100)
+  )
   (block $label$16
-   (br_if $label$16
+   (block $label$17
+    (block $label$18
+     (block $label$19
+      (block $label$20
+       (block $label$21
+        (block $label$22
+         (br_if $label$22
+          (i32.gt_u
+           (tee_local $2
+            (i32.and
+             (i32.wrap/i64
+              (get_local $1)
+             )
+             (i32.const 255)
+            )
+           )
+           (i32.const 32)
+          )
+         )
+         (block $label$23
+          (br_table $label$23 $label$21 $label$16 $label$16 $label$16 $label$20 $label$16 $label$16 $label$16 $label$16 $label$19 $label$16 $label$16 $label$16 $label$16 $label$16 $label$16 $label$16 $label$16 $label$16 $label$16 $label$16 $label$16 $label$16 $label$16 $label$16 $label$16 $label$16 $label$16 $label$16 $label$16 $label$16 $label$18 $label$23
+           (get_local $2)
+          )
+         )
+         (set_local $8
+          (i32.const 1)
+         )
+         (br $label$16)
+        )
+        (br_if $label$17
+         (i32.eq
+          (get_local $2)
+          (i32.const 64)
+         )
+        )
+        (br_if $label$16
+         (i32.ne
+          (get_local $2)
+          (i32.const 99)
+         )
+        )
+        (set_local $8
+         (i32.const 62)
+        )
+        (br $label$16)
+       )
+       (set_local $8
+        (i32.const 12)
+       )
+       (br $label$16)
+      )
+      (set_local $8
+       (i32.const 14)
+      )
+      (br $label$16)
+     )
+     (set_local $8
+      (i32.const 41)
+     )
+     (br $label$16)
+    )
+    (set_local $8
+     (i32.const 31)
+    )
+    (br $label$16)
+   )
+   (set_local $8
+    (i32.const 71)
+   )
+  )
+  (call $eosio_assert
+   (get_local $8)
+   (i32.const 272)
+  )
+  (block $label$24
+   (br_if $label$24
     (i32.eqz
      (tee_local $6
       (i32.load offset=32
@@ -823,9 +979,9 @@ const char* const eosio_token_wast = R"=====(
      )
     )
    )
-   (block $label$17
-    (block $label$18
-     (br_if $label$18
+   (block $label$25
+    (block $label$26
+     (br_if $label$26
       (i32.eq
        (tee_local $8
         (i32.load
@@ -840,7 +996,7 @@ const char* const eosio_token_wast = R"=====(
        (get_local $6)
       )
      )
-     (loop $label$19
+     (loop $label$27
       (set_local $2
        (i32.load
         (tee_local $8
@@ -855,8 +1011,8 @@ const char* const eosio_token_wast = R"=====(
        (get_local $8)
        (i32.const 0)
       )
-      (block $label$20
-       (br_if $label$20
+      (block $label$28
+       (br_if $label$28
         (i32.eqz
          (get_local $2)
         )
@@ -865,7 +1021,7 @@ const char* const eosio_token_wast = R"=====(
         (get_local $2)
        )
       )
-      (br_if $label$19
+      (br_if $label$27
        (i32.ne
         (get_local $6)
         (get_local $8)
@@ -880,7 +1036,7 @@ const char* const eosio_token_wast = R"=====(
        )
       )
      )
-     (br $label$17)
+     (br $label$25)
     )
     (set_local $8
      (get_local $6)
@@ -1021,7 +1177,7 @@ const char* const eosio_token_wast = R"=====(
      )
      (i32.const 1)
     )
-    (i32.const 352)
+    (i32.const 368)
    )
    (block $label$4
     (block $label$5
@@ -1269,7 +1425,7 @@ const char* const eosio_token_wast = R"=====(
   )
   (call $eosio_assert
    (i32.const 1)
-   (i32.const 288)
+   (i32.const 304)
   )
   (set_local $1
    (i64.shr_u
@@ -1382,7 +1538,7 @@ const char* const eosio_token_wast = R"=====(
   )
   (call $eosio_assert
    (i32.const 1)
-   (i32.const 288)
+   (i32.const 304)
   )
   (set_local $1
    (i64.shr_u
@@ -1507,7 +1663,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (i32.const 7)
    )
-   (i32.const 272)
+   (i32.const 288)
   )
   (drop
    (call $memcpy
@@ -1539,7 +1695,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (i32.const 7)
    )
-   (i32.const 272)
+   (i32.const 288)
   )
   (drop
    (call $memcpy
@@ -1583,7 +1739,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (i32.const 7)
    )
-   (i32.const 272)
+   (i32.const 288)
   )
   (drop
    (call $memcpy
@@ -1615,7 +1771,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (i32.const 7)
    )
-   (i32.const 272)
+   (i32.const 288)
   )
   (drop
    (call $memcpy
@@ -1659,7 +1815,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (i32.const 7)
    )
-   (i32.const 272)
+   (i32.const 288)
   )
   (drop
    (call $memcpy
@@ -2030,7 +2186,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (i32.const 7)
    )
-   (i32.const 384)
+   (i32.const 400)
   )
   (drop
    (call $memcpy
@@ -2062,7 +2218,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (i32.const 7)
    )
-   (i32.const 384)
+   (i32.const 400)
   )
   (drop
    (call $memcpy
@@ -2106,7 +2262,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (i32.const 7)
    )
-   (i32.const 384)
+   (i32.const 400)
   )
   (drop
    (call $memcpy
@@ -2138,7 +2294,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (i32.const 7)
    )
-   (i32.const 384)
+   (i32.const 400)
   )
   (drop
    (call $memcpy
@@ -2182,7 +2338,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (i32.const 7)
    )
-   (i32.const 384)
+   (i32.const 400)
   )
   (drop
    (call $memcpy
@@ -2357,7 +2513,85 @@ const char* const eosio_token_wast = R"=====(
     (get_local $9)
     (i32.const 257)
    )
-   (i32.const 400)
+   (i32.const 416)
+  )
+  (set_local $9
+   (i32.const 100)
+  )
+  (block $label$7
+   (block $label$8
+    (block $label$9
+     (block $label$10
+      (block $label$11
+       (block $label$12
+        (block $label$13
+         (br_if $label$13
+          (i32.gt_u
+           (tee_local $7
+            (i32.and
+             (i32.wrap/i64
+              (get_local $1)
+             )
+             (i32.const 255)
+            )
+           )
+           (i32.const 32)
+          )
+         )
+         (block $label$14
+          (br_table $label$14 $label$12 $label$7 $label$7 $label$7 $label$11 $label$7 $label$7 $label$7 $label$7 $label$10 $label$7 $label$7 $label$7 $label$7 $label$7 $label$7 $label$7 $label$7 $label$7 $label$7 $label$7 $label$7 $label$7 $label$7 $label$7 $label$7 $label$7 $label$7 $label$7 $label$7 $label$7 $label$9 $label$14
+           (get_local $7)
+          )
+         )
+         (set_local $9
+          (i32.const 1)
+         )
+         (br $label$7)
+        )
+        (br_if $label$8
+         (i32.eq
+          (get_local $7)
+          (i32.const 64)
+         )
+        )
+        (br_if $label$7
+         (i32.ne
+          (get_local $7)
+          (i32.const 99)
+         )
+        )
+        (set_local $9
+         (i32.const 62)
+        )
+        (br $label$7)
+       )
+       (set_local $9
+        (i32.const 12)
+       )
+       (br $label$7)
+      )
+      (set_local $9
+       (i32.const 14)
+      )
+      (br $label$7)
+     )
+     (set_local $9
+      (i32.const 41)
+     )
+     (br $label$7)
+    )
+    (set_local $9
+     (i32.const 31)
+    )
+    (br $label$7)
+   )
+   (set_local $9
+    (i32.const 71)
+   )
+  )
+  (call $eosio_assert
+   (get_local $9)
+   (i32.const 272)
   )
   (set_local $10
    (i32.const 0)
@@ -2395,8 +2629,8 @@ const char* const eosio_token_wast = R"=====(
   (set_local $7
    (i32.const 0)
   )
-  (block $label$7
-   (br_if $label$7
+  (block $label$15
+   (br_if $label$15
     (i32.lt_s
      (tee_local $9
       (call $db_find_i64
@@ -2435,7 +2669,7 @@ const char* const eosio_token_wast = R"=====(
     (get_local $7)
     (i32.const 0)
    )
-   (i32.const 432)
+   (i32.const 448)
   )
   (call $require_auth
    (i64.load offset=32
@@ -2448,8 +2682,8 @@ const char* const eosio_token_wast = R"=====(
     (i32.const 32)
    )
   )
-  (block $label$8
-   (br_if $label$8
+  (block $label$16
+   (br_if $label$16
     (i64.gt_u
      (i64.add
       (tee_local $8
@@ -2465,9 +2699,9 @@ const char* const eosio_token_wast = R"=====(
    (set_local $9
     (i32.const 0)
    )
-   (block $label$9
-    (loop $label$10
-     (br_if $label$9
+   (block $label$17
+    (loop $label$18
+     (br_if $label$17
       (i32.gt_u
        (i32.add
         (i32.shl
@@ -2481,8 +2715,8 @@ const char* const eosio_token_wast = R"=====(
        (i32.const 452984830)
       )
      )
-     (block $label$11
-      (br_if $label$11
+     (block $label$19
+      (br_if $label$19
        (i64.ne
         (i64.and
          (tee_local $13
@@ -2496,8 +2730,8 @@ const char* const eosio_token_wast = R"=====(
         (i64.const 0)
        )
       )
-      (loop $label$12
-       (br_if $label$9
+      (loop $label$20
+       (br_if $label$17
         (i64.ne
          (i64.and
           (tee_local $13
@@ -2511,7 +2745,7 @@ const char* const eosio_token_wast = R"=====(
          (i64.const 0)
         )
        )
-       (br_if $label$12
+       (br_if $label$20
         (i32.lt_s
          (tee_local $9
           (i32.add
@@ -2527,7 +2761,7 @@ const char* const eosio_token_wast = R"=====(
      (set_local $10
       (i32.const 1)
      )
-     (br_if $label$10
+     (br_if $label$18
       (i32.lt_s
        (tee_local $9
         (i32.add
@@ -2538,7 +2772,7 @@ const char* const eosio_token_wast = R"=====(
        (i32.const 7)
       )
      )
-     (br $label$8)
+     (br $label$16)
     )
    )
    (set_local $10
@@ -2547,14 +2781,14 @@ const char* const eosio_token_wast = R"=====(
   )
   (call $eosio_assert
    (get_local $10)
-   (i32.const 496)
+   (i32.const 512)
   )
   (call $eosio_assert
    (i64.gt_s
     (get_local $8)
     (i64.const 0)
    )
-   (i32.const 528)
+   (i32.const 544)
   )
   (call $eosio_assert
    (i64.eq
@@ -2563,7 +2797,7 @@ const char* const eosio_token_wast = R"=====(
      (get_local $7)
     )
    )
-   (i32.const 560)
+   (i32.const 576)
   )
   (call $eosio_assert
    (i64.le_s
@@ -2577,7 +2811,7 @@ const char* const eosio_token_wast = R"=====(
      )
     )
    )
-   (i32.const 592)
+   (i32.const 608)
   )
   (call $eosio_assert
    (i32.eq
@@ -2589,7 +2823,7 @@ const char* const eosio_token_wast = R"=====(
      (i32.const 88)
     )
    )
-   (i32.const 640)
+   (i32.const 656)
   )
   (call $eosio_assert
    (i64.eq
@@ -2598,7 +2832,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (call $current_receiver)
    )
-   (i32.const 688)
+   (i32.const 704)
   )
   (call $eosio_assert
    (i64.eq
@@ -2609,7 +2843,7 @@ const char* const eosio_token_wast = R"=====(
      )
     )
    )
-   (i32.const 752)
+   (i32.const 768)
   )
   (i64.store
    (get_local $7)
@@ -2627,7 +2861,7 @@ const char* const eosio_token_wast = R"=====(
     (get_local $8)
     (i64.const -4611686018427387904)
    )
-   (i32.const 800)
+   (i32.const 816)
   )
   (call $eosio_assert
    (i64.lt_s
@@ -2636,7 +2870,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (i64.const 4611686018427387904)
    )
-   (i32.const 832)
+   (i32.const 848)
   )
   (call $eosio_assert
    (i64.eq
@@ -2653,7 +2887,7 @@ const char* const eosio_token_wast = R"=====(
      (i64.const 8)
     )
    )
-   (i32.const 864)
+   (i32.const 880)
   )
   (i32.store offset=192
    (get_local $14)
@@ -2722,8 +2956,8 @@ const char* const eosio_token_wast = R"=====(
    )
    (i32.const 40)
   )
-  (block $label$13
-   (br_if $label$13
+  (block $label$21
+   (br_if $label$21
     (i64.lt_u
      (get_local $8)
      (i64.load
@@ -2846,8 +3080,8 @@ const char* const eosio_token_wast = R"=====(
    )
    (get_local $8)
   )
-  (block $label$14
-   (br_if $label$14
+  (block $label$22
+   (br_if $label$22
     (i64.eq
      (tee_local $5
       (i64.load
@@ -2869,24 +3103,24 @@ const char* const eosio_token_wast = R"=====(
     (i64.const 59)
    )
    (set_local $9
-    (i32.const 928)
+    (i32.const 944)
    )
    (set_local $12
     (i64.const 0)
    )
-   (loop $label$15
-    (block $label$16
-     (block $label$17
-      (block $label$18
-       (block $label$19
-        (block $label$20
-         (br_if $label$20
+   (loop $label$23
+    (block $label$24
+     (block $label$25
+      (block $label$26
+       (block $label$27
+        (block $label$28
+         (br_if $label$28
           (i64.gt_u
            (get_local $8)
            (i64.const 5)
           )
          )
-         (br_if $label$19
+         (br_if $label$27
           (i32.gt_u
            (i32.and
             (i32.add
@@ -2908,18 +3142,18 @@ const char* const eosio_token_wast = R"=====(
            (i32.const 165)
           )
          )
-         (br $label$18)
+         (br $label$26)
         )
         (set_local $13
          (i64.const 0)
         )
-        (br_if $label$17
+        (br_if $label$25
          (i64.le_u
           (get_local $8)
           (i64.const 11)
          )
         )
-        (br $label$16)
+        (br $label$24)
        )
        (set_local $7
         (select
@@ -2984,7 +3218,7 @@ const char* const eosio_token_wast = R"=====(
       (get_local $12)
      )
     )
-    (br_if $label$15
+    (br_if $label$23
      (i64.ne
       (tee_local $11
        (i64.add
@@ -3174,8 +3408,8 @@ const char* const eosio_token_wast = R"=====(
      (i32.const 128)
     )
    )
-   (block $label$21
-    (br_if $label$21
+   (block $label$29
+    (br_if $label$29
      (i32.eqz
       (i32.and
        (i32.load8_u offset=160
@@ -3191,8 +3425,8 @@ const char* const eosio_token_wast = R"=====(
      )
     )
    )
-   (block $label$22
-    (br_if $label$22
+   (block $label$30
+    (br_if $label$30
      (i32.eqz
       (tee_local $9
        (i32.load offset=208
@@ -3209,7 +3443,7 @@ const char* const eosio_token_wast = R"=====(
      (get_local $9)
     )
    )
-   (br_if $label$14
+   (br_if $label$22
     (i32.eqz
      (i32.and
       (i32.load8_u
@@ -3231,8 +3465,8 @@ const char* const eosio_token_wast = R"=====(
     )
    )
   )
-  (block $label$23
-   (br_if $label$23
+  (block $label$31
+   (br_if $label$31
     (i32.eqz
      (tee_local $2
       (i32.load offset=112
@@ -3241,9 +3475,9 @@ const char* const eosio_token_wast = R"=====(
      )
     )
    )
-   (block $label$24
-    (block $label$25
-     (br_if $label$25
+   (block $label$32
+    (block $label$33
+     (br_if $label$33
       (i32.eq
        (tee_local $9
         (i32.load
@@ -3258,7 +3492,7 @@ const char* const eosio_token_wast = R"=====(
        (get_local $2)
       )
      )
-     (loop $label$26
+     (loop $label$34
       (set_local $7
        (i32.load
         (tee_local $9
@@ -3273,8 +3507,8 @@ const char* const eosio_token_wast = R"=====(
        (get_local $9)
        (i32.const 0)
       )
-      (block $label$27
-       (br_if $label$27
+      (block $label$35
+       (br_if $label$35
         (i32.eqz
          (get_local $7)
         )
@@ -3283,7 +3517,7 @@ const char* const eosio_token_wast = R"=====(
         (get_local $7)
        )
       )
-      (br_if $label$26
+      (br_if $label$34
        (i32.ne
         (get_local $2)
         (get_local $9)
@@ -3298,7 +3532,7 @@ const char* const eosio_token_wast = R"=====(
        )
       )
      )
-     (br $label$24)
+     (br $label$32)
     )
     (set_local $9
      (get_local $2)
@@ -3417,7 +3651,7 @@ const char* const eosio_token_wast = R"=====(
       )
       (call $eosio_assert
        (i32.const 1)
-       (i32.const 944)
+       (i32.const 960)
       )
       (call $eosio_assert
        (i32.eq
@@ -3429,7 +3663,7 @@ const char* const eosio_token_wast = R"=====(
          (i32.const 8)
         )
        )
-       (i32.const 640)
+       (i32.const 656)
       )
       (call $eosio_assert
        (i64.eq
@@ -3438,7 +3672,7 @@ const char* const eosio_token_wast = R"=====(
         )
         (call $current_receiver)
        )
-       (i32.const 688)
+       (i32.const 704)
       )
       (call $eosio_assert
        (i64.eq
@@ -3449,7 +3683,7 @@ const char* const eosio_token_wast = R"=====(
          )
         )
        )
-       (i32.const 752)
+       (i32.const 768)
       )
       (i64.store
        (get_local $8)
@@ -3469,7 +3703,7 @@ const char* const eosio_token_wast = R"=====(
         (get_local $6)
         (i64.const -4611686018427387904)
        )
-       (i32.const 800)
+       (i32.const 816)
       )
       (call $eosio_assert
        (i64.lt_s
@@ -3478,7 +3712,7 @@ const char* const eosio_token_wast = R"=====(
         )
         (i64.const 4611686018427387904)
        )
-       (i32.const 832)
+       (i32.const 848)
       )
       (call $eosio_assert
        (i64.eq
@@ -3495,11 +3729,11 @@ const char* const eosio_token_wast = R"=====(
          (i64.const 8)
         )
        )
-       (i32.const 864)
+       (i32.const 880)
       )
       (call $eosio_assert
        (i32.const 1)
-       (i32.const 272)
+       (i32.const 288)
       )
       (drop
        (call $memcpy
@@ -3513,7 +3747,7 @@ const char* const eosio_token_wast = R"=====(
       )
       (call $eosio_assert
        (i32.const 1)
-       (i32.const 272)
+       (i32.const 288)
       )
       (drop
        (call $memcpy
@@ -3597,7 +3831,7 @@ const char* const eosio_token_wast = R"=====(
      )
      (call $eosio_assert
       (i32.const 1)
-      (i32.const 288)
+      (i32.const 304)
      )
      (set_local $5
       (i32.add
@@ -3719,7 +3953,7 @@ const char* const eosio_token_wast = R"=====(
      )
      (call $eosio_assert
       (i32.const 1)
-      (i32.const 272)
+      (i32.const 288)
      )
      (drop
       (call $memcpy
@@ -3733,7 +3967,7 @@ const char* const eosio_token_wast = R"=====(
      )
      (call $eosio_assert
       (i32.const 1)
-      (i32.const 272)
+      (i32.const 288)
      )
      (drop
       (call $memcpy
@@ -4695,7 +4929,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (i32.const 7)
    )
-   (i32.const 272)
+   (i32.const 288)
   )
   (drop
    (call $memcpy
@@ -4736,7 +4970,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (i32.const 7)
    )
-   (i32.const 272)
+   (i32.const 288)
   )
   (drop
    (call $memcpy
@@ -4775,7 +5009,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (i32.const 7)
    )
-   (i32.const 272)
+   (i32.const 288)
   )
   (drop
    (call $memcpy
@@ -4810,7 +5044,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (i32.const 7)
    )
-   (i32.const 272)
+   (i32.const 288)
   )
   (drop
    (call $memcpy
@@ -5046,7 +5280,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (i32.const 7)
    )
-   (i32.const 272)
+   (i32.const 288)
   )
   (drop
    (call $memcpy
@@ -5068,7 +5302,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (i32.const 7)
    )
-   (i32.const 272)
+   (i32.const 288)
   )
   (drop
    (call $memcpy
@@ -5187,7 +5421,7 @@ const char* const eosio_token_wast = R"=====(
      )
      (i32.const 0)
     )
-    (i32.const 272)
+    (i32.const 288)
    )
    (drop
     (call $memcpy
@@ -5261,7 +5495,7 @@ const char* const eosio_token_wast = R"=====(
       )
       (i32.const 7)
      )
-     (i32.const 272)
+     (i32.const 288)
     )
     (drop
      (call $memcpy
@@ -5293,7 +5527,7 @@ const char* const eosio_token_wast = R"=====(
       )
       (i32.const 7)
      )
-     (i32.const 272)
+     (i32.const 288)
     )
     (drop
      (call $memcpy
@@ -5427,7 +5661,7 @@ const char* const eosio_token_wast = R"=====(
      )
      (i32.const 0)
     )
-    (i32.const 272)
+    (i32.const 288)
    )
    (drop
     (call $memcpy
@@ -5483,7 +5717,7 @@ const char* const eosio_token_wast = R"=====(
      )
     )
    )
-   (i32.const 272)
+   (i32.const 288)
   )
   (drop
    (call $memcpy
@@ -5613,7 +5847,7 @@ const char* const eosio_token_wast = R"=====(
      )
      (i32.const 0)
     )
-    (i32.const 272)
+    (i32.const 288)
    )
    (drop
     (call $memcpy
@@ -5689,7 +5923,7 @@ const char* const eosio_token_wast = R"=====(
      )
      (get_local $5)
     )
-    (i32.const 272)
+    (i32.const 288)
    )
    (drop
     (call $memcpy
@@ -5851,7 +6085,7 @@ const char* const eosio_token_wast = R"=====(
      )
      (i32.const 1)
     )
-    (i32.const 352)
+    (i32.const 368)
    )
    (block $label$4
     (block $label$5
@@ -5920,7 +6154,7 @@ const char* const eosio_token_wast = R"=====(
    )
    (call $eosio_assert
     (i32.const 1)
-    (i32.const 288)
+    (i32.const 304)
    )
    (set_local $10
     (i32.add
@@ -6028,7 +6262,7 @@ const char* const eosio_token_wast = R"=====(
      (get_local $7)
      (i32.const 7)
     )
-    (i32.const 384)
+    (i32.const 400)
    )
    (drop
     (call $memcpy
@@ -6045,7 +6279,7 @@ const char* const eosio_token_wast = R"=====(
      )
      (i32.const 8)
     )
-    (i32.const 384)
+    (i32.const 400)
    )
    (drop
     (call $memcpy
@@ -6526,7 +6760,7 @@ const char* const eosio_token_wast = R"=====(
     (get_local $1)
     (get_local $2)
    )
-   (i32.const 992)
+   (i32.const 1008)
   )
   (call $require_auth
    (get_local $1)
@@ -6535,7 +6769,163 @@ const char* const eosio_token_wast = R"=====(
    (call $is_account
     (get_local $2)
    )
-   (i32.const 1024)
+   (i32.const 1040)
+  )
+  (set_local $10
+   (i32.const 100)
+  )
+  (block $label$0
+   (block $label$1
+    (block $label$2
+     (block $label$3
+      (block $label$4
+       (block $label$5
+        (block $label$6
+         (br_if $label$6
+          (i32.gt_u
+           (tee_local $8
+            (i32.and
+             (i32.wrap/i64
+              (get_local $1)
+             )
+             (i32.const 255)
+            )
+           )
+           (i32.const 32)
+          )
+         )
+         (block $label$7
+          (br_table $label$7 $label$5 $label$0 $label$0 $label$0 $label$4 $label$0 $label$0 $label$0 $label$0 $label$3 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$0 $label$2 $label$7
+           (get_local $8)
+          )
+         )
+         (set_local $10
+          (i32.const 1)
+         )
+         (br $label$0)
+        )
+        (br_if $label$1
+         (i32.eq
+          (get_local $8)
+          (i32.const 64)
+         )
+        )
+        (br_if $label$0
+         (i32.ne
+          (get_local $8)
+          (i32.const 99)
+         )
+        )
+        (set_local $10
+         (i32.const 62)
+        )
+        (br $label$0)
+       )
+       (set_local $10
+        (i32.const 12)
+       )
+       (br $label$0)
+      )
+      (set_local $10
+       (i32.const 14)
+      )
+      (br $label$0)
+     )
+     (set_local $10
+      (i32.const 41)
+     )
+     (br $label$0)
+    )
+    (set_local $10
+     (i32.const 31)
+    )
+    (br $label$0)
+   )
+   (set_local $10
+    (i32.const 71)
+   )
+  )
+  (call $eosio_assert
+   (get_local $10)
+   (i32.const 272)
+  )
+  (set_local $10
+   (i32.const 100)
+  )
+  (block $label$8
+   (block $label$9
+    (block $label$10
+     (block $label$11
+      (block $label$12
+       (block $label$13
+        (block $label$14
+         (br_if $label$14
+          (i32.gt_u
+           (tee_local $8
+            (i32.and
+             (i32.wrap/i64
+              (get_local $2)
+             )
+             (i32.const 255)
+            )
+           )
+           (i32.const 32)
+          )
+         )
+         (block $label$15
+          (br_table $label$15 $label$13 $label$8 $label$8 $label$8 $label$12 $label$8 $label$8 $label$8 $label$8 $label$11 $label$8 $label$8 $label$8 $label$8 $label$8 $label$8 $label$8 $label$8 $label$8 $label$8 $label$8 $label$8 $label$8 $label$8 $label$8 $label$8 $label$8 $label$8 $label$8 $label$8 $label$8 $label$10 $label$15
+           (get_local $8)
+          )
+         )
+         (set_local $10
+          (i32.const 1)
+         )
+         (br $label$8)
+        )
+        (br_if $label$9
+         (i32.eq
+          (get_local $8)
+          (i32.const 64)
+         )
+        )
+        (br_if $label$8
+         (i32.ne
+          (get_local $8)
+          (i32.const 99)
+         )
+        )
+        (set_local $10
+         (i32.const 62)
+        )
+        (br $label$8)
+       )
+       (set_local $10
+        (i32.const 12)
+       )
+       (br $label$8)
+      )
+      (set_local $10
+       (i32.const 14)
+      )
+      (br $label$8)
+     )
+     (set_local $10
+      (i32.const 41)
+     )
+     (br $label$8)
+    )
+    (set_local $10
+     (i32.const 31)
+    )
+    (br $label$8)
+   )
+   (set_local $10
+    (i32.const 71)
+   )
+  )
+  (call $eosio_assert
+   (get_local $10)
+   (i32.const 272)
   )
   (set_local $5
    (i64.load offset=8
@@ -6582,7 +6972,7 @@ const char* const eosio_token_wast = R"=====(
      (i32.const 72)
     )
     (get_local $9)
-    (i32.const 1056)
+    (i32.const 1072)
    )
   )
   (call $require_recipient
@@ -6591,8 +6981,8 @@ const char* const eosio_token_wast = R"=====(
   (call $require_recipient
    (get_local $2)
   )
-  (block $label$0
-   (br_if $label$0
+  (block $label$16
+   (br_if $label$16
     (i64.gt_u
      (i64.add
       (tee_local $7
@@ -6608,9 +6998,9 @@ const char* const eosio_token_wast = R"=====(
    (set_local $10
     (i32.const 0)
    )
-   (block $label$1
-    (loop $label$2
-     (br_if $label$1
+   (block $label$17
+    (loop $label$18
+     (br_if $label$17
       (i32.gt_u
        (i32.add
         (i32.shl
@@ -6624,8 +7014,8 @@ const char* const eosio_token_wast = R"=====(
        (i32.const 452984830)
       )
      )
-     (block $label$3
-      (br_if $label$3
+     (block $label$19
+      (br_if $label$19
        (i64.ne
         (i64.and
          (tee_local $9
@@ -6639,8 +7029,8 @@ const char* const eosio_token_wast = R"=====(
         (i64.const 0)
        )
       )
-      (loop $label$4
-       (br_if $label$1
+      (loop $label$20
+       (br_if $label$17
         (i64.ne
          (i64.and
           (tee_local $9
@@ -6654,7 +7044,7 @@ const char* const eosio_token_wast = R"=====(
          (i64.const 0)
         )
        )
-       (br_if $label$4
+       (br_if $label$20
         (i32.lt_s
          (tee_local $10
           (i32.add
@@ -6670,7 +7060,7 @@ const char* const eosio_token_wast = R"=====(
      (set_local $8
       (i32.const 1)
      )
-     (br_if $label$2
+     (br_if $label$18
       (i32.lt_s
        (tee_local $10
         (i32.add
@@ -6681,7 +7071,7 @@ const char* const eosio_token_wast = R"=====(
        (i32.const 7)
       )
      )
-     (br $label$0)
+     (br $label$16)
     )
    )
    (set_local $8
@@ -6690,14 +7080,14 @@ const char* const eosio_token_wast = R"=====(
   )
   (call $eosio_assert
    (get_local $8)
-   (i32.const 496)
+   (i32.const 512)
   )
   (call $eosio_assert
    (i64.gt_s
     (get_local $7)
     (i64.const 0)
    )
-   (i32.const 1088)
+   (i32.const 1104)
   )
   (call $eosio_assert
    (i64.eq
@@ -6706,11 +7096,11 @@ const char* const eosio_token_wast = R"=====(
      (get_local $6)
     )
    )
-   (i32.const 560)
+   (i32.const 576)
   )
-  (block $label$5
-   (block $label$6
-    (br_if $label$6
+  (block $label$21
+   (block $label$22
+    (br_if $label$22
      (i32.and
       (tee_local $10
        (i32.load8_u
@@ -6726,7 +7116,7 @@ const char* const eosio_token_wast = R"=====(
       (i32.const 1)
      )
     )
-    (br $label$5)
+    (br $label$21)
    )
    (set_local $10
     (i32.load offset=4
@@ -6739,7 +7129,7 @@ const char* const eosio_token_wast = R"=====(
     (get_local $10)
     (i32.const 257)
    )
-   (i32.const 400)
+   (i32.const 416)
   )
   (i64.store
    (tee_local $10
@@ -6893,8 +7283,8 @@ const char* const eosio_token_wast = R"=====(
    )
    (get_local $1)
   )
-  (block $label$7
-   (br_if $label$7
+  (block $label$23
+   (br_if $label$23
     (i32.eqz
      (tee_local $8
       (i32.load offset=96
@@ -6903,9 +7293,9 @@ const char* const eosio_token_wast = R"=====(
      )
     )
    )
-   (block $label$8
-    (block $label$9
-     (br_if $label$9
+   (block $label$24
+    (block $label$25
+     (br_if $label$25
       (i32.eq
        (tee_local $10
         (i32.load
@@ -6920,7 +7310,7 @@ const char* const eosio_token_wast = R"=====(
        (get_local $8)
       )
      )
-     (loop $label$10
+     (loop $label$26
       (set_local $3
        (i32.load
         (tee_local $10
@@ -6935,8 +7325,8 @@ const char* const eosio_token_wast = R"=====(
        (get_local $10)
        (i32.const 0)
       )
-      (block $label$11
-       (br_if $label$11
+      (block $label$27
+       (br_if $label$27
         (i32.eqz
          (get_local $3)
         )
@@ -6945,7 +7335,7 @@ const char* const eosio_token_wast = R"=====(
         (get_local $3)
        )
       )
-      (br_if $label$10
+      (br_if $label$26
        (i32.ne
         (get_local $8)
         (get_local $10)
@@ -6960,7 +7350,7 @@ const char* const eosio_token_wast = R"=====(
        )
       )
      )
-     (br $label$8)
+     (br $label$24)
     )
     (set_local $10
      (get_local $8)
@@ -7184,7 +7574,7 @@ const char* const eosio_token_wast = R"=====(
         )
         (i64.const 8)
        )
-       (i32.const 1120)
+       (i32.const 1136)
       )
      )
     )
@@ -7194,7 +7584,7 @@ const char* const eosio_token_wast = R"=====(
      )
     )
    )
-   (i32.const 1152)
+   (i32.const 1168)
   )
   (block $label$0
    (block $label$1
@@ -7233,7 +7623,7 @@ const char* const eosio_token_wast = R"=====(
        (i32.const 8)
       )
      )
-     (i32.const 640)
+     (i32.const 656)
     )
     (call $eosio_assert
      (i64.eq
@@ -7242,7 +7632,7 @@ const char* const eosio_token_wast = R"=====(
       )
       (call $current_receiver)
      )
-     (i32.const 688)
+     (i32.const 704)
     )
     (call $eosio_assert
      (i64.eq
@@ -7253,7 +7643,7 @@ const char* const eosio_token_wast = R"=====(
        )
       )
      )
-     (i32.const 1184)
+     (i32.const 1200)
     )
     (i64.store
      (get_local $0)
@@ -7271,7 +7661,7 @@ const char* const eosio_token_wast = R"=====(
       (get_local $4)
       (i64.const -4611686018427387904)
      )
-     (i32.const 1232)
+     (i32.const 1248)
     )
     (call $eosio_assert
      (i64.lt_s
@@ -7280,7 +7670,7 @@ const char* const eosio_token_wast = R"=====(
       )
       (i64.const 4611686018427387904)
      )
-     (i32.const 1264)
+     (i32.const 1280)
     )
     (call $eosio_assert
      (i64.eq
@@ -7297,11 +7687,11 @@ const char* const eosio_token_wast = R"=====(
        (i64.const 8)
       )
      )
-     (i32.const 864)
+     (i32.const 880)
     )
     (call $eosio_assert
      (i32.const 1)
-     (i32.const 272)
+     (i32.const 288)
     )
     (drop
      (call $memcpy
@@ -7315,7 +7705,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (call $eosio_assert
      (i32.const 1)
-     (i32.const 272)
+     (i32.const 288)
     )
     (drop
      (call $memcpy
@@ -7615,7 +8005,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (get_local $0)
    )
-   (i32.const 1296)
+   (i32.const 1312)
   )
   (call $eosio_assert
    (i64.eq
@@ -7624,7 +8014,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (call $current_receiver)
    )
-   (i32.const 1344)
+   (i32.const 1360)
   )
   (block $label$0
    (br_if $label$0
@@ -7704,7 +8094,7 @@ const char* const eosio_token_wast = R"=====(
     (get_local $7)
     (get_local $3)
    )
-   (i32.const 1408)
+   (i32.const 1424)
   )
   (set_local $8
    (i32.add
@@ -8227,6 +8617,362 @@ const char* const eosio_token_wast = R"=====(
    )
   )
  )
+ (func $_ZN5eosio5token9testchainEy (type $FUNCSIG$vij) (param $0 i32) (param $1 i64)
+  (local $2 i32)
+  (local $3 i32)
+  (i32.store offset=4
+   (i32.const 0)
+   (tee_local $3
+    (i32.sub
+     (i32.load offset=4
+      (i32.const 0)
+     )
+     (i32.const 176)
+    )
+   )
+  )
+  (set_local $2
+   (i32.const 100)
+  )
+  (loop $label$0
+   (drop
+    (call $get_active_producers
+     (get_local $3)
+     (i32.const 168)
+    )
+   )
+   (br_if $label$0
+    (tee_local $2
+     (i32.add
+      (get_local $2)
+      (i32.const -1)
+     )
+    )
+   )
+  )
+  (i32.store offset=4
+   (i32.const 0)
+   (i32.add
+    (get_local $3)
+    (i32.const 176)
+   )
+  )
+ )
+ (func $_ZN5eosio5token9testfloatEy (type $FUNCSIG$vij) (param $0 i32) (param $1 i64)
+  (local $2 f32)
+  (local $3 f64)
+  (local $4 i32)
+  (local $5 f32)
+  (local $6 f64)
+  (local $7 i64)
+  (local $8 i32)
+  (local $9 i32)
+  (set_local $6
+   (f64.promote/f32
+    (tee_local $5
+     (f32.convert_u/i64
+      (get_local $1)
+     )
+    )
+   )
+  )
+  (set_local $8
+   (i32.const 0)
+  )
+  (set_local $1
+   (i64.const 0)
+  )
+  (set_local $4
+   (i32.const 1)
+  )
+  (set_local $7
+   (i64.const 0)
+  )
+  (set_local $9
+   (i32.const 0)
+  )
+  (loop $label$0
+   (set_local $5
+    (f32.add
+     (tee_local $5
+      (f32.add
+       (tee_local $5
+        (f32.add
+         (tee_local $5
+          (f32.add
+           (tee_local $5
+            (f32.add
+             (tee_local $5
+              (f32.add
+               (tee_local $5
+                (f32.div
+                 (f32.sub
+                  (f32.mul
+                   (tee_local $2
+                    (f32.convert_s/i32
+                     (get_local $4)
+                    )
+                   )
+                   (f32.add
+                    (get_local $5)
+                    (get_local $2)
+                   )
+                  )
+                  (get_local $2)
+                 )
+                 (get_local $2)
+                )
+               )
+               (select
+                (f32.const 1)
+                (f32.const 0)
+                (f32.lt
+                 (get_local $5)
+                 (f32.const 1)
+                )
+               )
+              )
+             )
+             (select
+              (f32.const 1)
+              (f32.const 0)
+              (f32.le
+               (get_local $5)
+               (f32.const 1)
+              )
+             )
+            )
+           )
+           (select
+            (f32.const 1)
+            (f32.const 0)
+            (f32.gt
+             (get_local $5)
+             (f32.const 0)
+            )
+           )
+          )
+         )
+         (select
+          (f32.const 1)
+          (f32.const 0)
+          (f32.ge
+           (get_local $5)
+           (f32.const 0)
+          )
+         )
+        )
+       )
+       (select
+        (f32.const 1)
+        (f32.const 0)
+        (f32.ne
+         (get_local $5)
+         (f32.const 1)
+        )
+       )
+      )
+     )
+     (select
+      (f32.const 1)
+      (f32.const 0)
+      (f32.eq
+       (get_local $5)
+       (f32.const 1)
+      )
+     )
+    )
+   )
+   (set_local $6
+    (f64.add
+     (tee_local $3
+      (f64.add
+       (tee_local $3
+        (f64.add
+         (tee_local $3
+          (f64.add
+           (tee_local $3
+            (f64.add
+             (tee_local $3
+              (f64.add
+               (tee_local $3
+                (f64.div
+                 (f64.sub
+                  (f64.mul
+                   (tee_local $3
+                    (f64.promote/f32
+                     (get_local $2)
+                    )
+                   )
+                   (f64.add
+                    (get_local $6)
+                    (get_local $3)
+                   )
+                  )
+                  (get_local $3)
+                 )
+                 (get_local $3)
+                )
+               )
+               (select
+                (f64.const 1)
+                (f64.const 0)
+                (f64.lt
+                 (get_local $3)
+                 (f64.const 1)
+                )
+               )
+              )
+             )
+             (select
+              (f64.const 1)
+              (f64.const 0)
+              (f64.le
+               (get_local $3)
+               (f64.const 1)
+              )
+             )
+            )
+           )
+           (select
+            (f64.const 1)
+            (f64.const 0)
+            (f64.gt
+             (get_local $3)
+             (f64.const 0)
+            )
+           )
+          )
+         )
+         (select
+          (f64.const 1)
+          (f64.const 0)
+          (f64.ge
+           (get_local $3)
+           (f64.const 0)
+          )
+         )
+        )
+       )
+       (select
+        (f64.const 1)
+        (f64.const 0)
+        (f64.ne
+         (get_local $3)
+         (f64.const 1)
+        )
+       )
+      )
+     )
+     (select
+      (f64.const 1)
+      (f64.const 0)
+      (f64.eq
+       (get_local $3)
+       (f64.const 1)
+      )
+     )
+    )
+   )
+   (set_local $1
+    (i64.add
+     (i64.shl
+      (i64.trunc_u/f32
+       (get_local $2)
+      )
+      (i64.const 1)
+     )
+     (get_local $1)
+    )
+   )
+   (set_local $7
+    (i64.add
+     (i64.shl
+      (i64.trunc_s/f32
+       (get_local $2)
+      )
+      (i64.const 1)
+     )
+     (get_local $7)
+    )
+   )
+   (set_local $8
+    (i32.add
+     (i32.shl
+      (i32.trunc_u/f32
+       (get_local $2)
+      )
+      (i32.const 1)
+     )
+     (get_local $8)
+    )
+   )
+   (set_local $9
+    (i32.add
+     (i32.shl
+      (i32.trunc_s/f32
+       (get_local $2)
+      )
+      (i32.const 1)
+     )
+     (get_local $9)
+    )
+   )
+   (br_if $label$0
+    (i32.ne
+     (tee_local $4
+      (i32.add
+       (get_local $4)
+       (i32.const 1)
+      )
+     )
+     (i32.const 101)
+    )
+   )
+  )
+  (call $eosio_assert
+   (f32.ne
+    (get_local $5)
+    (f32.const 0)
+   )
+   (i32.const 272)
+  )
+  (call $eosio_assert
+   (f64.ne
+    (get_local $6)
+    (f64.const 0)
+   )
+   (i32.const 272)
+  )
+  (call $eosio_assert
+   (i32.ne
+    (get_local $9)
+    (i32.const 0)
+   )
+   (i32.const 272)
+  )
+  (call $eosio_assert
+   (i32.ne
+    (get_local $8)
+    (i32.const 0)
+   )
+   (i32.const 272)
+  )
+  (call $eosio_assert
+   (i64.ne
+    (get_local $7)
+    (i64.const 0)
+   )
+   (i32.const 272)
+  )
+  (call $eosio_assert
+   (i64.ne
+    (get_local $1)
+    (i64.const 0)
+   )
+   (i32.const 272)
+  )
+ )
  (func $apply (param $0 i64) (param $1 i64) (param $2 i64)
   (local $3 i32)
   (local $4 i32)
@@ -8242,7 +8988,7 @@ const char* const eosio_token_wast = R"=====(
      (i32.load offset=4
       (i32.const 0)
      )
-     (i32.const 80)
+     (i32.const 112)
     )
    )
   )
@@ -8253,7 +8999,7 @@ const char* const eosio_token_wast = R"=====(
    (i64.const 59)
   )
   (set_local $4
-   (i32.const 1472)
+   (i32.const 1488)
   )
   (set_local $7
    (i64.const 0)
@@ -8394,7 +9140,7 @@ const char* const eosio_token_wast = R"=====(
     (i64.const 59)
    )
    (set_local $4
-    (i32.const 1488)
+    (i32.const 1504)
    )
    (set_local $7
     (i64.const 0)
@@ -8526,7 +9272,7 @@ const char* const eosio_token_wast = R"=====(
      (get_local $7)
      (get_local $1)
     )
-    (i32.const 1504)
+    (i32.const 1520)
    )
   )
   (block $label$13
@@ -8544,7 +9290,7 @@ const char* const eosio_token_wast = R"=====(
      (i64.const 59)
     )
     (set_local $4
-     (i32.const 1472)
+     (i32.const 1488)
     )
     (set_local $7
      (i64.const 0)
@@ -8678,70 +9424,140 @@ const char* const eosio_token_wast = R"=====(
      )
     )
    )
-   (i64.store offset=72
+   (i64.store offset=104
     (get_local $9)
     (get_local $0)
    )
    (block $label$21
     (block $label$22
      (block $label$23
-      (br_if $label$23
-       (i64.gt_s
-        (get_local $2)
-        (i64.const 5031766152489992191)
+      (block $label$24
+       (block $label$25
+        (br_if $label$25
+         (i64.gt_s
+          (get_local $2)
+          (i64.const -3617168760277827585)
+         )
+        )
+        (br_if $label$24
+         (i64.eq
+          (get_local $2)
+          (i64.const -3841126159190327296)
+         )
+        )
+        (br_if $label$23
+         (i64.eq
+          (get_local $2)
+          (i64.const -3841126052645044224)
+         )
+        )
+        (br_if $label$13
+         (i64.ne
+          (get_local $2)
+          (i64.const -3841124327273005056)
+         )
+        )
+        (i32.store offset=60
+         (get_local $9)
+         (i32.const 0)
+        )
+        (i32.store offset=56
+         (get_local $9)
+         (i32.const 1)
+        )
+        (i64.store offset=48 align=4
+         (get_local $9)
+         (i64.load offset=56
+          (get_local $9)
+         )
+        )
+        (drop
+         (call $_ZN5eosio14execute_actionINS_5tokenES1_JyEEEbPT_MT0_FvDpT1_E
+          (i32.add
+           (get_local $9)
+           (i32.const 104)
+          )
+          (i32.add
+           (get_local $9)
+           (i32.const 48)
+          )
+         )
+        )
+        (br $label$13)
        )
-      )
-      (br_if $label$22
-       (i64.eq
-        (get_local $2)
-        (i64.const -3841126159190327296)
+       (br_if $label$22
+        (i64.eq
+         (get_local $2)
+         (i64.const -3617168760277827584)
+        )
        )
-      )
-      (br_if $label$13
-       (i64.ne
-        (get_local $2)
-        (i64.const -3617168760277827584)
+       (br_if $label$21
+        (i64.eq
+         (get_local $2)
+         (i64.const 8516769789752901632)
+        )
        )
+       (br_if $label$13
+        (i64.ne
+         (get_local $2)
+         (i64.const 5031766152489992192)
+        )
+       )
+       (i32.store offset=100
+        (get_local $9)
+        (i32.const 0)
+       )
+       (i32.store offset=96
+        (get_local $9)
+        (i32.const 2)
+       )
+       (i64.store offset=8 align=4
+        (get_local $9)
+        (i64.load offset=96
+         (get_local $9)
+        )
+       )
+       (drop
+        (call $_ZN5eosio14execute_actionINS_5tokenES1_JyNS_5assetEEEEbPT_MT0_FvDpT1_E
+         (i32.add
+          (get_local $9)
+          (i32.const 104)
+         )
+         (i32.add
+          (get_local $9)
+          (i32.const 8)
+         )
+        )
+       )
+       (br $label$13)
       )
-      (i32.store offset=52
+      (i32.store offset=76
        (get_local $9)
        (i32.const 0)
       )
-      (i32.store offset=48
+      (i32.store offset=72
        (get_local $9)
-       (i32.const 1)
+       (i32.const 3)
       )
-      (i64.store offset=24 align=4
+      (i64.store offset=32 align=4
        (get_local $9)
-       (i64.load offset=48
+       (i64.load offset=72
         (get_local $9)
        )
       )
       (drop
-       (call $_ZN5eosio14execute_actionINS_5tokenES1_JyyNS_5assetENSt3__112basic_stringIcNS3_11char_traitsIcEENS3_9allocatorIcEEEEEEEbPT_MT0_FvDpT1_E
+       (call $_ZN5eosio14execute_actionINS_5tokenES1_JyEEEbPT_MT0_FvDpT1_E
         (i32.add
          (get_local $9)
-         (i32.const 72)
+         (i32.const 104)
         )
         (i32.add
          (get_local $9)
-         (i32.const 24)
+         (i32.const 32)
         )
        )
       )
       (br $label$13)
-     )
-     (br_if $label$21
-      (i64.eq
-       (get_local $2)
-       (i64.const 8516769789752901632)
-      )
-     )
-     (br_if $label$13
-      (i64.ne
-       (get_local $2)
-       (i64.const 5031766152489992192)
-      )
      )
      (i32.store offset=68
       (get_local $9)
@@ -8749,67 +9565,67 @@ const char* const eosio_token_wast = R"=====(
      )
      (i32.store offset=64
       (get_local $9)
-      (i32.const 2)
+      (i32.const 4)
      )
-     (i64.store offset=8 align=4
+     (i64.store offset=40 align=4
       (get_local $9)
       (i64.load offset=64
        (get_local $9)
       )
      )
      (drop
-      (call $_ZN5eosio14execute_actionINS_5tokenES1_JyNS_5assetEEEEbPT_MT0_FvDpT1_E
+      (call $_ZN5eosio14execute_actionINS_5tokenES1_JyEEEbPT_MT0_FvDpT1_E
        (i32.add
         (get_local $9)
-        (i32.const 72)
+        (i32.const 104)
        )
        (i32.add
         (get_local $9)
-        (i32.const 8)
+        (i32.const 40)
        )
       )
      )
      (br $label$13)
     )
-    (i32.store offset=44
+    (i32.store offset=84
      (get_local $9)
      (i32.const 0)
     )
-    (i32.store offset=40
+    (i32.store offset=80
      (get_local $9)
-     (i32.const 3)
+     (i32.const 5)
     )
-    (i64.store offset=32 align=4
+    (i64.store offset=24 align=4
      (get_local $9)
-     (i64.load offset=40
+     (i64.load offset=80
       (get_local $9)
      )
     )
     (drop
-     (call $_ZN5eosio14execute_actionINS_5tokenES1_JyEEEbPT_MT0_FvDpT1_E
+     (call $_ZN5eosio14execute_actionINS_5tokenES1_JyyNS_5assetENSt3__112basic_stringIcNS3_11char_traitsIcEENS3_9allocatorIcEEEEEEEbPT_MT0_FvDpT1_E
       (i32.add
        (get_local $9)
-       (i32.const 72)
+       (i32.const 104)
       )
       (i32.add
        (get_local $9)
-       (i32.const 32)
+       (i32.const 24)
       )
      )
     )
     (br $label$13)
    )
-   (i32.store offset=60
+   (i32.store offset=92
     (get_local $9)
     (i32.const 0)
    )
-   (i32.store offset=56
+   (i32.store offset=88
     (get_local $9)
-    (i32.const 4)
+    (i32.const 6)
    )
    (i64.store offset=16 align=4
     (get_local $9)
-    (i64.load offset=56
+    (i64.load offset=88
      (get_local $9)
     )
    )
@@ -8817,7 +9633,7 @@ const char* const eosio_token_wast = R"=====(
     (call $_ZN5eosio14execute_actionINS_5tokenES1_JyNS_5assetENSt3__112basic_stringIcNS3_11char_traitsIcEENS3_9allocatorIcEEEEEEEbPT_MT0_FvDpT1_E
      (i32.add
       (get_local $9)
-      (i32.const 72)
+      (i32.const 104)
      )
      (i32.add
       (get_local $9)
@@ -8830,7 +9646,7 @@ const char* const eosio_token_wast = R"=====(
    (i32.const 0)
    (i32.add
     (get_local $9)
-    (i32.const 80)
+    (i32.const 112)
    )
   )
  )
@@ -8936,7 +9752,7 @@ const char* const eosio_token_wast = R"=====(
   )
   (call $eosio_assert
    (i32.const 1)
-   (i32.const 288)
+   (i32.const 304)
   )
   (set_local $6
    (i64.const 5462355)
@@ -9028,7 +9844,7 @@ const char* const eosio_token_wast = R"=====(
     (get_local $3)
     (i32.const 7)
    )
-   (i32.const 384)
+   (i32.const 400)
   )
   (drop
    (call $memcpy
@@ -9050,7 +9866,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (i32.const 8)
    )
-   (i32.const 384)
+   (i32.const 400)
   )
   (drop
    (call $memcpy
@@ -9075,7 +9891,7 @@ const char* const eosio_token_wast = R"=====(
     (get_local $7)
     (i32.const 16)
    )
-   (i32.const 384)
+   (i32.const 400)
   )
   (drop
    (call $memcpy
@@ -9342,7 +10158,7 @@ const char* const eosio_token_wast = R"=====(
   )
   (call $eosio_assert
    (i32.const 1)
-   (i32.const 288)
+   (i32.const 304)
   )
   (set_local $3
    (i64.const 5462355)
@@ -9461,7 +10277,7 @@ const char* const eosio_token_wast = R"=====(
     (get_local $2)
     (i32.const 7)
    )
-   (i32.const 384)
+   (i32.const 400)
   )
   (drop
    (call $memcpy
@@ -9486,7 +10302,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (i32.const 7)
    )
-   (i32.const 384)
+   (i32.const 400)
   )
   (drop
    (call $memcpy
@@ -9514,7 +10330,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (i32.const 7)
    )
-   (i32.const 384)
+   (i32.const 400)
   )
   (drop
    (call $memcpy
@@ -9722,7 +10538,7 @@ const char* const eosio_token_wast = R"=====(
   )
   (call $eosio_assert
    (i32.const 1)
-   (i32.const 288)
+   (i32.const 304)
   )
   (set_local $3
    (i64.const 5462355)
@@ -10011,7 +10827,7 @@ const char* const eosio_token_wast = R"=====(
     (get_local $1)
     (i32.const 7)
    )
-   (i32.const 384)
+   (i32.const 400)
   )
   (drop
    (call $memcpy
@@ -10106,7 +10922,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (i32.const 7)
    )
-   (i32.const 384)
+   (i32.const 400)
   )
   (drop
    (call $memcpy
@@ -10147,7 +10963,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (i32.const 7)
    )
-   (i32.const 384)
+   (i32.const 400)
   )
   (drop
    (call $memcpy
@@ -10186,7 +11002,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (i32.const 7)
    )
-   (i32.const 384)
+   (i32.const 400)
   )
   (drop
    (call $memcpy
@@ -10221,7 +11037,7 @@ const char* const eosio_token_wast = R"=====(
     )
     (i32.const 7)
    )
-   (i32.const 384)
+   (i32.const 400)
   )
   (drop
    (call $memcpy
@@ -10865,7 +11681,7 @@ const char* const eosio_token_wast = R"=====(
       (get_local $2)
      )
     )
-    (i32.const 1568)
+    (i32.const 1584)
    )
    (set_local $4
     (i32.load8_u
@@ -11009,7 +11825,7 @@ const char* const eosio_token_wast = R"=====(
      )
     )
    )
-   (i32.const 384)
+   (i32.const 400)
   )
   (drop
    (call $memcpy
@@ -11286,7 +12102,7 @@ const char* const eosio_token_wast = R"=====(
  )
  (func $malloc (param $0 i32) (result i32)
   (call $_ZN5eosio14memory_manager6mallocEm
-   (i32.const 1572)
+   (i32.const 1588)
    (get_local $0)
   )
  )
@@ -11531,7 +12347,7 @@ const char* const eosio_token_wast = R"=====(
          )
         )
        )
-       (i32.const 9968)
+       (i32.const 9984)
       )
       (set_local $13
        (i32.add
@@ -11755,13 +12571,13 @@ const char* const eosio_token_wast = R"=====(
    (block $label$1
     (br_if $label$1
      (i32.eqz
-      (i32.load8_u offset=10054
+      (i32.load8_u offset=10070
        (i32.const 0)
       )
      )
     )
     (set_local $7
-     (i32.load offset=10056
+     (i32.load offset=10072
       (i32.const 0)
      )
     )
@@ -11770,11 +12586,11 @@ const char* const eosio_token_wast = R"=====(
    (set_local $7
     (current_memory)
    )
-   (i32.store8 offset=10054
+   (i32.store8 offset=10070
     (i32.const 0)
     (i32.const 1)
    )
-   (i32.store offset=10056
+   (i32.store offset=10072
     (i32.const 0)
     (tee_local $7
      (i32.shl
@@ -11825,7 +12641,7 @@ const char* const eosio_token_wast = R"=====(
        )
       )
       (set_local $3
-       (i32.load offset=10056
+       (i32.load offset=10072
         (i32.const 0)
        )
       )
@@ -11833,7 +12649,7 @@ const char* const eosio_token_wast = R"=====(
      (set_local $8
       (i32.const 0)
      )
-     (i32.store offset=10056
+     (i32.store offset=10072
       (i32.const 0)
       (get_local $3)
      )
@@ -11887,18 +12703,18 @@ const char* const eosio_token_wast = R"=====(
      )
      (block $label$6
       (br_if $label$6
-       (i32.load8_u offset=10054
+       (i32.load8_u offset=10070
         (i32.const 0)
        )
       )
       (set_local $3
        (current_memory)
       )
-      (i32.store8 offset=10054
+      (i32.store8 offset=10070
        (i32.const 0)
        (i32.const 1)
       )
-      (i32.store offset=10056
+      (i32.store offset=10072
        (i32.const 0)
        (tee_local $3
         (i32.shl
@@ -11966,12 +12782,12 @@ const char* const eosio_token_wast = R"=====(
        )
       )
       (set_local $6
-       (i32.load offset=10056
+       (i32.load offset=10072
         (i32.const 0)
        )
       )
      )
-     (i32.store offset=10056
+     (i32.store offset=10072
       (i32.const 0)
       (i32.add
        (get_local $6)
@@ -12231,7 +13047,7 @@ const char* const eosio_token_wast = R"=====(
     (br_if $label$1
      (i32.lt_s
       (tee_local $2
-       (i32.load offset=9956
+       (i32.load offset=9972
         (i32.const 0)
        )
       )
@@ -12239,7 +13055,7 @@ const char* const eosio_token_wast = R"=====(
      )
     )
     (set_local $3
-     (i32.const 9764)
+     (i32.const 9780)
     )
     (set_local $1
      (i32.add
@@ -12247,7 +13063,7 @@ const char* const eosio_token_wast = R"=====(
        (get_local $2)
        (i32.const 12)
       )
-      (i32.const 9764)
+      (i32.const 9780)
      )
     )
     (loop $label$2
@@ -12339,7 +13155,7 @@ const char* const eosio_token_wast = R"=====(
     (br_if $label$0
      (i32.eqz
       (tee_local $2
-       (i32.load offset=10060
+       (i32.load offset=10076
         (i32.const 0)
        )
       )
