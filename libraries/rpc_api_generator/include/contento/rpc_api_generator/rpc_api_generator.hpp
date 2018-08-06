@@ -198,8 +198,11 @@ namespace contento {
          QualType add_typedef(const clang::QualType& qt, size_t recursion_depth);
 
          bool is_vector(const clang::QualType& qt);
+         bool is_unions(const clang::QualType& qt);
+
          bool is_vector(const string& type_name);
          string add_vector(const clang::QualType& qt, size_t recursion_depth);
+         string add_unions(const clang::QualType& qt, string full_name, size_t recursion_depth);
 
          bool is_map(const clang::QualType& qt);
          bool is_map(const string& type_name);

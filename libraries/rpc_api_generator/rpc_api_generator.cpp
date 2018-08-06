@@ -1,7 +1,7 @@
 #include <contento/rpc_api_generator/rpc_api_generator.hpp>
 #include <contento/rpc_api_generator/rpc_api_def.hpp>
 #include <boost/foreach.hpp>
-
+#include <boost/format.hpp>
 
 namespace contento {
 
@@ -418,6 +418,16 @@ bool rpc_api_generator::is_vector(const clang::QualType& vqt) {
        );
 }
 
+bool rpc_api_generator::is_unions(const clang::QualType& vqt) {
+
+   QualType qt(vqt);
+
+   if ( is_elaborated(qt) )
+      qt = qt->getAs<clang::ElaboratedType>()->getNamedType();
+
+   return isa<clang::TemplateSpecializationType>(qt.getTypePtr()) &&  boost::starts_with( get_type_name(qt, true), "fc::static_variant");
+}
+
 bool rpc_api_generator::is_vector(const string& type_name) {
   return boost::ends_with(type_name, "[]");
 }
@@ -509,6 +519,10 @@ clang::QualType rpc_api_generator::add_typedef(const clang::QualType& tqt, size_
       underlying_type_name = add_map(underlying_type, recursion_depth);
    }
 
+   if ( is_unions( underlying_type ) ){
+      return underlying_type;
+   }
+
   type_def abi_typedef;
   abi_typedef.new_type_name = new_type_name;
   abi_typedef.type = translate_type(underlying_type_name);
@@ -557,6 +571,36 @@ const clang::RecordDecl::field_range rpc_api_generator::get_struct_fields(const 
   const auto* record_type = qt->getAs<clang::RecordType>();
   ABI_ASSERT(record_type != nullptr);
   return record_type->getDecl()->fields();
+}
+
+string rpc_api_generator::add_unions(const clang::QualType& uqt, string full_name, size_t recursion_depth){
+
+   string type_name = remove_namespace(full_name);
+
+   if( find_struct(type_name) ) {
+      return type_name;
+   }
+
+   clang::QualType qt(get_named_type_if_elaborated(uqt));
+   const auto* tst = clang::dyn_cast<const clang::TemplateSpecializationType>(qt.getTypePtr());
+   ABI_ASSERT(tst != nullptr);
+
+   struct_def abi_struct;
+   for ( int i = 0; i < tst->getNumArgs(); i++){
+      auto arg = tst->getArg(i).getAsType();
+      string uion_type = add_type(arg, recursion_depth);
+      //output->operations.emplace_back(op_name);
+
+      string field_name = (boost::format("u_%d") % i).str();
+      abi_struct.fields.push_back( {field_name, uion_type}  );
+   }
+
+   abi_struct.name      = type_name;
+   abi_struct.isunion   = true;
+
+   output->structs.push_back(abi_struct);
+
+   return type_name;
 }
 
 string rpc_api_generator::add_vector(const clang::QualType& vqt, size_t recursion_depth) {
@@ -642,12 +686,6 @@ string rpc_api_generator::add_type(const clang::QualType& tqt, size_t recursion_
   string type_name      = translate_type(get_type_name(qt));
   bool   is_type_def    = false;
 
-
-   if ( type_name == "operation" ){
-      add_operation(qt, recursion_depth);
-      return type_name;
-   }
-
   if( is_builtin_type(type_name) ) {
     return type_name;
   }
@@ -659,6 +697,12 @@ string rpc_api_generator::add_type(const clang::QualType& tqt, size_t recursion_
     }
     is_type_def = true;
   }
+
+   if ( is_unions(qt) ){
+      ABI_ASSERT(is_type_def, "unions must has typedef name");
+      auto unions_type_name = add_unions(qt, full_type_name, recursion_depth);
+      return is_type_def ? type_name : unions_type_name;
+   }
 
   if( is_vector(qt) ) {
     auto vector_type_name = add_vector(qt, recursion_depth);
@@ -808,6 +852,7 @@ string rpc_api_generator::add_struct(const clang::QualType& sqt, string full_nam
 
   abi_struct.name = resolve_type(name);
   abi_struct.base = base_name;
+  abi_struct.isunion = false;
 
   output->structs.push_back(abi_struct);
 

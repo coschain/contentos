@@ -68,16 +68,17 @@ struct return_def {
 
 struct struct_def {
    struct_def() = default;
-   struct_def(const type_name& name, const type_name& base, const vector<field_def>& fields)
-   :name(name), base(base), fields(fields)
+   struct_def(const type_name& name, const type_name& base, const vector<field_def>& fields, const bool isunion)
+   :name(name), base(base), fields(fields), isunion(isunion)
    {}
 
    type_name            name;
    type_name            base;
    vector<field_def>    fields;
+   bool                 isunion;
 
    bool operator==(const struct_def& other) const {
-      return std::tie(name, base, fields) == std::tie(other.name, other.base, other.fields);
+      return std::tie(name, base, fields, isunion) == std::tie(other.name, other.base, other.fields, isunion);
    }
 };
 
@@ -152,6 +153,6 @@ FC_REFLECT( contento::rpc_api::field_def                        , (name)(type) )
 FC_REFLECT( contento::rpc_api::function_def                        , (name)(fields)(ret) )
 
 FC_REFLECT( contento::rpc_api::return_def                       , (type) )
-FC_REFLECT( contento::rpc_api::struct_def                       , (name)(base)(fields) )
+FC_REFLECT( contento::rpc_api::struct_def                       , (name)(base)(fields)(isunion) )
 FC_REFLECT( contento::rpc_api::class_def                       , (name)(functions) )
 FC_REFLECT( contento::rpc_api::abi_def                          , (version)(types)(structs)(operations)(classes) )
