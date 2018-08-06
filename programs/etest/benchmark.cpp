@@ -157,9 +157,16 @@ namespace wasm_benchmark {
         intrinsics.emplace_back(root_id);
         stack.push_back(intrinsics.back());
         
-        std::vector<uint64_t> import_durations;
+        std::map<std::string, std::vector<uint64_t>> import_stats;
+        std::vector< std::pair<std::string,uint64_t> > import_durations;
         for (size_t i = 0; i < g_call_import_events.size(); i+=2) {
-            import_durations.push_back( std::get<0>(g_call_import_events[i + 1]) - std::get<0>(g_call_import_events[i]) );
+            std::string name = g_imports[std::get<1>(g_call_import_events[i])];
+            uint64_t duration = std::get<0>(g_call_import_events[i + 1]) - std::get<0>(g_call_import_events[i]);
+            import_durations.push_back( std::make_pair(name, duration) );
+            if (import_stats.find(name) == import_stats.end()) {
+                import_stats[name] = std::vector<uint64_t>();
+            }
+            import_stats[name].push_back(duration);
         }
         
         size_t call_import_idx = 0;
@@ -181,7 +188,7 @@ namespace wasm_benchmark {
                 if (e._id == CallImportId) {
                     intrinsics.emplace_back(import_id);
                     auto n = intrinsics.back();
-                    n.set_begin(t - import_durations[call_import_idx++]);
+                    n.set_begin(t - import_durations[call_import_idx++].second);
                     n.set_end(t);
                     e.add_child(n);
                 }
@@ -194,6 +201,7 @@ namespace wasm_benchmark {
         for (auto e: root._children) {
             collect_intrinsic_costs(e, costs);
         }
+        std::cout << "==== Intrinsics ====" << std::endl;
         for (auto i: costs) {
             uint64_t _id = i.first;
             if (_id == root_id || _id == import_id)
@@ -205,10 +213,19 @@ namespace wasm_benchmark {
             uint64_t r = (values.size() % 2)? values[mid] : (values[mid] + values[mid + 1]) / 2;
             std::cout << g_wasm_names[(WasmId)_id] << "\t" << r << std::endl;
         }
+        
+        std::cout << "==== Imports ====" << std::endl;
+        for (auto import: import_stats) {
+            auto& values = import.second;
+            std::sort(values.begin(), values.end());
+            size_t mid = (values.size() - 1) / 2;
+            uint64_t r = (values.size() % 2)? values[mid] : (values[mid] + values[mid + 1]) / 2;
+            std::cout << import.first << "\t" << r << std::endl;
+        }
     }
     
     void show_result() {
-        std::cout << "==== Intrinsics ====" << std::endl;
+
         show_intrinsic_result();
     }
 }
