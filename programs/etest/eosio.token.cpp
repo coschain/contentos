@@ -287,7 +287,7 @@ void token::testcrypto( account_name name )
 	checksum160 h_ripemd;
 	checksum256 h_sha256;
 	checksum512 h_sha512;
-	char data[16];
+	char data[4096];
 	
 	for (int i=0; i<100; i++) {
 		sha1(data, 0, &h_sha1);

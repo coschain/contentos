@@ -39,7 +39,7 @@ namespace eosio {
          void testcb( account_name name );
          void testchain( account_name name );
          void testfloat( account_name name );
-         void testcrypto( account_name name )
+         void testcrypto( account_name name );
 
       private:
          struct account {

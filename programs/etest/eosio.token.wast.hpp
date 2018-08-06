@@ -25,6 +25,7 @@ const char* const eosio_token_wast = R"=====(
  (type $FUNCSIG$ijj (func (param i64 i64) (result i32)))
  (type $FUNCSIG$fjj (func (param i64 i64) (result f32)))
  (type $FUNCSIG$iii (func (param i32 i32) (result i32)))
+ (type $FUNCSIG$viii (func (param i32 i32 i32)))
  (type $FUNCSIG$i (func (result i32)))
  (import "env" "__addtf3" (func $__addtf3 (param i32 i64 i64 i64 i64)))
  (import "env" "__ashlti3" (func $__ashlti3 (param i32 i64 i64 i32)))
@@ -71,6 +72,10 @@ const char* const eosio_token_wast = R"=====(
  (import "env" "__unordtf2" (func $__unordtf2 (param i64 i64 i64 i64) (result i32)))
  (import "env" "abort" (func $abort))
  (import "env" "action_data_size" (func $action_data_size (result i32)))
+ (import "env" "assert_ripemd160" (func $assert_ripemd160 (param i32 i32 i32)))
+ (import "env" "assert_sha1" (func $assert_sha1 (param i32 i32 i32)))
+ (import "env" "assert_sha256" (func $assert_sha256 (param i32 i32 i32)))
+ (import "env" "assert_sha512" (func $assert_sha512 (param i32 i32 i32)))
  (import "env" "current_receiver" (func $current_receiver (result i64)))
  (import "env" "current_time" (func $current_time (result i64)))
  (import "env" "db_find_i64" (func $db_find_i64 (param i64 i64 i64 i64) (result i32)))
@@ -86,9 +91,13 @@ const char* const eosio_token_wast = R"=====(
  (import "env" "require_auth" (func $require_auth (param i64)))
  (import "env" "require_auth2" (func $require_auth2 (param i64 i64)))
  (import "env" "require_recipient" (func $require_recipient (param i64)))
+ (import "env" "ripemd160" (func $ripemd160 (param i32 i32 i32)))
  (import "env" "send_inline" (func $send_inline (param i32 i32)))
- (table 7 7 anyfunc)
- (elem (i32.const 0) $__wasm_nullptr $_ZN5eosio5token9testfloatEy $_ZN5eosio5token6createEyNS_5assetE $_ZN5eosio5token6testcbEy $_ZN5eosio5token9testchainEy $_ZN5eosio5token8transferEyyNS_5assetENSt3__112basic_stringIcNS2_11char_traitsIcEENS2_9allocatorIcEEEE $_ZN5eosio5token5issueEyNS_5assetENSt3__112basic_stringIcNS2_11char_traitsIcEENS2_9allocatorIcEEEE)
+ (import "env" "sha1" (func $sha1 (param i32 i32 i32)))
+ (import "env" "sha256" (func $sha256 (param i32 i32 i32)))
+ (import "env" "sha512" (func $sha512 (param i32 i32 i32)))
+ (table 8 8 anyfunc)
+ (elem (i32.const 0) $__wasm_nullptr $_ZN5eosio5token8transferEyyNS_5assetENSt3__112basic_stringIcNS2_11char_traitsIcEENS2_9allocatorIcEEEE $_ZN5eosio5token10testcryptoEy $_ZN5eosio5token6createEyNS_5assetE $_ZN5eosio5token9testfloatEy $_ZN5eosio5token6testcbEy $_ZN5eosio5token9testchainEy $_ZN5eosio5token5issueEyNS_5assetENSt3__112basic_stringIcNS2_11char_traitsIcEENS2_9allocatorIcEEEE)
  (memory $0 1)
  (data (i32.const 4) "`g\00\00")
  (data (i32.const 16) "invalid symbol name\00")
@@ -148,6 +157,7 @@ const char* const eosio_token_wast = R"=====(
  (export "_ZN5eosio5token6testcbEy" (func $_ZN5eosio5token6testcbEy))
  (export "_ZN5eosio5token9testchainEy" (func $_ZN5eosio5token9testchainEy))
  (export "_ZN5eosio5token9testfloatEy" (func $_ZN5eosio5token9testfloatEy))
+ (export "_ZN5eosio5token10testcryptoEy" (func $_ZN5eosio5token10testcryptoEy))
  (export "apply" (func $apply))
  (export "malloc" (func $malloc))
  (export "free" (func $free))
@@ -8973,6 +8983,105 @@ const char* const eosio_token_wast = R"=====(
    (i32.const 272)
   )
  )
+ (func $_ZN5eosio5token10testcryptoEy (type $FUNCSIG$vij) (param $0 i32) (param $1 i64)
+  (local $2 i32)
+  (local $3 i32)
+  (i32.store offset=4
+   (i32.const 0)
+   (tee_local $3
+    (i32.sub
+     (i32.load offset=4
+      (i32.const 0)
+     )
+     (i32.const 4256)
+    )
+   )
+  )
+  (set_local $2
+   (i32.const 100)
+  )
+  (loop $label$0
+   (call $sha1
+    (get_local $3)
+    (i32.const 0)
+    (i32.add
+     (get_local $3)
+     (i32.const 4224)
+    )
+   )
+   (call $ripemd160
+    (get_local $3)
+    (i32.const 0)
+    (i32.add
+     (get_local $3)
+     (i32.const 4192)
+    )
+   )
+   (call $sha256
+    (get_local $3)
+    (i32.const 0)
+    (i32.add
+     (get_local $3)
+     (i32.const 4160)
+    )
+   )
+   (call $sha512
+    (get_local $3)
+    (i32.const 0)
+    (i32.add
+     (get_local $3)
+     (i32.const 4096)
+    )
+   )
+   (call $assert_sha1
+    (get_local $3)
+    (i32.const 0)
+    (i32.add
+     (get_local $3)
+     (i32.const 4224)
+    )
+   )
+   (call $assert_ripemd160
+    (get_local $3)
+    (i32.const 0)
+    (i32.add
+     (get_local $3)
+     (i32.const 4192)
+    )
+   )
+   (call $assert_sha256
+    (get_local $3)
+    (i32.const 0)
+    (i32.add
+     (get_local $3)
+     (i32.const 4160)
+    )
+   )
+   (call $assert_sha512
+    (get_local $3)
+    (i32.const 0)
+    (i32.add
+     (get_local $3)
+     (i32.const 4096)
+    )
+   )
+   (br_if $label$0
+    (tee_local $2
+     (i32.add
+      (get_local $2)
+      (i32.const -1)
+     )
+    )
+   )
+  )
+  (i32.store offset=4
+   (i32.const 0)
+   (i32.add
+    (get_local $3)
+    (i32.const 4256)
+   )
+  )
+ )
  (func $apply (param $0 i64) (param $1 i64) (param $2 i64)
   (local $3 i32)
   (local $4 i32)
@@ -8988,7 +9097,7 @@ const char* const eosio_token_wast = R"=====(
      (i32.load offset=4
       (i32.const 0)
      )
-     (i32.const 112)
+     (i32.const 128)
     )
    )
   )
@@ -9424,7 +9533,7 @@ const char* const eosio_token_wast = R"=====(
      )
     )
    )
-   (i64.store offset=104
+   (i64.store offset=120
     (get_local $9)
     (get_local $0)
    )
@@ -9433,19 +9542,66 @@ const char* const eosio_token_wast = R"=====(
      (block $label$23
       (block $label$24
        (block $label$25
-        (br_if $label$25
-         (i64.gt_s
-          (get_local $2)
-          (i64.const -3617168760277827585)
+        (block $label$26
+         (br_if $label$26
+          (i64.le_s
+           (get_local $2)
+           (i64.const -3841124327273005057)
+          )
          )
+         (br_if $label$25
+          (i64.gt_s
+           (get_local $2)
+           (i64.const 5031766152489992191)
+          )
+         )
+         (br_if $label$24
+          (i64.eq
+           (get_local $2)
+           (i64.const -3841124327273005056)
+          )
+         )
+         (br_if $label$13
+          (i64.ne
+           (get_local $2)
+           (i64.const -3617168760277827584)
+          )
+         )
+         (i32.store offset=100
+          (get_local $9)
+          (i32.const 0)
+         )
+         (i32.store offset=96
+          (get_local $9)
+          (i32.const 1)
+         )
+         (i64.store offset=24 align=4
+          (get_local $9)
+          (i64.load offset=96
+           (get_local $9)
+          )
+         )
+         (drop
+          (call $_ZN5eosio14execute_actionINS_5tokenES1_JyyNS_5assetENSt3__112basic_stringIcNS3_11char_traitsIcEENS3_9allocatorIcEEEEEEEbPT_MT0_FvDpT1_E
+           (i32.add
+            (get_local $9)
+            (i32.const 120)
+           )
+           (i32.add
+            (get_local $9)
+            (i32.const 24)
+           )
+          )
+         )
+         (br $label$13)
         )
-        (br_if $label$24
+        (br_if $label$23
          (i64.eq
           (get_local $2)
           (i64.const -3841126159190327296)
          )
         )
-        (br_if $label$23
+        (br_if $label$22
          (i64.eq
           (get_local $2)
           (i64.const -3841126052645044224)
@@ -9454,20 +9610,20 @@ const char* const eosio_token_wast = R"=====(
         (br_if $label$13
          (i64.ne
           (get_local $2)
-          (i64.const -3841124327273005056)
+          (i64.const -3841125867840536576)
          )
         )
-        (i32.store offset=60
+        (i32.store offset=68
          (get_local $9)
          (i32.const 0)
         )
-        (i32.store offset=56
+        (i32.store offset=64
          (get_local $9)
-         (i32.const 1)
+         (i32.const 2)
         )
-        (i64.store offset=48 align=4
+        (i64.store offset=56 align=4
          (get_local $9)
-         (i64.load offset=56
+         (i64.load offset=64
           (get_local $9)
          )
         )
@@ -9475,21 +9631,15 @@ const char* const eosio_token_wast = R"=====(
          (call $_ZN5eosio14execute_actionINS_5tokenES1_JyEEEbPT_MT0_FvDpT1_E
           (i32.add
            (get_local $9)
-           (i32.const 104)
+           (i32.const 120)
           )
           (i32.add
            (get_local $9)
-           (i32.const 48)
+           (i32.const 56)
           )
          )
         )
         (br $label$13)
-       )
-       (br_if $label$22
-        (i64.eq
-         (get_local $2)
-         (i64.const -3617168760277827584)
-        )
        )
        (br_if $label$21
         (i64.eq
@@ -9503,17 +9653,17 @@ const char* const eosio_token_wast = R"=====(
          (i64.const 5031766152489992192)
         )
        )
-       (i32.store offset=100
+       (i32.store offset=116
         (get_local $9)
         (i32.const 0)
        )
-       (i32.store offset=96
+       (i32.store offset=112
         (get_local $9)
-        (i32.const 2)
+        (i32.const 3)
        )
        (i64.store offset=8 align=4
         (get_local $9)
-        (i64.load offset=96
+        (i64.load offset=112
          (get_local $9)
         )
        )
@@ -9521,7 +9671,7 @@ const char* const eosio_token_wast = R"=====(
         (call $_ZN5eosio14execute_actionINS_5tokenES1_JyNS_5assetEEEEbPT_MT0_FvDpT1_E
          (i32.add
           (get_local $9)
-          (i32.const 104)
+          (i32.const 120)
          )
          (i32.add
           (get_local $9)
@@ -9537,9 +9687,9 @@ const char* const eosio_token_wast = R"=====(
       )
       (i32.store offset=72
        (get_local $9)
-       (i32.const 3)
+       (i32.const 4)
       )
-      (i64.store offset=32 align=4
+      (i64.store offset=48 align=4
        (get_local $9)
        (i64.load offset=72
         (get_local $9)
@@ -9549,27 +9699,27 @@ const char* const eosio_token_wast = R"=====(
        (call $_ZN5eosio14execute_actionINS_5tokenES1_JyEEEbPT_MT0_FvDpT1_E
         (i32.add
          (get_local $9)
-         (i32.const 104)
+         (i32.const 120)
         )
         (i32.add
          (get_local $9)
-         (i32.const 32)
+         (i32.const 48)
         )
        )
       )
       (br $label$13)
      )
-     (i32.store offset=68
+     (i32.store offset=92
       (get_local $9)
       (i32.const 0)
      )
-     (i32.store offset=64
+     (i32.store offset=88
       (get_local $9)
-      (i32.const 4)
+      (i32.const 5)
      )
-     (i64.store offset=40 align=4
+     (i64.store offset=32 align=4
       (get_local $9)
-      (i64.load offset=64
+      (i64.load offset=88
        (get_local $9)
       )
      )
@@ -9577,11 +9727,11 @@ const char* const eosio_token_wast = R"=====(
       (call $_ZN5eosio14execute_actionINS_5tokenES1_JyEEEbPT_MT0_FvDpT1_E
        (i32.add
         (get_local $9)
-        (i32.const 104)
+        (i32.const 120)
        )
        (i32.add
         (get_local $9)
-        (i32.const 40)
+        (i32.const 32)
        )
       )
      )
@@ -9593,39 +9743,39 @@ const char* const eosio_token_wast = R"=====(
     )
     (i32.store offset=80
      (get_local $9)
-     (i32.const 5)
+     (i32.const 6)
     )
-    (i64.store offset=24 align=4
+    (i64.store offset=40 align=4
      (get_local $9)
      (i64.load offset=80
       (get_local $9)
      )
     )
     (drop
-     (call $_ZN5eosio14execute_actionINS_5tokenES1_JyyNS_5assetENSt3__112basic_stringIcNS3_11char_traitsIcEENS3_9allocatorIcEEEEEEEbPT_MT0_FvDpT1_E
+     (call $_ZN5eosio14execute_actionINS_5tokenES1_JyEEEbPT_MT0_FvDpT1_E
       (i32.add
        (get_local $9)
-       (i32.const 104)
+       (i32.const 120)
       )
       (i32.add
        (get_local $9)
-       (i32.const 24)
+       (i32.const 40)
       )
      )
     )
     (br $label$13)
    )
-   (i32.store offset=92
+   (i32.store offset=108
     (get_local $9)
     (i32.const 0)
    )
-   (i32.store offset=88
+   (i32.store offset=104
     (get_local $9)
-    (i32.const 6)
+    (i32.const 7)
    )
    (i64.store offset=16 align=4
     (get_local $9)
-    (i64.load offset=88
+    (i64.load offset=104
      (get_local $9)
     )
    )
@@ -9633,7 +9783,7 @@ const char* const eosio_token_wast = R"=====(
     (call $_ZN5eosio14execute_actionINS_5tokenES1_JyNS_5assetENSt3__112basic_stringIcNS3_11char_traitsIcEENS3_9allocatorIcEEEEEEEbPT_MT0_FvDpT1_E
      (i32.add
       (get_local $9)
-      (i32.const 104)
+      (i32.const 120)
      )
      (i32.add
       (get_local $9)
@@ -9646,7 +9796,7 @@ const char* const eosio_token_wast = R"=====(
    (i32.const 0)
    (i32.add
     (get_local $9)
-    (i32.const 112)
+    (i32.const 128)
    )
   )
  )
