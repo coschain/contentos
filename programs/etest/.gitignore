@@ -1,0 +1,4 @@
+*.abi
+*.wasm
+*.wast
+
