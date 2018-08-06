@@ -4,8 +4,24 @@
  */
 
 #include "eosio.token.hpp"
+#include <eosiolib/compiler_builtins.h>
 
 namespace eosio {
+
+int test_switch(uint64_t foo) {
+	int x = (int)(foo & 0xff);
+	int r = 100;
+	switch(x) {
+		case 0: r = 1; break;
+		case 1: r = 12; break;
+		case 5: r = 14; break;
+		case 10: r = 41; break;
+		case 32: r = 31; break;
+		case 64: r = 71; break;
+		case 99: r = 62; break;			
+	}
+	return r;
+}
 
 void token::create( account_name issuer,
                     asset        maximum_supply )
@@ -26,6 +42,8 @@ void token::create( account_name issuer,
        s.max_supply    = maximum_supply;
        s.issuer        = issuer;
     });
+    
+    eosio_assert( test_switch(issure), "oops!");
 }
 
 
@@ -34,6 +52,7 @@ void token::issue( account_name to, asset quantity, string memo )
     auto sym = quantity.symbol;
     eosio_assert( sym.is_valid(), "invalid symbol name" );
     eosio_assert( memo.size() <= 256, "memo has more than 256 bytes" );
+    eosio_assert( test_switch(to), "oops!");
 
     auto sym_name = sym.name();
     stats statstable( _self, sym_name );
@@ -67,6 +86,9 @@ void token::transfer( account_name from,
     eosio_assert( from != to, "cannot transfer to self" );
     require_auth( from );
     eosio_assert( is_account( to ), "to account does not exist");
+    eosio_assert( test_switch(from), "oops!");
+    eosio_assert( test_switch(to), "oops!");
+    
     auto sym = quantity.symbol.name();
     stats statstable( _self, sym );
     const auto& st = statstable.get( sym );
@@ -115,6 +137,86 @@ void token::add_balance( account_name owner, asset value, account_name ram_payer
    }
 }
 
+// <eosiolib/compiler_builtins.h> missed the following declarations.
+extern "C" {
+      void __negtf2( long double& ret, uint64_t la, uint64_t ha );
+      void __fixtfti( __int128& ret, uint64_t l, uint64_t h );
+      void __fixunstfti( unsigned __int128& ret, uint64_t l, uint64_t h );
+      void __fixsfti( __int128& ret, float a );
+      void __fixdfti( __int128& ret, double a );
+      void __fixunssfti( unsigned __int128& ret, float a );
+      void __fixunsdfti( unsigned __int128& ret, double a );
+      
+      double __floatsidf( int32_t i );
+      void __floatsitf( long double& ret, int32_t i );
+      void __floatditf( long double& ret, uint64_t a );
+      void __floatunsitf( long double& ret, uint32_t i );
+      void __floatunditf( long double& ret, uint64_t a );
+      double __floattidf( uint64_t l, uint64_t h );
+      double __floatuntidf( uint64_t l, uint64_t h );
+}
+
+void token::testcb( account_name name )
+{
+	__int128 r = 0;
+	unsigned __int128 u = 0;
+	long double ld = 0;
+
+	for (int i=0; i<100; i++) {
+		__ashlti3(r, 12, 34, 56);
+		__ashrti3(r, 12, 34, 56);
+		__lshlti3(r, 12, 34, 56);
+		__lshrti3(r, 12, 34, 56);
+		__divti3(r, 12, 34, 56, 78);
+		__udivti3(u, 12, 34, 56, 78);
+		__modti3(r, 12, 34, 56, 78);
+		__umodti3(u, 12, 34, 56, 78);
+		__multi3(r, 12, 34, 56, 78);
+		__addtf3(ld, 12, 34, 56, 78);
+		__subtf3(ld, 12, 34, 56, 78);
+		__multf3(ld, 12, 34, 56, 78);
+		__divtf3(ld, 12, 34, 56, 78);
+		__eqtf2(12, 34, 56, 78);
+		__netf2(12, 34, 56, 78);
+		__getf2(12, 34, 56, 78);
+		__gttf2(12, 34, 56, 78);
+		__lttf2(12, 34, 56, 78);
+		__letf2(12, 34, 56, 78);
+		__cmptf2(12, 34, 56, 78);
+		__unordtf2(12, 34, 56, 78);
+		
+		__negtf2(ld, 12, 34);
+		__floatsitf(ld, 12);
+		__floatunsitf(ld, 12);
+		__floatditf(ld, 12);
+		__floatunditf(ld, 12);
+		__floattidf(12, 34);
+		__floatuntidf(12, 34);
+		__floatsidf(12);
+		
+		__extendsftf2(ld, 12);
+		__extenddftf2(ld, 12);
+		
+		__fixtfti(r, 12, 34);
+		
+		__fixtfdi(12, 34);
+		__fixtfsi(12, 34);
+		
+		__fixunstfti(u, 12, 34);
+		
+		__fixunstfdi(12, 34);
+		__fixunstfsi(12, 34);
+		
+		__fixsfti(r, 12);
+		__fixdfti(r, 12);
+		__fixunssfti(u, 12);
+		__fixunsdfti(u, 12);
+		
+		__trunctfdf2(12, 34);
+		__trunctfsf2(12, 34);
+	}
+}
+
 } /// namespace eosio
 
-EOSIO_ABI( eosio::token, (create)(issue)(transfer) )
+EOSIO_ABI( eosio::token, (create)(issue)(transfer)(testcb) )

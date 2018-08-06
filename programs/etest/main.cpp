@@ -33,6 +33,12 @@ transaction_trace_ptr transfer( tester& tester, name from, name to, const string
                              );
 }
 
+transaction_trace_ptr test_compiler_builtins( tester& tester, name foo ) {
+    return tester.push_action( N(eosio.token), N(testcb), foo, mutable_variant_object()
+                              ("name",    foo)
+                              );
+}
+
 #define CORE_AMOUNT(s)  (s " " CORE_SYMBOL_NAME)
 
 void test_eosio() {
@@ -60,6 +66,8 @@ void test_eosio() {
     // bob -> alice: 2.5k
     trace_ptr = transfer( tester, N(alice), N(bob), CORE_AMOUNT("3000.0000"), N(alice) );
     trace_ptr = transfer( tester, N(bob), N(alice), CORE_AMOUNT("2500.0000"), N(bob) );
+    
+    trace_ptr = test_compiler_builtins( tester, N(alice) );
 }
 
 int main(int argc, char** argv) {
