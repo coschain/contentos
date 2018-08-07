@@ -630,24 +630,24 @@ namespace contento { namespace protocol {
 
    typedef fc::static_variant< pow2, equihash_pow > pow2_work;
 
-   struct pow2_operation : public base_operation
-   {
-      pow2_work                     work;
-      optional< public_key_type >   new_owner_key;
-      chain_properties              props;
-
-      void validate()const;
-
-      void get_required_active_authorities( flat_set<account_name_type>& a )const;
-
-      void get_required_authorities( vector< authority >& a )const
-      {
-         if( new_owner_key )
-         {
-            a.push_back( authority( 1, *new_owner_key, 1 ) );
-         }
-      }
-   };
+//   struct pow2_operation : public base_operation
+//   {
+//      pow2_work                     work;
+//      optional< public_key_type >   new_owner_key;
+//      chain_properties              props;
+//
+//      void validate()const;
+//
+//      void get_required_active_authorities( flat_set<account_name_type>& a )const;
+//
+//      void get_required_authorities( vector< authority >& a )const
+//      {
+//         if( new_owner_key )
+//         {
+//            a.push_back( authority( 1, *new_owner_key, 1 ) );
+//         }
+//      }
+//   };
 
 
    /**
@@ -971,7 +971,7 @@ FC_REFLECT( contento::protocol::chain_properties, (account_creation_fee)(maximum
 
 FC_REFLECT_TYPENAME( contento::protocol::pow2_work )
 FC_REFLECT( contento::protocol::pow_operation, (worker_account)(block_id)(nonce)(work)(props) )
-FC_REFLECT( contento::protocol::pow2_operation, (work)(new_owner_key)(props) )
+//FC_REFLECT( contento::protocol::pow2_operation, (work)(new_owner_key)(props) )
 
 FC_REFLECT( contento::protocol::admin_grant_operation, (creator)(nominee)(type)(is_grant))
 FC_REFLECT( contento::protocol::comment_report_operation, (reporter)(author)(permlink)(credit)(tag)(is_ack)(approved))
