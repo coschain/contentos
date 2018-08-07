@@ -777,12 +777,14 @@ signed_block database::_generate_block(
    size_t total_block_size = max_block_header_size;
 
    signed_block pending_block;
-   uint32_t skip_new;
-   pending_block.previous = head_block_id();
+   _current_trx_in_block = 0;
 
-   if ( _checkpoints.size() && _checkpoints.rbegin()->second != block_id_type() ) {
-       skip_new = process_checkpoints( pending_block, skip );
-   }
+   // i don't think _checkpoints should exists, so delete it
+   //uint32_t skip_new;
+   //pending_block.previous = head_block_id();
+   //if ( _checkpoints.size() && _checkpoints.rbegin()->second != block_id_type() ) {
+   //    skip_new = process_checkpoints( pending_block, skip );
+   //}
 
    with_write_lock( [&]()
    {
@@ -820,10 +822,10 @@ signed_block database::_generate_block(
          }
 
          auto temp_session = start_undo_session( true );
-         try{
+         try {
              //_apply_transaction( trx_wrapper );
 
-            detail::with_skip_flags( *this, skip_new, [&]()
+            detail::with_skip_flags( *this, skip, [&]()
             {
                 _apply_transaction( trx_wrapper );
             });
@@ -832,6 +834,7 @@ signed_block database::_generate_block(
 
              total_block_size += fc::raw::pack_size( trx_wrapper );
              pending_block.transactions.push_back( trx_wrapper );
+             ++_current_trx_in_block;
          }
          catch ( const fc::exception& e )
          {
@@ -886,7 +889,7 @@ signed_block database::_generate_block(
    // However, the push_block() call below will re-create the
    // _pending_tx_session.
 
-   //pending_block.previous = head_block_id();
+   pending_block.previous = head_block_id();
    pending_block.timestamp = when;
    pending_block.transaction_merkle_root = pending_block.calculate_merkle_root();
    pending_block.witness = witness_owner;
@@ -921,7 +924,7 @@ signed_block database::_generate_block(
    {
       FC_ASSERT( fc::raw::pack_size(pending_block) <= CONTENTO_MAX_BLOCK_SIZE );
    }
-   
+
    _pending_tx_session.push();
 
     
@@ -2449,14 +2452,14 @@ void database::apply_block( const signed_block& next_block, uint32_t skip )
    }
    */
    
-    if ( _checkpoints.size() && _checkpoints.rbegin()->second != block_id_type() ) {
-       auto skip_tmp = process_checkpoints( next_block, skip );
-       if( skip & skip_apply_transaction ) {
-           skip = skip_tmp | skip_apply_transaction;
-       } else {
-           skip = skip_tmp;
-       }
-    }
+    //if ( _checkpoints.size() && _checkpoints.rbegin()->second != block_id_type() ) {
+    //   auto skip_tmp = process_checkpoints( next_block, skip );
+    //   if( skip & skip_apply_transaction ) {
+    //       skip = skip_tmp | skip_apply_transaction;
+    //   } else {
+    //       skip = skip_tmp;
+    //   }
+    //}
 
    detail::with_skip_flags( *this, skip, [&]()
    {
