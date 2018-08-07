@@ -58,6 +58,8 @@ namespace contento { namespace rpc_api {
       built_in_types.emplace("id_type",                 1);
       built_in_types.emplace("string16",                 1);
       built_in_types.emplace("asset",                     1);
+      built_in_types.emplace("extensions_type",                     1);
+
       //built_in_types.emplace("comment_options_extension",                     1);
 
 

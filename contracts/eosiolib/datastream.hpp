@@ -19,6 +19,7 @@
 
 #include <boost/pfr.hpp>
 
+#include <eosiolib/static_variant.hpp>
 
 namespace eosio {
 
@@ -221,6 +222,18 @@ inline datastream<Stream>& operator<<(datastream<Stream>& ds, const checksum256&
 template<typename Stream>
 inline datastream<Stream>& operator>>(datastream<Stream>& ds, checksum256& d) {
    ds.read((char*)&d.hash[0], sizeof(d.hash) );
+   return ds;
+}
+
+template<typename DataStream>
+DataStream& operator << ( DataStream& ds, const name& v ) {
+   ds << v.value;
+   return ds;
+}
+
+template<typename DataStream>
+DataStream& operator >> ( DataStream& ds, name& v ) {
+   ds >> v.value;
    return ds;
 }
 
@@ -455,20 +468,72 @@ DataStream& operator>>( DataStream& ds, std::tuple<Args...>& t ) {
    return ds;
 }
 
-template<typename DataStream, typename T, std::enable_if_t<std::is_class<T>::value>* = nullptr>
-DataStream& operator<<( DataStream& ds, const T& v ) {
-   boost::pfr::for_each_field(v, [&](const auto& field) {
-      ds << field;
-   });
-   return ds;
+
+template<typename Stream>
+struct pack_static_variant
+{
+  Stream& stream;
+  pack_static_variant( Stream& s ):stream(s){}
+
+  typedef void result_type;
+  template<typename T> void operator()( const T& v )const
+  {
+      stream << v;
+  }
+};
+
+template<typename Stream>
+struct unpack_static_variant
+{
+  Stream& stream;
+  unpack_static_variant( Stream& s ):stream(s){}
+
+  typedef void result_type;
+  template<typename T> void operator()( T& v )const
+  {
+      stream >> v;
+  }
+};
+
+template<typename Datastream, typename... T > 
+Datastream& operator <<( Datastream& ds, const static_variant<T...>& s )
+{
+  ds << unsigned_int(s.which());
+  s.visit( pack_static_variant<Datastream>(ds) );
+  return ds;
+//   ds << 
+//   s.visit( from_static_variant(vars[1]) );
+//   v = std::move(vars);
 }
-template<typename DataStream, typename T, std::enable_if_t<std::is_class<T>::value>* = nullptr>
-DataStream& operator>>( DataStream& ds, T& v ) {
-   boost::pfr::for_each_field(v, [&](auto& field) {
-      ds >> field;
-   });
-   return ds;
+
+template<typename Datastream, typename... T > 
+Datastream& operator >>( Datastream& ds, static_variant<T...>& s )
+{
+  unsigned_int which;
+  ds >> which;
+  s.set_which( which );
+  s.visit( unpack_static_variant<Datastream>(ds) );
+  return ds;
+
+//   ds << 
+//   s.visit( from_static_variant(vars[1]) );
+//   v = std::move(vars);
 }
+
+// template<typename DataStream, typename T, std::enable_if_t<std::is_class<T>::value>* = nullptr>
+// DataStream& operator<<( DataStream& ds, const T& v ) {
+//    boost::pfr::for_each_field(v, [&](const auto& field) {
+//       ds << field;
+//    });
+//    return ds;
+// }
+// template<typename DataStream, typename T, std::enable_if_t<std::is_class<T>::value>* = nullptr>
+// DataStream& operator>>( DataStream& ds, T& v ) {
+//    boost::pfr::for_each_field(v, [&](auto& field) {
+//       ds >> field;
+//    });
+//    return ds;
+// }
 
 template<typename DataStream, typename T, std::enable_if_t<_datastream_detail::is_primitive<T>()>* = nullptr>
 DataStream& operator<<( DataStream& ds, const T& v ) {

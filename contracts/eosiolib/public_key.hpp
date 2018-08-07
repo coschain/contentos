@@ -15,4 +15,19 @@ namespace eosio {
       }
       EOSLIB_SERIALIZE( public_key, (type)(data) )
    };
+
+      struct public_key_2 {
+      std::array<char,33> data;
+
+      friend bool operator == ( const public_key_2& a, const public_key_2& b ) {
+        return a.data == b.data;
+      }
+      friend bool operator != ( const public_key_2& a, const public_key_2& b ) {
+        return a.data != b.data;
+      }
+      friend bool operator < ( const public_key_2& a, const public_key_2& b ) {
+        return a.data < b.data;
+      }
+      EOSLIB_SERIALIZE( public_key_2, (data) )
+   };
 }

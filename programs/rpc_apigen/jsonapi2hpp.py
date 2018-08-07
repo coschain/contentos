@@ -61,14 +61,14 @@ def print_structs( structs_info ):
 
 def print_functions( className, funcs_info ):
 
-    result = 'class {0} {{\n\n\tstd::string get_name()const{{ return std::string("{0}"); }}\n\n'.format(className)
+    result = 'class {0} {{\npublic:\n\n\tstd::string api_name()const{{ return std::string("{0}"); }}\n\n'.format(className)
 
     for info in funcs_info:
         retstr = type2cxx(info['ret']['type'])
         params = join_func_params(info['fields'])
         func_name = info['name']
         
-        func_define = '\t{0} {1}{2} {{\n\t\tSTUB_API({0},{3});\n\t}}\n'.format(retstr,func_name,params,join_func_params_serial(info['fields']))
+        func_define = '\t{0} {1}{2} {{\n\t\tSTUB_API( RET_TYPE({4}::{1}),{3});\n\t}}\n'.format(retstr,func_name,params,join_func_params_serial(info['fields']), className)
         result += func_define + '\n'
 
     result += '};'
@@ -153,7 +153,9 @@ if __name__ == "__main__":
     result  = '#include <iostream>\n'
     result += '#include <map>\n'
     result += '#include <vector>\n'
-    result += '#include <eosiolib/eosiolib.hpp>\n'
+    result += '#include <eosiolib/eosio.hpp>\n'
+    result += '#include <eosiolib/static_variant.hpp>\n'
+    result += '#include <eosiolib/content_util.hpp>\n'
 
     result += '\n\n'
     result += 'namespace eosio { \n\n'
@@ -163,6 +165,6 @@ if __name__ == "__main__":
     result += print_structs(api_array['structs']) + '\n'
     result += print_classes(api_array['classes']) + '\n'
 
-    result += '}  }\n\n'
+    result += '}\n\n'
     print result
     #print(api_array['types'])
