@@ -131,6 +131,7 @@ namespace contento { namespace chain {
          const witness_object*  find_witness( const account_name_type& name )const;
 
          const account_object&  get_account(  const account_name_type& name )const;
+         const contract_balance_object& get_contract_account( const account_name_type& name )const;
          const account_object*  find_account( const account_name_type& name )const;
 
          const admin_object&  get_admin(  const account_name_type& name )const;
@@ -303,6 +304,7 @@ namespace contento { namespace chain {
 
          // void        adjust_liquidity_reward( const account_object& owner, const asset& volume, bool is_bid );
          void        adjust_balance( const account_object& a, const asset& delta );
+         void        adjust_contract_balance( const contract_balance_object& a, const asset& delta );
          void        adjust_savings_balance( const account_object& a, const asset& delta );
          void        adjust_reward_balance( const account_object& a, const asset& delta );
          void        adjust_supply( const asset& delta, bool adjust_vesting = false );
