@@ -511,7 +511,6 @@ namespace contento { namespace protocol {
    void vm_operation::validate() const {
       validate_account_name( caller );
       validate_account_name( contract_name );
-      validate_account_name( action_name );
    }
 
 } } // contento::protocol
