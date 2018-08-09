@@ -91,7 +91,7 @@ bytes param_to_bin(database &db, name contract_name, name action_name, std::stri
          throw;
       }
    }
-    std::cout << "contract name = " << std::string(contract_name) << std::endl;
+
    const auto contract_acc = db.get_account(contract_name);
    abi_def abi;
    bytes result;
@@ -135,7 +135,7 @@ BOOST_AUTO_TEST_CASE( setcodes )
     set_code(db, hello_private_key, N(hello));
     set_abi(db, hello_private_key, N(hello));
 
-    //push_action(db, buttnaked_private_key, N(buttnaked), N(hello), N(hi), "[\"buttnaked\"]");
+    push_action(db, buttnaked_private_key, N(buttnaked), N(hello), N(hi), "[\"buttnaked\"]");
     push_action(db, hello_private_key, N(hello), N(hello), N(hi), "[\"buttnaked\"]");
     
     //BOOST_REQUIRE_THROW( report_comment(db, "user3", "bob", "b001", "1.000 TESTS", "porn", true, true, user3_private_key), fc::exception );
