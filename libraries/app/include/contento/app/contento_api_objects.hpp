@@ -217,7 +217,9 @@ struct account_api_obj
       withdraw_routes( a.withdraw_routes ),
       witnesses_voted_for( a.witnesses_voted_for ),
       last_post( a.last_post ),
-      last_root_post( a.last_root_post )
+      last_root_post( a.last_root_post ),
+      code( a.code ),
+      abi( a.abi )
    {
       size_t n = a.proxied_vsf_votes.size();
       proxied_vsf_votes.reserve( n );
@@ -331,6 +333,9 @@ struct account_api_obj
 
    time_point_sec    last_post;
    time_point_sec    last_root_post;
+    
+   string code;
+   string abi;
 };
 
 struct owner_authority_history_api_obj
