@@ -12,7 +12,6 @@ namespace contento { namespace chain {
    :control(c)
    ,trx(t)
    ,id(trx_id)
-   ,undo_session(c.db().start_undo_session(true))
    ,start(s)
    {
       FC_ASSERT( trx.extensions.size() == 0, "we don't support any extensions yet" );
@@ -30,11 +29,6 @@ namespace contento { namespace chain {
    void transaction_context::finalize() {
       FC_ASSERT( is_initialized, "must first initialize" );
    }
-
-   void transaction_context::squash() {
-      undo_session.squash();
-   }
-
 
    void transaction_context::check_net_usage()const {
    }
