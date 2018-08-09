@@ -15,7 +15,7 @@ using std::map;
 
 using comment_id_type	 = id_type;
 using account_id_type	 = id_type;
-using account_authority_map	 = map<string16,uint16>;
+using account_authority_map	 = map<string8,uint16>;
 using key_authority_map	 = map<public_key_type,uint16>;
 using witness_id_type	 = id_type;
 using feed_history_id_type	 = id_type;
@@ -44,7 +44,7 @@ struct follow_count_api_obj {
 struct feed_entry {
 	string		author;
 	string		permlink;
-	vector<string16>		reblog_by;
+	vector<string8>		reblog_by;
 	time_point_sec		reblog_on;
 	uint32		entry_id; 
  
@@ -52,7 +52,7 @@ struct feed_entry {
 };
 
 struct beneficiary_route_type {
-	string16		account;
+	string8		account;
 	uint16		weight; 
  
 	EOSLIB_SERIALIZE( beneficiary_route_type, (account)(weight) ); 
@@ -60,10 +60,10 @@ struct beneficiary_route_type {
 
 struct comment_api_obj {
 	comment_id_type		id;
-	string16		author;
+	string8		author;
 	string		permlink;
 	string		category;
-	string16		parent_author;
+	string8		parent_author;
 	string		parent_permlink;
 	string		title;
 	string		body;
@@ -96,7 +96,7 @@ struct comment_api_obj {
 
 struct comment_feed_entry {
 	comment_api_obj		comment;
-	vector<string16>		reblog_by;
+	vector<string8>		reblog_by;
 	time_point_sec		reblog_on;
 	uint32		entry_id; 
  
@@ -143,9 +143,9 @@ struct tag_api_obj {
 struct dynamic_global_property_object {
 	int64		id;
 	uint32		head_block_number;
-	checksum256		head_block_id;
+	checksum160		head_block_id;
 	time_point_sec		time;
-	string16		current_witness;
+	string8		current_witness;
 	uint64		total_pow;
 	uint32		num_pow_witnesses;
 	asset		virtual_supply;
@@ -219,8 +219,8 @@ struct discussion : public comment_api_obj {
 	int64		author_reputation;
 	asset		promoted;
 	uint32		body_length;
-	vector<string16>		reblogged_by;
-	vector<string16>		first_reblogged_by;
+	vector<string8>		reblogged_by;
+	vector<string8>		first_reblogged_by;
 	vector<time_point_sec>		first_reblogged_on; 
  
 	EOSLIB_SERIALIZE_DERIVED( discussion, comment_api_obj,(url)(root_title)(pending_payout_value)(total_pending_payout_value)(active_votes)(replies)(author_reputation)(promoted)(body_length)(reblogged_by)(first_reblogged_by)(first_reblogged_on) ); 
@@ -236,13 +236,13 @@ struct authority {
 
 struct account_api_obj {
 	account_id_type		id;
-	string16		name;
+	string8		name;
 	authority		owner;
 	authority		active;
 	authority		posting;
 	public_key_type		memo_key;
 	string		json_metadata;
-	string16		proxy;
+	string8		proxy;
 	time_point_sec		last_owner_update;
 	time_point_sec		last_account_update;
 	time_point_sec		created;
@@ -251,9 +251,9 @@ struct account_api_obj {
 	bool		active_challenged;
 	time_point_sec		last_owner_proved;
 	time_point_sec		last_active_proved;
-	string16		recovery_account;
+	string8		recovery_account;
 	time_point_sec		last_account_recovery;
-	string16		reset_account;
+	string8		reset_account;
 	uint32		comment_count;
 	uint32		lifetime_vote_count;
 	uint32		post_count;
@@ -291,8 +291,8 @@ struct account_api_obj {
 };
 
 struct vote_operation {
-	string16		voter;
-	string16		author;
+	string8		voter;
+	string8		author;
 	string		permlink;
 	int16		weight; 
  
@@ -300,10 +300,10 @@ struct vote_operation {
 };
 
 struct comment_operation {
-	string16		parent_author;
+	string8		parent_author;
 	string		parent_permlink;
 	string		category;
-	string16		author;
+	string8		author;
 	string		permlink;
 	string		title;
 	string		body;
@@ -313,8 +313,8 @@ struct comment_operation {
 };
 
 struct transfer_operation {
-	string16		from;
-	string16		to;
+	string8		from;
+	string8		to;
 	asset		amount;
 	string		memo; 
  
@@ -322,29 +322,29 @@ struct transfer_operation {
 };
 
 struct transfer_to_vesting_operation {
-	string16		from;
-	string16		to;
+	string8		from;
+	string8		to;
 	asset		amount; 
  
 	EOSLIB_SERIALIZE( transfer_to_vesting_operation, (from)(to)(amount) ); 
 };
 
 struct withdraw_vesting_operation {
-	string16		account;
+	string8		account;
 	asset		vesting_shares; 
  
 	EOSLIB_SERIALIZE( withdraw_vesting_operation, (account)(vesting_shares) ); 
 };
 
 struct convert_from_vesting_operation {
-	string16		account;
+	string8		account;
 	asset		vesting_shares; 
  
 	EOSLIB_SERIALIZE( convert_from_vesting_operation, (account)(vesting_shares) ); 
 };
 
 struct limit_order_create_operation {
-	string16		owner;
+	string8		owner;
 	uint32		orderid;
 	asset		amount_to_sell;
 	asset		min_to_receive;
@@ -355,7 +355,7 @@ struct limit_order_create_operation {
 };
 
 struct limit_order_cancel_operation {
-	string16		owner;
+	string8		owner;
 	uint32		orderid; 
  
 	EOSLIB_SERIALIZE( limit_order_cancel_operation, (owner)(orderid) ); 
@@ -369,14 +369,14 @@ struct price {
 };
 
 struct feed_publish_operation {
-	string16		publisher;
+	string8		publisher;
 	price		exchange_rate; 
  
 	EOSLIB_SERIALIZE( feed_publish_operation, (publisher)(exchange_rate) ); 
 };
 
 struct convert_operation {
-	string16		owner;
+	string8		owner;
 	uint32		requestid;
 	asset		amount; 
  
@@ -385,8 +385,8 @@ struct convert_operation {
 
 struct account_create_operation {
 	asset		fee;
-	string16		creator;
-	string16		new_account_name;
+	string8		creator;
+	string8		new_account_name;
 	authority		owner;
 	authority		active;
 	authority		posting;
@@ -397,7 +397,7 @@ struct account_create_operation {
 };
 
 struct account_update_operation {
-	string16		account;
+	string8		account;
 	vector<authority>		owner;
 	vector<authority>		active;
 	vector<authority>		posting;
@@ -416,7 +416,7 @@ struct chain_properties {
 };
 
 struct witness_update_operation {
-	string16		owner;
+	string8		owner;
 	string		url;
 	public_key_type		block_signing_key;
 	chain_properties		props;
@@ -426,16 +426,16 @@ struct witness_update_operation {
 };
 
 struct account_witness_vote_operation {
-	string16		account;
-	string16		witness;
+	string8		account;
+	string8		witness;
 	bool		approve; 
  
 	EOSLIB_SERIALIZE( account_witness_vote_operation, (account)(witness)(approve) ); 
 };
 
 struct account_witness_proxy_operation {
-	string16		account;
-	string16		proxy; 
+	string8		account;
+	string8		proxy; 
  
 	EOSLIB_SERIALIZE( account_witness_proxy_operation, (account)(proxy) ); 
 };
@@ -450,8 +450,8 @@ struct pow {
 };
 
 struct pow_operation {
-	string16		worker_account;
-	checksum256		block_id;
+	string8		worker_account;
+	checksum160		block_id;
 	uint64		nonce;
 	pow		work;
 	chain_properties		props; 
@@ -460,7 +460,7 @@ struct pow_operation {
 };
 
 struct custom_operation {
-	vector<string16>		required_auths;
+	vector<string8>		required_auths;
 	uint16		id;
 	vector<int8>		data; 
  
@@ -499,7 +499,7 @@ typedef static_variant<void_t,version,hardfork_version_vote>
 using block_header_extensions_type	 = vector<block_header_extensions>;
 
 struct block_header {
-	checksum256		previous;
+	checksum160		previous;
 	time_point_sec		timestamp;
 	string		witness;
 	checksum160		transaction_merkle_root;
@@ -515,7 +515,7 @@ struct signed_block_header : public block_header {
 };
 
 struct report_over_production_operation {
-	string16		reporter;
+	string8		reporter;
 	signed_block_header		first_block;
 	signed_block_header		second_block; 
  
@@ -523,15 +523,15 @@ struct report_over_production_operation {
 };
 
 struct delete_comment_operation {
-	string16		author;
+	string8		author;
 	string		permlink; 
  
 	EOSLIB_SERIALIZE( delete_comment_operation, (author)(permlink) ); 
 };
 
 struct custom_json_operation {
-	vector<string16>		required_auths;
-	vector<string16>		required_posting_auths;
+	vector<string8>		required_auths;
+	vector<string8>		required_posting_auths;
 	string		id;
 	string		json; 
  
@@ -551,7 +551,7 @@ typedef static_variant<comment_payout_beneficiaries>
 using comment_options_extensions_type	 = vector<comment_options_extension>;
 
 struct comment_options_operation {
-	string16		author;
+	string8		author;
 	string		permlink;
 	asset		max_accepted_payout;
 	uint16		percent_steem_dollars;
@@ -563,8 +563,8 @@ struct comment_options_operation {
 };
 
 struct set_withdraw_vesting_route_operation {
-	string16		from_account;
-	string16		to_account;
+	string8		from_account;
+	string8		to_account;
 	uint16		percent;
 	bool		auto_vest; 
  
@@ -572,7 +572,7 @@ struct set_withdraw_vesting_route_operation {
 };
 
 struct limit_order_create2_operation {
-	string16		owner;
+	string8		owner;
 	uint32		orderid;
 	asset		amount_to_sell;
 	price		exchange_rate;
@@ -583,23 +583,23 @@ struct limit_order_create2_operation {
 };
 
 struct challenge_authority_operation {
-	string16		challenger;
-	string16		challenged;
+	string8		challenger;
+	string8		challenged;
 	bool		require_owner; 
  
 	EOSLIB_SERIALIZE( challenge_authority_operation, (challenger)(challenged)(require_owner) ); 
 };
 
 struct prove_authority_operation {
-	string16		challenged;
+	string8		challenged;
 	bool		require_owner; 
  
 	EOSLIB_SERIALIZE( prove_authority_operation, (challenged)(require_owner) ); 
 };
 
 struct request_account_recovery_operation {
-	string16		recovery_account;
-	string16		account_to_recover;
+	string8		recovery_account;
+	string8		account_to_recover;
 	authority		new_owner_authority;
 	extensions_type		extensions; 
  
@@ -607,7 +607,7 @@ struct request_account_recovery_operation {
 };
 
 struct recover_account_operation {
-	string16		account_to_recover;
+	string8		account_to_recover;
 	authority		new_owner_authority;
 	authority		recent_owner_authority;
 	extensions_type		extensions; 
@@ -616,16 +616,16 @@ struct recover_account_operation {
 };
 
 struct change_recovery_account_operation {
-	string16		account_to_recover;
-	string16		new_recovery_account;
+	string8		account_to_recover;
+	string8		new_recovery_account;
 	extensions_type		extensions; 
  
 	EOSLIB_SERIALIZE( change_recovery_account_operation, (account_to_recover)(new_recovery_account)(extensions) ); 
 };
 
 struct transfer_to_savings_operation {
-	string16		from;
-	string16		to;
+	string8		from;
+	string8		to;
 	asset		amount;
 	string		memo; 
  
@@ -633,9 +633,9 @@ struct transfer_to_savings_operation {
 };
 
 struct transfer_from_savings_operation {
-	string16		from;
+	string8		from;
 	uint32		request_id;
-	string16		to;
+	string8		to;
 	asset		amount;
 	string		memo; 
  
@@ -643,16 +643,16 @@ struct transfer_from_savings_operation {
 };
 
 struct cancel_transfer_from_savings_operation {
-	string16		from;
+	string8		from;
 	uint32		request_id; 
  
 	EOSLIB_SERIALIZE( cancel_transfer_from_savings_operation, (from)(request_id) ); 
 };
 
 struct custom_binary_operation {
-	vector<string16>		required_owner_auths;
-	vector<string16>		required_active_auths;
-	vector<string16>		required_posting_auths;
+	vector<string8>		required_owner_auths;
+	vector<string8>		required_active_auths;
+	vector<string8>		required_posting_auths;
 	vector<authority>		required_auths;
 	string		id;
 	vector<int8>		data; 
@@ -661,30 +661,30 @@ struct custom_binary_operation {
 };
 
 struct decline_voting_rights_operation {
-	string16		account;
+	string8		account;
 	bool		decline; 
  
 	EOSLIB_SERIALIZE( decline_voting_rights_operation, (account)(decline) ); 
 };
 
 struct reset_account_operation {
-	string16		reset_account;
-	string16		account_to_reset;
+	string8		reset_account;
+	string8		account_to_reset;
 	authority		new_owner_authority; 
  
 	EOSLIB_SERIALIZE( reset_account_operation, (reset_account)(account_to_reset)(new_owner_authority) ); 
 };
 
 struct set_reset_account_operation {
-	string16		account;
-	string16		current_reset_account;
-	string16		reset_account; 
+	string8		account;
+	string8		current_reset_account;
+	string8		reset_account; 
  
 	EOSLIB_SERIALIZE( set_reset_account_operation, (account)(current_reset_account)(reset_account) ); 
 };
 
 struct claim_reward_balance_operation {
-	string16		account;
+	string8		account;
 	asset		reward_steem;
 	asset		reward_sbd;
 	asset		reward_vests; 
@@ -693,8 +693,8 @@ struct claim_reward_balance_operation {
 };
 
 struct delegate_vesting_shares_operation {
-	string16		delegator;
-	string16		delegatee;
+	string8		delegator;
+	string8		delegatee;
 	asset		vesting_shares; 
  
 	EOSLIB_SERIALIZE( delegate_vesting_shares_operation, (delegator)(delegatee)(vesting_shares) ); 
@@ -703,8 +703,8 @@ struct delegate_vesting_shares_operation {
 struct account_create_with_delegation_operation {
 	asset		fee;
 	asset		delegation;
-	string16		creator;
-	string16		new_account_name;
+	string8		creator;
+	string8		new_account_name;
 	authority		owner;
 	authority		active;
 	authority		posting;
@@ -716,8 +716,8 @@ struct account_create_with_delegation_operation {
 };
 
 struct admin_grant_operation {
-	string16		creator;
-	string16		nominee;
+	string8		creator;
+	string8		nominee;
 	int32		type;
 	bool		is_grant; 
  
@@ -725,8 +725,8 @@ struct admin_grant_operation {
 };
 
 struct comment_report_operation {
-	string16		reporter;
-	string16		author;
+	string8		reporter;
+	string8		author;
 	string		permlink;
 	asset		credit;
 	string		tag;
@@ -737,7 +737,7 @@ struct comment_report_operation {
 };
 
 struct fill_convert_request_operation {
-	string16		owner;
+	string8		owner;
 	uint32		requestid;
 	asset		amount_in;
 	asset		amount_out; 
@@ -746,7 +746,7 @@ struct fill_convert_request_operation {
 };
 
 struct author_reward_operation {
-	string16		author;
+	string8		author;
 	string		permlink;
 	asset		sbd_payout;
 	asset		steem_payout;
@@ -756,16 +756,16 @@ struct author_reward_operation {
 };
 
 struct curation_reward_operation {
-	string16		curator;
+	string8		curator;
 	asset		reward;
-	string16		comment_author;
+	string8		comment_author;
 	string		comment_permlink; 
  
 	EOSLIB_SERIALIZE( curation_reward_operation, (curator)(reward)(comment_author)(comment_permlink) ); 
 };
 
 struct comment_reward_operation {
-	string16		author;
+	string8		author;
 	string		permlink;
 	asset		payout; 
  
@@ -773,7 +773,7 @@ struct comment_reward_operation {
 };
 
 struct subject_reward_operation {
-	string16		author;
+	string8		author;
 	string		permlink;
 	asset		payout; 
  
@@ -781,15 +781,15 @@ struct subject_reward_operation {
 };
 
 struct liquidity_reward_operation {
-	string16		owner;
+	string8		owner;
 	asset		payout; 
  
 	EOSLIB_SERIALIZE( liquidity_reward_operation, (owner)(payout) ); 
 };
 
 struct fill_vesting_withdraw_operation {
-	string16		from_account;
-	string16		to_account;
+	string8		from_account;
+	string8		to_account;
 	asset		withdrawn;
 	asset		deposited; 
  
@@ -797,10 +797,10 @@ struct fill_vesting_withdraw_operation {
 };
 
 struct fill_order_operation {
-	string16		current_owner;
+	string8		current_owner;
 	uint32		current_orderid;
 	asset		current_pays;
-	string16		open_owner;
+	string8		open_owner;
 	uint32		open_orderid;
 	asset		open_pays; 
  
@@ -808,14 +808,14 @@ struct fill_order_operation {
 };
 
 struct shutdown_witness_operation {
-	string16		owner; 
+	string8		owner; 
  
 	EOSLIB_SERIALIZE( shutdown_witness_operation, (owner) ); 
 };
 
 struct fill_transfer_from_savings_operation {
-	string16		from;
-	string16		to;
+	string8		from;
+	string8		to;
 	asset		amount;
 	uint32		request_id;
 	string		memo; 
@@ -830,29 +830,29 @@ struct hardfork_operation {
 };
 
 struct comment_payout_update_operation {
-	string16		author;
+	string8		author;
 	string		permlink; 
  
 	EOSLIB_SERIALIZE( comment_payout_update_operation, (author)(permlink) ); 
 };
 
 struct subject_payout_update_operation {
-	string16		author;
+	string8		author;
 	string		permlink; 
  
 	EOSLIB_SERIALIZE( subject_payout_update_operation, (author)(permlink) ); 
 };
 
 struct return_vesting_delegation_operation {
-	string16		account;
+	string8		account;
 	asset		vesting_shares; 
  
 	EOSLIB_SERIALIZE( return_vesting_delegation_operation, (account)(vesting_shares) ); 
 };
 
 struct comment_benefactor_reward_operation {
-	string16		benefactor;
-	string16		author;
+	string8		benefactor;
+	string8		author;
 	string		permlink;
 	asset		reward; 
  
@@ -860,15 +860,15 @@ struct comment_benefactor_reward_operation {
 };
 
 struct producer_reward_operation {
-	string16		producer;
+	string8		producer;
 	asset		vesting_shares; 
  
 	EOSLIB_SERIALIZE( producer_reward_operation, (producer)(vesting_shares) ); 
 };
 
 struct vm_operation {
-	string16		caller;
-	string16		contract_name;
+	string8		caller;
+	string8		contract_name;
 	name		action_name;
 	bytes		data; 
  
@@ -880,7 +880,7 @@ typedef static_variant<vote_operation,comment_operation,transfer_operation,trans
 
 
 struct applied_operation {
-	checksum256		trx_id;
+	checksum160		trx_id;
 	uint32		block;
 	uint32		trx_in_block;
 	uint16		op_in_trx;
@@ -895,7 +895,7 @@ struct limit_order_object {
 	int64		id;
 	time_point_sec		created;
 	time_point_sec		expiration;
-	string16		seller;
+	string8		seller;
 	uint32		orderid;
 	int64		for_sale;
 	price		sell_price; 
@@ -922,7 +922,7 @@ struct extended_account : public account_api_obj {
 	map<uint64,applied_operation>		other_history;
 	vector<string>		witness_votes;
 	vector<map<string,uint32>>		tags_usage;
-	vector<map<string16,uint32>>		guest_bloggers;
+	vector<map<string8,uint32>>		guest_bloggers;
 	vector<map<uint32,extended_limit_order>>		open_orders;
 	vector<vector<string>>		comments;
 	vector<vector<string>>		feed;
@@ -935,7 +935,7 @@ struct extended_account : public account_api_obj {
 
 struct witness_api_obj {
 	witness_id_type		id;
-	string16		owner;
+	string8		owner;
 	time_point_sec		created;
 	string		url;
 	int64		votes;
@@ -962,7 +962,7 @@ struct witness_schedule_object {
 	int64		id;
 	uint128		current_virtual_time;
 	uint32		next_shuffle_block_num;
-	vector<string16>		current_shuffled_witnesses;
+	shuffled_witness_array_type		current_shuffled_witnesses;
 	uint8		num_scheduled_witnesses;
 	uint8		top19_weight;
 	uint8		timeshare_weight;
@@ -1023,7 +1023,7 @@ struct state {
 	map<string,tag_api_obj>		tags;
 	map<string,discussion>		content;
 	map<string,extended_account>		accounts;
-	vector<string16>		pow_queue;
+	vector<string8>		pow_queue;
 	map<string,witness_api_obj>		witnesses;
 	map<string,discussion_index>		discussion_idx;
 	witness_schedule_api_obj		witness_schedule;
@@ -1071,9 +1071,9 @@ struct signed_block : public signed_block_header {
 };
 
 struct signed_block_api_obj : public signed_block {
-	checksum256		block_id;
+	checksum160		block_id;
 	public_key_type		signing_key;
-	vector<checksum256>		transaction_ids; 
+	vector<checksum160>		transaction_ids; 
  
 	EOSLIB_SERIALIZE_DERIVED( signed_block_api_obj, signed_block,(block_id)(signing_key)(transaction_ids) ); 
 };
@@ -1112,7 +1112,7 @@ using reward_fund_api_obj	 = reward_fund_object;
 
 struct owner_authority_history_api_obj {
 	owner_authority_history_id_type		id;
-	string16		account;
+	string8		account;
 	authority		previous_owner_authority;
 	time_point_sec		last_valid_time; 
  
@@ -1121,7 +1121,7 @@ struct owner_authority_history_api_obj {
 
 struct account_recovery_request_api_obj {
 	account_recovery_request_id_type		id;
-	string16		account_to_recover;
+	string8		account_to_recover;
 	authority		new_owner_authority;
 	time_point_sec		expires; 
  
@@ -1139,7 +1139,7 @@ struct withdraw_route {
 
 struct account_bandwidth_object {
 	int64		id;
-	string16		account;
+	string8		account;
 	int64		type;
 	int64		average_bandwidth;
 	int64		lifetime_bandwidth;
@@ -1152,8 +1152,8 @@ using account_bandwidth_api_obj	 = account_bandwidth_object;
 
 struct savings_withdraw_api_obj {
 	savings_withdraw_id_type		id;
-	string16		from;
-	string16		to;
+	string8		from;
+	string8		to;
 	string		memo;
 	uint32		request_id;
 	asset		amount;
@@ -1164,8 +1164,8 @@ struct savings_withdraw_api_obj {
 
 struct vesting_delegation_object {
 	int64		id;
-	string16		delegator;
-	string16		delegatee;
+	string8		delegator;
+	string8		delegatee;
 	asset		vesting_shares;
 	time_point_sec		min_delegation_time; 
  
@@ -1176,7 +1176,7 @@ using vesting_delegation_api_obj	 = vesting_delegation_object;
 
 struct vesting_delegation_expiration_object {
 	int64		id;
-	string16		delegator;
+	string8		delegator;
 	asset		vesting_shares;
 	time_point_sec		expiration; 
  
@@ -1187,7 +1187,7 @@ using vesting_delegation_expiration_api_obj	 = vesting_delegation_expiration_obj
 
 struct convert_request_object {
 	int64		id;
-	string16		owner;
+	string8		owner;
 	uint32		requestid;
 	asset		amount;
 	time_point_sec		conversion_date; 
@@ -1200,7 +1200,7 @@ using convert_request_api_obj	 = convert_request_object;
 struct annotated_signed_transaction {
 	signed_transaction		sig_trx;
 	transaction_invoice		invoice;
-	checksum256		transaction_id;
+	checksum160		transaction_id;
 	uint32		block_num;
 	uint32		transaction_num; 
  
@@ -1270,11 +1270,11 @@ public:
 		STUB_API( RET_TYPE(follow_api::get_account_reputations), << lower_bound_name << limit);
 	}
 
-	vector<string16> get_reblogged_by( const string& author, const string& permlink) {
+	vector<string8> get_reblogged_by( const string& author, const string& permlink) {
 		STUB_API( RET_TYPE(follow_api::get_reblogged_by), << author << permlink);
 	}
 
-	vector<map<string16,uint32>> get_blog_authors( const string16& blog_account) {
+	vector<map<string8,uint32>> get_blog_authors( const string8& blog_account) {
 		STUB_API( RET_TYPE(follow_api::get_blog_authors), << blog_account);
 	}
 
@@ -1293,11 +1293,11 @@ public:
 		STUB_API( RET_TYPE(database_api::get_state), << path);
 	}
 
-	vector<string16> get_active_witnesses() {
+	vector<string8> get_active_witnesses() {
 		STUB_API( RET_TYPE(database_api::get_active_witnesses),);
 	}
 
-	vector<string16> get_miner_queue() {
+	vector<string8> get_miner_queue() {
 		STUB_API( RET_TYPE(database_api::get_miner_queue),);
 	}
 
@@ -1421,7 +1421,7 @@ public:
 		STUB_API( RET_TYPE(database_api::get_witnesses_by_vote), << from << limit);
 	}
 
-	vector<string16> lookup_witness_accounts( const string& lower_bound_name, const uint32& limit) {
+	vector<string8> lookup_witness_accounts( const string& lower_bound_name, const uint32& limit) {
 		STUB_API( RET_TYPE(database_api::lookup_witness_accounts), << lower_bound_name << limit);
 	}
 
@@ -1433,7 +1433,7 @@ public:
 		STUB_API( RET_TYPE(database_api::get_transaction_hex), << trx);
 	}
 
-	annotated_signed_transaction get_transaction( const checksum256& trx_id) {
+	annotated_signed_transaction get_transaction( const checksum160& trx_id) {
 		STUB_API( RET_TYPE(database_api::get_transaction), << trx_id);
 	}
 
@@ -1529,7 +1529,7 @@ public:
 		STUB_API( RET_TYPE(database_api::get_discussions_by_promoted), << query);
 	}
 
-	vector<discussion> get_replies_by_last_update( const string16& start_author, const string& start_permlink, const uint32& limit) {
+	vector<discussion> get_replies_by_last_update( const string8& start_author, const string& start_permlink, const uint32& limit) {
 		STUB_API( RET_TYPE(database_api::get_replies_by_last_update), << start_author << start_permlink << limit);
 	}
 

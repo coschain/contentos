@@ -84,7 +84,7 @@ api_context::api_context( application& _app, const std::string& _api_name, std::
 
 namespace detail {
 
-   class application_impl : public graphene::net::node_delegate
+   class application_impl : public graphene::net::node_delegate, vm_content_api_interface
    {
    public:
       fc::optional<fc::temp_file> _lock_file;
@@ -275,7 +275,7 @@ namespace detail {
          fc::datastream<char*> ds( (char*)req_body.data(), req_body.size());
          std::string api_name;
          fc::raw::unpack(ds, api_name);
-         for( const std::string& name : _vm_apis )
+         for( const std::string& name : _public_apis )
          {
             if (name != api_name){
                continue;
@@ -335,6 +335,7 @@ namespace detail {
       {
           //controller::config cfg;
            //control.reset(cfg);
+         _chain_db->get_vm_ctrl()->set_vm_interface(this);
       }
 
       ~application_impl(){}

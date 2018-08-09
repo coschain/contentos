@@ -432,7 +432,21 @@ class database_api
 
       void recursively_fetch_content( state& _state, discussion& root, set<string>& referenced_accounts )const;
 
+      template< typename Lambda >
+      auto determine_read_lock( Lambda&& callback ) const -> decltype( (*(Lambda*)nullptr)() ){
+            if ( !call_from_vm ){
+               return _db_for_lock.with_read_lock( [&]()
+                                             {
+                                                return callback();
+                                             });
+            } else {
+               return callback();
+            }
+      }
+
+      contento::chain::database&             _db_for_lock;
       std::shared_ptr< database_api_impl >   my;
+      bool  call_from_vm;
 };
 
 } }
