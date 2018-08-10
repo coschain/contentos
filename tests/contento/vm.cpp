@@ -42,17 +42,16 @@ vm_operation create_setabi(const name& contract_name, const abi_def& abi) {
     };
 }
 
-bytes get_code() {
+bytes get_code(const std::string& wast_path) {
     std::string wast;
-    std::string wast_path = "/Users/jesse/cmcm/contentos/build/contracts/hello/hello.wast";
     fc::read_file_contents(wast_path, wast);
     vector<uint8_t> wasm = wast_to_wasm(wast);
     return bytes(wasm.begin(), wasm.end());
 }
 
-static void set_code(database &db, fc::ecc::private_key key, const name& contract_name) {
+static void set_code(database &db, fc::ecc::private_key key, const name& contract_name, const std::string& wast_path) {
     signed_transaction tx;
-    vm_operation vop = create_setcode(contract_name, get_code());
+    vm_operation vop = create_setcode(contract_name, get_code(wast_path));
 
     tx.operations.push_back(vop);
     tx.set_expiration( db.head_block_time() + 30 );
@@ -60,8 +59,7 @@ static void set_code(database &db, fc::ecc::private_key key, const name& contrac
     PUSH_TX( db, tx );
 }
 
-static void set_abi(database &db, fc::ecc::private_key key, const name& contract_name) {
-   std::string abi_path = "/Users/jesse/cmcm/contentos/build/contracts/hello/hello.abi";
+static void set_abi(database &db, fc::ecc::private_key key, const name& contract_name, const std::string& abi_path) {
    signed_transaction tx;
    vm_operation vop = create_setabi(contract_name, fc::json::from_file(abi_path).as<abi_def>());
     
@@ -132,8 +130,8 @@ BOOST_AUTO_TEST_CASE( setcodes )
 {
     ACTORS((contento)(hello)(buttnaked));
     //fund("hello", 100);
-    set_code(db, hello_private_key, N(hello));
-    set_abi(db, hello_private_key, N(hello));
+    set_code(db, hello_private_key, N(hello), "../../contracts/hello/hello.wast");
+    set_abi(db, hello_private_key, N(hello), "../../contracts/hello/hello.abi");
 
     push_action(db, buttnaked_private_key, N(buttnaked), N(hello), N(hi), "[\"buttnaked\"]");
     push_action(db, hello_private_key, N(hello), N(hello), N(hi), "[\"buttnaked\"]");
