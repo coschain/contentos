@@ -599,11 +599,10 @@ bool database::_push_block(const signed_block& new_block)
          //Only switch forks if new_head is actually higher than head
          if( new_head->data.block_num() > head_block_num() )
          {
-             // the generate node should never come this if
+             // the BP node should never come this if
              if( skip & skip_apply_transaction ) {
                  _pending_tx_session.reset();
              }
-
 
             // wlog( "Switching to fork: ${id}", ("id",new_head->data.id()) );
             auto branches = _fork_db.fetch_branch_from(new_head->data.id(), head_block_id());
@@ -938,7 +937,8 @@ signed_block database::_generate_block(
     
     auto res = push_block( pending_block, skip | skip_apply_transaction );
     if ( res ) {
-        
+        std::cout << "in _generate_block function, BP node should never come here!" << std::endl;
+        std::exit(-1);
     } else {
         if ( pending_block.block_num() == head_block_num() )
         {
