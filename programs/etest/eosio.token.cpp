@@ -555,7 +555,19 @@ void token::testprint( account_name name )
     }
     
     void token::testtrxauth( account_name name ) {
+        /*
+         check_permission_authorization( account_name account,
+         permission_name permission,
+         const char* pubkeys_data, uint32_t pubkeys_size,
+         const char* perms_data,   uint32_t perms_size,
+         uint64_t delay_us
+         );
+         */
         
+        
+        public_key keys[1];
+        
+        check_permission_authorization(name, N(active), (const char*)keys, sizeof(keys), (const char*)0, 0, 1000000000);
         
     }
     

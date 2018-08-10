@@ -82,7 +82,9 @@ transaction_trace_ptr test_db( tester& tester, name foo ) {
 }
 
 transaction_trace_ptr test_trxauth( tester& tester, name foo ) {
-    return nullptr;
+    return tester.push_action( N(eosio.token), N(testtrxauth), foo, mutable_variant_object()
+                              ("name",    foo)
+                              );
 }
 
 
@@ -92,7 +94,7 @@ void test_eosio() {
     tester tester;
     
     // create account for eos.token, alice & bob
-    tester.create_accounts( { N(eosio.token), N(alice), N(bob) } );
+    tester.create_accounts( { N(eosio.token), N(alice), N(bob), N(tom) } );
     
     // push eosio.token contract
     tester.set_code( N(eosio.token), eosio_token_wast );
@@ -103,11 +105,11 @@ void test_eosio() {
     // create system token with max supply limit of 10 billion
     trace_ptr = create_currency( tester, N(eosio.token), config::system_account_name, core_from_string("10000000000.0000") );
     
-    // eosio issues 1 billion tokens
-    trace_ptr = issue( tester, config::system_account_name, core_from_string("1000000000.0000"));
+    // eosio issues 1 billion tokens to tom
+    trace_ptr = issue( tester, N(tom), core_from_string("1000000000.0000"));
     
-    // eosio -> alice: 10k
-    trace_ptr = transfer( tester, config::system_account_name, N(alice), CORE_AMOUNT("10000.0000") );
+    // tom -> alice: 10k
+    trace_ptr = transfer( tester, N(tom), N(alice), CORE_AMOUNT("10000.0000"), N(tom) );
     
     // alice -> bob: 3k
     // bob -> alice: 2.5k
