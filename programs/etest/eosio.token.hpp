@@ -44,6 +44,7 @@ namespace eosio {
        void testsystemapi( account_name name );
        void testmem( account_name name );
        void testdb( account_name name );
+       void testtrxauth( account_name name );
        
        
       private:

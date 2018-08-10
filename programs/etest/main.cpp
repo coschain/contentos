@@ -81,6 +81,10 @@ transaction_trace_ptr test_db( tester& tester, name foo ) {
                               );
 }
 
+transaction_trace_ptr test_trxauth( tester& tester, name foo ) {
+    return nullptr;
+}
+
 
 #define CORE_AMOUNT(s)  (s " " CORE_SYMBOL_NAME)
 
@@ -119,7 +123,7 @@ void test_eosio() {
     trace_ptr = test_mem( tester, N(alice) );
     
     trace_ptr = test_db( tester, N(alice) );
-
+    trace_ptr = test_trxauth( tester, N(alice) );
 }
 
 int main(int argc, char** argv) {

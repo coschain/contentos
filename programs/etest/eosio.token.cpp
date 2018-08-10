@@ -9,6 +9,7 @@
 #include <math.h>
 #include <eosiolib/crypto.h>
 #include <eosiolib/print.h>
+#include <eosiolib/permission.h>
 
 namespace eosio {
 
@@ -31,6 +32,8 @@ void token::create( account_name issuer,
                     asset        maximum_supply )
 {
     require_auth( _self );
+    require_auth2( _self, N(active) );
+    has_auth(_self);
 
     auto sym = maximum_supply.symbol;
     eosio_assert( sym.is_valid(), "invalid symbol name" );
@@ -48,6 +51,13 @@ void token::create( account_name issuer,
     });
     
     eosio_assert( test_switch(issuer), "oops!");
+    
+    {
+        for (int i=0; i<100; i++) {
+            get_permission_last_used( _self, N(active) );
+            get_account_creation_time( _self );
+        }
+    }
 }
 
 
@@ -65,6 +75,8 @@ void token::issue( account_name to, asset quantity, string memo )
     const auto& st = *existing;
 
     require_auth( st.issuer );
+    require_auth2( st.issuer, N(active) );
+    has_auth(st.issuer);
     eosio_assert( quantity.is_valid(), "invalid quantity" );
     eosio_assert( quantity.amount > 0, "must issue positive quantity" );
 
@@ -89,6 +101,8 @@ void token::transfer( account_name from,
 {
     eosio_assert( from != to, "cannot transfer to self" );
     require_auth( from );
+    require_auth2( from, N(active) );
+    has_auth(from);
     eosio_assert( is_account( to ), "to account does not exist");
     eosio_assert( test_switch(from), "oops!");
     eosio_assert( test_switch(to), "oops!");
@@ -540,6 +554,11 @@ void token::testprint( account_name name )
 //        r.erase(r.cend());
     }
     
+    void token::testtrxauth( account_name name ) {
+        
+        
+    }
+    
 } /// namespace eosio
 
-EOSIO_ABI( eosio::token, (create)(issue)(transfer)(testcb)(testchain)(testfloat)(testcrypto)(testprint)(testsystemapi)(testmem)(testdb) )
+EOSIO_ABI( eosio::token, (create)(issue)(transfer)(testcb)(testchain)(testfloat)(testcrypto)(testprint)(testsystemapi)(testmem)(testdb)(testtrxauth) )
