@@ -10,6 +10,8 @@
 
 #include <string>
 
+uint64_t rdtsc();
+
 void wasm_benchmark_init();
 void report_wasm_expression(bool begin_or_end, uint64_t expression_id);
 void report_wasm_call_import(bool begin_or_end, uint64_t import);

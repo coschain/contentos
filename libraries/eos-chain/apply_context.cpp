@@ -83,7 +83,7 @@ action_trace apply_context::exec_one()
    trx_context.executed.emplace_back( move(r) );
 
    if ( control.contracts_console() ) {
-      print_debug(receiver, t);
+//      print_debug(receiver, t);
    }
 
    reset_console();

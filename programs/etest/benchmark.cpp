@@ -230,6 +230,10 @@ namespace wasm_benchmark {
     }
 }
 
+uint64_t rdtsc() {
+    return wasm_benchmark::rdtsc();
+}
+
 void wasm_benchmark_init() {
     wasm_benchmark::init();
 }

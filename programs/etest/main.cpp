@@ -57,6 +57,30 @@ transaction_trace_ptr test_crypto( tester& tester, name foo ) {
                               );
 }
 
+transaction_trace_ptr test_print( tester& tester, name foo ) {
+    return tester.push_action( N(eosio.token), N(testprint), foo, mutable_variant_object()
+                              ("name",    foo)
+                              );
+}
+
+transaction_trace_ptr test_systemapi( tester& tester, name foo ) {
+    return tester.push_action( N(eosio.token), N(testsystemapi), foo, mutable_variant_object()
+                              ("name",    foo)
+                              );
+}
+
+transaction_trace_ptr test_mem( tester& tester, name foo ) {
+    return tester.push_action( N(eosio.token), N(testmem), foo, mutable_variant_object()
+                              ("name",    foo)
+                              );
+}
+
+transaction_trace_ptr test_db( tester& tester, name foo ) {
+    return tester.push_action( N(eosio.token), N(testdb), foo, mutable_variant_object()
+                              ("name",    foo)
+                              );
+}
+
 
 #define CORE_AMOUNT(s)  (s " " CORE_SYMBOL_NAME)
 
@@ -90,6 +114,12 @@ void test_eosio() {
     trace_ptr = test_chain( tester, N(alice) );
     trace_ptr = test_float( tester, N(alice) );
     trace_ptr = test_crypto( tester, N(alice) );
+    trace_ptr = test_print( tester, N(alice) );
+    trace_ptr = test_systemapi( tester, N(alice) );
+    trace_ptr = test_mem( tester, N(alice) );
+    
+    trace_ptr = test_db( tester, N(alice) );
+
 }
 
 int main(int argc, char** argv) {
@@ -98,3 +128,6 @@ int main(int argc, char** argv) {
     wasm_benchmark_show_result();
     return 0;
 }
+
+
+

@@ -40,7 +40,12 @@ namespace eosio {
          void testchain( account_name name );
          void testfloat( account_name name );
          void testcrypto( account_name name );
-
+         void testprint( account_name name );
+       void testsystemapi( account_name name );
+       void testmem( account_name name );
+       void testdb( account_name name );
+       
+       
       private:
          struct account {
             asset    balance;
@@ -55,9 +60,37 @@ namespace eosio {
 
             uint64_t primary_key()const { return supply.symbol.name(); }
          };
+       
+       struct record {
+           uint64_t    primary;
+           uint64_t    secondary_1;
+           uint128_t   secondary_2;
+           key256   secondary_3;
+           double      secondary_4;
+           long double secondary_5;
+           string      data;
+           
+           uint64_t primary_key() const { return primary; }
+           uint64_t get_secondary_1() const { return secondary_1; }
+           uint128_t get_secondary_2() const { return secondary_2; }
+           key256 get_secondary_3() const { return secondary_3; }
+           double get_secondary_4() const { return secondary_4; }
+           long double get_secondary_5() const { return secondary_5; }
+           
+           EOSLIB_SERIALIZE( record, (primary)(secondary_1)(secondary_2)(secondary_3)(secondary_4)(secondary_5)(data) )
+       };
 
          typedef eosio::multi_index<N(accounts), account> accounts;
          typedef eosio::multi_index<N(stat), currency_stats> stats;
+       
+       
+       typedef multi_index<N(records), record,
+           indexed_by< N(bysecondary1), const_mem_fun<record, uint64_t, &record::get_secondary_1> >,
+           indexed_by< N(bysecondary2), const_mem_fun<record, uint128_t, &record::get_secondary_2> >,
+           indexed_by< N(bysecondary3), const_mem_fun<record, key256, &record::get_secondary_3> >,
+           indexed_by< N(bysecondary4), const_mem_fun<record, double, &record::get_secondary_4> >,
+           indexed_by< N(bysecondary5), const_mem_fun<record, long double, &record::get_secondary_5> >
+       > records;
 
          void sub_balance( account_name owner, asset value );
          void add_balance( account_name owner, asset value, account_name ram_payer );

@@ -8,6 +8,7 @@
 #include <eosiolib/chain.h>
 #include <math.h>
 #include <eosiolib/crypto.h>
+#include <eosiolib/print.h>
 
 namespace eosio {
 
@@ -288,18 +289,19 @@ void token::testcrypto( account_name name )
 	checksum256 h_sha256;
 	checksum512 h_sha512;
 	
-	char data[4096];
+    const int size = 4096;
+	char data[size];
 	
 	for (int i=0; i<100; i++) {
-		sha1(data, 0, &h_sha1);
-		ripemd160(data, 0, &h_ripemd);
-		sha256(data, 0, &h_sha256);
-		sha512(data, 0, &h_sha512);
+		sha1(data, size, &h_sha1);
+		ripemd160(data, size, &h_ripemd);
+		sha256(data, size, &h_sha256);
+		sha512(data, size, &h_sha512);
 		
-		assert_sha1(data, 0, &h_sha1);
-		assert_ripemd160(data, 0, &h_ripemd);
-		assert_sha256(data, 0, &h_sha256);
-		assert_sha512(data, 0, &h_sha512);
+		assert_sha1(data, size, &h_sha1);
+		assert_ripemd160(data, size, &h_ripemd);
+		assert_sha256(data, size, &h_sha256);
+		assert_sha512(data, size, &h_sha512);
 		
 		char sig[65];
 		sig[0] = 31;
@@ -310,6 +312,234 @@ void token::testcrypto( account_name name )
 	}
 }
 
+void token::testprint( account_name name )
+{
+    int128_t a = 10;
+    uint128_t b = 20;
+    long double c = 5.0;
+    char data[4096];
+    memset(data, 'A', 4096);
+    for (int i=0; i<100; i++) {
+        prints("hello world.");
+        prints_l(data, 128);
+        printi(1);
+        printui(1);
+        printi128(&a);
+        printui128(&b);
+        printsf(2.0f);
+        printdf(3.0);
+        printqf(&c);
+        printn(7);
+        printhex(data, 128);
+    }
+}
+    
+    extern "C" {
+        uint64_t current_time();
+        uint64_t publication_time();
+    }
+    
+    void token::testsystemapi( account_name name )
+    {
+        uint64_t x = 0;
+        for (int i=0; i<100; i++) {
+            x += current_time();
+            x += publication_time();
+        }
+        eosio_assert(x, "oops!");
+    }
+    
+    void token::testmem( account_name name )
+    {
+        const int size = 4096;
+        char buf1[size];
+        char buf2[size];
+        
+        buf1[0] = 1; buf2[0] = 2;
+        int s = 0;
+        for (int i=0; i<100; i++) {
+            s += (memcmp(buf1, buf2, size) != 0);
+            memcpy(buf1, buf2, size);
+            memmove(buf1, buf2, size);
+            memset(buf1, 0, size);
+        }
+        eosio_assert(s==100, "oops!");
+    }
+    
+    void token::testdb( account_name name )
+    {
+        records r(_self, _self);
+        for (int i=0; i<100; i++) {
+            r.get_code();
+            r.get_scope();
+            r.emplace( _self, [&]( auto& s ) {
+                s.primary = r.available_primary_key();
+                s.secondary_1 = 101;
+                s.secondary_2 = 101;
+                s.secondary_3 = key256(std::array<uint64_t, 4> {101, 0, 0, 0});
+                s.secondary_4 = 101;
+                s.secondary_5 = 101;
+                s.data = string(4096, 'A');
+            });
+        }
+        
+        for (int i=0; i<100; i++) {
+            r.lower_bound(i);
+            r.upper_bound(i);
+        }
+        
+        auto pk_iter = r.begin();
+        auto pk_end = r.end();
+        while (pk_iter != pk_end) {
+            r.modify(pk_iter, _self, [&]( auto& s ) {
+                s.secondary_1 = 100;
+                s.secondary_2 = 100;
+                s.secondary_3 = key256(std::array<uint64_t, 4> {100, 0, 0, 0});
+                s.secondary_4 = 100;
+                s.secondary_5 = 100;
+                s.data = string(4096, 'B');
+            });
+            pk_iter++;
+        }
+
+        {
+            auto idx = r.get_index<N(bysecondary1)>();
+            {
+                for (int i=0; i<100; i++) {
+                    uint64_t pk;
+                    uint64_t sec;
+                    db_idx64_find_primary(_self, _self, N(records), &sec, i);
+                    sec = 100;
+                    db_idx64_find_secondary(_self, _self, N(records), &sec, &pk);
+                }
+            }
+            auto iter = idx.lower_bound(100);
+            auto end = idx.upper_bound(100);
+            while (iter != end) {
+                iter++;
+            }
+            {
+                auto riter = idx.rbegin();
+                auto rend = idx.rend();
+                while (riter != rend) {
+                    riter++;
+                }
+            }
+        }
+        {
+            auto idx = r.get_index<N(bysecondary2)>();
+            {
+                for (int i=0; i<100; i++) {
+                    uint64_t pk;
+                    uint128_t sec;
+                    db_idx128_find_primary(_self, _self, N(records), &sec, i);
+                    sec = 100;
+                    db_idx128_find_secondary(_self, _self, N(records), &sec, &pk);
+                }
+            }
+            auto iter = idx.lower_bound(100);
+            auto end = idx.upper_bound(100);
+            while (iter != end) {
+                iter++;
+            }
+            {
+                auto riter = idx.rbegin();
+                auto rend = idx.rend();
+                while (riter != rend) {
+                    riter++;
+                }
+            }
+        }
+        {
+            auto idx = r.get_index<N(bysecondary3)>();
+            {
+                for (int i=0; i<100; i++) {
+                    uint64_t pk;
+                    key256 sec;
+                    db_idx256_find_primary(_self, _self, N(records), sec.data(), key256::num_words(), i);
+                    sec = key256(std::array<uint64_t, 4> {100, 0, 0, 0});
+                    db_idx256_find_secondary(_self, _self, N(records), sec.data(), key256::num_words(), &pk);
+                }
+            }
+            auto iter = idx.lower_bound(key256(std::array<uint64_t, 4> {100, 0, 0, 0}));
+            auto end = idx.upper_bound(key256(std::array<uint64_t, 4> {100, 0, 0, 0}));
+            while (iter != end) {
+                iter++;
+            }
+            {
+                auto riter = idx.rbegin();
+                auto rend = idx.rend();
+                while (riter != rend) {
+                    riter++;
+                }
+            }
+        }
+        {
+            auto idx = r.get_index<N(bysecondary4)>();
+            {
+                for (int i=0; i<100; i++) {
+                    uint64_t pk;
+                    double sec;
+                    db_idx_double_find_primary(_self, _self, N(records), &sec, i);
+                    sec = 100;
+                    db_idx_double_find_secondary(_self, _self, N(records), &sec, &pk);
+                }
+            }
+            auto iter = idx.lower_bound(100);
+            auto end = idx.upper_bound(100);
+            while (iter != end) {
+                iter++;
+            }
+            {
+                auto riter = idx.rbegin();
+                auto rend = idx.rend();
+                while (riter != rend) {
+                    riter++;
+                }
+            }
+        }
+        {
+            auto idx = r.get_index<N(bysecondary5)>();
+            {
+                for (int i=0; i<100; i++) {
+                    uint64_t pk;
+                    long double sec;
+                    db_idx_long_double_find_primary(_self, _self, N(records), &sec, i);
+                    sec = 100;
+                    db_idx_long_double_find_secondary(_self, _self, N(records), &sec, &pk);
+                }
+            }
+            auto iter = idx.lower_bound(100);
+            auto end = idx.upper_bound(100);
+            while (iter != end) {
+                iter++;
+            }
+            {
+                auto riter = idx.rbegin();
+                auto rend = idx.rend();
+                while (riter != rend) {
+                    riter++;
+                }
+            }
+        }
+
+        auto pk_riter = r.rbegin();
+        auto pk_rend = r.rend();
+        while (pk_riter != pk_rend) {
+            pk_riter++;
+        }
+        auto pk_citer = r.cbegin();
+        auto pk_cend = r.cend();
+        while (pk_citer != pk_cend) {
+            pk_citer++;
+        }
+        
+        for (int i=0; i<100; i++) {
+            r.erase(r.cbegin());
+        }
+//        r.erase(r.cend());
+    }
+    
 } /// namespace eosio
 
-EOSIO_ABI( eosio::token, (create)(issue)(transfer)(testcb)(testchain)(testfloat)(testcrypto) )
+EOSIO_ABI( eosio::token, (create)(issue)(transfer)(testcb)(testchain)(testfloat)(testcrypto)(testprint)(testsystemapi)(testmem)(testdb) )
