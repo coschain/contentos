@@ -136,6 +136,7 @@ namespace contento { namespace chain {
          account_id_type   account;
    };
 
+   typedef fc::array< account_name_type, CONTENTO_MAX_WITNESSES > shuffled_witness_array_type;
    class witness_schedule_object : public object< witness_schedule_object_type, witness_schedule_object >
    {
       public:
@@ -151,7 +152,7 @@ namespace contento { namespace chain {
 
          fc::uint128                                                       current_virtual_time;
          uint32_t                                                          next_shuffle_block_num = 1;
-         fc::array< account_name_type, CONTENTO_MAX_WITNESSES >             current_shuffled_witnesses;
+         shuffled_witness_array_type                                       current_shuffled_witnesses;
          uint8_t                                                           num_scheduled_witnesses = 1;
          uint8_t                                                           top19_weight = 1;
          uint8_t                                                           timeshare_weight = 5;
