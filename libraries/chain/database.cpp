@@ -599,6 +599,12 @@ bool database::_push_block(const signed_block& new_block)
          //Only switch forks if new_head is actually higher than head
          if( new_head->data.block_num() > head_block_num() )
          {
+             // the generate node should never come this if
+             if( skip & skip_apply_transaction ) {
+                 _pending_tx_session.reset();
+             }
+
+
             // wlog( "Switching to fork: ${id}", ("id",new_head->data.id()) );
             auto branches = _fork_db.fetch_branch_from(new_head->data.id(), head_block_id());
 
@@ -730,6 +736,8 @@ void database::_push_transaction( const signed_transaction& trx )
    notify_changed_objects();
    // The transaction applied successfully. Merge its changes into the pending block session.
    temp_session.squash();
+
+   _pending_tx_session.reset();
 
    // notify anyone listening to pending transactions
    notify_on_pending_transaction( trx );
@@ -925,10 +933,22 @@ signed_block database::_generate_block(
       FC_ASSERT( fc::raw::pack_size(pending_block) <= CONTENTO_MAX_BLOCK_SIZE );
    }
 
-   _pending_tx_session.push();
+   //_pending_tx_session.push();
 
     
-    push_block( pending_block, skip | skip_apply_transaction );
+    auto res = push_block( pending_block, skip | skip_apply_transaction );
+    if ( res ) {
+        
+    } else {
+        if ( pending_block.block_num() == head_block_num() )
+        {
+            _pending_tx_session.push();
+        }
+        else {
+            _pending_tx_session.reset();
+        }
+    }
+
     return pending_block;
 }
 
@@ -962,7 +982,7 @@ void database::clear_pending()
    {
       assert( (_pending_tx.size() == 0) || _pending_tx_session.valid() );
       _pending_tx.clear();
-      _pending_tx_session.reset();
+      //_pending_tx_session.reset();
    }
    FC_CAPTURE_AND_RETHROW()
 }

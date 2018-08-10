@@ -231,7 +231,11 @@ namespace fc {
           _valid = false;
       }
       void push() {
-        ref().push();
+          if( _valid ) 
+          {
+              ref().push();
+          }
+          _valid = false;
       }
     private:
       template<typename U> friend class optional;
