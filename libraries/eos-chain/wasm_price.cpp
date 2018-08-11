@@ -82,9 +82,9 @@
 // database_api
 #define WASM_PRICE_FN_db_end_i64                                             61
 #define WASM_PRICE_FN_db_find_i64                                            225
-#define WASM_PRICE_FN_db_get_i64                                             0      // varied
-#define WASM_PRICE_FN_db_store_i64                                           0      // varied
-#define WASM_PRICE_FN_db_update_i64                                          0      // varied
+//#define WASM_PRICE_FN_db_get_i64                                             0      // varied
+//#define WASM_PRICE_FN_db_store_i64                                           0      // varied
+//#define WASM_PRICE_FN_db_update_i64                                          0      // varied
 #define WASM_PRICE_FN_db_upperbound_i64                                      135
 #define WASM_PRICE_FN_db_lowerbound_i64                                      72
 #define WASM_PRICE_FN_db_next_i64                                            52
@@ -149,17 +149,17 @@
 // crypto_api
 #define WASM_PRICE_FN_assert_recover_key                                     31462
 #define WASM_PRICE_FN_recover_key                                            31462
-#define WASM_PRICE_FN_assert_sha256                                          0      // varied
-#define WASM_PRICE_FN_assert_sha1                                            0      // varied
-#define WASM_PRICE_FN_assert_sha512                                          0      // varied
-#define WASM_PRICE_FN_assert_ripemd160                                       0      // varied
-#define WASM_PRICE_FN_sha1                                                   0      // varied
-#define WASM_PRICE_FN_sha256                                                 0      // varied
-#define WASM_PRICE_FN_sha512                                                 0      // varied
-#define WASM_PRICE_FN_ripemd160                                              0      // varied
+//#define WASM_PRICE_FN_assert_sha256                                          0      // varied
+//#define WASM_PRICE_FN_assert_sha1                                            0      // varied
+//#define WASM_PRICE_FN_assert_sha512                                          0      // varied
+//#define WASM_PRICE_FN_assert_ripemd160                                       0      // varied
+//#define WASM_PRICE_FN_sha1                                                   0      // varied
+//#define WASM_PRICE_FN_sha256                                                 0      // varied
+//#define WASM_PRICE_FN_sha512                                                 0      // varied
+//#define WASM_PRICE_FN_ripemd160                                              0      // varied
 
 // permission_api
-#define WASM_PRICE_FN_check_transaction_authorization                        0      // varied
+//#define WASM_PRICE_FN_check_transaction_authorization                        0      // varied
 #define WASM_PRICE_FN_check_permission_authorization                         200000
 #define WASM_PRICE_FN_get_permission_last_used                               49
 #define WASM_PRICE_FN_get_account_creation_time                              86
@@ -176,7 +176,7 @@
 #define WASM_PRICE_FN_eosio_exit                                             WASM_PRICE_UNEXPECTED
 
 // action_api
-#define WASM_PRICE_FN_read_action_data                                       0      // varied
+//#define WASM_PRICE_FN_read_action_data                                       0      // varied
 #define WASM_PRICE_FN_action_data_size                                       31
 #define WASM_PRICE_FN_current_receiver                                       13
 
@@ -189,7 +189,7 @@
 
 // console_api
 #define WASM_PRICE_FN_prints                                                 68
-#define WASM_PRICE_FN_prints_l                                               0      // varied
+//#define WASM_PRICE_FN_prints_l                                               0      // varied
 #define WASM_PRICE_FN_printi                                                 120
 #define WASM_PRICE_FN_printui                                                100
 #define WASM_PRICE_FN_printi128                                              120
@@ -198,7 +198,7 @@
 #define WASM_PRICE_FN_printdf                                                160
 #define WASM_PRICE_FN_printqf                                                160
 #define WASM_PRICE_FN_printn                                                 54
-#define WASM_PRICE_FN_printhex                                               0      // varied
+//#define WASM_PRICE_FN_printhex                                               0      // varied
 
 // context_free_transaction_api
 #define WASM_PRICE_FN_read_transaction                                       0      // benchmark missed
@@ -215,13 +215,13 @@
 #define WASM_PRICE_FN_cancel_deferred                                        1      // feature removed
 
 // context_free_api
-#define WASM_PRICE_FN_get_context_free_data                                  0      // varied
+//#define WASM_PRICE_FN_get_context_free_data                                  0      // varied
 
 // memory_api
-#define WASM_PRICE_FN_memcpy                                                 0      // varied
-#define WASM_PRICE_FN_memmove                                                0      // varied
-#define WASM_PRICE_FN_memcmp                                                 0      // varied
-#define WASM_PRICE_FN_memset                                                 0      // varied
+//#define WASM_PRICE_FN_memcpy                                                 0      // varied
+//#define WASM_PRICE_FN_memmove                                                0      // varied
+//#define WASM_PRICE_FN_memcmp                                                 0      // varied
+//#define WASM_PRICE_FN_memset                                                 0      // varied
 
 // softfloat_api
 // all softfloat prices are from 9 to 13. quite fast and close.
@@ -307,8 +307,79 @@ namespace eosio { namespace chain { namespace wasm_price {
     //
     ///////////////////////////////////
     
-    // none so far...
+    // database_api
+    uint64_t db_get_i64(apply_context*, int, int, int, int len) {
+        return 24 + (len >> 8);
+    }
+    uint64_t db_update_i64(apply_context*, void*, int, int64_t, int, int len) {
+        return 128 + (len >> 5);
+    }
+    uint64_t db_store_i64(apply_context*, int, int64_t, int64_t, int64_t, int64_t, int, int len) {
+        return 1280 + len / 3;
+    }
     
+    // crypto_api
+    uint64_t sha1(apply_context*, void*, int, int len, int) {
+        return 72 + len / 5;
+    }
+    uint64_t sha256(apply_context*, void*, int, int len, int) {
+        return 72 + (len >> 1);
+    }
+    uint64_t sha512(apply_context*, void*, int, int len, int) {
+        return 72 + (len >> 1);
+    }
+    uint64_t ripemd160(apply_context*, void*, int, int len, int) {
+        return 72 + 3 * (len >> 2);
+    }
+    uint64_t assert_sha1(apply_context*, void*, int, int len, int) {
+        return 72 + len / 5;
+    }
+    uint64_t assert_sha256(apply_context*, void*, int, int len, int) {
+        return 72 + (len >> 1);
+    }
+    uint64_t assert_sha512(apply_context*, void*, int, int len, int) {
+        return 72 + (len >> 1);
+    }
+    uint64_t assert_ripemd160(apply_context*, void*, int, int len, int) {
+        return 72 + 3 * (len >> 2);
+    }
+    
+    // permission_api
+    uint64_t check_transaction_authorization(apply_context*, int, int, int trx_size, int, int, int, int) {
+        return ( 1 + (trx_size >> 8) ) * WASM_PRICE_FN_check_permission_authorization;
+    }
+    
+    // action_api
+    uint64_t read_action_data(apply_context*, int read_len, int, int) {
+        return 95 + (read_len >> 7);
+    }
+    
+    // console_api
+    uint64_t prints_l(apply_context*, void*, int, int len) {
+        return 62 + (len >> 4);
+    }
+    uint64_t printhex(apply_context*, void*, int, int len) {
+        return 62 + (len << 2);
+    }
+    
+    // context_free_api
+    uint64_t get_context_free_data(apply_context*, int read_len, int, int, int) {
+        return 95 + (read_len >> 7);
+    }
+    
+    // memory_api
+    uint64_t memcpy(apply_context*, int, int, int, int len) {
+        return 10 + (len >> 7);
+    }
+    uint64_t memmove(apply_context*, int, int, int, int len) {
+        return 10 + (len >> 7);
+    }
+    uint64_t memcmp(apply_context*, int, int, int, int len) {
+        return 30 + 3 * (len >> 7);
+    }
+    uint64_t memset(apply_context*, int, int, int, int len) {
+        return 20 + (len >> 6);
+    }
     
 
     ///////////////////////////////////
@@ -400,10 +471,10 @@ namespace eosio { namespace chain { namespace wasm_price {
     
     // database_api
     WASM_PRICE_FN_CONSTS(
-                         (db_store_i64,        (int, int64_t,int64_t,int64_t,int64_t,int,int))
-                         (db_update_i64,       (void*, int,int64_t,int,int))
+//                         (db_store_i64,        (int, int64_t,int64_t,int64_t,int64_t,int,int))
+//                         (db_update_i64,       (void*, int,int64_t,int,int))
                          (db_remove_i64,       (void*, int))
-                         (db_get_i64,          (int, int, int, int))
+//                         (db_get_i64,          (int, int, int, int))
                          (db_next_i64,         (int, int, int))
                          (db_previous_i64,     (int, int, int))
                          (db_find_i64,         (int, int64_t,int64_t,int64_t,int64_t))
@@ -422,19 +493,19 @@ namespace eosio { namespace chain { namespace wasm_price {
     WASM_PRICE_FN_CONSTS(
                          (assert_recover_key,     (void*, int, int, int, int, int) )
                          (recover_key,            (int, int, int, int, int, int)  )
-                         (assert_sha256,          (void*, int, int, int)           )
-                         (assert_sha1,            (void*, int, int, int)           )
-                         (assert_sha512,          (void*, int, int, int)           )
-                         (assert_ripemd160,       (void*, int, int, int)           )
-                         (sha1,                   (void*, int, int, int)           )
-                         (sha256,                 (void*, int, int, int)           )
-                         (sha512,                 (void*, int, int, int)           )
-                         (ripemd160,              (void*, int, int, int)           )
+//                         (assert_sha256,          (void*, int, int, int)           )
+//                         (assert_sha1,            (void*, int, int, int)           )
+//                         (assert_sha512,          (void*, int, int, int)           )
+//                         (assert_ripemd160,       (void*, int, int, int)           )
+//                         (sha1,                   (void*, int, int, int)           )
+//                         (sha256,                 (void*, int, int, int)           )
+//                         (sha512,                 (void*, int, int, int)           )
+//                         (ripemd160,              (void*, int, int, int)           )
                          );
     
     // permission_api
     WASM_PRICE_FN_CONSTS(
-                         (check_transaction_authorization, (int, int, int, int, int, int, int)                  )
+//                         (check_transaction_authorization, (int, int, int, int, int, int, int)                  )
                          (check_permission_authorization,  (int, int64_t, int64_t, int, int, int, int, int64_t) )
                          (get_permission_last_used,        (int64_t, int64_t, int64_t) )
                          (get_account_creation_time,       (int64_t, int64_t) )
@@ -457,7 +528,7 @@ namespace eosio { namespace chain { namespace wasm_price {
     
     // action_api
     WASM_PRICE_FN_CONSTS(
-                         (read_action_data,       (int, int, int)  )
+//                         (read_action_data,       (int, int, int)  )
                          (action_data_size,       (int)          )
                          (current_receiver,   (int64_t)          )
                          );
@@ -474,7 +545,7 @@ namespace eosio { namespace chain { namespace wasm_price {
     // console_api
     WASM_PRICE_FN_CONSTS(
                          (prints,                (void*, int)      )
-                         (prints_l,              (void*, int, int) )
+//                         (prints_l,              (void*, int, int) )
                          (printi,                (void*, int64_t)  )
                          (printui,               (void*, int64_t)  )
                          (printi128,             (void*, int)      )
@@ -483,7 +554,7 @@ namespace eosio { namespace chain { namespace wasm_price {
                          (printdf,               (void*, double)   )
                          (printqf,               (void*, int)      )
                          (printn,                (void*, int64_t)  )
-                         (printhex,              (void*, int, int) )
+//                         (printhex,              (void*, int, int) )
                          );
     
     // context_free_transaction_api
@@ -505,17 +576,17 @@ namespace eosio { namespace chain { namespace wasm_price {
                          );
     
     // context_free_api
-    WASM_PRICE_FN_CONSTS(
-                         (get_context_free_data, (int, int, int, int) )
-                         );
+//    WASM_PRICE_FN_CONSTS(
+//                         (get_context_free_data, (int, int, int, int) )
+//                         );
     
     // memory_api
-    WASM_PRICE_FN_CONSTS(
-                         (memcpy,                 (int, int, int, int)  )
-                         (memmove,                (int, int, int, int)  )
-                         (memcmp,                 (int, int, int, int)  )
-                         (memset,                 (int, int, int, int)  )
-                         );
+//    WASM_PRICE_FN_CONSTS(
+//                         (memcpy,                 (int, int, int, int)  )
+//                         (memmove,                (int, int, int, int)  )
+//                         (memcmp,                 (int, int, int, int)  )
+//                         (memset,                 (int, int, int, int)  )
+//                         );
     
     // softfloat_api
     WASM_PRICE_FN_CONSTS(
