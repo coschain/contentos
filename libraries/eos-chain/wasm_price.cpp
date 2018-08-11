@@ -201,12 +201,12 @@
 //#define WASM_PRICE_FN_printhex                                               0      // varied
 
 // context_free_transaction_api
-#define WASM_PRICE_FN_read_transaction                                       0      // benchmark missed
-#define WASM_PRICE_FN_transaction_size                                       0      // benchmark missed
-#define WASM_PRICE_FN_expiration                                             0      // benchmark missed
-#define WASM_PRICE_FN_tapos_block_prefix                                     0      // benchmark missed
-#define WASM_PRICE_FN_tapos_block_num                                        0      // benchmark missed
-#define WASM_PRICE_FN_get_action                                             0      // benchmark missed
+//#define WASM_PRICE_FN_read_transaction                                       0      // varied
+#define WASM_PRICE_FN_transaction_size                                       66
+#define WASM_PRICE_FN_expiration                                             14
+#define WASM_PRICE_FN_tapos_block_prefix                                     13
+#define WASM_PRICE_FN_tapos_block_num                                        15
+//#define WASM_PRICE_FN_get_action                                             0      // varied
 
 // transaction_api
 #define WASM_PRICE_FN_send_inline                                            1984
@@ -378,6 +378,16 @@ namespace eosio { namespace chain { namespace wasm_price {
     uint64_t printhex(apply_context*, void*, int, int len) {
         // larger the data, higher the price.
         return 62 + (len << 2);
+    }
+    
+    // context_free_transaction_api
+    uint64_t read_transaction(apply_context*, int read_len, int, int) {
+        // larger the value, higher the price.
+        return 66 + (read_len >> 7);
+    }
+    uint64_t get_action(apply_context*, int action_size, int, int, int, int) {
+        // larger the value, higher the price.
+        return 24 + (action_size >> 7);
     }
     
     // context_free_api
@@ -584,12 +594,12 @@ namespace eosio { namespace chain { namespace wasm_price {
     
     // context_free_transaction_api
     WASM_PRICE_FN_CONSTS(
-                         (read_transaction,       (int, int, int)            )
+//                         (read_transaction,       (int, int, int)            )
                          (transaction_size,       (int)                    )
                          (expiration,             (int)                    )
                          (tapos_block_prefix,     (int)                    )
                          (tapos_block_num,        (int)                    )
-                         (get_action,             (int, int, int, int, int) )
+//                         (get_action,             (int, int, int, int, int) )
                          );
     
     // transaction_api

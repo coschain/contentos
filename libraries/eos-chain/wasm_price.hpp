@@ -296,8 +296,9 @@ namespace eosio { namespace chain { namespace wasm_price {
                         );
 
 //
-// price of unexpected behaviors such as Unreachable intrinsic and/or assertions
-// this price should be high as a penalty for buggy codes.
+// price of unexpected behaviors such as Unreachable intrinsic and/or assertions.
+// this price is useless coz prices are given after return of intrinsics,
+// but unexpected behaviors raise exceptions.
 //
 #define WASM_PRICE_UNEXPECTED      100000
 
