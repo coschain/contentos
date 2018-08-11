@@ -10,6 +10,7 @@
 #include <eosiolib/crypto.h>
 #include <eosiolib/print.h>
 #include <eosiolib/permission.h>
+#include <eosiolib/transaction.h>
 
 namespace eosio {
 
@@ -571,6 +572,21 @@ void token::testprint( account_name name )
         
     }
     
+    void token::testtrx( account_name name ) {
+        char *buf = (char*)malloc(1048576);
+        size_t action_size = get_action(1, 0, (char*)0, 0);
+        for (int i=0; i<100; i++) {
+        	size_t trx_size = transaction_size();
+        	read_transaction(buf, trx_size);
+        	expiration();
+        	tapos_block_num();
+        	tapos_block_prefix();
+        	get_action(1, 0, buf, action_size);
+        }
+        free(buf);
+    }
+    
+    
 } /// namespace eosio
 
-EOSIO_ABI( eosio::token, (create)(issue)(transfer)(testcb)(testchain)(testfloat)(testcrypto)(testprint)(testsystemapi)(testmem)(testdb)(testtrxauth) )
+EOSIO_ABI( eosio::token, (create)(issue)(transfer)(testcb)(testchain)(testfloat)(testcrypto)(testprint)(testsystemapi)(testmem)(testdb)(testtrxauth)(testtrx) )

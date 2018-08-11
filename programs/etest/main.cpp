@@ -87,6 +87,12 @@ transaction_trace_ptr test_trxauth( tester& tester, name foo ) {
                               );
 }
 
+transaction_trace_ptr test_trx( tester& tester, name foo ) {
+    return tester.push_action( N(eosio.token), N(testtrx), foo, mutable_variant_object()
+                              ("name",    foo)
+                              );
+}
+
 
 #define CORE_AMOUNT(s)  (s " " CORE_SYMBOL_NAME)
 
@@ -126,6 +132,7 @@ void test_eosio() {
     
     trace_ptr = test_db( tester, N(alice) );
     trace_ptr = test_trxauth( tester, N(alice) );
+    trace_ptr = test_trx( tester, N(alice) );
 }
 
 int main(int argc, char** argv) {

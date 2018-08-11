@@ -38,6 +38,7 @@ const char* const eosio_token_wast = R"=====(
  (type $FUNCSIG$ijjj (func (param i64 i64 i64) (result i32)))
  (type $FUNCSIG$ijjjji (func (param i64 i64 i64 i64 i32) (result i32)))
  (type $FUNCSIG$ijjiiiij (func (param i64 i64 i32 i32 i32 i32 i64) (result i32)))
+ (type $FUNCSIG$iiiii (func (param i32 i32 i32 i32) (result i32)))
  (type $FUNCSIG$i (func (result i32)))
  (import "env" "__addtf3" (func $__addtf3 (param i32 i64 i64 i64 i64)))
  (import "env" "__ashlti3" (func $__ashlti3 (param i32 i64 i64 i32)))
@@ -153,7 +154,9 @@ const char* const eosio_token_wast = R"=====(
  (import "env" "db_update_i64" (func $db_update_i64 (param i32 i64 i32 i32)))
  (import "env" "db_upperbound_i64" (func $db_upperbound_i64 (param i64 i64 i64 i64) (result i32)))
  (import "env" "eosio_assert" (func $eosio_assert (param i32 i32)))
+ (import "env" "expiration" (func $expiration (result i32)))
  (import "env" "get_account_creation_time" (func $get_account_creation_time (param i64) (result i64)))
+ (import "env" "get_action" (func $get_action (param i32 i32 i32 i32) (result i32)))
  (import "env" "get_active_producers" (func $get_active_producers (param i32 i32) (result i32)))
  (import "env" "get_permission_last_used" (func $get_permission_last_used (param i64 i64) (result i64)))
  (import "env" "has_auth" (func $has_auth (param i64) (result i32)))
@@ -174,6 +177,7 @@ const char* const eosio_token_wast = R"=====(
  (import "env" "printui128" (func $printui128 (param i32)))
  (import "env" "publication_time" (func $publication_time (result i64)))
  (import "env" "read_action_data" (func $read_action_data (param i32 i32) (result i32)))
+ (import "env" "read_transaction" (func $read_transaction (param i32 i32) (result i32)))
  (import "env" "recover_key" (func $recover_key (param i32 i32 i32 i32 i32) (result i32)))
  (import "env" "require_auth" (func $require_auth (param i64)))
  (import "env" "require_auth2" (func $require_auth2 (param i64 i64)))
@@ -183,8 +187,11 @@ const char* const eosio_token_wast = R"=====(
  (import "env" "sha1" (func $sha1 (param i32 i32 i32)))
  (import "env" "sha256" (func $sha256 (param i32 i32 i32)))
  (import "env" "sha512" (func $sha512 (param i32 i32 i32)))
- (table 13 13 anyfunc)
- (elem (i32.const 0) $__wasm_nullptr $_ZN5eosio5token10testcryptoEy $_ZN5eosio5token11testtrxauthEy $_ZN5eosio5token7testmemEy $_ZN5eosio5token6createEyNS_5assetE $_ZN5eosio5token6testcbEy $_ZN5eosio5token9testchainEy $_ZN5eosio5token9testprintEy $_ZN5eosio5token13testsystemapiEy $_ZN5eosio5token6testdbEy $_ZN5eosio5token9testfloatEy $_ZN5eosio5token8transferEyyNS_5assetENSt3__112basic_stringIcNS2_11char_traitsIcEENS2_9allocatorIcEEEE $_ZN5eosio5token5issueEyNS_5assetENSt3__112basic_stringIcNS2_11char_traitsIcEENS2_9allocatorIcEEEE)
+ (import "env" "tapos_block_num" (func $tapos_block_num (result i32)))
+ (import "env" "tapos_block_prefix" (func $tapos_block_prefix (result i32)))
+ (import "env" "transaction_size" (func $transaction_size (result i32)))
+ (table 14 14 anyfunc)
+ (elem (i32.const 0) $__wasm_nullptr $_ZN5eosio5token8transferEyyNS_5assetENSt3__112basic_stringIcNS2_11char_traitsIcEENS2_9allocatorIcEEEE $_ZN5eosio5token10testcryptoEy $_ZN5eosio5token7testtrxEy $_ZN5eosio5token7testmemEy $_ZN5eosio5token6createEyNS_5assetE $_ZN5eosio5token11testtrxauthEy $_ZN5eosio5token6testcbEy $_ZN5eosio5token9testchainEy $_ZN5eosio5token9testprintEy $_ZN5eosio5token13testsystemapiEy $_ZN5eosio5token6testdbEy $_ZN5eosio5token9testfloatEy $_ZN5eosio5token5issueEyNS_5assetENSt3__112basic_stringIcNS2_11char_traitsIcEENS2_9allocatorIcEEEE)
  (memory $0 1)
  (data (i32.const 4) "0i\00\00")
  (data (i32.const 16) "active\00")
@@ -260,6 +267,7 @@ const char* const eosio_token_wast = R"=====(
  (export "_ZN5eosio5token7testmemEy" (func $_ZN5eosio5token7testmemEy))
  (export "_ZN5eosio5token6testdbEy" (func $_ZN5eosio5token6testdbEy))
  (export "_ZN5eosio5token11testtrxauthEy" (func $_ZN5eosio5token11testtrxauthEy))
+ (export "_ZN5eosio5token7testtrxEy" (func $_ZN5eosio5token7testtrxEy))
  (export "apply" (func $apply))
  (export "malloc" (func $malloc))
  (export "free" (func $free))
@@ -22745,6 +22753,63 @@ const char* const eosio_token_wast = R"=====(
    )
   )
  )
+ (func $_ZN5eosio5token7testtrxEy (type $FUNCSIG$vij) (param $0 i32) (param $1 i64)
+  (local $2 i32)
+  (local $3 i32)
+  (local $4 i32)
+  (set_local $2
+   (call $malloc
+    (i32.const 1048576)
+   )
+  )
+  (set_local $3
+   (call $get_action
+    (i32.const 1)
+    (i32.const 0)
+    (i32.const 0)
+    (i32.const 0)
+   )
+  )
+  (set_local $4
+   (i32.const 100)
+  )
+  (loop $label$0
+   (drop
+    (call $read_transaction
+     (get_local $2)
+     (call $transaction_size)
+    )
+   )
+   (drop
+    (call $expiration)
+   )
+   (drop
+    (call $tapos_block_num)
+   )
+   (drop
+    (call $tapos_block_prefix)
+   )
+   (drop
+    (call $get_action
+     (i32.const 1)
+     (i32.const 0)
+     (get_local $2)
+     (get_local $3)
+    )
+   )
+   (br_if $label$0
+    (tee_local $4
+     (i32.add
+      (get_local $4)
+      (i32.const -1)
+     )
+    )
+   )
+  )
+  (call $free
+   (get_local $2)
+  )
+ )
  (func $apply (param $0 i64) (param $1 i64) (param $2 i64)
   (local $3 i32)
   (local $4 i32)
@@ -22760,7 +22825,7 @@ const char* const eosio_token_wast = R"=====(
      (i32.load offset=4
       (i32.const 0)
      )
-     (i32.const 208)
+     (i32.const 224)
     )
    )
   )
@@ -23196,7 +23261,7 @@ const char* const eosio_token_wast = R"=====(
      )
     )
    )
-   (i64.store offset=200
+   (i64.store offset=216
     (get_local $9)
     (get_local $0)
    )
@@ -23211,11 +23276,64 @@ const char* const eosio_token_wast = R"=====(
            (block $label$29
             (block $label$30
              (block $label$31
-              (br_if $label$31
-               (i64.gt_s
-                (get_local $2)
-                (i64.const -3841118729638772737)
+              (block $label$32
+               (br_if $label$32
+                (i64.le_s
+                 (get_local $2)
+                 (i64.const -3841118729638772737)
+                )
                )
+               (br_if $label$31
+                (i64.le_s
+                 (get_local $2)
+                 (i64.const -3841116522779616769)
+                )
+               )
+               (br_if $label$29
+                (i64.gt_s
+                 (get_local $2)
+                 (i64.const 5031766152489992191)
+                )
+               )
+               (br_if $label$28
+                (i64.eq
+                 (get_local $2)
+                 (i64.const -3841116522779616768)
+                )
+               )
+               (br_if $label$13
+                (i64.ne
+                 (get_local $2)
+                 (i64.const -3617168760277827584)
+                )
+               )
+               (i32.store offset=196
+                (get_local $9)
+                (i32.const 0)
+               )
+               (i32.store offset=192
+                (get_local $9)
+                (i32.const 1)
+               )
+               (i64.store offset=24 align=4
+                (get_local $9)
+                (i64.load offset=192
+                 (get_local $9)
+                )
+               )
+               (drop
+                (call $_ZN5eosio14execute_actionINS_5tokenES1_JyyNS_5assetENSt3__112basic_stringIcNS3_11char_traitsIcEENS3_9allocatorIcEEEEEEEbPT_MT0_FvDpT1_E
+                 (i32.add
+                  (get_local $9)
+                  (i32.const 216)
+                 )
+                 (i32.add
+                  (get_local $9)
+                  (i32.const 24)
+                 )
+                )
+               )
+               (br $label$13)
               )
               (br_if $label$30
                (i64.gt_s
@@ -23223,13 +23341,13 @@ const char* const eosio_token_wast = R"=====(
                 (i64.const -3841125609434513409)
                )
               )
-              (br_if $label$28
+              (br_if $label$27
                (i64.eq
                 (get_local $2)
                 (i64.const -3841126159190327296)
                )
               )
-              (br_if $label$27
+              (br_if $label$26
                (i64.eq
                 (get_local $2)
                 (i64.const -3841126052645044224)
@@ -23241,17 +23359,17 @@ const char* const eosio_token_wast = R"=====(
                 (i64.const -3841125867840536576)
                )
               )
-              (i32.store offset=148
+              (i32.store offset=164
                (get_local $9)
                (i32.const 0)
               )
-              (i32.store offset=144
+              (i32.store offset=160
                (get_local $9)
-               (i32.const 1)
+               (i32.const 2)
               )
               (i64.store offset=56 align=4
                (get_local $9)
-               (i64.load offset=144
+               (i64.load offset=160
                 (get_local $9)
                )
               )
@@ -23259,7 +23377,7 @@ const char* const eosio_token_wast = R"=====(
                (call $_ZN5eosio14execute_actionINS_5tokenES1_JyEEEbPT_MT0_FvDpT1_E
                 (i32.add
                  (get_local $9)
-                 (i32.const 200)
+                 (i32.const 216)
                 )
                 (i32.add
                  (get_local $9)
@@ -23269,19 +23387,13 @@ const char* const eosio_token_wast = R"=====(
               )
               (br $label$13)
              )
-             (br_if $label$29
-              (i64.gt_s
-               (get_local $2)
-               (i64.const -3617168760277827585)
-              )
-             )
-             (br_if $label$26
+             (br_if $label$25
               (i64.eq
                (get_local $2)
                (i64.const -3841118729638772736)
               )
              )
-             (br_if $label$25
+             (br_if $label$24
               (i64.eq
                (get_local $2)
                (i64.const -3841116954650440354)
@@ -23290,20 +23402,20 @@ const char* const eosio_token_wast = R"=====(
              (br_if $label$13
               (i64.ne
                (get_local $2)
-               (i64.const -3841116522779616768)
+               (i64.const -3841116522894327808)
               )
              )
-             (i32.store offset=108
+             (i32.store offset=116
               (get_local $9)
               (i32.const 0)
              )
-             (i32.store offset=104
+             (i32.store offset=112
               (get_local $9)
-              (i32.const 2)
+              (i32.const 3)
              )
-             (i64.store offset=96 align=4
+             (i64.store offset=104 align=4
               (get_local $9)
-              (i64.load offset=104
+              (i64.load offset=112
                (get_local $9)
               )
              )
@@ -23311,23 +23423,23 @@ const char* const eosio_token_wast = R"=====(
               (call $_ZN5eosio14execute_actionINS_5tokenES1_JyEEEbPT_MT0_FvDpT1_E
                (i32.add
                 (get_local $9)
-                (i32.const 200)
+                (i32.const 216)
                )
                (i32.add
                 (get_local $9)
-                (i32.const 96)
+                (i32.const 104)
                )
               )
              )
              (br $label$13)
             )
-            (br_if $label$24
+            (br_if $label$23
              (i64.eq
               (get_local $2)
               (i64.const -3841125609434513408)
              )
             )
-            (br_if $label$23
+            (br_if $label$22
              (i64.eq
               (get_local $2)
               (i64.const -3841124327273005056)
@@ -23339,17 +23451,17 @@ const char* const eosio_token_wast = R"=====(
               (i64.const -3841120600428904448)
              )
             )
-            (i32.store offset=124
+            (i32.store offset=140
              (get_local $9)
              (i32.const 0)
             )
-            (i32.store offset=120
+            (i32.store offset=136
              (get_local $9)
-             (i32.const 3)
+             (i32.const 4)
             )
             (i64.store offset=80 align=4
              (get_local $9)
-             (i64.load offset=120
+             (i64.load offset=136
               (get_local $9)
              )
             )
@@ -23357,7 +23469,7 @@ const char* const eosio_token_wast = R"=====(
              (call $_ZN5eosio14execute_actionINS_5tokenES1_JyEEEbPT_MT0_FvDpT1_E
               (i32.add
                (get_local $9)
-               (i32.const 200)
+               (i32.const 216)
               )
               (i32.add
                (get_local $9)
@@ -23366,12 +23478,6 @@ const char* const eosio_token_wast = R"=====(
              )
             )
             (br $label$13)
-           )
-           (br_if $label$22
-            (i64.eq
-             (get_local $2)
-             (i64.const -3617168760277827584)
-            )
            )
            (br_if $label$21
             (i64.eq
@@ -23385,17 +23491,17 @@ const char* const eosio_token_wast = R"=====(
              (i64.const 5031766152489992192)
             )
            )
-           (i32.store offset=196
+           (i32.store offset=212
             (get_local $9)
             (i32.const 0)
            )
-           (i32.store offset=192
+           (i32.store offset=208
             (get_local $9)
-            (i32.const 4)
+            (i32.const 5)
            )
            (i64.store offset=8 align=4
             (get_local $9)
-            (i64.load offset=192
+            (i64.load offset=208
              (get_local $9)
             )
            )
@@ -23403,7 +23509,7 @@ const char* const eosio_token_wast = R"=====(
             (call $_ZN5eosio14execute_actionINS_5tokenES1_JyNS_5assetEEEEbPT_MT0_FvDpT1_E
              (i32.add
               (get_local $9)
-              (i32.const 200)
+              (i32.const 216)
              )
              (i32.add
               (get_local $9)
@@ -23413,17 +23519,17 @@ const char* const eosio_token_wast = R"=====(
            )
            (br $label$13)
           )
-          (i32.store offset=172
+          (i32.store offset=124
            (get_local $9)
            (i32.const 0)
           )
-          (i32.store offset=168
+          (i32.store offset=120
            (get_local $9)
-           (i32.const 5)
+           (i32.const 6)
           )
-          (i64.store offset=32 align=4
+          (i64.store offset=96 align=4
            (get_local $9)
-           (i64.load offset=168
+           (i64.load offset=120
             (get_local $9)
            )
           )
@@ -23431,27 +23537,27 @@ const char* const eosio_token_wast = R"=====(
            (call $_ZN5eosio14execute_actionINS_5tokenES1_JyEEEbPT_MT0_FvDpT1_E
             (i32.add
              (get_local $9)
-             (i32.const 200)
+             (i32.const 216)
             )
             (i32.add
              (get_local $9)
-             (i32.const 32)
+             (i32.const 96)
             )
            )
           )
           (br $label$13)
          )
-         (i32.store offset=164
+         (i32.store offset=188
           (get_local $9)
           (i32.const 0)
          )
-         (i32.store offset=160
+         (i32.store offset=184
           (get_local $9)
-          (i32.const 6)
+          (i32.const 7)
          )
-         (i64.store offset=40 align=4
+         (i64.store offset=32 align=4
           (get_local $9)
-          (i64.load offset=160
+          (i64.load offset=184
            (get_local $9)
           )
          )
@@ -23459,27 +23565,27 @@ const char* const eosio_token_wast = R"=====(
           (call $_ZN5eosio14execute_actionINS_5tokenES1_JyEEEbPT_MT0_FvDpT1_E
            (i32.add
             (get_local $9)
-            (i32.const 200)
+            (i32.const 216)
            )
            (i32.add
             (get_local $9)
-            (i32.const 40)
+            (i32.const 32)
            )
           )
          )
          (br $label$13)
         )
-        (i32.store offset=140
+        (i32.store offset=180
          (get_local $9)
          (i32.const 0)
         )
-        (i32.store offset=136
+        (i32.store offset=176
          (get_local $9)
-         (i32.const 7)
+         (i32.const 8)
         )
-        (i64.store offset=64 align=4
+        (i64.store offset=40 align=4
          (get_local $9)
-         (i64.load offset=136
+         (i64.load offset=176
           (get_local $9)
          )
         )
@@ -23487,27 +23593,27 @@ const char* const eosio_token_wast = R"=====(
          (call $_ZN5eosio14execute_actionINS_5tokenES1_JyEEEbPT_MT0_FvDpT1_E
           (i32.add
            (get_local $9)
-           (i32.const 200)
+           (i32.const 216)
           )
           (i32.add
            (get_local $9)
-           (i32.const 64)
+           (i32.const 40)
           )
          )
         )
         (br $label$13)
        )
-       (i32.store offset=132
+       (i32.store offset=156
         (get_local $9)
         (i32.const 0)
        )
-       (i32.store offset=128
+       (i32.store offset=152
         (get_local $9)
-        (i32.const 8)
+        (i32.const 9)
        )
-       (i64.store offset=72 align=4
+       (i64.store offset=64 align=4
         (get_local $9)
-        (i64.load offset=128
+        (i64.load offset=152
          (get_local $9)
         )
        )
@@ -23515,27 +23621,27 @@ const char* const eosio_token_wast = R"=====(
         (call $_ZN5eosio14execute_actionINS_5tokenES1_JyEEEbPT_MT0_FvDpT1_E
          (i32.add
           (get_local $9)
-          (i32.const 200)
+          (i32.const 216)
          )
          (i32.add
           (get_local $9)
-          (i32.const 72)
+          (i32.const 64)
          )
         )
        )
        (br $label$13)
       )
-      (i32.store offset=116
+      (i32.store offset=148
        (get_local $9)
        (i32.const 0)
       )
-      (i32.store offset=112
+      (i32.store offset=144
        (get_local $9)
-       (i32.const 9)
+       (i32.const 10)
       )
-      (i64.store offset=88 align=4
+      (i64.store offset=72 align=4
        (get_local $9)
-       (i64.load offset=112
+       (i64.load offset=144
         (get_local $9)
        )
       )
@@ -23543,27 +23649,27 @@ const char* const eosio_token_wast = R"=====(
        (call $_ZN5eosio14execute_actionINS_5tokenES1_JyEEEbPT_MT0_FvDpT1_E
         (i32.add
          (get_local $9)
-         (i32.const 200)
+         (i32.const 216)
         )
         (i32.add
          (get_local $9)
-         (i32.const 88)
+         (i32.const 72)
         )
        )
       )
       (br $label$13)
      )
-     (i32.store offset=156
+     (i32.store offset=132
       (get_local $9)
       (i32.const 0)
      )
-     (i32.store offset=152
+     (i32.store offset=128
       (get_local $9)
-      (i32.const 10)
+      (i32.const 11)
      )
-     (i64.store offset=48 align=4
+     (i64.store offset=88 align=4
       (get_local $9)
-      (i64.load offset=152
+      (i64.load offset=128
        (get_local $9)
       )
      )
@@ -23571,55 +23677,55 @@ const char* const eosio_token_wast = R"=====(
       (call $_ZN5eosio14execute_actionINS_5tokenES1_JyEEEbPT_MT0_FvDpT1_E
        (i32.add
         (get_local $9)
-        (i32.const 200)
+        (i32.const 216)
        )
        (i32.add
         (get_local $9)
-        (i32.const 48)
+        (i32.const 88)
        )
       )
      )
      (br $label$13)
     )
-    (i32.store offset=180
+    (i32.store offset=172
      (get_local $9)
      (i32.const 0)
     )
-    (i32.store offset=176
+    (i32.store offset=168
      (get_local $9)
-     (i32.const 11)
+     (i32.const 12)
     )
-    (i64.store offset=24 align=4
+    (i64.store offset=48 align=4
      (get_local $9)
-     (i64.load offset=176
+     (i64.load offset=168
       (get_local $9)
      )
     )
     (drop
-     (call $_ZN5eosio14execute_actionINS_5tokenES1_JyyNS_5assetENSt3__112basic_stringIcNS3_11char_traitsIcEENS3_9allocatorIcEEEEEEEbPT_MT0_FvDpT1_E
+     (call $_ZN5eosio14execute_actionINS_5tokenES1_JyEEEbPT_MT0_FvDpT1_E
       (i32.add
        (get_local $9)
-       (i32.const 200)
+       (i32.const 216)
       )
       (i32.add
        (get_local $9)
-       (i32.const 24)
+       (i32.const 48)
       )
      )
     )
     (br $label$13)
    )
-   (i32.store offset=188
+   (i32.store offset=204
     (get_local $9)
     (i32.const 0)
    )
-   (i32.store offset=184
+   (i32.store offset=200
     (get_local $9)
-    (i32.const 12)
+    (i32.const 13)
    )
    (i64.store offset=16 align=4
     (get_local $9)
-    (i64.load offset=184
+    (i64.load offset=200
      (get_local $9)
     )
    )
@@ -23627,7 +23733,7 @@ const char* const eosio_token_wast = R"=====(
     (call $_ZN5eosio14execute_actionINS_5tokenES1_JyNS_5assetENSt3__112basic_stringIcNS3_11char_traitsIcEENS3_9allocatorIcEEEEEEEbPT_MT0_FvDpT1_E
      (i32.add
       (get_local $9)
-      (i32.const 200)
+      (i32.const 216)
      )
      (i32.add
       (get_local $9)
@@ -23640,7 +23746,7 @@ const char* const eosio_token_wast = R"=====(
    (i32.const 0)
    (i32.add
     (get_local $9)
-    (i32.const 208)
+    (i32.const 224)
    )
   )
  )
