@@ -296,31 +296,37 @@ namespace eosio { namespace chain { namespace wasm_price {
                         );
 
 //
+// price of unexpected behaviors such as Unreachable intrinsic and/or assertions
+// this price should be high as a penalty for buggy codes.
+//
+#define WASM_PRICE_UNEXPECTED      100000
+
+//
 // prices of basic intrinsics
 //
-#define WASM_PRICE_BlockId         0
-#define WASM_PRICE_IfId            0
-#define WASM_PRICE_LoopId          0
-#define WASM_PRICE_BreakId         0
-#define WASM_PRICE_SwitchId        0
-#define WASM_PRICE_CallId          0
-#define WASM_PRICE_CallImportId    0
-#define WASM_PRICE_CallIndirectId  0
-#define WASM_PRICE_GetLocalId      0
-#define WASM_PRICE_SetLocalId      0
-#define WASM_PRICE_GetGlobalId     0
-#define WASM_PRICE_SetGlobalId     0
-#define WASM_PRICE_LoadId          0
-#define WASM_PRICE_StoreId         0
-#define WASM_PRICE_ConstId         0
-#define WASM_PRICE_UnaryId         0
-#define WASM_PRICE_BinaryId        0
-#define WASM_PRICE_SelectId        0
-#define WASM_PRICE_DropId          0
-#define WASM_PRICE_ReturnId        0
-#define WASM_PRICE_HostId          0
-#define WASM_PRICE_NopId           0
-#define WASM_PRICE_UnreachableId   0
+#define WASM_PRICE_BlockId         29
+#define WASM_PRICE_IfId            6
+#define WASM_PRICE_LoopId          23
+#define WASM_PRICE_BreakId         4
+#define WASM_PRICE_SwitchId        12
+#define WASM_PRICE_CallId          104
+#define WASM_PRICE_CallImportId    30
+#define WASM_PRICE_CallIndirectId  430
+#define WASM_PRICE_GetLocalId      1
+#define WASM_PRICE_SetLocalId      4
+#define WASM_PRICE_GetGlobalId     8
+#define WASM_PRICE_SetGlobalId     8
+#define WASM_PRICE_LoadId          7
+#define WASM_PRICE_StoreId         10
+#define WASM_PRICE_ConstId         1
+#define WASM_PRICE_UnaryId         4
+#define WASM_PRICE_BinaryId        8
+#define WASM_PRICE_SelectId        10
+#define WASM_PRICE_DropId          5
+#define WASM_PRICE_ReturnId        4
+#define WASM_PRICE_HostId          3
+#define WASM_PRICE_NopId           1
+#define WASM_PRICE_UnreachableId   WASM_PRICE_UNEXPECTED
 
 }}} // eosio::chain::wasm_price
 

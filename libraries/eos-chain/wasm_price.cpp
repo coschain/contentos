@@ -14,273 +14,277 @@
 
 
 // call_depth_api
-#define WASM_PRICE_FN_call_depth_assert                                      0
+#define WASM_PRICE_FN_call_depth_assert                                      WASM_PRICE_UNEXPECTED
 
 // compiler_builtins
-#define WASM_PRICE_FN___ashlti3                                              0
-#define WASM_PRICE_FN___ashrti3                                              0
-#define WASM_PRICE_FN___lshlti3                                              0
-#define WASM_PRICE_FN___lshrti3                                              0
-#define WASM_PRICE_FN___divti3                                               0
-#define WASM_PRICE_FN___udivti3                                              0
-#define WASM_PRICE_FN___modti3                                               0
-#define WASM_PRICE_FN___umodti3                                              0
-#define WASM_PRICE_FN___multi3                                               0
-#define WASM_PRICE_FN___addtf3                                               0
-#define WASM_PRICE_FN___subtf3                                               0
-#define WASM_PRICE_FN___multf3                                               0
-#define WASM_PRICE_FN___divtf3                                               0
-#define WASM_PRICE_FN___eqtf2                                                0
-#define WASM_PRICE_FN___netf2                                                0
-#define WASM_PRICE_FN___getf2                                                0
-#define WASM_PRICE_FN___gttf2                                                0
-#define WASM_PRICE_FN___lttf2                                                0
-#define WASM_PRICE_FN___letf2                                                0
-#define WASM_PRICE_FN___cmptf2                                               0
-#define WASM_PRICE_FN___unordtf2                                             0
-#define WASM_PRICE_FN___negtf2                                               0
-#define WASM_PRICE_FN___floatsitf                                            0
-#define WASM_PRICE_FN___floatunsitf                                          0
-#define WASM_PRICE_FN___floatditf                                            0
-#define WASM_PRICE_FN___floatunditf                                          0
-#define WASM_PRICE_FN___floattidf                                            0
-#define WASM_PRICE_FN___floatuntidf                                          0
-#define WASM_PRICE_FN___floatsidf                                            0
-#define WASM_PRICE_FN___extendsftf2                                          0
-#define WASM_PRICE_FN___extenddftf2                                          0
-#define WASM_PRICE_FN___fixtfti                                              0
-#define WASM_PRICE_FN___fixtfdi                                              0
-#define WASM_PRICE_FN___fixtfsi                                              0
-#define WASM_PRICE_FN___fixunstfti                                           0
-#define WASM_PRICE_FN___fixunstfdi                                           0
-#define WASM_PRICE_FN___fixunstfsi                                           0
-#define WASM_PRICE_FN___fixsfti                                              0
-#define WASM_PRICE_FN___fixdfti                                              0
-#define WASM_PRICE_FN___fixunssfti                                           0
-#define WASM_PRICE_FN___fixunsdfti                                           0
-#define WASM_PRICE_FN___trunctfdf2                                           0
-#define WASM_PRICE_FN___trunctfsf2                                           0
+#define WASM_PRICE_FN___addtf3                                               40
+#define WASM_PRICE_FN___ashlti3                                              34
+#define WASM_PRICE_FN___ashrti3                                              29
+#define WASM_PRICE_FN___cmptf2                                               18
+#define WASM_PRICE_FN___divtf3                                               48
+#define WASM_PRICE_FN___divti3                                               48
+#define WASM_PRICE_FN___eqtf2                                                28
+#define WASM_PRICE_FN___extenddftf2                                          27
+#define WASM_PRICE_FN___extendsftf2                                          28
+#define WASM_PRICE_FN___fixdfti                                              22
+#define WASM_PRICE_FN___fixsfti                                              23
+#define WASM_PRICE_FN___fixtfdi                                              25
+#define WASM_PRICE_FN___fixtfsi                                              22
+#define WASM_PRICE_FN___fixtfti                                              28
+#define WASM_PRICE_FN___fixunsdfti                                           26
+#define WASM_PRICE_FN___fixunssfti                                           28
+#define WASM_PRICE_FN___fixunstfdi                                           26
+#define WASM_PRICE_FN___fixunstfsi                                           22
+#define WASM_PRICE_FN___fixunstfti                                           24
+#define WASM_PRICE_FN___floatditf                                            26
+#define WASM_PRICE_FN___floatsidf                                            17
+#define WASM_PRICE_FN___floatsitf                                            23
+#define WASM_PRICE_FN___floattidf                                            26
+#define WASM_PRICE_FN___floatunditf                                          28
+#define WASM_PRICE_FN___floatunsitf                                          30
+#define WASM_PRICE_FN___floatuntidf                                          22
+#define WASM_PRICE_FN___getf2                                                26
+#define WASM_PRICE_FN___gttf2                                                20
+#define WASM_PRICE_FN___letf2                                                18
+#define WASM_PRICE_FN___lshlti3                                              27
+#define WASM_PRICE_FN___lshrti3                                              29
+#define WASM_PRICE_FN___lttf2                                                24
+#define WASM_PRICE_FN___modti3                                               40
+#define WASM_PRICE_FN___multf3                                               49
+#define WASM_PRICE_FN___multi3                                               26
+#define WASM_PRICE_FN___negtf2                                               23
+#define WASM_PRICE_FN___netf2                                                24
+#define WASM_PRICE_FN___subtf3                                               47
+#define WASM_PRICE_FN___trunctfdf2                                           29
+#define WASM_PRICE_FN___trunctfsf2                                           27
+#define WASM_PRICE_FN___udivti3                                              36
+#define WASM_PRICE_FN___umodti3                                              35
+#define WASM_PRICE_FN___unordtf2                                             21
 
 // privileged_api
-#define WASM_PRICE_FN_is_feature_active                                      0
-#define WASM_PRICE_FN_activate_feature                                       0
-#define WASM_PRICE_FN_get_resource_limits                                    0
-#define WASM_PRICE_FN_set_resource_limits                                    0
-#define WASM_PRICE_FN_set_proposed_producers                                 0
-#define WASM_PRICE_FN_get_blockchain_parameters_packed                       0
-#define WASM_PRICE_FN_set_blockchain_parameters_packed                       0
-#define WASM_PRICE_FN_is_privileged                                          0
-#define WASM_PRICE_FN_set_privileged                                         0
+// only privileged accounts can access these functions. set prices to a minimal 1.
+#define WASM_PRICE_FN_is_feature_active                                      1
+#define WASM_PRICE_FN_activate_feature                                       1
+#define WASM_PRICE_FN_get_resource_limits                                    1
+#define WASM_PRICE_FN_set_resource_limits                                    1
+#define WASM_PRICE_FN_set_proposed_producers                                 1
+#define WASM_PRICE_FN_get_blockchain_parameters_packed                       1
+#define WASM_PRICE_FN_set_blockchain_parameters_packed                       1
+#define WASM_PRICE_FN_is_privileged                                          1
+#define WASM_PRICE_FN_set_privileged                                         1
 
 // transaction_context
-#define WASM_PRICE_FN_checktime                                              0
+#define WASM_PRICE_FN_checktime                                              13
 
 // producer_api
-#define WASM_PRICE_FN_get_active_producers                                   0
+#define WASM_PRICE_FN_get_active_producers                                   40
 
 // database_api
-#define WASM_PRICE_FN_db_store_i64                                           0
-#define WASM_PRICE_FN_db_update_i64                                          0
-#define WASM_PRICE_FN_db_remove_i64                                          0
-#define WASM_PRICE_FN_db_get_i64                                             0
-#define WASM_PRICE_FN_db_next_i64                                            0
-#define WASM_PRICE_FN_db_previous_i64                                        0
-#define WASM_PRICE_FN_db_find_i64                                            0
-#define WASM_PRICE_FN_db_lowerbound_i64                                      0
-#define WASM_PRICE_FN_db_upperbound_i64                                      0
-#define WASM_PRICE_FN_db_end_i64                                             0
+#define WASM_PRICE_FN_db_end_i64                                             61
+#define WASM_PRICE_FN_db_find_i64                                            225
+#define WASM_PRICE_FN_db_get_i64                                             0      // varied
+#define WASM_PRICE_FN_db_store_i64                                           0      // varied
+#define WASM_PRICE_FN_db_update_i64                                          0      // varied
+#define WASM_PRICE_FN_db_upperbound_i64                                      135
+#define WASM_PRICE_FN_db_lowerbound_i64                                      72
+#define WASM_PRICE_FN_db_next_i64                                            52
+#define WASM_PRICE_FN_db_previous_i64                                        56
+#define WASM_PRICE_FN_db_remove_i64                                          423
 
-#define WASM_PRICE_FN_db_idx64_store                                         0
-#define WASM_PRICE_FN_db_idx64_remove                                        0
-#define WASM_PRICE_FN_db_idx64_update                                        0
-#define WASM_PRICE_FN_db_idx64_find_primary                                  0
-#define WASM_PRICE_FN_db_idx64_find_secondary                                0
-#define WASM_PRICE_FN_db_idx64_lowerbound                                    0
-#define WASM_PRICE_FN_db_idx64_upperbound                                    0
-#define WASM_PRICE_FN_db_idx64_end                                           0
-#define WASM_PRICE_FN_db_idx64_next                                          0
-#define WASM_PRICE_FN_db_idx64_previous                                      0
+#define WASM_PRICE_FN_db_idx_double_end                                      205
+#define WASM_PRICE_FN_db_idx_double_find_primary                             38
+#define WASM_PRICE_FN_db_idx_double_find_secondary                           42
+#define WASM_PRICE_FN_db_idx_double_lowerbound                               984
+#define WASM_PRICE_FN_db_idx_double_next                                     52
+#define WASM_PRICE_FN_db_idx_double_previous                                 76
+#define WASM_PRICE_FN_db_idx_double_remove                                   247
+#define WASM_PRICE_FN_db_idx_double_store                                    318
+#define WASM_PRICE_FN_db_idx_double_update                                   146
+#define WASM_PRICE_FN_db_idx_double_upperbound                               963
 
-#define WASM_PRICE_FN_db_idx128_store                                        0
-#define WASM_PRICE_FN_db_idx128_remove                                       0
-#define WASM_PRICE_FN_db_idx128_update                                       0
-#define WASM_PRICE_FN_db_idx128_find_primary                                 0
-#define WASM_PRICE_FN_db_idx128_find_secondary                               0
-#define WASM_PRICE_FN_db_idx128_lowerbound                                   0
-#define WASM_PRICE_FN_db_idx128_upperbound                                   0
-#define WASM_PRICE_FN_db_idx128_end                                          0
-#define WASM_PRICE_FN_db_idx128_next                                         0
-#define WASM_PRICE_FN_db_idx128_previous                                     0
+#define WASM_PRICE_FN_db_idx_long_double_end                                 93
+#define WASM_PRICE_FN_db_idx_long_double_find_primary                        39
+#define WASM_PRICE_FN_db_idx_long_double_find_secondary                      42
+#define WASM_PRICE_FN_db_idx_long_double_lowerbound                          888
+#define WASM_PRICE_FN_db_idx_long_double_next                                56
+#define WASM_PRICE_FN_db_idx_long_double_previous                            56
+#define WASM_PRICE_FN_db_idx_long_double_remove                              247
+#define WASM_PRICE_FN_db_idx_long_double_store                               361
+#define WASM_PRICE_FN_db_idx_long_double_update                              170
+#define WASM_PRICE_FN_db_idx_long_double_upperbound                          1326
 
-#define WASM_PRICE_FN_db_idx256_store                                        0
-#define WASM_PRICE_FN_db_idx256_remove                                       0
-#define WASM_PRICE_FN_db_idx256_update                                       0
-#define WASM_PRICE_FN_db_idx256_find_primary                                 0
-#define WASM_PRICE_FN_db_idx256_find_secondary                               0
-#define WASM_PRICE_FN_db_idx256_lowerbound                                   0
-#define WASM_PRICE_FN_db_idx256_upperbound                                   0
-#define WASM_PRICE_FN_db_idx256_end                                          0
-#define WASM_PRICE_FN_db_idx256_next                                         0
-#define WASM_PRICE_FN_db_idx256_previous                                     0
+#define WASM_PRICE_FN_db_idx128_end                                          103
+#define WASM_PRICE_FN_db_idx128_find_primary                                 71
+#define WASM_PRICE_FN_db_idx128_find_secondary                               41
+#define WASM_PRICE_FN_db_idx128_lowerbound                                   666
+#define WASM_PRICE_FN_db_idx128_next                                         49
+#define WASM_PRICE_FN_db_idx128_previous                                     51
+#define WASM_PRICE_FN_db_idx128_remove                                       269
+#define WASM_PRICE_FN_db_idx128_store                                        379
+#define WASM_PRICE_FN_db_idx128_update                                       149
+#define WASM_PRICE_FN_db_idx128_upperbound                                   878
 
-#define WASM_PRICE_FN_db_idx_double_store                                    0
-#define WASM_PRICE_FN_db_idx_double_remove                                   0
-#define WASM_PRICE_FN_db_idx_double_update                                   0
-#define WASM_PRICE_FN_db_idx_double_find_primary                             0
-#define WASM_PRICE_FN_db_idx_double_find_secondary                           0
-#define WASM_PRICE_FN_db_idx_double_lowerbound                               0
-#define WASM_PRICE_FN_db_idx_double_upperbound                               0
-#define WASM_PRICE_FN_db_idx_double_end                                      0
-#define WASM_PRICE_FN_db_idx_double_next                                     0
-#define WASM_PRICE_FN_db_idx_double_previous                                 0
+#define WASM_PRICE_FN_db_idx256_end                                          182
+#define WASM_PRICE_FN_db_idx256_find_primary                                 41
+#define WASM_PRICE_FN_db_idx256_find_secondary                               45
+#define WASM_PRICE_FN_db_idx256_lowerbound                                   780
+#define WASM_PRICE_FN_db_idx256_next                                         48
+#define WASM_PRICE_FN_db_idx256_previous                                     57
+#define WASM_PRICE_FN_db_idx256_remove                                       261
+#define WASM_PRICE_FN_db_idx256_store                                        341
+#define WASM_PRICE_FN_db_idx256_update                                       133
+#define WASM_PRICE_FN_db_idx256_upperbound                                   700
 
-#define WASM_PRICE_FN_db_idx_long_double_store                               0
-#define WASM_PRICE_FN_db_idx_long_double_remove                              0
-#define WASM_PRICE_FN_db_idx_long_double_update                              0
-#define WASM_PRICE_FN_db_idx_long_double_find_primary                        0
-#define WASM_PRICE_FN_db_idx_long_double_find_secondary                      0
-#define WASM_PRICE_FN_db_idx_long_double_lowerbound                          0
-#define WASM_PRICE_FN_db_idx_long_double_upperbound                          0
-#define WASM_PRICE_FN_db_idx_long_double_end                                 0
-#define WASM_PRICE_FN_db_idx_long_double_next                                0
-#define WASM_PRICE_FN_db_idx_long_double_previous                            0
+#define WASM_PRICE_FN_db_idx64_end                                           117
+#define WASM_PRICE_FN_db_idx64_find_primary                                  36
+#define WASM_PRICE_FN_db_idx64_find_secondary                                38
+#define WASM_PRICE_FN_db_idx64_lowerbound                                    794
+#define WASM_PRICE_FN_db_idx64_next                                          67
+#define WASM_PRICE_FN_db_idx64_previous                                      60
+#define WASM_PRICE_FN_db_idx64_remove                                        220
+#define WASM_PRICE_FN_db_idx64_store                                         357
+#define WASM_PRICE_FN_db_idx64_update                                        164
+#define WASM_PRICE_FN_db_idx64_upperbound                                    1342
 
 // crypto_api
-#define WASM_PRICE_FN_assert_recover_key                                     0
-#define WASM_PRICE_FN_recover_key                                            0
-#define WASM_PRICE_FN_assert_sha256                                          0
-#define WASM_PRICE_FN_assert_sha1                                            0
-#define WASM_PRICE_FN_assert_sha512                                          0
-#define WASM_PRICE_FN_assert_ripemd160                                       0
-#define WASM_PRICE_FN_sha1                                                   0
-#define WASM_PRICE_FN_sha256                                                 0
-#define WASM_PRICE_FN_sha512                                                 0
-#define WASM_PRICE_FN_ripemd160                                              0
+#define WASM_PRICE_FN_assert_recover_key                                     31462
+#define WASM_PRICE_FN_recover_key                                            31462
+#define WASM_PRICE_FN_assert_sha256                                          0      // varied
+#define WASM_PRICE_FN_assert_sha1                                            0      // varied
+#define WASM_PRICE_FN_assert_sha512                                          0      // varied
+#define WASM_PRICE_FN_assert_ripemd160                                       0      // varied
+#define WASM_PRICE_FN_sha1                                                   0      // varied
+#define WASM_PRICE_FN_sha256                                                 0      // varied
+#define WASM_PRICE_FN_sha512                                                 0      // varied
+#define WASM_PRICE_FN_ripemd160                                              0      // varied
 
 // permission_api
-#define WASM_PRICE_FN_check_transaction_authorization                        0
-#define WASM_PRICE_FN_check_permission_authorization                         0
-#define WASM_PRICE_FN_get_permission_last_used                               0
-#define WASM_PRICE_FN_get_account_creation_time                              0
+#define WASM_PRICE_FN_check_transaction_authorization                        0      // varied
+#define WASM_PRICE_FN_check_permission_authorization                         200000
+#define WASM_PRICE_FN_get_permission_last_used                               49
+#define WASM_PRICE_FN_get_account_creation_time                              86
 
 // system_api
-#define WASM_PRICE_FN_current_time                                           0
-#define WASM_PRICE_FN_publication_time                                       0
+#define WASM_PRICE_FN_current_time                                           9
+#define WASM_PRICE_FN_publication_time                                       7
 
 // context_free_system_api
-#define WASM_PRICE_FN_abort                                                  0
-#define WASM_PRICE_FN_eosio_assert                                           0
-#define WASM_PRICE_FN_eosio_assert_message                                   0
-#define WASM_PRICE_FN_eosio_assert_code                                      0
-#define WASM_PRICE_FN_eosio_exit                                             0
+#define WASM_PRICE_FN_abort                                                  WASM_PRICE_UNEXPECTED
+#define WASM_PRICE_FN_eosio_assert                                           15
+#define WASM_PRICE_FN_eosio_assert_message                                   15
+#define WASM_PRICE_FN_eosio_assert_code                                      15
+#define WASM_PRICE_FN_eosio_exit                                             WASM_PRICE_UNEXPECTED
 
 // action_api
-#define WASM_PRICE_FN_read_action_data                                       0
-#define WASM_PRICE_FN_action_data_size                                       0
-#define WASM_PRICE_FN_current_receiver                                       0
+#define WASM_PRICE_FN_read_action_data                                       0      // varied
+#define WASM_PRICE_FN_action_data_size                                       31
+#define WASM_PRICE_FN_current_receiver                                       13
 
 // authorization_api
-#define WASM_PRICE_FN_require_recipient                                      0
-#define WASM_PRICE_FN_require_auth                                           0
-#define WASM_PRICE_FN_require_auth2                                          0
-#define WASM_PRICE_FN_has_auth                                               0
-#define WASM_PRICE_FN_is_account                                             0
+#define WASM_PRICE_FN_require_recipient                                      60
+#define WASM_PRICE_FN_require_auth                                           125
+#define WASM_PRICE_FN_require_auth2                                          150
+#define WASM_PRICE_FN_has_auth                                               125
+#define WASM_PRICE_FN_is_account                                             140
 
 // console_api
-#define WASM_PRICE_FN_prints                                                 0
-#define WASM_PRICE_FN_prints_l                                               0
-#define WASM_PRICE_FN_printi                                                 0
-#define WASM_PRICE_FN_printui                                                0
-#define WASM_PRICE_FN_printi128                                              0
-#define WASM_PRICE_FN_printui128                                             0
-#define WASM_PRICE_FN_printsf                                                0
-#define WASM_PRICE_FN_printdf                                                0
-#define WASM_PRICE_FN_printqf                                                0
-#define WASM_PRICE_FN_printn                                                 0
-#define WASM_PRICE_FN_printhex                                               0
+#define WASM_PRICE_FN_prints                                                 68
+#define WASM_PRICE_FN_prints_l                                               0      // varied
+#define WASM_PRICE_FN_printi                                                 120
+#define WASM_PRICE_FN_printui                                                100
+#define WASM_PRICE_FN_printi128                                              120
+#define WASM_PRICE_FN_printui128                                             100
+#define WASM_PRICE_FN_printsf                                                160
+#define WASM_PRICE_FN_printdf                                                160
+#define WASM_PRICE_FN_printqf                                                160
+#define WASM_PRICE_FN_printn                                                 54
+#define WASM_PRICE_FN_printhex                                               0      // varied
 
 // context_free_transaction_api
-#define WASM_PRICE_FN_read_transaction                                       0
-#define WASM_PRICE_FN_transaction_size                                       0
-#define WASM_PRICE_FN_expiration                                             0
-#define WASM_PRICE_FN_tapos_block_prefix                                     0
-#define WASM_PRICE_FN_tapos_block_num                                        0
-#define WASM_PRICE_FN_get_action                                             0
+#define WASM_PRICE_FN_read_transaction                                       0      // benchmark missed
+#define WASM_PRICE_FN_transaction_size                                       0      // benchmark missed
+#define WASM_PRICE_FN_expiration                                             0      // benchmark missed
+#define WASM_PRICE_FN_tapos_block_prefix                                     0      // benchmark missed
+#define WASM_PRICE_FN_tapos_block_num                                        0      // benchmark missed
+#define WASM_PRICE_FN_get_action                                             0      // benchmark missed
 
 // transaction_api
-#define WASM_PRICE_FN_send_inline                                            0
-#define WASM_PRICE_FN_send_context_free_inline                               0
-#define WASM_PRICE_FN_send_deferred                                          0
-#define WASM_PRICE_FN_cancel_deferred                                        0
+#define WASM_PRICE_FN_send_inline                                            1984
+#define WASM_PRICE_FN_send_context_free_inline                               1      // feature removed
+#define WASM_PRICE_FN_send_deferred                                          1      // feature removed
+#define WASM_PRICE_FN_cancel_deferred                                        1      // feature removed
 
 // context_free_api
-#define WASM_PRICE_FN_get_context_free_data                                  0
+#define WASM_PRICE_FN_get_context_free_data                                  0      // varied
 
 // memory_api
-#define WASM_PRICE_FN_memcpy                                                 0
-#define WASM_PRICE_FN_memmove                                                0
-#define WASM_PRICE_FN_memcmp                                                 0
-#define WASM_PRICE_FN_memset                                                 0
+#define WASM_PRICE_FN_memcpy                                                 0      // varied
+#define WASM_PRICE_FN_memmove                                                0      // varied
+#define WASM_PRICE_FN_memcmp                                                 0      // varied
+#define WASM_PRICE_FN_memset                                                 0      // varied
 
 // softfloat_api
-#define WASM_PRICE_FN__eosio_f32_add                                         0
-#define WASM_PRICE_FN__eosio_f32_sub                                         0
-#define WASM_PRICE_FN__eosio_f32_mul                                         0
-#define WASM_PRICE_FN__eosio_f32_div                                         0
-#define WASM_PRICE_FN__eosio_f32_min                                         0
-#define WASM_PRICE_FN__eosio_f32_max                                         0
-#define WASM_PRICE_FN__eosio_f32_copysign                                    0
-#define WASM_PRICE_FN__eosio_f32_abs                                         0
-#define WASM_PRICE_FN__eosio_f32_neg                                         0
-#define WASM_PRICE_FN__eosio_f32_sqrt                                        0
-#define WASM_PRICE_FN__eosio_f32_ceil                                        0
-#define WASM_PRICE_FN__eosio_f32_floor                                       0
-#define WASM_PRICE_FN__eosio_f32_trunc                                       0
-#define WASM_PRICE_FN__eosio_f32_nearest                                     0
-#define WASM_PRICE_FN__eosio_f32_eq                                          0
-#define WASM_PRICE_FN__eosio_f32_ne                                          0
-#define WASM_PRICE_FN__eosio_f32_lt                                          0
-#define WASM_PRICE_FN__eosio_f32_le                                          0
-#define WASM_PRICE_FN__eosio_f32_gt                                          0
-#define WASM_PRICE_FN__eosio_f32_ge                                          0
-#define WASM_PRICE_FN__eosio_f64_add                                         0
-#define WASM_PRICE_FN__eosio_f64_sub                                         0
-#define WASM_PRICE_FN__eosio_f64_mul                                         0
-#define WASM_PRICE_FN__eosio_f64_div                                         0
-#define WASM_PRICE_FN__eosio_f64_min                                         0
-#define WASM_PRICE_FN__eosio_f64_max                                         0
-#define WASM_PRICE_FN__eosio_f64_copysign                                    0
-#define WASM_PRICE_FN__eosio_f64_abs                                         0
-#define WASM_PRICE_FN__eosio_f64_neg                                         0
-#define WASM_PRICE_FN__eosio_f64_sqrt                                        0
-#define WASM_PRICE_FN__eosio_f64_ceil                                        0
-#define WASM_PRICE_FN__eosio_f64_floor                                       0
-#define WASM_PRICE_FN__eosio_f64_trunc                                       0
-#define WASM_PRICE_FN__eosio_f64_nearest                                     0
-#define WASM_PRICE_FN__eosio_f64_eq                                          0
-#define WASM_PRICE_FN__eosio_f64_ne                                          0
-#define WASM_PRICE_FN__eosio_f64_lt                                          0
-#define WASM_PRICE_FN__eosio_f64_le                                          0
-#define WASM_PRICE_FN__eosio_f64_gt                                          0
-#define WASM_PRICE_FN__eosio_f64_ge                                          0
-#define WASM_PRICE_FN__eosio_f32_promote                                     0
-#define WASM_PRICE_FN__eosio_f64_demote                                      0
-#define WASM_PRICE_FN__eosio_f32_trunc_i32s                                  0
-#define WASM_PRICE_FN__eosio_f64_trunc_i32s                                  0
-#define WASM_PRICE_FN__eosio_f32_trunc_i32u                                  0
-#define WASM_PRICE_FN__eosio_f64_trunc_i32u                                  0
-#define WASM_PRICE_FN__eosio_f32_trunc_i64s                                  0
-#define WASM_PRICE_FN__eosio_f64_trunc_i64s                                  0
-#define WASM_PRICE_FN__eosio_f32_trunc_i64u                                  0
-#define WASM_PRICE_FN__eosio_f64_trunc_i64u                                  0
-#define WASM_PRICE_FN__eosio_i32_to_f32                                      0
-#define WASM_PRICE_FN__eosio_i64_to_f32                                      0
-#define WASM_PRICE_FN__eosio_ui32_to_f32                                     0
-#define WASM_PRICE_FN__eosio_ui64_to_f32                                     0
-#define WASM_PRICE_FN__eosio_i32_to_f64                                      0
-#define WASM_PRICE_FN__eosio_i64_to_f64                                      0
-#define WASM_PRICE_FN__eosio_ui32_to_f64                                     0
-#define WASM_PRICE_FN__eosio_ui64_to_f64                                     0
+// all softfloat prices are from 9 to 13. quite fast and close.
+// set them all to 12 for simplification.
+#define WASM_PRICE_SOFTFLOAT                                                 12
+#define WASM_PRICE_FN__eosio_f32_add                                         WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f32_sub                                         WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f32_mul                                         WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f32_div                                         WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f32_min                                         WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f32_max                                         WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f32_copysign                                    WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f32_abs                                         WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f32_neg                                         WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f32_sqrt                                        WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f32_ceil                                        WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f32_floor                                       WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f32_trunc                                       WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f32_nearest                                     WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f32_eq                                          WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f32_ne                                          WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f32_lt                                          WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f32_le                                          WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f32_gt                                          WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f32_ge                                          WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f64_add                                         WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f64_sub                                         WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f64_mul                                         WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f64_div                                         WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f64_min                                         WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f64_max                                         WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f64_copysign                                    WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f64_abs                                         WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f64_neg                                         WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f64_sqrt                                        WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f64_ceil                                        WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f64_floor                                       WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f64_trunc                                       WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f64_nearest                                     WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f64_eq                                          WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f64_ne                                          WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f64_lt                                          WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f64_le                                          WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f64_gt                                          WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f64_ge                                          WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f32_promote                                     WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f64_demote                                      WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f32_trunc_i32s                                  WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f64_trunc_i32s                                  WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f32_trunc_i32u                                  WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f64_trunc_i32u                                  WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f32_trunc_i64s                                  WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f64_trunc_i64s                                  WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f32_trunc_i64u                                  WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_f64_trunc_i64u                                  WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_i32_to_f32                                      WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_i64_to_f32                                      WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_ui32_to_f32                                     WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_ui64_to_f32                                     WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_i32_to_f64                                      WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_i64_to_f64                                      WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_ui32_to_f64                                     WASM_PRICE_SOFTFLOAT
+#define WASM_PRICE_FN__eosio_ui64_to_f64                                     WASM_PRICE_SOFTFLOAT
 
 namespace eosio { namespace chain { namespace wasm_price {
     
