@@ -188,7 +188,7 @@
 #define WASM_PRICE_FN_is_account                                             140
 
 // console_api
-#define WASM_PRICE_FN_prints                                                 68
+#define WASM_PRICE_FN_prints                                                 68      // fixed price of printing 128 chars.
 //#define WASM_PRICE_FN_prints_l                                               0      // varied
 #define WASM_PRICE_FN_printi                                                 120
 #define WASM_PRICE_FN_printui                                                100
@@ -309,75 +309,100 @@ namespace eosio { namespace chain { namespace wasm_price {
     
     // database_api
     uint64_t db_get_i64(apply_context*, int, int, int, int len) {
+        // larger the value, higher the price.
         return 24 + (len >> 8);
     }
     uint64_t db_update_i64(apply_context*, void*, int, int64_t, int, int len) {
+        // larger the value, higher the price.
         return 128 + (len >> 5);
     }
     uint64_t db_store_i64(apply_context*, int, int64_t, int64_t, int64_t, int64_t, int, int len) {
+        // larger the value, higher the price.
         return 1280 + len / 3;
     }
     
     // crypto_api
     uint64_t sha1(apply_context*, void*, int, int len, int) {
+        // larger the plain-text, higher the price.
         return 72 + len / 5;
     }
     uint64_t sha256(apply_context*, void*, int, int len, int) {
+        // larger the plain-text, higher the price.
         return 72 + (len >> 1);
     }
     uint64_t sha512(apply_context*, void*, int, int len, int) {
+        // larger the plain-text, higher the price.
         return 72 + (len >> 1);
     }
     uint64_t ripemd160(apply_context*, void*, int, int len, int) {
+        // larger the plain-text, higher the price.
         return 72 + 3 * (len >> 2);
     }
     uint64_t assert_sha1(apply_context*, void*, int, int len, int) {
+        // same as sha1.
         return 72 + len / 5;
     }
     uint64_t assert_sha256(apply_context*, void*, int, int len, int) {
+        // same as sha256.
         return 72 + (len >> 1);
     }
     uint64_t assert_sha512(apply_context*, void*, int, int len, int) {
+        // same as sha512.
         return 72 + (len >> 1);
     }
     uint64_t assert_ripemd160(apply_context*, void*, int, int len, int) {
+        // same as ripemd160.
         return 72 + 3 * (len >> 2);
     }
     
     // permission_api
     uint64_t check_transaction_authorization(apply_context*, int, int, int trx_size, int, int, int, int) {
+        
+        // it's basically multiple calls to check_permission_authorization.
+        // the exact #calls is too expensive to calculate here, but it's proportional to #actions in statistics.
+        // we simply take #actions as #calls using a default action_size of 256 bytes.
         return ( 1 + (trx_size >> 8) ) * WASM_PRICE_FN_check_permission_authorization;
     }
     
     // action_api
     uint64_t read_action_data(apply_context*, int read_len, int, int) {
+        // larger the data, higher the price.
         return 95 + (read_len >> 7);
     }
     
     // console_api
     uint64_t prints_l(apply_context*, void*, int, int len) {
+        // larger the data, higher the price.
         return 62 + (len >> 4);
     }
     uint64_t printhex(apply_context*, void*, int, int len) {
+        // larger the data, higher the price.
         return 62 + (len << 2);
     }
     
     // context_free_api
     uint64_t get_context_free_data(apply_context*, int read_len, int, int, int) {
+        // larger the data, higher the price.
         return 95 + (read_len >> 7);
     }
     
     // memory_api
     uint64_t memcpy(apply_context*, int, int, int, int len) {
+        // larger the data, higher the price.
         return 10 + (len >> 7);
     }
     uint64_t memmove(apply_context*, int, int, int, int len) {
+        // larger the data, higher the price.
         return 10 + (len >> 7);
     }
     uint64_t memcmp(apply_context*, int, int, int, int len) {
+        // contracts never call this.
+        // when a contract calls memcmp, it's just a normal 'call' to another memcmp inside libc++, not a 'callImport' to this one.
+        // anyway, we give the price for the worst condition of comparing identical blocks.
         return 30 + 3 * (len >> 7);
     }
     uint64_t memset(apply_context*, int, int, int, int len) {
+        // larger the data, higher the price.
         return 20 + (len >> 6);
     }
     
