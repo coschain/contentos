@@ -573,6 +573,7 @@ class apply_context {
       //uint64_t next_auth_sequence( account_name actor );
 
       std::vector<char> on_vm_request( const std::vector<char>& req_body );
+      void add_action_price(uint64_t price, int wasm_expr_id);
 
    private:
 

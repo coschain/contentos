@@ -532,6 +532,10 @@ std::vector<char> apply_context::on_vm_request( const std::vector<char>& req_bod
    return control.get_vm_interface()->on_vm_request(req_body);
 }
 
+void apply_context::add_action_price(uint64_t price, int wasm_expr_id) {
+
+}
+
 
 
 } } /// contento::chain
