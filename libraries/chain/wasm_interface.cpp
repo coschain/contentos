@@ -679,6 +679,25 @@ class producer_api : public context_aware_api {
       }
 };
 
+class contract_bank_api : public context_aware_api {
+   public:
+      using context_aware_api::context_aware_api;
+
+      int64_t get_contract_balance(account_name contranct) {
+          // todo get contract balance form db
+         return 0;
+      }
+
+      void transfer(account_name name, int64_t value) {
+          // todo transfer COC/vesting to name from contract_bank
+      }
+
+      int64_t get_value(account_name name) {
+          // todo get name's vm_op's value
+           return 0;
+      }
+};
+
 class crypto_api : public context_aware_api {
    public:
       explicit crypto_api( apply_context& ctx )
@@ -1721,6 +1740,12 @@ REGISTER_INJECTED_INTRINSICS(transaction_context,
 
 REGISTER_INTRINSICS(producer_api,
    (get_active_producers,      int(int, int) )
+);
+
+REGISTER_INTRINSICS(contract_bank_api,
+   (get_contract_balance,      int64_t(int64_t))
+   (transfer,      void(int64_t,int64_t) )
+   (get_value,      int64_t(int64_t) )
 );
 
 #define DB_SECONDARY_INDEX_METHODS_SIMPLE(IDX) \
