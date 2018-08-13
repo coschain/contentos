@@ -3,7 +3,9 @@
 #include <graphene/utilities/words.hpp>
 
 #include <contento/app/api.hpp>
+#include <contento/chain/abi_serializer.hpp>
 #include <contento/protocol/base.hpp>
+#include <contento/protocol/types.hpp>
 #include <contento/protocol/config.hpp>
 #include <contento/follow/follow_operations.hpp>
 #include <contento/private_message/private_message_operations.hpp>
@@ -21,6 +23,7 @@
 #include <sstream>
 #include <string>
 #include <list>
+#include <regex>
 
 #include <boost/version.hpp>
 #include <boost/lexical_cast.hpp>
@@ -2507,6 +2510,57 @@ annotated_signed_transaction      wallet_api::send_private_message( string from,
 
    signed_transaction tx;
    tx.operations.push_back( op );
+   tx.validate();
+
+   return my->sign_transaction( tx, broadcast );
+}
+
+fc::variant json_from_file_or_string(const string& file_or_str, fc::json::parse_type ptype = fc::json::legacy_parser)
+{
+   regex r("^[ \t]*[\{\[]");
+   if ( !regex_search(file_or_str, r) && fc::is_regular_file(file_or_str) ) {
+      return fc::json::from_file(file_or_str, ptype);
+   } else {
+      return fc::json::from_string(file_or_str, ptype);
+   }
+}
+
+bytes param_to_bin(const wallet_api &api, string contract_name, string action_name, string param) {
+   fc::variant action_args_var;
+   if( !param.empty() ) {
+      try {
+         action_args_var = json_from_file_or_string(param, fc::json::relaxed_parser);
+      } catch (const fc::exception& e) {
+         elog("Caught exception while parsing action data: ${param}:  ${e}", ("param", param)("e", e.to_detail_string()) );
+         throw;
+      }
+   }
+
+   const auto contract_acc = api.get_account(contract_name);
+   abi_def abi;
+   bytes result;
+   if(abi_serializer::to_abi(contract_acc.abi, abi)) {
+      abi_serializer abis(abi);
+      auto action_type = abis.get_action_type(action_name);
+      FC_ASSERT( !action_type.empty(), "unknown action ${action} in contract ${contract}", 
+                                       ("action", action_name)("contract", contract_name) );
+                                    
+      try {
+         result = abis.variant_to_binary(action_type, action_args_var);
+      } catch (const fc::exception& e) {
+         elog("Caught exception while serializing action data: ${param}:  ${e}", ("param", param)("e", e.to_detail_string()) );
+         throw;
+      }  
+   } else {
+      FC_ASSERT(false, "No ABI found for contract: ${contract}", ("contract", contract_name));
+   }   
+   return result;                        
+}
+
+annotated_signed_transaction wallet_api::push_action(string caller, string contract_name, string action_name, string action_param, bool broadcast) {
+   bytes bin = param_to_bin(*this, contract_name, action_name, action_param);
+   signed_transaction tx;
+   tx.operations.push_back( vm_operation(caller, contract_name, action_name, bin) );
    tx.validate();
 
    return my->sign_transaction( tx, broadcast );

@@ -29,6 +29,7 @@
 
 #include "wasm.h"
 #include "support/threads.h"
+#include "support/scope_exit.h"
 
 namespace wasm {
 
@@ -75,6 +76,11 @@ struct Visitor {
       return static_cast<SubType*>(this)-> \
           visit##CLASS_TO_VISIT(static_cast<CLASS_TO_VISIT*>(curr))
 
+      scope_exit report_on_exit([this,curr](){
+          static_cast<SubType*>(this)->reportVisit(curr);
+      });
+      
+    
     switch (curr->_id) {
       case Expression::Id::BlockId: DELEGATE(Block);
       case Expression::Id::IfId: DELEGATE(If);
@@ -105,6 +111,9 @@ struct Visitor {
 
     #undef DELEGATE
   }
+
+  // called after the expression had been visited
+  void reportVisit(Expression* curr) {}
 };
 
 // Visit with a single unified visitor, called on every node, instead of

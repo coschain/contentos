@@ -26,6 +26,10 @@ using account_id_type = int64_t;
 using account_name_type = std::string;
 using public_key_type = eosio::public_key_2;
 using string16 = std::string;
+using string8 = eosio::name;
+
+using shuffled_witness_array_type = std::array<eosio::name, 21>;
+
 using uint32 = uint32_t;
 using uint64 = uint64_t;
 using int32 = int32_t;

@@ -87,8 +87,18 @@ std::unique_ptr<wasm_instantiated_module_interface> binaryen_runtime::instantiat
          if (import->kind == ExternalKind::Function) {
             auto& intrinsic_map = intrinsic_registrator::get_map();
             auto intrinsic_itr = intrinsic_map.find(full_name);
+
+            auto& price_map = intrinsic_price_registrator::get_map();
+            auto price_itr = price_map.find(full_name);
+
             if (intrinsic_itr != intrinsic_map.end()) {
-               import_lut.emplace(make_pair((uintptr_t)import.get(), intrinsic_itr->second));
+
+                intrinsic_price_registrator::price_fn price = intrinsic_price_registrator::price(0);
+                if (price_itr != price_map.end())
+                    price = price_itr->second;
+
+               import_lut.emplace(make_pair((uintptr_t)import.get(),
+                                            make_pair(intrinsic_itr->second, price)));
                continue;
             }
          }

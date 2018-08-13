@@ -110,7 +110,7 @@ void find_accounts( set<string>& accounts, const discussion& d ) {
 
 void database_api::set_block_applied_callback( std::function<void(const variant& block_id)> cb )
 {
-   my->_db.with_read_lock( [&]()
+   determine_read_lock( [&]()
    {
       my->set_block_applied_callback( cb );
    });
@@ -141,7 +141,8 @@ void database_api_impl::set_block_applied_callback( std::function<void(const var
 //////////////////////////////////////////////////////////////////////
 
 database_api::database_api( const contento::app::api_context& ctx )
-   : my( new database_api_impl( ctx ) ) {}
+   : my( new database_api_impl( ctx ) ), _db_for_lock( *ctx.app.chain_database() ), call_from_vm(ctx.session.lock()->from_vm) {
+}
 
 database_api::~database_api() {}
 
@@ -177,7 +178,7 @@ optional<block_header> database_api::get_block_header(uint32_t block_num)const
 {
    FC_ASSERT( !my->_disable_get_block, "get_block_header is disabled on this node." );
 
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       return my->get_block_header( block_num );
    });
@@ -195,7 +196,7 @@ optional<signed_block_api_obj> database_api::get_block(uint32_t block_num)const
 {
    FC_ASSERT( !my->_disable_get_block, "get_block is disabled on this node." );
 
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       return my->get_block( block_num );
    });
@@ -208,7 +209,7 @@ optional<signed_block_api_obj> database_api_impl::get_block(uint32_t block_num)c
 
 vector<applied_operation> database_api::get_ops_in_block(uint32_t block_num, bool only_virtual)const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       return my->get_ops_in_block( block_num, only_virtual );
    });
@@ -239,7 +240,7 @@ vector<applied_operation> database_api_impl::get_ops_in_block(uint32_t block_num
 
 fc::variant_object database_api::get_config()const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       return my->get_config();
    });
@@ -252,7 +253,7 @@ fc::variant_object database_api_impl::get_config()const
 
 dynamic_global_property_api_obj database_api::get_dynamic_global_properties()const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       return my->get_dynamic_global_properties();
    });
@@ -260,7 +261,7 @@ dynamic_global_property_api_obj database_api::get_dynamic_global_properties()con
 
 chain_properties database_api::get_chain_properties()const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       return my->_db.get_witness_schedule_object().median_props;
    });
@@ -268,7 +269,7 @@ chain_properties database_api::get_chain_properties()const
 
 feed_history_api_obj database_api::get_feed_history()const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       return feed_history_api_obj( my->_db.get_feed_history() );
    });
@@ -276,7 +277,7 @@ feed_history_api_obj database_api::get_feed_history()const
 
 price database_api::get_current_median_history_price()const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       return my->_db.get_feed_history().current_median_history;
    });
@@ -289,7 +290,7 @@ dynamic_global_property_api_obj database_api_impl::get_dynamic_global_properties
 
 witness_schedule_api_obj database_api::get_witness_schedule()const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       return my->_db.get(witness_schedule_id_type());
    });
@@ -297,7 +298,7 @@ witness_schedule_api_obj database_api::get_witness_schedule()const
 
 hardfork_version database_api::get_hardfork_version()const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       return my->_db.get(hardfork_property_id_type()).current_hardfork_version;
    });
@@ -305,7 +306,7 @@ hardfork_version database_api::get_hardfork_version()const
 
 scheduled_hardfork database_api::get_next_scheduled_hardfork() const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       scheduled_hardfork shf;
       const auto& hpo = my->_db.get(hardfork_property_id_type());
@@ -317,7 +318,7 @@ scheduled_hardfork database_api::get_next_scheduled_hardfork() const
 
 reward_fund_api_obj database_api::get_reward_fund( string name )const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       auto fund = my->_db.find< reward_fund_object, by_name >( name );
       FC_ASSERT( fund != nullptr, "Invalid reward fund name" );
@@ -335,7 +336,7 @@ reward_fund_api_obj database_api::get_reward_fund( string name )const
 vector<set<string>> database_api::get_key_references( vector<public_key_type> key )const
 {
    CONTENTOS_API_CLOSE_ASSERT();
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       return my->get_key_references( key );
    });
@@ -359,7 +360,7 @@ vector<set<string>> database_api_impl::get_key_references( vector<public_key_typ
 
 vector< extended_account > database_api::get_accounts( vector< string > names )const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       return my->get_accounts( names );
    });
@@ -396,7 +397,7 @@ vector< extended_account > database_api_impl::get_accounts( vector< string > nam
 
 vector<account_id_type> database_api::get_account_references( account_id_type account_id )const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       return my->get_account_references( account_id );
    });
@@ -422,7 +423,7 @@ vector<account_id_type> database_api_impl::get_account_references( account_id_ty
 vector<optional<account_api_obj>> database_api::lookup_account_names(const vector<string>& account_names)const
 {
    CONTENTOS_API_CLOSE_ASSERT();
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       return my->lookup_account_names( account_names );
    });
@@ -453,7 +454,7 @@ vector<optional<account_api_obj>> database_api_impl::lookup_account_names(const 
 set<string> database_api::lookup_accounts(const string& lower_bound_name, uint32_t limit)const
 {
    CONTENTOS_API_CLOSE_ASSERT();
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       return my->lookup_accounts( lower_bound_name, limit );
    });
@@ -477,7 +478,7 @@ set<string> database_api_impl::lookup_accounts(const string& lower_bound_name, u
 
 uint64_t database_api::get_account_count()const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       return my->get_account_count();
    });
@@ -491,7 +492,7 @@ uint64_t database_api_impl::get_account_count()const
 vector< owner_authority_history_api_obj > database_api::get_owner_history( string account )const
 {
    CONTENTOS_API_CLOSE_ASSERT();
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       vector< owner_authority_history_api_obj > results;
 
@@ -510,7 +511,7 @@ vector< owner_authority_history_api_obj > database_api::get_owner_history( strin
 
 optional< account_recovery_request_api_obj > database_api::get_recovery_request( string account )const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       optional< account_recovery_request_api_obj > result;
 
@@ -527,7 +528,7 @@ optional< account_recovery_request_api_obj > database_api::get_recovery_request(
 optional< escrow_api_obj > database_api::get_escrow( string from, uint32_t escrow_id )const
 {
    CONTENTOS_API_CLOSE_ASSERT();
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       optional< escrow_api_obj > result;
 
@@ -544,7 +545,7 @@ optional< escrow_api_obj > database_api::get_escrow( string from, uint32_t escro
 vector< withdraw_route > database_api::get_withdraw_routes( string account, withdraw_route_type type )const
 {
    CONTENTOS_API_CLOSE_ASSERT();
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       vector< withdraw_route > result;
 
@@ -615,7 +616,7 @@ optional< account_bandwidth_api_obj > database_api::get_account_bandwidth( strin
 
 vector<optional<witness_api_obj>> database_api::get_witnesses(const vector<witness_id_type>& witness_ids)const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       return my->get_witnesses( witness_ids );
    });
@@ -635,7 +636,7 @@ vector<optional<witness_api_obj>> database_api_impl::get_witnesses(const vector<
 
 fc::optional<witness_api_obj> database_api::get_witness_by_account( string account_name ) const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       return my->get_witness_by_account( account_name );
    });
@@ -643,7 +644,7 @@ fc::optional<witness_api_obj> database_api::get_witness_by_account( string accou
 
 vector< witness_api_obj > database_api::get_witnesses_by_vote( string from, uint32_t limit )const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       //idump((from)(limit));
       FC_ASSERT( limit <= 100 );
@@ -683,7 +684,7 @@ fc::optional<witness_api_obj> database_api_impl::get_witness_by_account( string 
 
 set< account_name_type > database_api::lookup_witness_accounts( const string& lower_bound_name, uint32_t limit ) const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       return my->lookup_witness_accounts( lower_bound_name, limit );
    });
@@ -711,7 +712,7 @@ set< account_name_type > database_api_impl::lookup_witness_accounts( const strin
 
 uint64_t database_api::get_witness_count()const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       return my->get_witness_count();
    });
@@ -738,7 +739,7 @@ uint64_t database_api_impl::get_witness_count()const
 
 std::string database_api::get_transaction_hex(const signed_transaction& trx)const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       return my->get_transaction_hex( trx );
    });
@@ -751,7 +752,7 @@ std::string database_api_impl::get_transaction_hex(const signed_transaction& trx
 
 set<public_key_type> database_api::get_required_signatures( const signed_transaction& trx, const flat_set<public_key_type>& available_keys )const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       return my->get_required_signatures( trx, available_keys );
    });
@@ -772,7 +773,7 @@ set<public_key_type> database_api_impl::get_required_signatures( const signed_tr
 
 set<public_key_type> database_api::get_potential_signatures( const signed_transaction& trx )const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       return my->get_potential_signatures( trx );
    });
@@ -815,7 +816,7 @@ set<public_key_type> database_api_impl::get_potential_signatures( const signed_t
 
 bool database_api::verify_authority( const signed_transaction& trx ) const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       return my->verify_authority( trx );
    });
@@ -833,7 +834,7 @@ bool database_api_impl::verify_authority( const signed_transaction& trx )const
 
 bool database_api::verify_account_authority( const string& name_or_id, const flat_set<public_key_type>& signers )const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       return my->verify_account_authority( name_or_id, signers );
    });
@@ -857,7 +858,7 @@ bool database_api_impl::verify_account_authority( const string& name, const flat
 vector<convert_request_api_obj> database_api::get_conversion_requests( const string& account )const
 {
    CONTENTOS_API_CLOSE_ASSERT();
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       const auto& idx = my->_db.get_index< convert_request_index >().indices().get< by_owner >();
       vector< convert_request_api_obj > result;
@@ -872,7 +873,7 @@ vector<convert_request_api_obj> database_api::get_conversion_requests( const str
 
 discussion database_api::get_content( string author, string permlink )const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       const auto& by_permlink_idx = my->_db.get_index< comment_index >().indices().get< by_permlink >();
       auto itr = by_permlink_idx.find( boost::make_tuple( author, permlink ) );
@@ -889,7 +890,7 @@ discussion database_api::get_content( string author, string permlink )const
 
 vector<vote_state> database_api::get_active_votes( string author, string permlink )const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       vector<vote_state> result;
       const auto& comment = my->_db.get_comment( author, permlink );
@@ -922,7 +923,7 @@ vector<vote_state> database_api::get_active_votes( string author, string permlin
 
 vector<account_vote> database_api::get_account_votes( string voter )const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       vector<account_vote> result;
 
@@ -1029,7 +1030,7 @@ void database_api::set_url( discussion& d )const
 
 vector<discussion> database_api::get_content_replies( string author, string permlink )const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       account_name_type acc_name = account_name_type( author );
       const auto& by_permlink_idx = my->_db.get_index< comment_index >().indices().get< by_parent >();
@@ -1053,7 +1054,7 @@ vector<discussion> database_api::get_content_replies( string author, string perm
  */
 vector<discussion> database_api::get_replies_by_last_update( account_name_type start_parent_author, string start_permlink, uint32_t limit )const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       vector<discussion> result;
 
@@ -1091,7 +1092,7 @@ vector<discussion> database_api::get_replies_by_last_update( account_name_type s
 
 map< uint32_t, applied_operation > database_api::get_account_history( string account, uint64_t from, uint32_t limit )const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       FC_ASSERT( limit <= 10000, "Limit of ${l} is greater than maxmimum allowed", ("l",limit) );
       FC_ASSERT( from >= limit, "From must be greater than limit" );
@@ -1116,7 +1117,7 @@ vector<pair<string,uint32_t> > database_api::get_tags_used_by_author( const stri
    if( !my->_db.has_index<tags::author_tag_stats_index>() )
       return vector< pair< string, uint32_t > >();
 
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       const auto* acnt = my->_db.find_account( author );
       FC_ASSERT( acnt != nullptr );
@@ -1136,7 +1137,7 @@ vector<tag_api_obj> database_api::get_trending_tags( string after, uint32_t limi
    if( !my->_db.has_index<tags::tag_index>() )
       return vector< tag_api_obj >();
 
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       limit = std::min( limit, uint32_t(1000) );
       vector<tag_api_obj> result;
@@ -1261,7 +1262,7 @@ vector<discussion> database_api::get_discussions( const discussion_query& query,
 
 comment_id_type database_api::get_parent( const discussion_query& query )const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       comment_id_type parent;
       if( query.parent_author && query.parent_permlink ) {
@@ -1276,7 +1277,7 @@ vector<discussion> database_api::get_discussions_by_payout( const discussion_que
    if( !my->_db.has_index< tags::tag_index >() )
       return vector< discussion >();
 
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       query.validate();
       auto tag = fc::to_lower( query.tag );
@@ -1294,7 +1295,7 @@ vector<discussion> database_api::get_post_discussions_by_payout( const discussio
    if( !my->_db.has_index< tags::tag_index >() )
       return vector< discussion >();
 
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       query.validate();
       auto tag = fc::to_lower( query.tag );
@@ -1312,7 +1313,7 @@ vector<discussion> database_api::get_comment_discussions_by_payout( const discus
    if( !my->_db.has_index< tags::tag_index >() )
       return vector< discussion >();
 
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       query.validate();
       auto tag = fc::to_lower( query.tag );
@@ -1330,7 +1331,7 @@ vector<discussion> database_api::get_discussions_by_promoted( const discussion_q
    if( !my->_db.has_index< tags::tag_index >() )
       return vector< discussion >();
 
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       query.validate();
       auto tag = fc::to_lower( query.tag );
@@ -1348,7 +1349,7 @@ vector<discussion> database_api::get_discussions_by_trending( const discussion_q
    if( !my->_db.has_index< tags::tag_index >() )
       return vector< discussion >();
 
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       query.validate();
       auto tag = fc::to_lower( query.tag );
@@ -1366,7 +1367,7 @@ vector<discussion> database_api::get_discussions_by_created( const discussion_qu
    if( !my->_db.has_index< tags::tag_index >() )
       return vector< discussion >();
 
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       query.validate();
       auto tag = fc::to_lower( query.tag );
@@ -1384,7 +1385,7 @@ vector<discussion> database_api::get_discussions_by_active( const discussion_que
    if( !my->_db.has_index< tags::tag_index >() )
       return vector< discussion >();
 
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       query.validate();
       auto tag = fc::to_lower( query.tag );
@@ -1402,7 +1403,7 @@ vector<discussion> database_api::get_discussions_by_cashout( const discussion_qu
    if( !my->_db.has_index< tags::tag_index >() )
       return vector< discussion >();
 
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       query.validate();
       vector<discussion> result;
@@ -1422,7 +1423,7 @@ vector<discussion> database_api::get_discussions_by_votes( const discussion_quer
    if( !my->_db.has_index< tags::tag_index >() )
       return vector< discussion >();
 
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       query.validate();
       auto tag = fc::to_lower( query.tag );
@@ -1440,7 +1441,7 @@ vector<discussion> database_api::get_discussions_by_children( const discussion_q
    if( !my->_db.has_index< tags::tag_index >() )
       return vector< discussion >();
 
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       query.validate();
       auto tag = fc::to_lower( query.tag );
@@ -1458,7 +1459,7 @@ vector<discussion> database_api::get_discussions_by_hot( const discussion_query&
    if( !my->_db.has_index< tags::tag_index >() )
       return vector< discussion >();
 
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       query.validate();
       auto tag = fc::to_lower( query.tag );
@@ -1476,7 +1477,7 @@ vector<discussion> database_api::get_discussions_by_feed( const discussion_query
    if( !my->_db.has_index< tags::tag_index >() )
       return vector< discussion >();
 
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       query.validate();
       FC_ASSERT( my->_follow_api, "Node is not running the follow plugin" );
@@ -1529,7 +1530,7 @@ vector<discussion> database_api::get_discussions_by_blog( const discussion_query
    if( !my->_db.has_index< tags::tag_index >() )
       return vector< discussion >();
 
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       query.validate();
       FC_ASSERT( my->_follow_api, "Node is not running the follow plugin" );
@@ -1601,7 +1602,7 @@ vector<discussion> database_api::get_discussions_by_blog( const discussion_query
 
 vector<discussion> database_api::get_discussions_by_comments( const discussion_query& query )const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       vector< discussion > result;
 #ifndef IS_LOW_MEM
@@ -1655,7 +1656,7 @@ vector<discussion> database_api::get_discussions_by_comments( const discussion_q
  */
 void database_api::recursively_fetch_content( state& _state, discussion& root, set<string>& referenced_accounts )const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       try
       {
@@ -1686,7 +1687,7 @@ void database_api::recursively_fetch_content( state& _state, discussion& root, s
 vector<account_name_type> database_api::get_miner_queue()const
 {
    CONTENTOS_API_CLOSE_ASSERT();
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       vector<account_name_type> result;
       const auto& pow_idx = my->_db.get_index<witness_index>().indices().get<by_pow>();
@@ -1703,7 +1704,7 @@ vector<account_name_type> database_api::get_miner_queue()const
 
 vector< account_name_type > database_api::get_active_witnesses()const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       const auto& wso = my->_db.get_witness_schedule_object();
       size_t n = wso.current_shuffled_witnesses.size();
@@ -1718,7 +1719,7 @@ vector< account_name_type > database_api::get_active_witnesses()const
 vector<discussion>  database_api::get_discussions_by_author_before_date(
     string author, string start_permlink, time_point_sec before_date, uint32_t limit )const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       try
       {
@@ -1763,7 +1764,7 @@ vector<discussion>  database_api::get_discussions_by_author_before_date(
 vector< savings_withdraw_api_obj > database_api::get_savings_withdraw_from( string account )const
 {
    CONTENTOS_API_CLOSE_ASSERT();
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       vector<savings_withdraw_api_obj> result;
 
@@ -1779,7 +1780,7 @@ vector< savings_withdraw_api_obj > database_api::get_savings_withdraw_from( stri
 vector< savings_withdraw_api_obj > database_api::get_savings_withdraw_to( string account )const
 {
    CONTENTOS_API_CLOSE_ASSERT();
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       vector<savings_withdraw_api_obj> result;
 
@@ -1797,7 +1798,7 @@ vector< vesting_delegation_api_obj > database_api::get_vesting_delegations( stri
 {
    FC_ASSERT( limit <= 1000 );
 
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       vector< vesting_delegation_api_obj > result;
       result.reserve( limit );
@@ -1818,7 +1819,7 @@ vector< vesting_delegation_expiration_api_obj > database_api::get_expiring_vesti
 {
    FC_ASSERT( limit <= 1000 );
 
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       vector< vesting_delegation_expiration_api_obj > result;
       result.reserve( limit );
@@ -1837,7 +1838,7 @@ vector< vesting_delegation_expiration_api_obj > database_api::get_expiring_vesti
 
 state database_api::get_state( string path )const
 {
-   return my->_db.with_read_lock( [&]()
+   return determine_read_lock( [&]()
    {
       state _state;
       _state.props         = get_dynamic_global_properties();
@@ -2251,7 +2252,7 @@ annotated_signed_transaction database_api::get_transaction( transaction_id_type 
 #ifdef SKIP_BY_TX_ID
    FC_ASSERT( false, "This node's operator has disabled operation indexing by transaction_id" );
 #else
-   return my->_db.with_read_lock( [&](){
+   return determine_read_lock( [&](){
       const auto& idx = my->_db.get_index<operation_index>().indices().get<by_transaction_id>();
       auto itr = idx.lower_bound( id );
       if( itr != idx.end() && itr->trx_id == id ) {

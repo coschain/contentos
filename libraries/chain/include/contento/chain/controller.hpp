@@ -19,6 +19,12 @@ namespace contento { namespace chain {
 
    ////class fork_database;
 
+   class vm_content_api_interface {
+   public:
+      virtual std::vector<char> on_vm_request( const std::vector<char>& req_body ) = 0;
+   };
+
+
    class controller {
       public:
 
@@ -59,8 +65,16 @@ namespace contento { namespace chain {
             return pretty_output;
          }
 
-      private:
+         void set_vm_interface(vm_content_api_interface* ptr){
+            _vm_interface = ptr;
+         }
 
+         vm_content_api_interface* get_vm_interface(){
+            return _vm_interface;
+         }
+
+      private:
+         vm_content_api_interface* _vm_interface;
          std::unique_ptr<controller_impl> my;
 
    };

@@ -8,15 +8,15 @@ namespace contento {
    vector<type_def> common_type_defs() {
       vector<type_def> types;
 
-      types.push_back( type_def{"account_name", "string16"} );
+      types.push_back( type_def{"account_name", "string8"} );
       types.push_back( type_def{"permission_name", "name"} );
       types.push_back( type_def{"action_name", "name"} );
       types.push_back( type_def{"table_name", "name"} );
-      types.push_back( type_def{"transaction_id_type", "checksum256"} );
-      types.push_back( type_def{"block_id_type", "checksum256"} );
+      types.push_back( type_def{"transaction_id_type", "checksum160"} );
+      types.push_back( type_def{"block_id_type", "checksum160"} );
       types.push_back( type_def{"weight_type", "uint16"} );
 
-      types.push_back( type_def{"account_name_type", "string16"} );
+      types.push_back( type_def{"account_name_type", "string8"} );
       types.push_back( type_def{"share_type", "int64"} );
       types.push_back( type_def{"id_type", "int64"} );
       types.push_back( type_def{"digest_type", "checksum256"} );
@@ -413,7 +413,6 @@ bool rpc_api_generator::is_vector(const clang::QualType& vqt) {
    && ( boost::starts_with( get_type_name(qt, false), "vector") || boost::starts_with( get_type_name(qt, false), "optional")
        || boost::starts_with( get_type_name(qt, true), "boost::container::flat_set")
        || boost::starts_with( get_type_name(qt, true), "std::set")
-       || boost::starts_with( get_type_name(qt, true), "fc::array")
        || boost::starts_with( get_type_name(qt, false), "deque")
        );
 }

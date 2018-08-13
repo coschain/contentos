@@ -109,6 +109,20 @@ class follow_api
       vector< pair< account_name_type, uint32_t > > get_blog_authors( const account_name_type& blog_account )const;
 
    private:
+
+      template<typename chainbasedb, typename Lambda >
+      auto determine_read_lock(chainbasedb& db, Lambda&& callback ) const -> decltype( (*(Lambda*)nullptr)() ){
+         if ( !call_from_vm ){
+            return db.with_read_lock( [&]()
+                                     {
+                                        return callback();
+                                     });
+         } else {
+            return callback();
+         }
+      }
+
+      bool call_from_vm;
       std::shared_ptr< detail::follow_api_impl > my;
 };
 

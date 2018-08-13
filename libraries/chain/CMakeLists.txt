@@ -47,6 +47,7 @@ add_library( contento_chain
               wasm_contento_injection.cpp
               apply_context.cpp
               abi_serializer.cpp
+              wasm_price.cpp
 
              webassembly/wavm.cpp
              webassembly/binaryen.cpp
