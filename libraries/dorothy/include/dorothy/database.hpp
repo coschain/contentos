@@ -1,5 +1,7 @@
 #include <iostream>
 #include <cassert>
+#include <algorithm>
+#include <sstream>
 #include <boost/filesystem.hpp>
 #include "hsql/SQLParser.h"
 #include "hsql/sql/statements.h"
@@ -8,6 +10,7 @@
 #include "hsql/util/sqlhelper.h"
 #include <dorothy/util.hpp>
 #include <dorothy/callback.hpp>
+#include <dorothy/meta.hpp>
 #include <contento/chain/global_property_object.hpp>
 #include <contento/chain/global_reward_property_object.hpp>
 #include <contento/chain/comment_object.hpp>
@@ -16,6 +19,7 @@
 #include <contento/chain/history_object.hpp>
 #include <contento/chain/transaction_object.hpp>
 #include <contento/chain/witness_objects.hpp>
+
 
 
 using bprinter::TablePrinter;
@@ -36,14 +40,13 @@ namespace dorothy {
             void close();
 
             void initialize_indexes();
-            void initialize_indexed_query();
         
-            template<typename INDEX, typename TAG> void initialize_index(std::string&&, std::string&&);
-            template<typename INDEX, typename TAG, typename KEY_TYPE>
-            void add_indexed_query(std::string&&, std::string&& );
+            template<typename INDEX, typename TAG, typename MainKeyType> void pre_initialize_index(std::string&, std::vector<std::string>&);
         
+            template<typename INDEX, typename TAG> void initialize_index(std::string&, std::string&);
+
             template<typename INDEX, typename TAG, typename KEY_TYPE>
-            void add_indexed_query(std::string&&, std::string&&, std::string&&);
+            void boost_index(std::string&, std::string&, std::vector<std::string>&);
             
             void query(const std::string& );
         
@@ -69,7 +72,54 @@ namespace dorothy {
             void _parse_fields(const hsql::SelectStatement*, std::vector<std::string>&);
             // copy Condition into vector is ok here. It's tiny.
             void _parse_conditions(const hsql::SelectStatement*, std::vector<Condition>&);
-
-
     };
+    
+    template<typename T> char test(int T::key_extractor_tuple::*);
+    template<typename T> int test(...);
+    
+    template<typename T>
+    struct is_composite_key{
+        static const bool yes = sizeof(test<T>(0)) == sizeof(char);
+    };
+    
+    template<typename MultiIndexContainer, typename members_or_composite_key, typename index_type>
+    void choose_member_or_composite(database *, std::true_type);
+    
+    template<typename MultiIndexContainer, typename members_or_composite_key, typename index_type>
+    void choose_member_or_composite(database *, std::false_type);
+    
+    template<typename MultiIndexContainer, typename members_or_composite_key, typename index_type>
+    void choose_member_or_composite(database *);
+    
+    template<typename MultiIndexContainer, typename Tag, typename MainKeyType>
+    void initialize_from_metadata(database *, std::string&);
+    
+    template<typename MultiIndexContainer>
+    struct initialize
+    {
+        initialize(database* db):db(db){}
+        
+        template< typename U > void operator()(U x)
+        {
+            using index_type = typename MultiIndexContainer::template nth_index<x>::type;
+            using members_or_composite_key = typename index_type::key_from_value;
+            choose_member_or_composite<MultiIndexContainer, members_or_composite_key, index_type>(db);
+        }
+        
+        database* db;
+    };
+    
+    template<typename MultiIndexContainer>
+    struct bootstrap
+    {
+        void operator()(database* db)
+        {
+            using size = typename MultiIndexContainer::index_type_list::size;
+            boost::mpl::for_each< boost::mpl::range_c<int,0,size::value> >( initialize<MultiIndexContainer>(db) );
+        }
+    };
+
+
+    #define REGISTER(MultiIndex) {bootstrap<MultiIndex> _T;_T(this);}
+
 }

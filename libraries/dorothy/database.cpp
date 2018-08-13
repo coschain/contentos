@@ -57,7 +57,6 @@ namespace dorothy {
     {
         _chain_db->open(dir);
         initialize_indexes();
-        initialize_indexed_query();
     }
     
     void database::close()
@@ -70,127 +69,31 @@ namespace dorothy {
 
     void database::initialize_indexes()
     {
-        initialize_index<account_index, by_id>("account", "id");
-        initialize_index<account_index, by_name>("account", "name");
-        initialize_index<account_index, by_next_vesting_withdrawal>("account", "next_vesting_withdrawal");
-        initialize_index<account_index, by_last_post>("account", "last_post");
-        initialize_index<account_index, by_balance>("account", "balance");
-        initialize_index<account_index, by_vesting_shares>("account", "vesting_shares");
-        initialize_index<account_index, by_post_count>("account", "post_count");
-        initialize_index<account_index, by_vote_count>("account", "vote_count");
-        initialize_index<admin_index, by_id>("admin", "id");
-        initialize_index<admin_index, by_name>("admin", "name");
-        initialize_index<owner_authority_history_index, by_id>("owner_authority_history", "id");
-        initialize_index<owner_authority_history_index, by_account>("owner_authority_history", "account");
-        initialize_index<block_summary_index, by_id>("block_summary", "id");
-        initialize_index<comment_index, by_id>("comment", "id");
-        initialize_index<comment_index, by_cashout_time>("comment", "cashout_time");
-        initialize_index<comment_index, by_permlink>("comment", "permlink");
-        initialize_index<comment_index, by_root>("comment", "root");
-        initialize_index<comment_index, by_parent>("comment", "parent");
-        initialize_index<comment_index, by_last_update>("comment", "last_update");
-        initialize_index<comment_index, by_author_last_update>("comment", "author_last_update");
-        initialize_index<comment_vote_index, by_id>("comment_vote", "id");
-        initialize_index<comment_vote_index, by_comment_voter>("comment_vote", "comment_voter");
-        initialize_index<comment_vote_index, by_voter_comment>("comment_vote", "voter_comment");
-        initialize_index<comment_vote_index, by_voter_last_update>("comment_vote", "voter_last_update");
-        initialize_index<comment_vote_index, by_comment_weight_voter>("comment_vote", "comment_weight_voter");
-
-        // cc: the comment_report's attribute reports could not be reflect.
-        // should implement visit method in report_info_type
-        
-//        initialize_index<comment_report_index, by_id>("comment_report", "id");
-//        initialize_index<comment_report_index, by_comment>("comment_report", "comment");
-//        initialize_index<comment_report_index, by_total_credit>("comment_report", "total_credit");
-//        initialize_index<comment_report_index, by_last_update>("comment_report", "last_update");
-        
-        initialize_index<dynamic_global_property_index, by_id>("global_property", "id");
-        initialize_index<dynamic_global_reward_property_index, by_id>("global_reward_property", "id");
-        initialize_index<operation_index, by_location>("operation", "id");
-        initialize_index<operation_index, by_transaction_id>("operation", "transaction_id");
-        initialize_index<operation_index, by_location>("operation", "location");
-        initialize_index<transaction_index, by_id>("transaction", "id");
-        initialize_index<transaction_index, by_trx_id>("transaction", "trx_id");
-        initialize_index<transaction_index, by_expiration>("transaction", "expiration");
-        initialize_index<witness_index, by_id>("witness", "id");
-        initialize_index<witness_index, by_name>("witness", "name");
-        initialize_index<witness_index, by_schedule_time>("witness", "virtual_scheduled_time");
-        initialize_index<witness_vote_index, by_id>("witness_vote", "id");
-        initialize_index<witness_vote_index, by_account_witness>("witness_vote", "account_witness");
-        initialize_index<witness_vote_index, by_witness_account>("witness_vote", "witness_account");
-        initialize_index<witness_schedule_index, by_id>("witness_schedule", "id");
-        
+        REGISTER(account_index);
+        REGISTER(admin_index);
+        REGISTER(owner_authority_history_index);
+        REGISTER(block_summary_index);
+        REGISTER(comment_index);
+        REGISTER(comment_vote_index);
+        REGISTER(dynamic_global_property_index);
+        REGISTER(dynamic_global_reward_property_index);
+        REGISTER(operation_index);
+//        REGISTER(transaction_index);
+        REGISTER(witness_index);
+        REGISTER(witness_vote_index);
+        REGISTER(witness_schedule_index);
     }
     
-    void database::initialize_indexed_query(){
-        add_indexed_query<account_index, by_id, account_id_type>("account", "id");
-        add_indexed_query<account_index, by_name, account_name_type>("account", "name");
-        add_indexed_query<account_index, by_next_vesting_withdrawal, contento::time_point_sec>("account", "next_vesting_withdrawal", "id");
-        add_indexed_query<account_index, by_balance, asset>("account", "balance", "id");
-        add_indexed_query<account_index, by_vesting_shares, asset>("account", "vesting_shares", "id");
-        add_indexed_query<admin_index, by_id, admin_id_type>("admin", "id");
-        add_indexed_query<admin_index, by_name, account_name_type>("admin", "name");
-        add_indexed_query<owner_authority_history_index, by_id, owner_authority_history_id_type>("owner_authority_history", "id");
-        add_indexed_query<comment_index, by_id, comment_id_type>("comment", "id");
-        add_indexed_query<comment_index, by_cashout_time, contento::time_point_sec>("comment", "cashout_time", "id");
-        add_indexed_query<comment_index, by_permlink, account_name_type>("comment", "author", "permlink");
-        add_indexed_query<comment_index, by_root, comment_id_type>("comment", "root_comment", "id");
-        add_indexed_query<comment_vote_index, by_id, comment_vote_id_type>("comment_vote", "id");
-        add_indexed_query<comment_vote_index, by_comment_voter, comment_id_type>("comment_vote", "comment", "voter");
-        add_indexed_query<comment_vote_index, by_voter_comment, account_id_type>("comment_vote", "voter", "comment");
-        add_indexed_query<operation_index, by_id, operation_id_type>("operation", "id");
-        add_indexed_query<operation_index, by_transaction_id, transaction_id_type>("operation", "trx_id", "id");
-        add_indexed_query<transaction_index, by_id, transaction_object_id_type>("transaction", "id");
-        add_indexed_query<witness_index, by_id, witness_id_type>("witness", "id");
-        add_indexed_query<witness_index, by_name, account_name_type>("witness", "name");
-        add_indexed_query<witness_index, by_schedule_time, fc::uint128>("witness", "virtual_scheduled_time", "id");
-        add_indexed_query<witness_vote_index, by_id, witness_vote_id_type>("witness_vote", "id");
-        add_indexed_query<witness_vote_index, by_account_witness, account_id_type>("witness_vote", "account", "witness");
-        add_indexed_query<witness_vote_index, by_witness_account, witness_id_type>("witness_vote", "witness", "account");
-        add_indexed_query<witness_schedule_index, by_id, witness_schedule_id_type>("witness_schedule", "id");
-    }
-    
-    // the where-clause conditions could contain one key or two keys
-    // alway the first key as main key to be used in lower-bound for querying process.
-    template<typename INDEX, typename TAG, typename KEY_TYPE>
-    void database::add_indexed_query(std::string&& table_name, std::string&& main_key)
+    template<typename INDEX, typename TAG, typename MainKeyType>
+    void database::pre_initialize_index(std::string& table_name, std::vector<std::string>& keys)
     {
-        auto find_table_name = std::find(_table_names.begin(), _table_names.end(), table_name);
-        if(find_table_name == _table_names.end()){
-            std::cerr << "table " << table_name << " didn't register" << std::endl;
-            return;
-        }
-        else{
-            auto key = table_name + "|" + main_key;
-            auto f = [this, main_key](const hsql::SelectStatement* stmt, const std::string table_name, const std::vector<std::string>& fields, const std::vector<Condition>& conditions){return query_indexed_table<INDEX, TAG, KEY_TYPE>(stmt, table_name, fields, main_key, conditions);};
-            _indexed_tables[key] = f;
-        }
+        if(keys.empty()) return;
+        initialize_index<INDEX, TAG>(table_name, keys[0]);
+        boost_index<INDEX, TAG, MainKeyType>(table_name, keys[0], keys);
     }
-    
-    template<typename INDEX, typename TAG, typename KEY_TYPE>
-    void database::add_indexed_query(std::string&& table_name, std::string&& main_key, std::string&& second_key)
-    {
-        auto find_table_name = std::find(_table_names.begin(), _table_names.end(), table_name);
-        if(find_table_name == _table_names.end()){
-            std::cerr << "table " << table_name << " didn't register" << std::endl;
-            return;
-        }
-        else{
-            // in practical, as using union index, passing main key only is ok.
-            // and of course, keys order is not importance.
-            auto key0 = table_name + "|" + main_key;
-            auto key1 = table_name + "|" + main_key + "|" + second_key;
-            auto key2 = table_name + "|" + second_key + "|" + main_key;
-            auto f = [this, main_key](const hsql::SelectStatement* stmt, const std::string table_name, const std::vector<std::string>& fields, const std::vector<Condition>& conditions){return query_indexed_table<INDEX, TAG, KEY_TYPE>(stmt, table_name, fields, main_key, conditions);};
-            _indexed_tables[key0] = f;
-            _indexed_tables[key1] = f;
-            _indexed_tables[key2] = f;
-        }
-    }
-    
     
     template<typename INDEX, typename TAG>
-    void database::initialize_index(std::string&& table_name, std::string&& tag_name)
+    void database::initialize_index(std::string& table_name, std::string& tag_name)
     {
         auto find_table_name = std::find(_table_names.begin(), _table_names.end(), table_name);
         if(find_table_name == _table_names.end()){
@@ -202,6 +105,27 @@ namespace dorothy {
         _tables[key] = f;
     }
     
+    template<typename INDEX, typename TAG, typename KEY_TYPE>
+    void database::boost_index(std::string& table_name, std::string& main_key, std::vector<std::string>& keys)
+    {
+        auto find_table_name = std::find(_table_names.begin(), _table_names.end(), table_name);
+        if(find_table_name == _table_names.end()){
+            std::cerr << "table " << table_name << " didn't register" << std::endl;
+            return;
+        }
+        std::sort(keys.begin(), keys.end());
+        size_t size = keys.size();
+        auto f = [this, main_key](const hsql::SelectStatement* stmt, const std::string table_name, const std::vector<std::string>& fields, const std::vector<Condition>& conditions){return query_indexed_table<INDEX, TAG, KEY_TYPE>(stmt, table_name, fields, main_key, conditions);};
+        do{
+            std::stringstream ss;
+            for(size_t i = 0;i < size;i++){
+                ss << "|";
+                ss << keys[i];
+            }
+            std::string key = table_name + ss.str();
+            _indexed_tables[key] = f;
+        } while(std::next_permutation(keys.begin(), keys.end()));
+    }
     
     void database::query(const std::string& sql){
         hsql::SQLParserResult result;
@@ -312,7 +236,6 @@ namespace dorothy {
         }
         
         auto callback = (conditions.empty())? cmp_default : cmp_conditions;
-        
         try {
             KEY_TYPE k;
             fc::from_variant(con.val, k);
@@ -451,6 +374,45 @@ namespace dorothy {
         });
     }
     
-
-
+    template<typename MultiIndexContainer, typename members_or_composite_key, typename index_type>
+    void choose_member_or_composite(database * db, std::true_type){
+        using iterator = typename index_type::iterator;
+        using tag_type = typename tag_from_iterator<MultiIndexContainer,iterator>::type;
+        using main_key_type = typename boost::multi_index::detail::nth_key_from_value<members_or_composite_key, 0>::type::result_type;
+        std::string  members_str = boost::core::demangle(typeid(members_or_composite_key).name());
+        initialize_from_metadata<MultiIndexContainer, tag_type, main_key_type>(db, members_str);
+    }
+    
+    template<typename MultiIndexContainer, typename members_or_composite_key, typename index_type>
+    void choose_member_or_composite(database * db, std::false_type){
+        using iterator = typename index_type::iterator;
+        using tag_type = typename tag_from_iterator<MultiIndexContainer,iterator>::type;
+        using main_key_type = typename members_or_composite_key::result_type;
+        std::string  members_str = boost::core::demangle(typeid(members_or_composite_key).name());
+        initialize_from_metadata<MultiIndexContainer, tag_type, main_key_type>(db, members_str);
+    }
+    
+    template<typename MultiIndexContainer, typename members_or_composite_key, typename index_type>
+    void choose_member_or_composite(database * db) {
+        choose_member_or_composite<MultiIndexContainer, members_or_composite_key, index_type>
+        (db, std::integral_constant<bool, is_composite_key<members_or_composite_key>::yes>());
+    }
+    
+    template<typename MultiIndexContainer, typename Tag, typename MainKeyType>
+    void initialize_from_metadata(database* db, std::string& metadata)
+    {
+//      std::cout << metadata << std::endl;
+        std::regex member_regex("&\\((.+?)::(.+?)::(.+?)_object::(.+?)\\)");
+        auto words_begin =
+        std::sregex_iterator(metadata.begin(), metadata.end(), member_regex);
+        auto words_end = std::sregex_iterator();
+        std::string table_name;
+        std::vector<std::string> keys;
+        for (std::sregex_iterator i = words_begin; i != words_end; ++i) {
+            std::smatch match = *i;
+            table_name = match[3].str();
+            keys.push_back( match[4].str());
+        }
+        db->pre_initialize_index<MultiIndexContainer, Tag, MainKeyType>(table_name, keys);
+    }
 }
