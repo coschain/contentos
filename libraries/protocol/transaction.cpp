@@ -284,6 +284,18 @@ void signed_transaction::verify_authority(
    contento::protocol::verify_authority( operations, get_signature_keys( chain_id ), get_active, get_owner, get_posting, max_recursion );
 } FC_CAPTURE_AND_RETHROW( (*this) ) }
 
+
+   void signed_transaction::verify_ops_authority(
+                             const vector<operation>& ops,
+                             const chain_id_type& chain_id,
+                             const authority_getter& get_active,
+                             const authority_getter& get_owner,
+                             const authority_getter& get_posting,
+                             uint32_t max_recursion )const
+{ try {
+   contento::protocol::verify_authority( ops, get_signature_keys( chain_id ), get_active, get_owner, get_posting, max_recursion );
+} FC_CAPTURE_AND_RETHROW( (*this) ) }
+
 digest_type transaction_wrapper::merkle_digest()const
 {
    digest_type::encoder enc;

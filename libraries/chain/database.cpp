@@ -90,7 +90,9 @@ database_impl::database_impl( database& self )
 
 database::database()
    : _my( new database_impl(*this) ),
-     ctrl(*this) {}
+     ctrl(*this) {
+        ctrl.set_op_excute_callback(this);
+     }
 
 database::~database()
 {
@@ -2807,6 +2809,28 @@ std::shared_ptr<transaction_context> database::_apply_transaction(const transact
    return trx_ctx;
 } FC_CAPTURE_AND_RETHROW( (trx_wrapper) ) }
 
+bool database::execute_operation(const transaction_context& trx_context, const operation& op ){
+
+   auto get_active  = [&]( const string& name ) { return authority( get< account_authority_object, by_account >( name ).active ); };
+   auto get_owner   = [&]( const string& name ) { return authority( get< account_authority_object, by_account >( name ).owner );  };
+   auto get_posting = [&]( const string& name ) { return authority( get< account_authority_object, by_account >( name ).posting );  };
+
+   try
+   {
+      std::vector<operation> ops;
+      ops.push_back(op);
+      trx_context.trx.verify_ops_authority(ops, get_chain_id(), get_active, get_owner, get_posting, CONTENTO_MAX_SIG_CHECK_DEPTH );
+      // TODO YYK admin op must verify
+      //check_admin(trx.extract_admin_ops());
+   }
+   catch( protocol::tx_missing_active_auth& e )
+   {
+      throw e;
+   }
+
+   apply_operation(op, nullptr);
+   return true;
+}
 
 void database::apply_operation(const operation& op, std::shared_ptr<transaction_context> ctx)
 {

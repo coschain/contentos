@@ -150,7 +150,10 @@ if __name__ == "__main__":
 
     api_array = json.loads(contents)
 
-    result  = '#include <iostream>\n'
+    result  = "\n";
+
+    result += '#pragma once\n\n'
+    result += '#include <iostream>\n'
     result += '#include <map>\n'
     result += '#include <vector>\n'
     result += '#include <eosiolib/eosio.hpp>\n'

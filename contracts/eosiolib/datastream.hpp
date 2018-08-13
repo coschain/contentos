@@ -501,9 +501,6 @@ Datastream& operator <<( Datastream& ds, const static_variant<T...>& s )
   ds << unsigned_int(s.which());
   s.visit( pack_static_variant<Datastream>(ds) );
   return ds;
-//   ds << 
-//   s.visit( from_static_variant(vars[1]) );
-//   v = std::move(vars);
 }
 
 template<typename Datastream, typename... T > 
@@ -514,12 +511,9 @@ Datastream& operator >>( Datastream& ds, static_variant<T...>& s )
   s.set_which( which );
   s.visit( unpack_static_variant<Datastream>(ds) );
   return ds;
-
-//   ds << 
-//   s.visit( from_static_variant(vars[1]) );
-//   v = std::move(vars);
 }
 
+// WHY use PFR ??
 // template<typename DataStream, typename T, std::enable_if_t<std::is_class<T>::value>* = nullptr>
 // DataStream& operator<<( DataStream& ds, const T& v ) {
 //    boost::pfr::for_each_field(v, [&](const auto& field) {

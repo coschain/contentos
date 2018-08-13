@@ -39,7 +39,7 @@ namespace eosio {
          }
 
          {
-            print(" ******** \n start query get_state ******** \n ");
+            print("******** start query get_state ******** \n ");
             state st =  database_api().get_state("/title1/@initminer/perm3");
 
             if ( st.content.size() > 0 ) print("comment body: ", st.content.begin()->second.body, "\n" );
@@ -54,7 +54,7 @@ namespace eosio {
             print("timeshare_weight: ", (int)st.witness_schedule.timeshare_weight, "\n" );
             print("hardfork_required_witnesses: ", (int)st.witness_schedule.hardfork_required_witnesses, "\n" );
 
-            print(" ******** \n end query get_state ******** \n ");
+            print("******** end query get_state ******** \n ");
          }
 
 
@@ -75,7 +75,6 @@ namespace eosio {
             vector<signed_block_api_obj> blks = database_api().get_block( 57);
             print("get_block size: ", blks.size() , "\n");
             for ( auto blk : blks ){
-               //print("block info id: ", blk.block_id , "\n");
                print("block info trxs: ", blk.transactions.size() , "\n");
 
                for ( auto trx :  blk.transactions ){

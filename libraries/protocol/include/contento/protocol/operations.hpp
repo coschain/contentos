@@ -101,6 +101,9 @@ namespace contento { namespace protocol {
 
    bool is_admin_operation( const operation& op );
 
+   bool is_vm_operation( const operation& op );
+
+
 } } // contento::protocol
 
 
