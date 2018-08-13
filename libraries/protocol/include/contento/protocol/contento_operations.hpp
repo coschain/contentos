@@ -915,7 +915,7 @@ namespace contento { namespace protocol {
       account_name_type          contract_name;
       name                       action_name;
       bytes                      data;
-      asset                      amount;
+      asset                      value;
 
       vm_operation() {}
 
@@ -1043,4 +1043,4 @@ FC_REFLECT( contento::protocol::change_recovery_account_operation, (account_to_r
 FC_REFLECT( contento::protocol::decline_voting_rights_operation, (account)(decline) );
 FC_REFLECT( contento::protocol::claim_reward_balance_operation, (account)(reward_steem)(reward_sbd)(reward_vests) )
 FC_REFLECT( contento::protocol::delegate_vesting_shares_operation, (delegator)(delegatee)(vesting_shares) );
-FC_REFLECT( contento::protocol::vm_operation, (caller)(contract_name)(action_name)(data)(amount) )
+FC_REFLECT( contento::protocol::vm_operation, (caller)(contract_name)(action_name)(data)(value) )

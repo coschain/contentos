@@ -2476,9 +2476,9 @@ void vm_evaluator::do_apply( const vm_operation& o )  {
                    });
     }
     
-    FC_ASSERT( _db.get_balance( from_account, o.amount.symbol ) >= o.amount, "Account does not have sufficient funds for transfer." );
-    _db.adjust_balance( from_account, -o.amount );
-    _db.adjust_contract_balance( to_account, o.amount );
+    FC_ASSERT( _db.get_balance( from_account, o.value.symbol ) >= o.value, "Account does not have sufficient funds for transfer." );
+    _db.adjust_balance( from_account, -o.value );
+    _db.adjust_contract_balance( to_account, o.value );
     // transfer asset from caller to contract
 }
 

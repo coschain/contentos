@@ -532,6 +532,24 @@ std::vector<char> apply_context::on_vm_request( const std::vector<char>& req_bod
    //return control.get_vm_interface()->on_vm_request(req_body);
 }
 
-
+int64_t apply_context::get_contract_balance( account_name contract_name )  {
+    const auto& account = control.get_contract_account(contract_name);
+    return account.coc_balance.amount.value;
+}
+    
+void apply_context::transfer( account_name name, int64_t value)  {
+    
+    const auto& to_account = control.get_account(name);
+    const auto& from_account = control.get_contract_account(receiver);
+    
+    FC_ASSERT( get_contract_balance( receiver ) >= value, "Contract does not have sufficient funds for transfer." );
+    asset s(value,COC_SYMBOL);
+    control.adjust_contract_balance( from_account, -s );
+    control.adjust_balance( to_account, s );
+}
+    
+int64_t apply_context::get_value() {
+    return op.value.amount.value;
+}
 
 } } /// contento::chain

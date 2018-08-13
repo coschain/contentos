@@ -30,7 +30,7 @@ extern "C" {
 
    void transfer(const account_name& name, int64_t value);
 
-   int64_t get_value(const account_name& name);
+   int64_t get_value();
 
    ///@ } chaincapi
 }
