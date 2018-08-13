@@ -41,7 +41,9 @@ namespace dorothy {
 
             void initialize_indexes();
         
-            template<typename INDEX, typename TAG, typename MainKeyType> void pre_initialize_index(std::string&, std::vector<std::string>&);
+            template<typename INDEX, typename TAG, typename MainKeyType> void pre_initialize_index(std::string&, std::vector<std::string>&, std::true_type);
+        
+            template<typename INDEX, typename TAG, typename MainKeyType> void pre_initialize_index(std::string&, std::vector<std::string>&, std::false_type);
         
             template<typename INDEX, typename TAG> void initialize_index(std::string&, std::string&);
 
@@ -74,12 +76,12 @@ namespace dorothy {
             void _parse_conditions(const hsql::SelectStatement*, std::vector<Condition>&);
     };
     
-    template<typename T> char test(int T::key_extractor_tuple::*);
-    template<typename T> int test(...);
+    template<typename T> char test_composite_key(int T::key_extractor_tuple::*);
+    template<typename T> int test_composite_key(...);
     
     template<typename T>
     struct is_composite_key{
-        static const bool yes = sizeof(test<T>(0)) == sizeof(char);
+        static const bool yes = sizeof(test_composite_key<T>(0)) == sizeof(char);
     };
     
     template<typename MultiIndexContainer, typename members_or_composite_key, typename index_type>
@@ -91,7 +93,24 @@ namespace dorothy {
     template<typename MultiIndexContainer, typename members_or_composite_key, typename index_type>
     void choose_member_or_composite(database *);
     
-    template<typename MultiIndexContainer, typename Tag, typename MainKeyType>
+    template<typename T> char test_hash_index(int T::hasher::*);
+    template<typename T> int test_hash_index(...);
+    
+    template<typename T>
+    struct is_hash_index{
+        static const bool yes = sizeof(test_hash_index<T>(0)) == sizeof(char);
+    };
+    
+//    template<typename MultiIndexContainer, typename Tag, typename MainKeyType>
+//    void choose_hash_or_order_index(database *, std::string&, std::vector<std::string>&, std::true_type);
+//
+//    template<typename MultiIndexContainer, typename Tag, typename MainKeyType>
+//    void choose_hash_or_order_index(database *, std::string&, std::vector<std::string>&, std::false_type);
+    
+    template<typename MultiIndexContainer, typename Tag, typename MainKeyType, typename IndexType>
+    void choose_hash_or_order_index(database * , std::string&, std::vector<std::string>& );
+    
+    template<typename MultiIndexContainer, typename Tag, typename MainKeyType, typename IndexType>
     void initialize_from_metadata(database *, std::string&);
     
     template<typename MultiIndexContainer>

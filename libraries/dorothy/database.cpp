@@ -78,14 +78,22 @@ namespace dorothy {
         REGISTER(dynamic_global_property_index);
         REGISTER(dynamic_global_reward_property_index);
         REGISTER(operation_index);
-//        REGISTER(transaction_index);
+        REGISTER(transaction_index);
         REGISTER(witness_index);
         REGISTER(witness_vote_index);
         REGISTER(witness_schedule_index);
     }
     
+    // hash_index is true_type otherwise false_type
     template<typename INDEX, typename TAG, typename MainKeyType>
-    void database::pre_initialize_index(std::string& table_name, std::vector<std::string>& keys)
+    void database::pre_initialize_index(std::string& table_name, std::vector<std::string>& keys, std::true_type)
+    {
+        if(keys.empty()) return;
+        initialize_index<INDEX, TAG>(table_name, keys[0]);
+    }
+    
+    template<typename INDEX, typename TAG, typename MainKeyType>
+    void database::pre_initialize_index(std::string& table_name, std::vector<std::string>& keys, std::false_type)
     {
         if(keys.empty()) return;
         initialize_index<INDEX, TAG>(table_name, keys[0]);
@@ -380,7 +388,7 @@ namespace dorothy {
         using tag_type = typename tag_from_iterator<MultiIndexContainer,iterator>::type;
         using main_key_type = typename boost::multi_index::detail::nth_key_from_value<members_or_composite_key, 0>::type::result_type;
         std::string  members_str = boost::core::demangle(typeid(members_or_composite_key).name());
-        initialize_from_metadata<MultiIndexContainer, tag_type, main_key_type>(db, members_str);
+        initialize_from_metadata<MultiIndexContainer, tag_type, main_key_type, index_type>(db, members_str);
     }
     
     template<typename MultiIndexContainer, typename members_or_composite_key, typename index_type>
@@ -389,7 +397,7 @@ namespace dorothy {
         using tag_type = typename tag_from_iterator<MultiIndexContainer,iterator>::type;
         using main_key_type = typename members_or_composite_key::result_type;
         std::string  members_str = boost::core::demangle(typeid(members_or_composite_key).name());
-        initialize_from_metadata<MultiIndexContainer, tag_type, main_key_type>(db, members_str);
+        initialize_from_metadata<MultiIndexContainer, tag_type, main_key_type, index_type>(db, members_str);
     }
     
     template<typename MultiIndexContainer, typename members_or_composite_key, typename index_type>
@@ -398,10 +406,14 @@ namespace dorothy {
         (db, std::integral_constant<bool, is_composite_key<members_or_composite_key>::yes>());
     }
     
-    template<typename MultiIndexContainer, typename Tag, typename MainKeyType>
+    template<typename MultiIndexContainer, typename Tag, typename MainKeyType, typename IndexType>
+    void choose_hash_or_order_index(database * db, std::string& table_name, std::vector<std::string>& keys){
+        db->pre_initialize_index<MultiIndexContainer, Tag, MainKeyType>(table_name, keys, std::integral_constant<bool, is_hash_index<IndexType>::yes>());
+    }
+    
+    template<typename MultiIndexContainer, typename Tag, typename MainKeyType, typename IndexType>
     void initialize_from_metadata(database* db, std::string& metadata)
     {
-//      std::cout << metadata << std::endl;
         std::regex member_regex("&\\((.+?)::(.+?)::(.+?)_object::(.+?)\\)");
         auto words_begin =
         std::sregex_iterator(metadata.begin(), metadata.end(), member_regex);
@@ -413,6 +425,6 @@ namespace dorothy {
             table_name = match[3].str();
             keys.push_back( match[4].str());
         }
-        db->pre_initialize_index<MultiIndexContainer, Tag, MainKeyType>(table_name, keys);
+        choose_hash_or_order_index<MultiIndexContainer, Tag, MainKeyType, IndexType>(db, table_name, keys);
     }
 }
