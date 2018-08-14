@@ -2462,7 +2462,9 @@ void delegate_vesting_shares_evaluator::do_apply( const delegate_vesting_shares_
 
 void vm_evaluator::do_apply( const vm_operation& o )  {
     ctx->apply(o);
-    
+    if(o.value.amount <= 0){
+        return;
+    }
     // transfer asset from caller to contract
     const auto& from_account = _db.get_account(o.caller);
     const auto& to_account = _db.get_contract_account(o.contract_name);

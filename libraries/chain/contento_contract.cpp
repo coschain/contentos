@@ -16,6 +16,8 @@
 #include <contento/chain/wasm_interface.hpp>
 #include <contento/chain/abi_serializer.hpp>
 
+#include <contento/chain/contract_balance_object.hpp>
+
 
 namespace contento { namespace chain {
 
@@ -84,6 +86,10 @@ void apply_contento_setabi(apply_context& context) {
       if( abi_size > 0 )
          memcpy( (void*)a.abi.data(), act.abi.data(), abi_size );
    });
+    
+    db.create< contract_balance_object > ([&]( auto& cbo ) {
+        cbo.contract_name = context.receiver;
+    } );
     /* TODOO:
    const auto& account_sequence = db.get<account_sequence_object, by_name>(act.account);
    db.modify( account_sequence, [&]( auto& aso ) {
