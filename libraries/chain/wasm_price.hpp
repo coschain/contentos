@@ -225,6 +225,7 @@ namespace contento { namespace chain { namespace wasm_price {
     // content_api
     WASM_PRICE_FN_DECLS(
                         (on_content_call,           (int,int, int, int, int)      )
+                        (excute_operation,          (int,int, int)         )
                         );
     
     // context_free_api

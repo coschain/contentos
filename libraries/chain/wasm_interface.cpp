@@ -1855,8 +1855,8 @@ REGISTER_INTRINSICS_WITH_PRICE(transaction_api,
 );
 
 REGISTER_INTRINSICS_WITH_PRICE(content_api,
-   (on_content_call,           int(int, int, int, int)      )
-   (excute_operation,           int(int, int)      )
+   WITH_PRICE (on_content_call,           int(int, int, int, int)      )
+   WITH_PRICE (excute_operation,           int(int, int)      )
 );
 
 /*
