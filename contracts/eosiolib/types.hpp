@@ -109,6 +109,16 @@ namespace eosio {
    struct name {
       operator uint64_t()const { return value; }
 
+      name(){}
+      name(const char* str){
+            this->value = ::eosio::string_to_name(str);
+      }
+
+      name& operator = ( const char* str){
+            this->value = ::eosio::string_to_name(str);
+            return *this;
+      }
+
       // keep in sync with name::operator string() in eosio source code definition for name
       std::string to_string() const {
          static const char* charmap = ".12345abcdefghijklmnopqrstuvwxyz";
