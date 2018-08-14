@@ -26,7 +26,7 @@ extern "C" {
     *  @endcode
     */
 
-   uint64_t get_contract_balance(const account_name& contract_name );
+   uint64_t get_contract_balance();
 
    void transfer(const account_name& name, int64_t value);
 

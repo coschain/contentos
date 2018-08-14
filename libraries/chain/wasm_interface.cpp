@@ -686,9 +686,9 @@ class contract_bank_api : public context_aware_api {
    public:
       using context_aware_api::context_aware_api;
 
-      int64_t get_contract_balance(account_name contract) {
+      int64_t get_contract_balance() {
           // todo get contract balance form db
-          return context.get_contract_balance(contract);
+          return context.get_contract_balance();
       }
 
       void transfer(account_name name, int64_t value) {
@@ -1747,7 +1747,7 @@ REGISTER_INTRINSICS_WITH_PRICE(producer_api,
 );
 
 REGISTER_INTRINSICS(contract_bank_api,
-   (get_contract_balance,      int64_t(int64_t))
+   (get_contract_balance,      int64_t())
    (transfer,      void(int64_t,int64_t) )
    (get_value,      int64_t() )
 );
