@@ -954,7 +954,7 @@ class wallet_api
       annotated_signed_transaction prove( string challenged, bool broadcast );
 
       /**
-       * 
+       * set_contract, set_code and set_abi have the same input parameters
        * 
        * @param accountname The account who want to publish a contract
        * @param contract_dir filepath of .wast and .abi file
@@ -963,6 +963,11 @@ class wallet_api
        */
 
       annotated_signed_transaction set_contract(string accountname, string contract_dir, string contract_name, bool broadcast);
+
+      annotated_signed_transaction set_code(string accountname, string contract_dir, string contract_name, bool broadcast);
+
+      annotated_signed_transaction set_abi(string accountname, string contract_dir, string contract_name, bool broadcast);
+
       /**
        * 
        * @param caller The account who want to exec the action
@@ -1017,6 +1022,9 @@ class wallet_api
       annotated_signed_transaction decline_voting_rights( string account, bool decline, bool broadcast );
 
       annotated_signed_transaction claim_reward_balance( string account, asset reward_steem, asset reward_sbd, asset reward_vests, bool broadcast );
+
+      void set_code_callback( string accountname, string contract_dir, string contract_name, signed_transaction& tx );
+      void set_abi_callback( string accountname, string contract_dir, string contract_name, signed_transaction& tx );
 };
 
 struct plain_keys {
@@ -1141,6 +1149,8 @@ FC_API( contento::wallet::wallet_api,
 
         /// contract api
         (set_contract)
+        (set_code)
+        (set_abi)
         (push_action)
       )
 

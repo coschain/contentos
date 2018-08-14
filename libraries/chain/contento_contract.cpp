@@ -41,7 +41,7 @@ void apply_contento_setcode(apply_context& context) {
    int64_t old_size  = (int64_t)account.code.size() * config::setcode_ram_bytes_multiplier;
    int64_t new_size  = code_size * config::setcode_ram_bytes_multiplier;
 
-   //FC_ASSERT( account.code_version != code_id, "contract is already running this version of code" );
+   FC_ASSERT( account.code_version != code_id, "contract is already running this version of code" );
 
    db.modify( account, [&]( auto& a ) {
       /** TODO: consider whether a microsecond level local timestamp is sufficient to detect code version changes*/
