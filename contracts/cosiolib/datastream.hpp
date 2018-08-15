@@ -1,6 +1,6 @@
 /**
  *  @file datastream.hpp
- *  @copyright defined in eos/LICENSE.txt
+ *  @copyright defined in contentos/LICENSE.txt
  */
 #pragma once
 #include <cosiolib/system.h>

@@ -1,7 +1,7 @@
 #ifdef __USE_PERMISSION__
 /**
  *  @file
- *  @copyright defined in eos/LICENSE.txt
+ *  @copyright defined in contentos/LICENSE.txt
  */
 #pragma once
 #include <cosiolib/types.h>

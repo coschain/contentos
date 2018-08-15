@@ -1,6 +1,6 @@
 /**
  * @file action_test.cpp
- * @copyright defined in eos/LICENSE.txt
+ * @copyright defined in contentos/LICENSE.txt
  */
 #include <cosiolib/action.hpp>
 #include <cosiolib/transaction.hpp>
