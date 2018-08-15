@@ -223,5 +223,5 @@ void test_action::test_assert_code() {
    uint64_t code = 0;
    uint32_t total = read_action_data(&code, sizeof(uint64_t));
    contento_assert( total == sizeof(uint64_t), "total == sizeof(uint64_t)");
-   eosio_assert_code( false, code );
+   contento_assert_code( false, code );
 }

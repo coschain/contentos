@@ -45,7 +45,7 @@ namespace cosio {
          return result;
       }
 
-      EOSLIB_SERIALIZE( margin_state, (total_lendable)(total_lent)(least_collateralized)(interest_shares) )
+      COSLIB_SERIALIZE( margin_state, (total_lendable)(total_lent)(least_collateralized)(interest_shares) )
    };
 
    /**
@@ -64,7 +64,7 @@ namespace cosio {
 
          margin_state   peer_margin; /// peer_connector collateral lending balance
 
-         EOSLIB_SERIALIZE( connector, (balance)(weight)(peer_margin) )
+         COSLIB_SERIALIZE( connector, (balance)(weight)(peer_margin) )
       };
 
       connector base;
@@ -79,7 +79,7 @@ namespace cosio {
       bool requires_margin_call( const exchange_state::connector& con )const;
       bool requires_margin_call()const;
 
-      EOSLIB_SERIALIZE( exchange_state, (manager)(supply)(fee)(base)(quote) )
+      COSLIB_SERIALIZE( exchange_state, (manager)(supply)(fee)(base)(quote) )
    };
 
    typedef cosio::multi_index<N(markets), exchange_state> markets;

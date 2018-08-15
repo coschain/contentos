@@ -2,7 +2,7 @@
 #include <cosiolib/multi_index.hpp>
 #include <cosiolib/system.h>
 
-namespace  eosio {
+namespace cosio {
 
    /**
     *  This wrapper uses a single table to store named objects various types.
@@ -19,7 +19,7 @@ namespace  eosio {
 
          uint64_t primary_key() const { return pk_value; }
 
-         EOSLIB_SERIALIZE( row, (value) )
+         COSLIB_SERIALIZE( row, (value) )
       };
 
       typedef cosio::multi_index<SingletonName, row> table;

@@ -151,7 +151,7 @@ namespace cosio {
          symbol.print(false);
       }
 
-      EOSLIB_SERIALIZE( asset, (amount)(symbol) )
+      COSLIB_SERIALIZE( asset, (amount)(symbol) )
    };
 
    struct extended_asset : public asset {
@@ -184,7 +184,7 @@ namespace cosio {
          return {r, a.contract};
       }
 
-      EOSLIB_SERIALIZE( extended_asset, (amount)(symbol)(contract) )
+      COSLIB_SERIALIZE( extended_asset, (amount)(symbol)(contract) )
    };
 
 

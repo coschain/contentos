@@ -13,7 +13,7 @@ namespace cosio {
       friend bool operator != ( const public_key& a, const public_key& b ) {
         return std::tie(a.type,a.data) != std::tie(b.type,b.data);
       }
-      EOSLIB_SERIALIZE( public_key, (type)(data) )
+      COSLIB_SERIALIZE( public_key, (type)(data) )
    };
 
       struct public_key_2 {
@@ -28,6 +28,6 @@ namespace cosio {
       friend bool operator < ( const public_key_2& a, const public_key_2& b ) {
         return a.data < b.data;
       }
-      EOSLIB_SERIALIZE( public_key_2, (data) )
+      COSLIB_SERIALIZE( public_key_2, (data) )
    };
 }

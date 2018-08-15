@@ -20,6 +20,8 @@ add_subdirectory(libc++)
 
 #add_subdirectory(bancor)
 add_subdirectory(hello)
+#add_subdirectory(hicontent)
+
 #add_subdirectory(asserter)
 #add_subdirectory(infinite)
 #add_subdirectory(proxy)

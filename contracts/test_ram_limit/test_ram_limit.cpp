@@ -73,7 +73,7 @@ class test_ram_limit : public cosio::contract {
 
          uint64_t primary_key()const { return key; }
 
-         EOSLIB_SERIALIZE( test, (key)(data) )
+         COSLIB_SERIALIZE( test, (key)(data) )
       };
       typedef cosio::multi_index< N(test.table), test> test_table;
 };

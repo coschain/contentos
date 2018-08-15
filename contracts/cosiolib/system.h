@@ -37,7 +37,7 @@ extern "C" {
     *  @param msg - a pointer to the start of string explaining the reason for failure
     *  @param msg_len - length of the string
     */
-   void  eosio_assert_message( uint32_t test, const char* msg, uint32_t msg_len );
+   void  contento_assert_message( uint32_t test, const char* msg, uint32_t msg_len );
 
    /**
     *  Aborts processing of this action and unwinds all pending changes if the test condition is true
@@ -46,7 +46,7 @@ extern "C" {
     *  @param code - the error code
 
     */
-   void  eosio_assert_code( uint32_t test, uint64_t code );
+   void  contento_assert_code( uint32_t test, uint64_t code );
 
    /**
     * This method will abort execution of wasm without failing the contract. This

@@ -85,7 +85,7 @@ namespace cosio {
          }
       }
 
-      EOSLIB_SERIALIZE( symbol_type, (value) )
+      COSLIB_SERIALIZE( symbol_type, (value) )
    };
 
    struct extended_symbol : public symbol_type
@@ -106,7 +106,7 @@ namespace cosio {
       friend bool operator != ( const extended_symbol& a, const extended_symbol& b ) {
         return std::tie( a.value, a.contract ) != std::tie( b.value, b.contract );
       }
-      EOSLIB_SERIALIZE( extended_symbol, (value)(contract) )
+      COSLIB_SERIALIZE( extended_symbol, (value)(contract) )
    };
 
 } /// namespace cosio

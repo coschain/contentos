@@ -18,7 +18,7 @@ namespace cosio {
       uint64_t get_call()const { return uint64_t(1000000*call_price); }
       uint64_t primary_key()const { return owner; }
 
-      EOSLIB_SERIALIZE( margin_position, (owner)(borrowed)(collateral)(call_price) )
+      COSLIB_SERIALIZE( margin_position, (owner)(borrowed)(collateral)(call_price) )
    };
 
    typedef cosio::multi_index<N(margins), margin_position,
@@ -32,7 +32,7 @@ namespace cosio {
 
       uint64_t primary_key()const  { return owner; }
 
-      EOSLIB_SERIALIZE( loan_position, (owner)(interest_shares) )
+      COSLIB_SERIALIZE( loan_position, (owner)(interest_shares) )
    };
 
    typedef cosio::multi_index<N(loans), loan_position> loans;

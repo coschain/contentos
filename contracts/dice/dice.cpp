@@ -282,7 +282,7 @@ class dice : public cosio::contract {
             return key256::make_from_word_sequence<uint64_t>(p64[0], p64[1], p64[2], p64[3]);
          }
 
-         EOSLIB_SERIALIZE( offer, (id)(owner)(bet)(commitment)(gameid) )
+         COSLIB_SERIALIZE( offer, (id)(owner)(bet)(commitment)(gameid) )
       };
 
       typedef cosio::multi_index< N(offer), offer,
@@ -294,7 +294,7 @@ class dice : public cosio::contract {
          checksum256 commitment;
          checksum256 reveal;
 
-         EOSLIB_SERIALIZE( player, (commitment)(reveal) )
+         COSLIB_SERIALIZE( player, (commitment)(reveal) )
       };
 
       //@abi table game i64
@@ -307,7 +307,7 @@ class dice : public cosio::contract {
 
          uint64_t primary_key()const { return id; }
 
-         EOSLIB_SERIALIZE( game, (id)(bet)(deadline)(player1)(player2) )
+         COSLIB_SERIALIZE( game, (id)(bet)(deadline)(player1)(player2) )
       };
 
       typedef cosio::multi_index< N(game), game> game_index;
@@ -319,7 +319,7 @@ class dice : public cosio::contract {
 
          uint64_t primary_key()const { return id; }
 
-         EOSLIB_SERIALIZE( global_dice, (id)(nextgameid) )
+         COSLIB_SERIALIZE( global_dice, (id)(nextgameid) )
       };
 
       typedef cosio::multi_index< N(global), global_dice> global_dice_index;
@@ -337,7 +337,7 @@ class dice : public cosio::contract {
 
          uint64_t primary_key()const { return owner; }
 
-         EOSLIB_SERIALIZE( account, (owner)(eos_balance)(open_offers)(open_games) )
+         COSLIB_SERIALIZE( account, (owner)(eos_balance)(open_offers)(open_games) )
       };
 
       typedef cosio::multi_index< N(account), account> account_index;
