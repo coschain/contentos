@@ -2,7 +2,7 @@
  *  @file
  *  @copyright defined in eos/LICENSE.txt
  */
-#include <eosiolib/eosio.hpp>
+#include <cosiolib/eosio.hpp>
 
 /**
  *  @defgroup tictactoecontract Tic Tac Toe Contract

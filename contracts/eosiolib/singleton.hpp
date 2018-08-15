@@ -1,6 +1,6 @@
 #pragma once
-#include <eosiolib/multi_index.hpp>
-#include <eosiolib/system.h>
+#include <cosiolib/multi_index.hpp>
+#include <cosiolib/system.h>
 
 namespace  eosio {
 

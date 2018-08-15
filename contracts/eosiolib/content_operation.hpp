@@ -4,9 +4,9 @@
 #include <iostream>
 #include <map>
 #include <vector>
-#include <eosiolib/eosio.hpp>
-#include <eosiolib/content.hpp>
-#include <eosiolib/content.h>
+#include <cosiolib/eosio.hpp>
+#include <cosiolib/content.hpp>
+#include <cosiolib/content.h>
 
 
 namespace eosio { 

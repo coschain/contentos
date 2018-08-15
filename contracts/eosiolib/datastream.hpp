@@ -3,12 +3,12 @@
  *  @copyright defined in eos/LICENSE.txt
  */
 #pragma once
-#include <eosiolib/system.h>
-#include <eosiolib/memory.h>
-#include <eosiolib/vector.hpp>
+#include <cosiolib/system.h>
+#include <cosiolib/memory.h>
+#include <cosiolib/vector.hpp>
 #include <boost/container/flat_set.hpp>
 #include <boost/container/flat_map.hpp>
-#include <eosiolib/varint.hpp>
+#include <cosiolib/varint.hpp>
 #include <array>
 #include <set>
 #include <map>
@@ -19,7 +19,7 @@
 
 #include <boost/pfr.hpp>
 
-#include <eosiolib/static_variant.hpp>
+#include <cosiolib/static_variant.hpp>
 
 namespace eosio {
 

@@ -1,6 +1,6 @@
 #pragma once
-#include <eosiolib/types.h>
-#include <eosiolib/print.hpp>
+#include <cosiolib/types.h>
+#include <cosiolib/print.hpp>
 
 namespace eosio
 {

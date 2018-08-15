@@ -135,8 +135,8 @@
 #include <string>
 #include <stdexcept>
 */
-//include <eosiolib/eos.hpp>
-#include <eosiolib/dispatcher.hpp>
+//include <cosiolib/eos.hpp>
+#include <cosiolib/dispatcher.hpp>
 
 using namespace eosio;
 /*

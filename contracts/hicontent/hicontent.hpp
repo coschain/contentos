@@ -1,7 +1,7 @@
 #pragma once
-#include <eosiolib/eosio.hpp>
-#include <eosiolib/content.hpp>
-#include <eosiolib/content_operation.hpp>
+#include <cosiolib/eosio.hpp>
+#include <cosiolib/content.hpp>
+#include <cosiolib/content_operation.hpp>
 
 namespace eosio {
 

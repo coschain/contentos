@@ -4,15 +4,15 @@
  */
 #pragma once
 
-#include <eosiolib/types.h>
-#include <eosiolib/content.h>
+#include <cosiolib/types.h>
+#include <cosiolib/content.h>
 #include <vector>
 #include <string>
-#include <eosiolib/time.hpp>
-#include <eosiolib/asset.hpp>
-#include <eosiolib/datastream.hpp>
-#include <eosiolib/serialize.hpp>
-#include <eosiolib/public_key.hpp>
+#include <cosiolib/time.hpp>
+#include <cosiolib/asset.hpp>
+#include <cosiolib/datastream.hpp>
+#include <cosiolib/serialize.hpp>
+#include <cosiolib/public_key.hpp>
 
 namespace eosio {
 

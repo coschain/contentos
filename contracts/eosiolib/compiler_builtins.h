@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include <eosiolib/system.h>
+#include <cosiolib/system.h>
 
 extern "C" {
   /**

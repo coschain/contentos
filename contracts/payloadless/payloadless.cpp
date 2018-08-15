@@ -1,5 +1,5 @@
-#include <eosiolib/eosio.hpp>
-#include <eosiolib/print.hpp>
+#include <cosiolib/eosio.hpp>
+#include <cosiolib/print.hpp>
 using namespace eosio;
 
 class payloadless : public eosio::contract {

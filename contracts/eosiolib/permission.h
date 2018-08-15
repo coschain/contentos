@@ -4,7 +4,7 @@
  *  @copyright defined in eos/LICENSE.txt
  */
 #pragma once
-#include <eosiolib/types.h>
+#include <cosiolib/types.h>
 
 extern "C" {
    /**

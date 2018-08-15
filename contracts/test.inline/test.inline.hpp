@@ -1,6 +1,6 @@
-#include <eosiolib/eosio.hpp>
-#include <eosiolib/privileged.h>
-#include <eosiolib/producer_schedule.hpp>
+#include <cosiolib/eosio.hpp>
+#include <cosiolib/privileged.h>
+#include <cosiolib/producer_schedule.hpp>
 
 namespace eosio {
 

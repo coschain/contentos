@@ -1,6 +1,6 @@
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/core_symbol.hpp.in ${CMAKE_CURRENT_SOURCE_DIR}/core_symbol.hpp)
 
-add_wast_library(TARGET eosiolib
+add_wast_library(TARGET cosiolib
   INCLUDE_FOLDERS "${STANDARD_INCLUDE_FOLDERS}" 
   DESTINATION_FOLDER ${CMAKE_CURRENT_BINARY_DIR}
 )

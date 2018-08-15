@@ -5,8 +5,8 @@
 #include <utility>
 #include <vector>
 #include <string>
-#include <eosiolib/eosio.hpp>
-#include <eosiolib/contract.hpp>
+#include <cosiolib/eosio.hpp>
+#include <cosiolib/contract.hpp>
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wsign-conversion"

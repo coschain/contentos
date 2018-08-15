@@ -1,5 +1,5 @@
-#include <eosiolib/types.hpp>
-#include <eosiolib/currency.hpp>
+#include <cosiolib/types.hpp>
+#include <cosiolib/currency.hpp>
 #include <boost/container/flat_map.hpp>
 #include <cmath>
 #include <exchange/market_state.hpp>

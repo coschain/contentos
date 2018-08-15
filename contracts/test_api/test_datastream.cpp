@@ -1,6 +1,6 @@
 
-#include <eosiolib/eosio.hpp>
-#include <eosiolib/datastream.hpp>
+#include <cosiolib/eosio.hpp>
+#include <cosiolib/datastream.hpp>
 #include <cmath>
 
 #include "test_api.hpp"

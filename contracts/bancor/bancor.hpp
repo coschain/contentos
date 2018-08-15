@@ -4,10 +4,10 @@
  */
 #pragma once
 
-#include <eosiolib/eosio.hpp>
-#include <eosiolib/token.hpp>
-#include <eosiolib/reflect.hpp>
-#include <eosiolib/generic_currency.hpp>
+#include <cosiolib/eosio.hpp>
+#include <cosiolib/token.hpp>
+#include <cosiolib/reflect.hpp>
+#include <cosiolib/generic_currency.hpp>
 
 #include <bancor/converter.hpp>
 #include <currency/currency.hpp>

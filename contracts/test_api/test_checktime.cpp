@@ -3,9 +3,9 @@
  * @copyright defined in eos/LICENSE.txt
  */
 
-#include <eosiolib/eosio.hpp>
-#include <eosiolib/crypto.h>
-#include <eosiolib/print.h>
+#include <cosiolib/eosio.hpp>
+#include <cosiolib/crypto.h>
+#include <cosiolib/print.h>
 #include "test_api.hpp"
 
 #include <vector>

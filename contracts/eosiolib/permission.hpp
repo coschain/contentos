@@ -5,8 +5,8 @@
  */
 #pragma once
 
-#include <eosiolib/permission.h>
-#include <eosiolib/transaction.hpp>
+#include <cosiolib/permission.h>
+#include <cosiolib/transaction.hpp>
 
 #include <set>
 #include <limits>

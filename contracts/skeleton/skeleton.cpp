@@ -1,4 +1,4 @@
-#include <eosiolib/eosio.hpp>
+#include <cosiolib/eosio.hpp>
 
 using namespace eosio;
 

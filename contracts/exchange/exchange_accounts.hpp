@@ -1,6 +1,6 @@
 #pragma once
-#include <eosiolib/asset.hpp>
-#include <eosiolib/multi_index.hpp>
+#include <cosiolib/asset.hpp>
+#include <cosiolib/multi_index.hpp>
 
 namespace eosio {
 

@@ -8,7 +8,7 @@ set(DEFAULT_SYSTEM_INCLUDE_FOLDERS
 
 set(STANDARD_INCLUDE_FOLDERS ${CMAKE_SOURCE_DIR}/contracts ${CMAKE_SOURCE_DIR}/externals/magic_get/include)
 
-add_subdirectory(eosiolib)
+add_subdirectory(cosiolib)
 add_subdirectory(musl)
 add_subdirectory(libc++)
 #add_subdirectory(simple.token)
@@ -51,7 +51,7 @@ add_custom_command(OUTPUT share/eosio/skeleton/skeleton.cpp
                    VERBATIM)
 add_custom_target(copy_skeleton_contract ALL DEPENDS share/eosio/skeleton/skeleton.cpp)
 
-install(DIRECTORY eosiolib DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR})
+install(DIRECTORY cosiolib DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR})
 #install(DIRECTORY eosio.system DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR})
 install(DIRECTORY musl DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR})
 install(DIRECTORY libc++ DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR})

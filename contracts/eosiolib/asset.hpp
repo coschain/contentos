@@ -1,8 +1,8 @@
 #pragma once
-#include <eosiolib/serialize.hpp>
-#include <eosiolib/print.hpp>
-#include <eosiolib/system.h>
-#include <eosiolib/symbol.hpp>
+#include <cosiolib/serialize.hpp>
+#include <cosiolib/print.hpp>
+#include <cosiolib/system.h>
+#include <cosiolib/symbol.hpp>
 #include <tuple>
 #include <limits>
 

@@ -5,7 +5,7 @@
  */
 #pragma once
 
-#include <eosiolib/types.h>
+#include <cosiolib/types.h>
 extern "C" {
 /**
  *  @defgroup database Database API

@@ -1,10 +1,10 @@
-#include <eosiolib/types.hpp>
-#include <eosiolib/action.hpp>
-#include <eosiolib/transaction.hpp>
-#include <eosiolib/datastream.hpp>
-#include <eosiolib/db.h>
-#include <eosiolib/memory.hpp>
-#include <eosiolib/fixed_key.hpp>
+#include <cosiolib/types.hpp>
+#include <cosiolib/action.hpp>
+#include <cosiolib/transaction.hpp>
+#include <cosiolib/datastream.hpp>
+#include <cosiolib/db.h>
+#include <cosiolib/memory.hpp>
+#include <cosiolib/fixed_key.hpp>
 #include "../test_api/test_api.hpp"
 
 int primary[11]      = {0,1,2,3,4,5,6,7,8,9,10};

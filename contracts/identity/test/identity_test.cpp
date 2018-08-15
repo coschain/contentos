@@ -1,6 +1,6 @@
-#include <eosiolib/action.h>
-#include <eosiolib/contract.hpp>
-#include <eosiolib/dispatcher.hpp>
+#include <cosiolib/action.h>
+#include <cosiolib/contract.hpp>
+#include <cosiolib/dispatcher.hpp>
 #include <identity/interface.hpp>
 
 namespace identity_test {

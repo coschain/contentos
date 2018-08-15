@@ -8,7 +8,7 @@
 #include <algorithm>
 #include <type_traits>
 
-#include <eosiolib/system.h>
+#include <cosiolib/system.h>
 
 namespace eosio {
 
