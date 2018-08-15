@@ -17,7 +17,7 @@ if( GPERFTOOLS_FOUND )
     list( APPEND PLATFORM_SPECIFIC_LIBS tcmalloc )
 endif()
 
-target_link_libraries(eosio-abigen abi_generator)
+target_link_libraries(cosio-abigen abi_generator)
 
 
 install( TARGETS
