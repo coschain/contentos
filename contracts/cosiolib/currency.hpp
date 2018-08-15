@@ -1,5 +1,5 @@
 #pragma once
-#include <cosiolib/eosio.hpp>
+#include <cosiolib/cosio.hpp>
 #include <cosiolib/asset.hpp>
 #include <cosiolib/multi_index.hpp>
 

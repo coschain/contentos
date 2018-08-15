@@ -8,7 +8,7 @@
 #include <cosiolib/db.h>
 #include <cosiolib/crypto.h>
 #include <cosiolib/privileged.h>
-#include <cosiolib/eosio.hpp>
+#include <cosiolib/cosio.hpp>
 #include <cosiolib/datastream.hpp>
 #include <cosiolib/print.hpp>
 #include <cosiolib/compiler_builtins.h>

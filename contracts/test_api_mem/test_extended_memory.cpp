@@ -1,4 +1,4 @@
-#include <cosiolib/eosio.hpp>
+#include <cosiolib/cosio.hpp>
 #include <cosiolib/memory.hpp>
 #include "../test_api/test_api.hpp"
 

@@ -4,7 +4,7 @@
  */
 #pragma once
 
-#include <cosiolib/eosio.hpp>
+#include <cosiolib/cosio.hpp>
 #include <cosiolib/token.hpp>
 #include <cosiolib/reflect.hpp>
 #include <cosiolib/generic_currency.hpp>

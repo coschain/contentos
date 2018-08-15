@@ -4,7 +4,7 @@
 #include <iostream>
 #include <map>
 #include <vector>
-#include <cosiolib/eosio.hpp>
+#include <cosiolib/cosio.hpp>
 #include <cosiolib/static_variant.hpp>
 #include <cosiolib/content_util.hpp>
 

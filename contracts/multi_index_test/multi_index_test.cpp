@@ -1,4 +1,4 @@
-#include <cosiolib/eosio.hpp>
+#include <cosiolib/cosio.hpp>
 #include <cosiolib/dispatcher.hpp>
 #include <cosiolib/multi_index.hpp>
 

@@ -2,7 +2,7 @@
  *  @file
  *  @copyright defined in eos/LICENSE.txt
  */
-#include <cosiolib/eosio.hpp>
+#include <cosiolib/cosio.hpp>
 #include "../test_api/test_api.hpp"
 
 #include "test_db.cpp"

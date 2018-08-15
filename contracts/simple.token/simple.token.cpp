@@ -1,4 +1,4 @@
-#include <cosiolib/eosio.hpp>
+#include <cosiolib/cosio.hpp>
 
 class simpletoken : public eosio::contract {
    public:

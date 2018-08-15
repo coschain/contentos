@@ -5,7 +5,7 @@
 #include <cosiolib/permission.h>
 #include <cosiolib/db.h>
 
-#include <cosiolib/eosio.hpp>
+#include <cosiolib/cosio.hpp>
 #include <cosiolib/print.hpp>
 #include <cosiolib/compiler_builtins.h>
 #include <cosiolib/serialize.hpp>

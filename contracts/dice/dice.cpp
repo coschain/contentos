@@ -5,7 +5,7 @@
 #include <utility>
 #include <vector>
 #include <string>
-#include <cosiolib/eosio.hpp>
+#include <cosiolib/cosio.hpp>
 #include <cosiolib/time.hpp>
 #include <cosiolib/asset.hpp>
 #include <cosiolib/contract.hpp>

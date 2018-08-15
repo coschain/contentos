@@ -1,4 +1,4 @@
-#include <cosiolib/eosio.hpp>
+#include <cosiolib/cosio.hpp>
 using namespace eosio;
 
 class hello : public eosio::contract {

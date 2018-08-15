@@ -1,5 +1,5 @@
 
-#include <cosiolib/eosio.hpp>
+#include <cosiolib/cosio.hpp>
 #include <cosiolib/datastream.hpp>
 #include <cmath>
 

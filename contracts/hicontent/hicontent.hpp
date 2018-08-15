@@ -1,5 +1,5 @@
 #pragma once
-#include <cosiolib/eosio.hpp>
+#include <cosiolib/cosio.hpp>
 #include <cosiolib/content.hpp>
 #include <cosiolib/content_operation.hpp>
 

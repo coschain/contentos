@@ -4,7 +4,7 @@
  */
 #include <cosiolib/action.h>
 #include <cosiolib/chain.h>
-#include <cosiolib/eosio.hpp>
+#include <cosiolib/cosio.hpp>
 #include "test_api.hpp"
 
 #pragma pack(push, 1)

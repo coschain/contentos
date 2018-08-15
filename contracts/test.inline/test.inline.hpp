@@ -1,4 +1,4 @@
-#include <cosiolib/eosio.hpp>
+#include <cosiolib/cosio.hpp>
 #include <cosiolib/privileged.h>
 #include <cosiolib/producer_schedule.hpp>
 
