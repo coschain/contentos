@@ -46,4 +46,4 @@ class simpletoken : public cosio::contract {
       }
 };
 
-EOSIO_ABI( simpletoken, (transfer)(issue) )
+COSIO_ABI( simpletoken, (transfer)(issue) )

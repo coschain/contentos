@@ -1,3 +1,3 @@
 #include "hicontent.hpp"
 
-EOSIO_ABI( cosio::hicontent, (query) )
+COSIO_ABI( cosio::hicontent, (query) )

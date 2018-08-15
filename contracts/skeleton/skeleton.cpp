@@ -12,4 +12,4 @@ class hello : public cosio::contract {
       }
 };
 
-EOSIO_ABI( hello, (hi) )
+COSIO_ABI( hello, (hi) )

@@ -218,7 +218,7 @@ namespace cosio {
 
       auto& thiscontract = *this;
       switch( act ) {
-         EOSIO_API( exchange, (createx)(deposit)(withdraw)(lend)(unlend) )
+         COSIO_API( exchange, (createx)(deposit)(withdraw)(lend)(unlend) )
       };
 
       switch( act ) {
@@ -245,6 +245,6 @@ extern "C" {
    [[noreturn]] void apply( uint64_t receiver, uint64_t code, uint64_t action ) {
       cosio::exchange  ex( receiver );
       ex.apply( code, action );
-      eosio_exit(0);
+      contento_exit(0);
    }
 }

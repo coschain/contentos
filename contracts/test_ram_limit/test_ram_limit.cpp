@@ -80,4 +80,4 @@ class test_ram_limit : public cosio::contract {
 
 #pragma clang diagnostic pop
 
-EOSIO_ABI( test_ram_limit, (setentry)(rmentry)(printentry) )
+COSIO_ABI( test_ram_limit, (setentry)(rmentry)(printentry) )

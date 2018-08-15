@@ -18,6 +18,6 @@ namespace cosio {
          }
    };
 
-   EOSIO_ABI( noop, ( anyaction ) )
+   COSIO_ABI( noop, ( anyaction ) )
 
 } /// cosio     

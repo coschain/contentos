@@ -11,4 +11,4 @@ class payloadless : public cosio::contract {
       }
 };
 
-EOSIO_ABI( payloadless, (doit) )
+COSIO_ABI( payloadless, (doit) )
