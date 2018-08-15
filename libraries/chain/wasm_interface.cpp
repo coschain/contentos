@@ -668,7 +668,7 @@ class producer_api : public context_aware_api {
       using context_aware_api::context_aware_api;
 
       int get_active_producers(array_ptr<chain::account_name> producers, size_t buffer_size) {
-         return 0;////Y
+         return 3;////Y
 //         auto active_producers = context.get_active_producers();
 //
 //         size_t len = active_producers.size();
@@ -699,6 +699,7 @@ class contract_bank_api : public context_aware_api {
       int64_t get_value() {
           // todo get name's vm_op's value
           return context.get_value();
+          //return 100;
       }
 };
 
@@ -1746,10 +1747,10 @@ REGISTER_INTRINSICS_WITH_PRICE(producer_api,
    WITH_PRICE (get_active_producers,      int(int, int) )
 );
 
-REGISTER_INTRINSICS(contract_bank_api,
-   (get_contract_balance,      int64_t())
-   (transfer,      void(int64_t,int64_t) )
-   (get_value,      int64_t() )
+REGISTER_INTRINSICS_WITH_PRICE(contract_bank_api,
+   WITH_PRICE (get_contract_balance,      int64_t())
+   WITH_PRICE (transfer,      void(int64_t,int64_t) )
+   WITH_PRICE (get_value,      int64_t() )
 );
 
 #define DB_SECONDARY_INDEX_METHODS_SIMPLE(IDX) \

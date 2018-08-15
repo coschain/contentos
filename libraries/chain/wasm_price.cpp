@@ -79,6 +79,11 @@
 // producer_api
 #define WASM_PRICE_FN_get_active_producers                                   40
 
+//contract_bank_api
+#define WASM_PRICE_FN_get_contract_balance                                   400
+#define WASM_PRICE_FN_transfer                                               1000
+#define WASM_PRICE_FN_get_value                                              100
+
 // database_api
 #define WASM_PRICE_FN_db_end_i64                                             61
 #define WASM_PRICE_FN_db_find_i64                                            225
@@ -505,6 +510,13 @@ namespace contento { namespace chain { namespace wasm_price {
     // producer_api
     WASM_PRICE_FN_CONSTS(
                          (get_active_producers,      (int, int, int) )
+                         );
+    
+    // contract_balance_api
+    WASM_PRICE_FN_CONSTS(
+                         (get_contract_balance,      (int64_t) )
+                         (transfer,                  (void*, int64_t, int64_t))
+                         (get_value,                 (int64_t))
                          );
     
     // database_api
