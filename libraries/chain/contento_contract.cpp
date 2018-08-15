@@ -88,7 +88,8 @@ void apply_contento_setabi(apply_context& context) {
    });
     
     db.create< contract_balance_object > ([&]( auto& cbo ) {
-        cbo.contract_name = context.receiver;
+        // here is system contract, contract_name is system pre-defined, actual target contract name is in the caller
+        cbo.contract_name = context.op.caller;
     } );
     /* TODOO:
    const auto& account_sequence = db.get<account_sequence_object, by_name>(act.account);

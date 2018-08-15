@@ -17,10 +17,16 @@ class hello : public eosio::contract {
 
       /// @abi action 
       void hi( account_name user ) {
+          print(" ====== enter contract hi function ====== \n");
+
+           int64_t cb = get_contract_balance();
+          print("contract balance is : ", cb);
+
           int64_t value = get_value();
 
           print("values is :", value);
          print( "Hello, ", name{user} );
+          print(" ====== exit contract hi function ====== \n");
       }
 };
 
