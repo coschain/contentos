@@ -44,7 +44,7 @@ else( CONTENTOS_STATIC_BUILD )
    )
 endif( CONTENTOS_STATIC_BUILD )
 
-target_include_directories( steemd
+target_include_directories( contentosd
                             PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/../../externals/binaryen/src"
                             )
 
