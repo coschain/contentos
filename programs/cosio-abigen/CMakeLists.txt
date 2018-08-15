@@ -3,7 +3,7 @@ find_package(LLVM 4.0 REQUIRED CONFIG)
 
 link_directories(${LLVM_LIBRARY_DIR})
 
-add_executable(eosio-abigen ${SOURCES})
+add_executable(cosio-abigen ${SOURCES})
 
 set( CMAKE_CXX_STANDARD 14 )
 
@@ -21,7 +21,7 @@ target_link_libraries(eosio-abigen abi_generator)
 
 
 install( TARGETS
-   eosio-abigen
+   cosio-abigen
    RUNTIME DESTINATION ${CMAKE_INSTALL_FULL_BINDIR}
    LIBRARY DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}
    ARCHIVE DESTINATION ${CMAKE_INSTALL_FULL_LIBDIR}
