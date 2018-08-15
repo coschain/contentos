@@ -286,6 +286,9 @@ public:
        return a.which() < b.which();
     }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wreturn-type"
+
     template<typename X>
     X& get() {
         fc_s_assert(
@@ -301,6 +304,7 @@ public:
            // );
         }
     }
+
     template<typename X>
     const X& get() const {
         fc_s_assert(
@@ -314,6 +318,9 @@ public:
             FC_THROW_EXCEPTION( fc::assert_exception, "static_variant does not contain a value of type ${t}", ("t",fc::get_typename<X>::name()) );
         }
     }
+#pragma clang diagnostic pop
+
+
     template<typename visitor>
     typename visitor::result_type visit(visitor& v) {
         return impl::storage_ops<0, Types...>::apply(_tag, storage, v);
@@ -387,3 +394,4 @@ struct visitor {
 
   template<typename... T> struct get_typename { static const char* name()   { FC_ASSERT(0); }};//return typeid(static_variant<T...>).name();   } };
 } // namespace fc
+
