@@ -12,7 +12,7 @@
 #include <boost/preprocessor/tuple/enum.hpp>
 #include <boost/preprocessor/facilities/overload.hpp>
 
-namespace eosio {
+namespace cosio {
 
    /**
     * @defgroup actioncppapi Action C++ API
@@ -217,13 +217,13 @@ namespace eosio {
 
  ///@} actioncpp api
 
-} // namespace eosio
+} // namespace cosio
 
 #define INLINE_ACTION_SENDER3( CONTRACT_CLASS, FUNCTION_NAME, ACTION_NAME  )\
-::eosio::inline_dispatcher<decltype(&CONTRACT_CLASS::FUNCTION_NAME), ACTION_NAME>::call
+::cosio::inline_dispatcher<decltype(&CONTRACT_CLASS::FUNCTION_NAME), ACTION_NAME>::call
 
 #define INLINE_ACTION_SENDER2( CONTRACT_CLASS, NAME )\
-INLINE_ACTION_SENDER3( CONTRACT_CLASS, NAME, ::eosio::string_to_name(#NAME) )
+INLINE_ACTION_SENDER3( CONTRACT_CLASS, NAME, ::cosio::string_to_name(#NAME) )
 
 #define INLINE_ACTION_SENDER(...) BOOST_PP_OVERLOAD(INLINE_ACTION_SENDER,__VA_ARGS__)(__VA_ARGS__)
 
@@ -232,4 +232,4 @@ INLINE_ACTION_SENDER(std::decay_t<decltype(CONTRACT)>, NAME)( (CONTRACT).get_sel
 BOOST_PP_TUPLE_ENUM(BOOST_PP_VARIADIC_SIZE(__VA_ARGS__), BOOST_PP_VARIADIC_TO_TUPLE(__VA_ARGS__)) );
 
 
-#define ACTION( CODE, NAME ) struct NAME : ::eosio::action_meta<CODE, ::eosio::string_to_name(#NAME) >
+#define ACTION( CODE, NAME ) struct NAME : ::cosio::action_meta<CODE, ::cosio::string_to_name(#NAME) >

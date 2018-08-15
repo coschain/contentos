@@ -3,7 +3,7 @@
 #include <cosiolib/content.hpp>
 #include <cosiolib/content_operation.hpp>
 
-namespace eosio {
+namespace cosio {
 
    class hicontent : public contract {
       public:
@@ -128,4 +128,4 @@ namespace eosio {
       private:
    };
 
-} /// namespace eosio
+} /// namespace cosio

@@ -5,7 +5,7 @@
 
 #include <cosiolib/cosio.hpp>
 
-namespace eosio {
+namespace cosio {
 
    class noop: public contract {
       public:
@@ -20,4 +20,4 @@ namespace eosio {
 
    EOSIO_ABI( noop, ( anyaction ) )
 
-} /// eosio     
+} /// cosio     

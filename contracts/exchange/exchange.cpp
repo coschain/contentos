@@ -7,7 +7,7 @@
 
 #include <cosiolib/dispatcher.hpp>
 
-namespace eosio {
+namespace cosio {
 
    void exchange::deposit( account_name from, extended_asset quantity ) {
       contento_assert( quantity.is_valid(), "invalid quantity" );
@@ -204,7 +204,7 @@ namespace eosio {
    }
 
 
-   #define N(X) ::eosio::string_to_name(#X)
+   #define N(X) ::cosio::string_to_name(#X)
 
    void exchange::apply( account_name contract, account_name act ) {
 
@@ -237,13 +237,13 @@ namespace eosio {
       }
    }
 
-} /// namespace eosio
+} /// namespace cosio
 
 
 
 extern "C" {
    [[noreturn]] void apply( uint64_t receiver, uint64_t code, uint64_t action ) {
-      eosio::exchange  ex( receiver );
+      cosio::exchange  ex( receiver );
       ex.apply( code, action );
       eosio_exit(0);
    }

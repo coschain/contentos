@@ -24,7 +24,7 @@
 #include <cosiolib/db.h>
 #include <cosiolib/fixed_key.hpp>
 
-namespace eosio {
+namespace cosio {
 
 using boost::multi_index::const_mem_fun;
 
@@ -815,4 +815,4 @@ class multi_index
 
 };
 
-}  /// eosio
+}  /// cosio

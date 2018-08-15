@@ -1,8 +1,8 @@
 #include <cosiolib/cosio.hpp>
 #include <cosiolib/print.hpp>
-using namespace eosio;
+using namespace cosio;
 
-class payloadless : public eosio::contract {
+class payloadless : public cosio::contract {
   public:
       using contract::contract;
 

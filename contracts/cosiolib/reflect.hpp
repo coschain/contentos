@@ -5,22 +5,22 @@
 #include <boost/preprocessor/seq/seq.hpp>
 #include <boost/preprocessor/stringize.hpp>
 
-namespace eosio {
+namespace cosio {
   template<typename T>
   struct reflector {
      typedef std::false_type is_reflected;
      typedef std::false_type is_enum;
   };
 
-} /// eosio
+} /// cosio
 
 
 
 #define EOSLIB_REFLECT_VISIT_BASE(r, visitor, base) \
-  eosio::reflector<base>::visit( visitor );
+  cosio::reflector<base>::visit( visitor );
 
 #define EOSLIB_REFLECT_VISIT2_BASE(r, visitor, base) \
-  eosio::reflector<base>::visit( t, forward<Visitor>(visitor) );
+  cosio::reflector<base>::visit( t, forward<Visitor>(visitor) );
 
 
 #define EOSLIB_REFLECT_VISIT_MEMBER( r, visitor, elem ) \
@@ -35,7 +35,7 @@ namespace eosio {
 
 
 #define EOSLIB_REFLECT_BASE_MEMBER_COUNT( r, OP, elem ) \
-  OP eosio::reflector<elem>::total_member_count
+  OP cosio::reflector<elem>::total_member_count
 
 #define EOSLIB_REFLECT_MEMBER_COUNT( r, OP, elem ) \
   OP 1
@@ -59,7 +59,7 @@ static inline void visit( type& t, Visitor&& v ) { \
 
 #define EOSLIB_REFLECT_DERIVED_IMPL_EXT( TYPE, INHERITS, MEMBERS ) \
 template<typename Visitor>\
-void eosio::reflector<TYPE>::visit( Visitor&& v ) { \
+void cosio::reflector<TYPE>::visit( Visitor&& v ) { \
     BOOST_PP_SEQ_FOR_EACH( EOSLIB_REFLECT_VISIT_BASE, v, INHERITS ) \
     BOOST_PP_SEQ_FOR_EACH( EOSLIB_REFLECT_VISIT_MEMBER, v, MEMBERS ) \
 }
@@ -67,7 +67,7 @@ void eosio::reflector<TYPE>::visit( Visitor&& v ) { \
 
 /**
  *  @def EOSLIB_REFLECT(TYPE,MEMBERS)
- *  @brief Specializes eosio::reflector for TYPE
+ *  @brief Specializes cosio::reflector for TYPE
  *
  *  @param MEMBERS - a sequence of member names.  (field1)(field2)(field3)
  *
@@ -84,10 +84,10 @@ void eosio::reflector<TYPE>::visit( Visitor&& v ) { \
 
 
 #define EOSLIB_REFLECT_FWD( TYPE ) \
-namespace eosio { \
+namespace cosio { \
   template<> struct reflector<TYPE> {\
        typedef TYPE type; \
-       typedef eosio::true_type is_reflected; \
+       typedef cosio::true_type is_reflected; \
        enum  member_count_enum {  \
          local_member_count = BOOST_PP_SEQ_SIZE(MEMBERS), \
          total_member_count = local_member_count BOOST_PP_SEQ_FOR_EACH( EOSLIB_REFLECT_BASE_MEMBER_COUNT, +, INHERITS )\
@@ -109,18 +109,18 @@ namespace eosio { \
 /**
  *  @def EOSLIB_REFLECT_DERIVED(TYPE,INHERITS,MEMBERS)
  *
- *  @brief Specializes eosio::reflector for TYPE where
+ *  @brief Specializes cosio::reflector for TYPE where
  *         type inherits other reflected classes
  *
  *  @param INHERITS - a sequence of base class names (basea)(baseb)(basec)
  *  @param MEMBERS - a sequence of member names.  (field1)(field2)(field3)
  */
 #define EOSLIB_REFLECT_DERIVED( TYPE, INHERITS, MEMBERS ) \
-namespace eosio {  \
+namespace cosio {  \
 template<> struct reflector<TYPE> {\
     typedef TYPE type; \
-    typedef eosio::true_type  is_reflected; \
-    typedef eosio::false_type is_enum; \
+    typedef cosio::true_type  is_reflected; \
+    typedef cosio::false_type is_enum; \
     enum  member_count_enum {  \
       local_member_count = 0  BOOST_PP_SEQ_FOR_EACH( EOSLIB_REFLECT_MEMBER_COUNT, +, MEMBERS ),\
       total_member_count = local_member_count BOOST_PP_SEQ_FOR_EACH( EOSLIB_REFLECT_BASE_MEMBER_COUNT, +, INHERITS )\
@@ -128,11 +128,11 @@ template<> struct reflector<TYPE> {\
     EOSLIB_REFLECT_DERIVED_IMPL_INLINE( TYPE, INHERITS, MEMBERS ) \
 }; }
 #define EOSLIB_REFLECT_DERIVED_TEMPLATE( TEMPLATE_ARGS, TYPE, INHERITS, MEMBERS ) \
-namespace eosio {  \
+namespace cosio {  \
 template<BOOST_PP_SEQ_ENUM(TEMPLATE_ARGS)> struct reflector<TYPE> {\
     typedef TYPE type; \
-    typedef eosio::true_type  is_defined; \
-    typedef eosio::false_type is_enum; \
+    typedef cosio::true_type  is_defined; \
+    typedef cosio::false_type is_enum; \
     enum  member_count_enum {  \
       local_member_count = 0  BOOST_PP_SEQ_FOR_EACH( EOSLIB_REFLECT_MEMBER_COUNT, +, MEMBERS ),\
       total_member_count = local_member_count BOOST_PP_SEQ_FOR_EACH( EOSLIB_REFLECT_BASE_MEMBER_COUNT, +, INHERITS )\

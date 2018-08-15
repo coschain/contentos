@@ -14,21 +14,21 @@
 #include <cosiolib/serialize.hpp>
 #include <cosiolib/public_key.hpp>
 
-namespace eosio {
+namespace cosio {
 
     typedef std::array<unsigned char,65> compact_signature;
 
 using std::vector;
 using std::string;
-using eosio::asset;
+using cosio::asset;
 using share_type = int64_t;
 using account_id_type = int64_t;
 using account_name_type = std::string;
-using public_key_type = eosio::public_key_2;
+using public_key_type = cosio::public_key_2;
 using string16 = std::string;
-using string8 = eosio::name;
+using string8 = cosio::name;
 
-using shuffled_witness_array_type = std::array<eosio::name, 21>;
+using shuffled_witness_array_type = std::array<cosio::name, 21>;
 
 using uint32 = uint32_t;
 using uint64 = uint64_t;

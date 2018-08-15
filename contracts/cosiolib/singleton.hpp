@@ -22,7 +22,7 @@ namespace  eosio {
          EOSLIB_SERIALIZE( row, (value) )
       };
 
-      typedef eosio::multi_index<SingletonName, row> table;
+      typedef cosio::multi_index<SingletonName, row> table;
 
       public:
 
@@ -69,4 +69,4 @@ namespace  eosio {
          table _t;
    };
 
-} /// namespace eosio
+} /// namespace cosio

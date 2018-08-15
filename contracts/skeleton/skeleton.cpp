@@ -1,8 +1,8 @@
 #include <cosiolib/cosio.hpp>
 
-using namespace eosio;
+using namespace cosio;
 
-class hello : public eosio::contract {
+class hello : public cosio::contract {
   public:
       using contract::contract;
 

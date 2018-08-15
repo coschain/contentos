@@ -5,9 +5,9 @@
 #include <cosiolib/vector.hpp>
 
 namespace identity {
-   using eosio::action_meta;
-   using eosio::singleton;
-   using eosio::key256;
+   using cosio::action_meta;
+   using cosio::singleton;
+   using cosio::key256;
    using std::string;
    using std::vector;
 

@@ -2,7 +2,7 @@
 #include <cosiolib/types.h>
 #include <cosiolib/print.hpp>
 
-namespace eosio
+namespace cosio
 {
     /**
     * @defgroup fixedpoint Fixed Point

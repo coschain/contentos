@@ -2,7 +2,7 @@
 
 #include <cosiolib/asset.hpp>
 
-namespace eosio {
+namespace cosio {
 
    typedef double real_type;
 
@@ -82,6 +82,6 @@ namespace eosio {
       EOSLIB_SERIALIZE( exchange_state, (manager)(supply)(fee)(base)(quote) )
    };
 
-   typedef eosio::multi_index<N(markets), exchange_state> markets;
+   typedef cosio::multi_index<N(markets), exchange_state> markets;
 
-} /// namespace eosio
+} /// namespace cosio

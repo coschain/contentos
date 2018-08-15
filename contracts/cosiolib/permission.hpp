@@ -11,7 +11,7 @@
 #include <set>
 #include <limits>
 
-namespace eosio {
+namespace cosio {
 
    /**
     *  @brief Checks if a transaction is authorized by a provided set of keys and permissions

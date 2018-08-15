@@ -2,7 +2,7 @@
 #include <cosiolib/asset.hpp>
 #include <cosiolib/multi_index.hpp>
 
-namespace eosio {
+namespace cosio {
 
    using boost::container::flat_map;
 
@@ -21,7 +21,7 @@ namespace eosio {
       EOSLIB_SERIALIZE( exaccount, (owner)(balances) )
    };
 
-   typedef eosio::multi_index<N(exaccounts), exaccount> exaccounts;
+   typedef cosio::multi_index<N(exaccounts), exaccount> exaccounts;
 
 
    /**
@@ -40,4 +40,4 @@ namespace eosio {
           */
          flat_map<account_name, exaccounts> exaccounts_cache;
    };
-} /// namespace eosio
+} /// namespace cosio

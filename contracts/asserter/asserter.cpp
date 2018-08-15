@@ -15,7 +15,7 @@ extern "C" {
        require_auth(code);
        if( code == N(asserter) ) {
           if( action == N(procassert) ) {
-             assertdef def = eosio::unpack_action_data<assertdef>();
+             assertdef def = cosio::unpack_action_data<assertdef>();
 
              // maybe assert?
              contento_assert((uint32_t)def.condition, def.message.c_str());

@@ -8,7 +8,7 @@
 #include <tuple>
 #include <string>
 
-namespace eosio {
+namespace cosio {
 
    typedef std::vector<std::tuple<uint16_t,std::vector<char>>> extensions_type;
 
@@ -64,7 +64,7 @@ namespace eosio {
     * @brief used to generate a compile time uint64_t from the base32 encoded string interpretation of X
     * @ingroup types
     */
-   #define N(X) ::eosio::string_to_name(#X)
+   #define N(X) ::cosio::string_to_name(#X)
 
 
    static constexpr uint64_t name_suffix( uint64_t n ) {
@@ -110,12 +110,13 @@ namespace eosio {
       operator uint64_t()const { return value; }
 
       name(){}
+      name(account_name aname){ this->value = aname; }
       name(const char* str){
-            this->value = ::eosio::string_to_name(str);
+            this->value = ::cosio::string_to_name(str);
       }
 
       name& operator = ( const char* str){
-            this->value = ::eosio::string_to_name(str);
+            this->value = ::cosio::string_to_name(str);
             return *this;
       }
 
@@ -148,7 +149,7 @@ namespace eosio {
    };
    /// @}
 
-} // namespace eosio
+} // namespace cosio
 
 namespace std {
    /**

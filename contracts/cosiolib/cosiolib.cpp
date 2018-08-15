@@ -38,20 +38,20 @@ void* sbrk(size_t num_bytes) {
       return reinterpret_cast<void*>(prev_num_bytes);
 }
 
-namespace eosio {
+namespace cosio {
 
-   void set_blockchain_parameters(const eosio::blockchain_parameters& params) {
-      char buf[sizeof(eosio::blockchain_parameters)];
-      eosio::datastream<char *> ds( buf, sizeof(buf) );
+   void set_blockchain_parameters(const cosio::blockchain_parameters& params) {
+      char buf[sizeof(cosio::blockchain_parameters)];
+      cosio::datastream<char *> ds( buf, sizeof(buf) );
       ds << params;
       set_blockchain_parameters_packed( buf, ds.tellp() );
    }
 
-   void get_blockchain_parameters(eosio::blockchain_parameters& params) {
-      char buf[sizeof(eosio::blockchain_parameters)];
+   void get_blockchain_parameters(cosio::blockchain_parameters& params) {
+      char buf[sizeof(cosio::blockchain_parameters)];
       size_t size = get_blockchain_parameters_packed( buf, sizeof(buf) );
       contento_assert( size <= sizeof(buf), "buffer is too small" );
-      eosio::datastream<const char*> ds( buf, size_t(size) );
+      cosio::datastream<const char*> ds( buf, size_t(size) );
       ds >> params;
    }
 
@@ -533,7 +533,7 @@ namespace eosio {
 
    memory_manager memory_heap;
 
-} /// namespace eosio
+} /// namespace cosio
 
 extern "C" {
 
@@ -541,24 +541,24 @@ void* __dso_handle = 0;
 
 void* malloc(size_t size)
 {
-   return eosio::memory_heap.malloc(size);
+   return cosio::memory_heap.malloc(size);
 }
 
 void* calloc(size_t count, size_t size)
 {
-   void* ptr = eosio::memory_heap.malloc(count*size);
+   void* ptr = cosio::memory_heap.malloc(count*size);
    memset(ptr, 0, count*size);
    return ptr;
 }
 
 void* realloc(void* ptr, size_t size)
 {
-   return eosio::memory_heap.realloc(ptr, size);
+   return cosio::memory_heap.realloc(ptr, size);
 }
 
 void free(void* ptr)
 {
-   return eosio::memory_heap.free(ptr);
+   return cosio::memory_heap.free(ptr);
 }
 
 }

@@ -9,7 +9,7 @@
 #include <cosiolib/content_util.hpp>
 
 
-namespace eosio { 
+namespace cosio { 
 
 using std::vector;
 using std::string;

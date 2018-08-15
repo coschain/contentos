@@ -9,7 +9,7 @@
 #include <cosiolib/content.h>
 
 
-namespace eosio { 
+namespace cosio { 
 
 
 	template <typename OperationType>

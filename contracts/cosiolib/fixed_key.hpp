@@ -10,7 +10,7 @@
 
 #include <cosiolib/system.h>
 
-namespace eosio {
+namespace cosio {
 
    template<size_t Size>
    class fixed_key;

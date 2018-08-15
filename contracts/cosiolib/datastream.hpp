@@ -21,7 +21,7 @@
 
 #include <cosiolib/static_variant.hpp>
 
-namespace eosio {
+namespace cosio {
 
 
 /**

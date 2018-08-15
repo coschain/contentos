@@ -6,7 +6,7 @@
 #include <tuple>
 #include <limits>
 
-namespace eosio {
+namespace cosio {
 
    struct asset {
       int64_t      amount;
@@ -188,4 +188,4 @@ namespace eosio {
    };
 
 
-} /// namespace eosio
+} /// namespace cosio

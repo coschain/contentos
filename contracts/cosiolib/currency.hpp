@@ -3,7 +3,7 @@
 #include <cosiolib/asset.hpp>
 #include <cosiolib/multi_index.hpp>
 
-namespace eosio {
+namespace cosio {
    using std::string;
    using std::array;
 
@@ -79,8 +79,8 @@ namespace eosio {
             EOSLIB_SERIALIZE( currency_stats, (supply)(max_supply)(issuer)(can_freeze)(can_recall)(can_whitelist)(is_frozen)(enforce_whitelist) )
          };
 
-         typedef eosio::multi_index<N(accounts), account> accounts;
-         typedef eosio::multi_index<N(stat), currency_stats> stats;
+         typedef cosio::multi_index<N(accounts), account> accounts;
+         typedef cosio::multi_index<N(stat), currency_stats> stats;
 
 
          asset get_balance( account_name owner, symbol_name symbol )const {

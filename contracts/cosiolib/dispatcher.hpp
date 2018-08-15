@@ -6,8 +6,8 @@
 #include <boost/fusion/include/std_tuple.hpp>
 
 #include <boost/mp11/tuple.hpp>
-#define N(X) ::eosio::string_to_name(#X)
-namespace eosio {
+#define N(X) ::cosio::string_to_name(#X)
+namespace cosio {
    template<typename Contract, typename FirstAction>
    bool dispatch( uint64_t code, uint64_t act ) {
       if( code == FirstAction::get_account() && FirstAction::get_name() == act ) {
@@ -34,7 +34,7 @@ namespace eosio {
          Contract().on( unpack_action_data<FirstAction>() );
          return true;
       }
-      return eosio::dispatch<Contract,SecondAction,Actions...>( code, act );
+      return cosio::dispatch<Contract,SecondAction,Actions...>( code, act );
    }
 
    template<typename T, typename Q, typename... Args>
@@ -64,8 +64,8 @@ namespace eosio {
    }
 
 #define EOSIO_API_CALL( r, OP, elem ) \
-   case ::eosio::string_to_name( BOOST_PP_STRINGIZE(elem) ): \
-      eosio::execute_action( &thiscontract, &OP::elem ); \
+   case ::cosio::string_to_name( BOOST_PP_STRINGIZE(elem) ): \
+      cosio::execute_action( &thiscontract, &OP::elem ); \
       break;
 
 #define EOSIO_API( TYPE,  MEMBERS ) \

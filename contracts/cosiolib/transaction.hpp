@@ -10,7 +10,7 @@
 #include <cosiolib/serialize.hpp>
 #include <vector>
 
-namespace eosio {
+namespace cosio {
 
    /**
     * @defgroup transactioncppapi Transaction C++ API
@@ -83,7 +83,7 @@ namespace eosio {
       char* buffer = (char*)( max_stack_buffer_size < size ? malloc(size) : alloca(size) );
       auto size2 = ::get_action( type, index, buffer, size );
       contento_assert( size == static_cast<size_t>(size2), "get_action failed" );
-      return eosio::unpack<eosio::action>( buffer, size );
+      return cosio::unpack<cosio::action>( buffer, size );
    }
 
    ///@} transactioncpp api

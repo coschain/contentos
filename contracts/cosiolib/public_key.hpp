@@ -2,7 +2,7 @@
 #include <cosiolib/varint.hpp>
 #include <cosiolib/serialize.hpp>
 
-namespace eosio {
+namespace cosio {
    struct public_key {
       unsigned_int        type;
       std::array<char,33> data;

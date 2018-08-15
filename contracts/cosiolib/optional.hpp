@@ -2,7 +2,7 @@
 
 #include <utility>
 
-namespace eosio {
+namespace cosio {
 
    template<typename T>
    class optional {
@@ -229,7 +229,7 @@ namespace eosio {
          }
 
          template<typename Stream>
-         friend inline eosio::datastream<Stream>& operator>> (eosio::datastream<Stream>& ds, optional& op)
+         friend inline cosio::datastream<Stream>& operator>> (cosio::datastream<Stream>& ds, optional& op)
          {
             char valid = 0;
             ds >> valid;
@@ -241,7 +241,7 @@ namespace eosio {
          }
 
          template<typename Stream>
-         friend inline eosio::datastream<Stream>& operator<< (eosio::datastream<Stream>& ds, const optional& op)
+         friend inline cosio::datastream<Stream>& operator<< (cosio::datastream<Stream>& ds, const optional& op)
          {
             char valid = op._valid;
             ds << valid;
@@ -278,4 +278,4 @@ namespace eosio {
       return !left || *left != u;
    }
 
-} // namespace eosio
+} // namespace cosio

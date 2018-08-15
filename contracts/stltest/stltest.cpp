@@ -138,7 +138,7 @@
 //include <cosiolib/eos.hpp>
 #include <cosiolib/dispatcher.hpp>
 
-using namespace eosio;
+using namespace cosio;
 /*
 namespace std {
    extern ios_base __start_std_streams;
@@ -253,11 +253,11 @@ namespace stltest {
         }
 
         static void apply( account_name c, action_name act) {
-            eosio::dispatch<stltest::contract, message>(c,act);
+            cosio::dispatch<stltest::contract, message>(c,act);
         }
     };
 
-} /// namespace eosio
+} /// namespace cosio
 
 
 extern "C" {

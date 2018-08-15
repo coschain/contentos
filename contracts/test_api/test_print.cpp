@@ -6,7 +6,7 @@
 
 #include "test_api.hpp"
 
-//using namespace eosio;
+//using namespace cosio;
 
 void test_print::test_prints_l() {
   char ab[] = { 'a', 'b' };
@@ -116,7 +116,7 @@ void test_print::test_printqf() {
 
 void test_print::test_print_simple() {
     std::string const cvalue = "cvalue";
-    eosio::print(cvalue);
+    cosio::print(cvalue);
     std::string value = "value";
-    eosio::print(value);
+    cosio::print(value);
 }
