@@ -4082,16 +4082,4 @@ void database::retally_witness_vote_counts( bool force )
    }
 }
 
-// just for link error
-asset database::to_sbd( const asset& steem )const
-{
-    return asset(0);
-}
-
-// just for link error
-asset database::to_steem( const asset& sbd )const
-{
-    return asset(0);
-}
-
 } } //contento::chain
