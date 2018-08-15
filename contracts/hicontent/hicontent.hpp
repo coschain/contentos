@@ -1,6 +1,7 @@
 #pragma once
 #include <eosiolib/eosio.hpp>
 #include <eosiolib/content.hpp>
+#include <eosiolib/content_operation.hpp>
 
 namespace eosio {
 
@@ -92,6 +93,36 @@ namespace eosio {
                print("follower: ", fobj.follower, "\t following: ", fobj.following , "\t what:", fobj.what[0], "\n");
             }
          }
+
+        {
+            transfer_operation op;
+            op.from = "initminer";
+            op.to = "yykingking";
+            op.amount = asset(12222);
+            op.memo = "FROM VM CALL";
+
+            send_inline_operation(op);
+            print("send_transfer_operation success\n");
+
+        }
+        {
+            vm_operation op;
+            op.caller = "initminer";
+            op.contract_name = "contento";
+            op.action_name = "reqauthx";
+
+            //send_inline_operation(op);
+            print("skip vm_operation success\n");
+
+        }
+
+        {
+            hardfork_operation op;
+            op.hardfork_id = 10;
+
+            //send_inline_operation(op);
+            print("send hardfork_operation success\n");
+        }
       }
 
       private:
