@@ -13,6 +13,7 @@
 #define CONTENTO_INIT_PUBLIC_KEY_STR             (std::string( contento::protocol::public_key_type(CONTENTO_INIT_PRIVATE_KEY.get_public_key()) ))
 #define CONTENTO_CHAIN_ID                        (contento::protocol::chain_id_type(fc::sha256::hash("testnet")))
 
+#define STEEM_SYMBOL  (uint64_t(3) | (uint64_t('T') << 8) | (uint64_t('E') << 16) | (uint64_t('S') << 24) | (uint64_t('T') << 32) | (uint64_t('S') << 40)) ///< STEEM with 3 digits of precision
 #define VESTS_SYMBOL  (uint64_t(6) | (uint64_t('V') << 8) | (uint64_t('E') << 16) | (uint64_t('S') << 24) | (uint64_t('T') << 32) | (uint64_t('S') << 40)) ///< VESTS with 6 digits of precision
 #define COC_SYMBOL (uint64_t(4) | (uint64_t('C') << 8) | (uint64_t('O') << 16) | (uint64_t('C') << 24))
 #define SBD_SYMBOL    (uint64_t(3) | (uint64_t('T') << 8) | (uint64_t('B') << 16) | (uint64_t('D') << 24) ) ///< Test Backed Dollars with 3 digits of precision
@@ -58,6 +59,7 @@
 #define CONTENTO_CHAIN_ID                        (contento::protocol::chain_id_type())
 //#define VESTS_SYMBOL  (uint64_t(6) | (uint64_t('V') << 8) | (uint64_t('E') << 16) | (uint64_t('S') << 24) | (uint64_t('T') << 32) | (uint64_t('S') << 40)) ///< VESTS with 6 digits of precision
 //#define COC_SYMBOL  (uint64_t(3) | (uint64_t('S') << 8) | (uint64_t('T') << 16) | (uint64_t('E') << 24) | (uint64_t('E') << 32) | (uint64_t('M') << 40)) ///< STEEM with 3 digits of precision
+#define STEEM_SYMBOL  (uint64_t(3) | (uint64_t('S') << 8) | (uint64_t('T') << 16) | (uint64_t('E') << 24) | (uint64_t('E') << 32) | (uint64_t('M') << 40)) ///< STEEM with 3 digits of precision
 #define VESTS_SYMBOL  (uint64_t(3) | (uint64_t('V') << 8) | (uint64_t('E') << 16) | (uint64_t('S') << 24) | (uint64_t('T') << 32) | (uint64_t('S') << 40)) ///< VESTS with 6 digits of precision
 #define COC_SYMBOL (uint64_t(3) | (uint64_t('C') << 8) | (uint64_t('O') << 16) | (uint64_t('C') << 24))
 #define SBD_SYMBOL    (uint64_t(3) | (uint64_t('S') << 8) | (uint64_t('B') << 16) | (uint64_t('D') << 24) ) ///< STEEM Backed Dollars with 3 digits of precision

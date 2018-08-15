@@ -1602,13 +1602,13 @@ void database::process_comment_cashout()
     comment_rf_ctx.reward_balance = grpo.comment_reward_balance;
     // The index is by ID, so the ID should be the current size of the vector (0, 1, 2, etc...)
     // assert( funds.size() == size_t( itr->id._id ) );
-    const auto& cidx        = get_index< comment_index >().indices().get< by_cashout_time >();
+    const auto& cidx        = get_index< comment_index >().indices().get< contento::chain::by_cashout_time >();
     //const auto& com_by_root = get_index< comment_index >().indices().get< by_root >();
     auto current = cidx.begin();
     //  add all rshares about to be cashed out to the reward funds. This ensures equal satoshi per rshare payment
     // 就只有 cashout 的时候会累加进 recent_claims
-
-#ifdef CONTENTO_ASA
+//
+//#ifdef CONTENTO_ASA
     while( current != cidx.end())
     {
         std::cout << current -> permlink << "\n";
@@ -1618,7 +1618,7 @@ void database::process_comment_cashout()
         ++current;
     }
     current = cidx.begin();
-#endif
+//#endif
 
     while( current != cidx.end() && current->cashout_time <= head_block_time() )
     {
@@ -1946,6 +1946,16 @@ share_type database::pay_reward_funds( share_type reward )
    }
 
    return used_rewards;
+}
+
+asset database::to_sbd( const asset& steem )const
+{
+    return util::to_sbd( get_feed_history().current_median_history, steem );
+}
+
+asset database::to_steem( const asset& sbd )const
+{
+    return util::to_steem( get_feed_history().current_median_history, sbd );
 }
 
 void database::account_recovery_processing()

@@ -193,6 +193,7 @@ namespace contento { namespace chain {
       allocator< comment_vote_object >
    > comment_vote_index;
 
+    struct by_id;
    struct by_comment;
    struct by_total_credit;
    struct by_last_update;
