@@ -1,5 +1,5 @@
-#include <eosiolib/contract_bank.h>
-#include <eosiolib/chain.h>
+#include <cosiolib/contract_bank.h>
+#include <cosiolib/chain.h>
 #include <cosiolib/cosio.hpp>
 using namespace cosio;
 
