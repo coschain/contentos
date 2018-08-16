@@ -23,7 +23,11 @@
 		cd externals/binaryen/
 		make install
 		cd ../../
-	4. install cosiocc
+	4. install cosio-abigen
+		cd cd programs/cosio-abigen/
+		make install
+		cd ../../
+	5. install cosiocc
 		cd tools/
 		make install
 		cd ../
