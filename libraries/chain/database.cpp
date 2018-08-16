@@ -599,10 +599,7 @@ bool database::_push_block(const signed_block& new_block)
          //Only switch forks if new_head is actually higher than head
          if( new_head->data.block_num() > head_block_num() )
          {
-             // the BP node should never come this if
-             if( skip & skip_apply_transaction ) {
-                 _pending_tx_session.reset();
-             }
+            _pending_tx_session.reset();// the BP node should never invoke this line
 
             // wlog( "Switching to fork: ${id}", ("id",new_head->data.id()) );
             auto branches = _fork_db.fetch_branch_from(new_head->data.id(), head_block_id());
@@ -659,6 +656,7 @@ bool database::_push_block(const signed_block& new_block)
    {
        if( !( skip & skip_apply_transaction ) )
        {
+            _pending_tx_session.reset();
             auto session = start_undo_session( true );
             apply_block(new_block, skip);
             session.push();
@@ -828,10 +826,9 @@ signed_block database::_generate_block(
             continue;
          }
 
-         auto temp_session = start_undo_session( true );
          try {
              //_apply_transaction( trx_wrapper );
-
+            auto temp_session = start_undo_session( true );
             detail::with_skip_flags( *this, skip, [&]()
             {
                 _apply_transaction( trx_wrapper );
@@ -845,7 +842,9 @@ signed_block database::_generate_block(
          }
          catch ( const fc::exception& e )
          {
-             temp_session.undo();
+            // Do nothing, transaction will not be re-applied
+            //wlog( "Transaction was not processed while generating block due to ${e}", ("e", e) );
+            //wlog( "The transaction was ${t}", ("t", tx) );
          }
 
          /*
@@ -938,14 +937,10 @@ signed_block database::_generate_block(
     auto res = push_block( pending_block, skip | skip_apply_transaction );
     if ( res ) {
         std::cout << "in _generate_block function, BP node should never come here!" << std::endl;
-        std::exit(-1);
     } else {
         if ( pending_block.block_num() == head_block_num() )
         {
             _pending_tx_session.push();
-        }
-        else {
-            _pending_tx_session.reset();
         }
     }
 
