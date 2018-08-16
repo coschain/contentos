@@ -192,6 +192,8 @@ class database_api
 
       vector< extended_account > get_accounts( vector< string > names ) const;
 
+      account_code_api_obj get_account_code(string name ) const;
+
       /**
        *  @return all accounts that referr to the key or account id in their owner or active authorities.
        */
@@ -513,6 +515,8 @@ FC_API(contento::app::database_api,
    (get_account_history)
    (get_owner_history)
    (get_recovery_request)
+   (get_account_code)
+
    // (get_escrow)
    (get_withdraw_routes)
    (get_account_bandwidth)

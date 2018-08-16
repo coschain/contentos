@@ -360,6 +360,12 @@ public:
       return accounts.front();
    }
 
+   account_code_api_obj get_account_code( string account_name ) const
+   {
+      auto account = _remote_db->get_account_code( account_name );
+      return account;
+   }
+
    string get_wallet_filename() const { return _wallet_filename; }
 
    optional<fc::ecc::private_key>  try_get_private_key(const public_key_type& id)const
@@ -1095,6 +1101,11 @@ string wallet_api::get_wallet_filename() const
 account_api_obj wallet_api::get_account( string account_name ) const
 {
    return my->get_account( account_name );
+}
+
+account_code_api_obj wallet_api::get_account_code( string account_name ) const
+{
+   return my->get_account_code( account_name );
 }
 
 bool wallet_api::import_key(string wif_key)
@@ -2536,7 +2547,7 @@ bytes param_to_bin(const wallet_api &api, string contract_name, string action_na
       }
    }
 
-   const auto contract_acc = api.get_account(contract_name);
+   const auto contract_acc = api.get_account_code(contract_name);
    abi_def abi;
    bytes result;
    if(abi_serializer::to_abi(contract_acc.abi, abi)) {

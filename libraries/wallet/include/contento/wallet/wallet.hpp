@@ -187,6 +187,7 @@ class wallet_api
        * @returns the public account data stored in the blockchain
        */
       account_api_obj                     get_account( string account_name ) const;
+      account_code_api_obj                get_account_code( string account_name ) const;
 
       /** Returns the current wallet filename.
        *
@@ -1070,6 +1071,7 @@ FC_API( contento::wallet::wallet_api,
         (list_witnesses)
         (get_witness)
         (get_account)
+        (get_account_code)
         (get_block)
         (get_ops_in_block)
 //        (get_feed_history)
