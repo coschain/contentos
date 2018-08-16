@@ -9,7 +9,7 @@ class hello : public cosio::contract {
 
       //@abi action
       void hi( account_name user ) {
-          print(" ====== enter contract hi function ====== \n");
+          print("\n ====== enter contract hi function ====== \n");
 
            int64_t cb = get_contract_balance();
           print("contract balance is : ", cb);
@@ -18,7 +18,7 @@ class hello : public cosio::contract {
 
           print("\n values is :", value);
          print( "\n Hello, ", name{user} );
-          print(" ====== exit contract hi function ====== \n");
+          print("\n ====== exit contract hi function ====== \n");
       }
     
     //@abi action
@@ -27,9 +27,10 @@ class hello : public cosio::contract {
         print("\n before withdraw  contract balance is : ",cb);
 
         // transfer contract balance to user's account
-        //transfer(user,value);
+        transfer(user,value);
         
-        print("\n after withdraw  contract balance is : ",cb);
+         int64_t cb2 = get_contract_balance();
+        print("\n after withdraw  contract balance is : ",cb2);
     }
 };
 

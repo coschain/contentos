@@ -28,7 +28,7 @@ extern "C" {
 
    int64_t get_contract_balance();
 
-   void transfer(const account_name& name, int64_t value);
+   void transfer( account_name name, int64_t value );
 
    int64_t get_value();
 

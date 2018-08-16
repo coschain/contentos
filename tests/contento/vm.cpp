@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE( setcodes )
     const account_object& acct2 = db.get_account( "hello" );
     BOOST_REQUIRE( acct2.balance.amount.value == 0 );
     
-    push_action(db, hello_private_key, N(hello), N(hello), N(withdraw), "{\"name\":\"hello\",\"value\":50}",0);
+    push_action(db, hello_private_key, N(hello), N(hello), N(withdraw), "[\"hello\",50]",0);
     
     const account_object& acct3 = db.get_account( "hello" );
     BOOST_REQUIRE( acct3.balance.amount.value == 50 );
