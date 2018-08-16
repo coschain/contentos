@@ -1359,10 +1359,6 @@ public:
    using context_aware_api::context_aware_api;
 
    int on_content_call( array_ptr<const char> query_str, size_t data_len, array_ptr<char> out_result, size_t length ) {
-//      FC_ASSERT( data_len < context.control.get_global_properties().configuration.max_inline_action_size,
-//                "inline action too big" );
-
-      std::string query = std::string(query_str, data_len);
       std::vector<char> vec(data_len);
       const char* ptr = query_str;
       vec.assign(ptr, ptr + data_len);
@@ -1370,6 +1366,13 @@ public:
       if ( length >= result.size() )
          memcpy( out_result, result.data(), result.size() );
       return result.size();
+   }
+
+   bool excute_operation( array_ptr<const char> op_buff, size_t data_len ){
+      std::vector<char> vec(data_len);
+      const char* ptr = op_buff;
+      vec.assign(ptr, ptr + data_len);
+      return context.excute_operation(vec);
    }
 
 };
@@ -1880,6 +1883,7 @@ REGISTER_INTRINSICS_WITH_PRICE(transaction_api,
 
 REGISTER_INTRINSICS_WITH_PRICE(content_api,
    WITH_PRICE (on_content_call,           int(int, int, int, int)      )
+   WITH_PRICE (excute_operation,           int(int, int)      )
 );
 
 /*

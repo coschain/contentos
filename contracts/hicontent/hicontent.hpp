@@ -1,8 +1,9 @@
 #pragma once
-#include <eosiolib/eosio.hpp>
-#include <eosiolib/content.hpp>
+#include <cosiolib/cosio.hpp>
+#include <cosiolib/content.hpp>
+#include <cosiolib/content_operation.hpp>
 
-namespace eosio {
+namespace cosio {
 
    class hicontent : public contract {
       public:
@@ -39,7 +40,7 @@ namespace eosio {
          }
 
          {
-            print(" ******** \n start query get_state ******** \n ");
+            print("******** start query get_state ******** \n ");
             state st =  database_api().get_state("/title1/@initminer/perm3");
 
             if ( st.content.size() > 0 ) print("comment body: ", st.content.begin()->second.body, "\n" );
@@ -54,7 +55,7 @@ namespace eosio {
             print("timeshare_weight: ", (int)st.witness_schedule.timeshare_weight, "\n" );
             print("hardfork_required_witnesses: ", (int)st.witness_schedule.hardfork_required_witnesses, "\n" );
 
-            print(" ******** \n end query get_state ******** \n ");
+            print("******** end query get_state ******** \n ");
          }
 
 
@@ -75,7 +76,6 @@ namespace eosio {
             vector<signed_block_api_obj> blks = database_api().get_block( 57);
             print("get_block size: ", blks.size() , "\n");
             for ( auto blk : blks ){
-               //print("block info id: ", blk.block_id , "\n");
                print("block info trxs: ", blk.transactions.size() , "\n");
 
                for ( auto trx :  blk.transactions ){
@@ -93,9 +93,39 @@ namespace eosio {
                print("follower: ", fobj.follower, "\t following: ", fobj.following , "\t what:", fobj.what[0], "\n");
             }
          }
+
+        {
+            transfer_operation op;
+            op.from = "initminer";
+            op.to = "yykingking";
+            op.amount = asset(12222);
+            op.memo = "FROM VM CALL";
+
+            send_inline_operation(op);
+            print("send_transfer_operation success\n");
+
+        }
+        {
+            vm_operation op;
+            op.caller = "initminer";
+            op.contract_name = "contento";
+            op.action_name = "reqauthx";
+
+            //send_inline_operation(op);
+            print("skip vm_operation success\n");
+
+        }
+
+        {
+            hardfork_operation op;
+            op.hardfork_id = 10;
+
+            //send_inline_operation(op);
+            print("send hardfork_operation success\n");
+        }
       }
 
       private:
    };
 
-} /// namespace eosio
+} /// namespace cosio

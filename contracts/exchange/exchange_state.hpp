@@ -1,8 +1,8 @@
 #pragma once
 
-#include <eosiolib/asset.hpp>
+#include <cosiolib/asset.hpp>
 
-namespace eosio {
+namespace cosio {
 
    typedef double real_type;
 
@@ -45,7 +45,7 @@ namespace eosio {
          return result;
       }
 
-      EOSLIB_SERIALIZE( margin_state, (total_lendable)(total_lent)(least_collateralized)(interest_shares) )
+      COSLIB_SERIALIZE( margin_state, (total_lendable)(total_lent)(least_collateralized)(interest_shares) )
    };
 
    /**
@@ -64,7 +64,7 @@ namespace eosio {
 
          margin_state   peer_margin; /// peer_connector collateral lending balance
 
-         EOSLIB_SERIALIZE( connector, (balance)(weight)(peer_margin) )
+         COSLIB_SERIALIZE( connector, (balance)(weight)(peer_margin) )
       };
 
       connector base;
@@ -79,9 +79,9 @@ namespace eosio {
       bool requires_margin_call( const exchange_state::connector& con )const;
       bool requires_margin_call()const;
 
-      EOSLIB_SERIALIZE( exchange_state, (manager)(supply)(fee)(base)(quote) )
+      COSLIB_SERIALIZE( exchange_state, (manager)(supply)(fee)(base)(quote) )
    };
 
-   typedef eosio::multi_index<N(markets), exchange_state> markets;
+   typedef cosio::multi_index<N(markets), exchange_state> markets;
 
-} /// namespace eosio
+} /// namespace cosio

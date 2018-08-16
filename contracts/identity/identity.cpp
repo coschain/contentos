@@ -1,13 +1,13 @@
 #include "common.hpp"
 
-#include <eosiolib/contract.hpp>
-#include <eosiolib/dispatcher.hpp>
-#include <eosiolib/vector.hpp>
+#include <cosiolib/contract.hpp>
+#include <cosiolib/dispatcher.hpp>
+#include <cosiolib/vector.hpp>
 
 namespace identity {
-   using eosio::action_meta;
-   using eosio::singleton;
-   using eosio::key256;
+   using cosio::action_meta;
+   using cosio::singleton;
+   using cosio::key256;
    using std::string;
    using std::vector;
 
@@ -185,4 +185,4 @@ namespace identity {
 
 } /// namespace identity
 
-EOSIO_ABI( identity::contract, (create)(certprop)(settrust) );
+COSIO_ABI( identity::contract, (create)(certprop)(settrust) );

@@ -1,6 +1,6 @@
 /**
  *  @file
- *  @copyright defined in eos/LICENSE.txt
+ *  @copyright defined in contentos/LICENSE.txt
  */
 // include entire libc
 #include <alloca.h>
@@ -135,10 +135,10 @@
 #include <string>
 #include <stdexcept>
 */
-//include <eosiolib/eos.hpp>
-#include <eosiolib/dispatcher.hpp>
+//include <cosiolib/eos.hpp>
+#include <cosiolib/dispatcher.hpp>
 
-using namespace eosio;
+using namespace cosio;
 /*
 namespace std {
    extern ios_base __start_std_streams;
@@ -253,11 +253,11 @@ namespace stltest {
         }
 
         static void apply( account_name c, action_name act) {
-            eosio::dispatch<stltest::contract, message>(c,act);
+            cosio::dispatch<stltest::contract, message>(c,act);
         }
     };
 
-} /// namespace eosio
+} /// namespace cosio
 
 
 extern "C" {

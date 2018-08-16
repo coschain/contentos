@@ -1,10 +1,10 @@
 /**
  *  @file
- *  @copyright defined in eos/LICENSE.txt
+ *  @copyright defined in contentos/LICENSE.txt
  */
-#include <eosiolib/eosio.hpp>
-#include <eosiolib/crypto.h>
-#include <eosiolib/print.hpp>
+#include <cosiolib/cosio.hpp>
+#include <cosiolib/crypto.h>
+#include <cosiolib/print.hpp>
 
 #include "test_api.hpp"
 #define WASM_TEST_FAIL 1

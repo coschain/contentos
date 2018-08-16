@@ -1,8 +1,8 @@
 /**
  *  @file
- *  @copyright defined in eos/LICENSE.txt
+ *  @copyright defined in contentos/LICENSE.txt
  */
-#include <eosiolib/eosio.hpp>
+#include <cosiolib/cosio.hpp>
 #include "../test_api/test_api.hpp"
 
 #include "test_multi_index.cpp"

@@ -360,6 +360,12 @@ public:
       return accounts.front();
    }
 
+   account_code_api_obj get_account_code( string account_name ) const
+   {
+      auto account = _remote_db->get_account_code( account_name );
+      return account;
+   }
+
    string get_wallet_filename() const { return _wallet_filename; }
 
    optional<fc::ecc::private_key>  try_get_private_key(const public_key_type& id)const
@@ -1095,6 +1101,11 @@ string wallet_api::get_wallet_filename() const
 account_api_obj wallet_api::get_account( string account_name ) const
 {
    return my->get_account( account_name );
+}
+
+account_code_api_obj wallet_api::get_account_code( string account_name ) const
+{
+   return my->get_account_code( account_name );
 }
 
 bool wallet_api::import_key(string wif_key)
@@ -2536,7 +2547,7 @@ bytes param_to_bin(const wallet_api &api, string contract_name, string action_na
       }
    }
 
-   const auto contract_acc = api.get_account(contract_name);
+   const auto contract_acc = api.get_account_code(contract_name);
    abi_def abi;
    bytes result;
    if(abi_serializer::to_abi(contract_acc.abi, abi)) {
@@ -2567,56 +2578,31 @@ annotated_signed_transaction wallet_api::push_action(string caller, string contr
 }
 
 annotated_signed_transaction wallet_api::set_contract(string accountname, string contract_dir, string contract_name, bool broadcast ) {
-
       signed_transaction tx;
-      
-      auto set_code_callback = [&]() {
-            std::string wast;
-            fc::path cpath(contract_dir);
 
-            if( cpath.filename().generic_string() == "." ) cpath = cpath.parent_path();
-
-            auto wastPath = (cpath / (cpath.filename().generic_string()+".wasm")).generic_string();
-            if (!fc::exists(wastPath))
-                  wastPath = (cpath / (cpath.filename().generic_string()+".wast")).generic_string();
-
-            std::cout << "Reading WAST/WASM from " + wastPath + "..." << std::endl;
-            fc::read_file_contents(wastPath, wast);
-            FC_ASSERT( !wast.empty(), "no wast file found ${f}", ("f", wastPath) );
-            vector<uint8_t> wasm;
-            const string binary_wasm_header("\x00\x61\x73\x6d", 4);
-            
-            if(wast.compare(0, 4, binary_wasm_header) == 0) {
-                  std::cout << "Using already assembled WASM..." << std::endl;
-                  wasm = vector<uint8_t>(wast.begin(), wast.end());
-            }
-            else {
-                  std::cout << "Assembling WASM..." << std::endl;
-                  wasm = wast_to_wasm(wast);
-            }
-            
-
-            tx.operations.push_back( vm_operation(accountname, setcode{contract_name, 0, 0, bytes(wasm.begin(), wasm.end()) } ) );
-      };
-
-      auto set_abi_callback = [&]() {
-            fc::path cpath(contract_dir);
-            if( cpath.filename().generic_string() == "." ) 
-                  cpath = cpath.parent_path();
-
-            auto abiPath = (cpath / (cpath.filename().generic_string()+".abi")).generic_string();
-
-            FC_ASSERT( fc::exists( abiPath ), "no abi file found ${f}", ("f", abiPath)  );
-
-            try {
-                  tx.operations.push_back( vm_operation(accountname, setabi{contract_name, fc::raw::pack(fc::json::from_file(abiPath).as<abi_def>()) } ) );
-            } EOS_RETHROW_EXCEPTIONS(abi_type_exception,  "Fail to parse ABI JSON")
-      };
-
-
-      set_code_callback();
-      set_abi_callback();
+      set_code_callback ( accountname, contract_dir, contract_name, tx );
+      set_abi_callback ( accountname, contract_dir, contract_name, tx );
       std::cout << "Publishing contract..." << std::endl;
+      tx.validate();
+      
+      return my->sign_transaction( tx, broadcast );
+}
+
+annotated_signed_transaction wallet_api::set_code(string accountname, string contract_dir, string contract_name, bool broadcast ) {
+      signed_transaction tx;
+
+      set_code_callback ( accountname, contract_dir, contract_name, tx );
+      std::cout << "Publishing contract code..." << std::endl;
+      tx.validate();
+      
+      return my->sign_transaction( tx, broadcast );
+}
+
+annotated_signed_transaction wallet_api::set_abi(string accountname, string contract_dir, string contract_name, bool broadcast ) {
+      signed_transaction tx;
+
+      set_abi_callback ( accountname, contract_dir, contract_name, tx );
+      std::cout << "Publishing contract abi..." << std::endl;
       tx.validate();
       
       return my->sign_transaction( tx, broadcast );
@@ -2684,6 +2670,60 @@ vector<extended_message_object>   wallet_api::get_outbox( string account, fc::ti
       result.back().message = try_decrypt_message( item );
    }
    return result;
+}
+
+void wallet_api::set_code_callback( string accountname, string contract_dir, string contract_name, signed_transaction& tx ) {
+      std::string wast;
+      fc::path cpath(contract_dir);
+
+      if( cpath.filename().generic_string() == "." ) cpath = cpath.parent_path();
+
+      auto wastPath = (cpath / (cpath.filename().generic_string()+".wasm")).generic_string();
+      if (!fc::exists(wastPath))
+            wastPath = (cpath / (cpath.filename().generic_string()+".wast")).generic_string();
+
+      std::cout << "Reading WAST/WASM from " + wastPath + "..." << std::endl;
+      fc::read_file_contents(wastPath, wast);
+      FC_ASSERT( !wast.empty(), "no wast file found ${f}", ("f", wastPath) );
+      vector<uint8_t> wasm;
+      const string binary_wasm_header("\x00\x61\x73\x6d", 4);
+      
+      if(wast.compare(0, 4, binary_wasm_header) == 0) {
+            std::cout << "Using already assembled WASM..." << std::endl;
+            wasm = vector<uint8_t>(wast.begin(), wast.end());
+      }
+      else {
+            std::cout << "Assembling WASM..." << std::endl;
+            wasm = wast_to_wasm(wast);
+      }
+      
+      tx.operations.push_back ( vm_operation ( accountname, 
+                                               setcode { contract_name, 
+                                                         0, 
+                                                         0, 
+                                                         bytes( wasm.begin(), wasm.end() ) 
+                                                       } 
+                                             ) 
+                              );
+}
+
+void wallet_api::set_abi_callback( string accountname, string contract_dir, string contract_name, signed_transaction& tx ) {
+      fc::path cpath(contract_dir);
+      if( cpath.filename().generic_string() == "." ) 
+            cpath = cpath.parent_path();
+
+      auto abiPath = (cpath / (cpath.filename().generic_string()+".abi")).generic_string();
+
+      FC_ASSERT( fc::exists( abiPath ), "no abi file found ${f}", ("f", abiPath)  );
+
+      try {
+            tx.operations.push_back ( vm_operation ( accountname, 
+                                                     setabi { contract_name, 
+                                                              fc::raw::pack ( fc::json::from_file(abiPath).as<abi_def>() ) 
+                                                            } 
+                                                   ) 
+                                    );
+      } EOS_RETHROW_EXCEPTIONS(abi_type_exception,  "Fail to parse ABI JSON")
 }
 
 } } // contento::wallet

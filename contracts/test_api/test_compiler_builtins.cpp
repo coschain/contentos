@@ -1,11 +1,11 @@
 /**
  *    @file test_compiler_builtins.cpp
- *    @copyright defined in eos/LICENSE.txt
+ *    @copyright defined in contentos/LICENSE.txt
  */
 
-#include <eosiolib/eosio.hpp>
-#include <eosiolib/print.hpp>
-#include <eosiolib/compiler_builtins.h>
+#include <cosiolib/cosio.hpp>
+#include <cosiolib/print.hpp>
+#include <cosiolib/compiler_builtins.h>
 
 #include "test_api.hpp"
 
@@ -142,7 +142,7 @@ void test_compiler_builtins::test_divti3_by_0() {
    __int128 res = 0;
 
    __divti3( res, 100, 0, 0, 0 );
-   contento_assert( false, "Should have eosio_asserted" );
+   contento_assert( false, "Should have contento_asserted" );
 }
 
 void test_compiler_builtins::test_udivti3() {
@@ -193,7 +193,7 @@ void test_compiler_builtins::test_udivti3_by_0() {
    unsigned __int128 res = 0;
 
    __udivti3( res, 100, 0, 0, 0 );
-   contento_assert( false, "Should have eosio_asserted" );
+   contento_assert( false, "Should have contento_asserted" );
 }
 
 

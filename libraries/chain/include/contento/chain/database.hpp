@@ -41,7 +41,7 @@ namespace contento { namespace chain {
     *   @class database
     *   @brief tracks the blockchain state in an extensible manner
     */
-   class database : public chainbase::database
+   class database : public chainbase::database, public op_excute_callback
    {
       public:
          database();
@@ -434,6 +434,7 @@ namespace contento { namespace chain {
          bool init_genesis_hardforks = true;
 #endif
 
+         bool execute_operation(const transaction_context& trx_context, const operation& op );
    protected:
          //Mark pop_undo() as protected -- we do not want outside calling pop_undo(); it should call pop_block() instead
          //void pop_undo() { object_database::pop_undo(); }

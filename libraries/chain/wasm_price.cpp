@@ -221,6 +221,7 @@
 
 // content_api
 #define WASM_PRICE_FN_on_content_call                                        1      // todo: not implemented yet
+#define WASM_PRICE_FN_excute_operation                                        1      // todo: not implemented yet
 
 // context_free_api
 //#define WASM_PRICE_FN_get_context_free_data                                  0      // varied
@@ -628,6 +629,7 @@ namespace contento { namespace chain { namespace wasm_price {
     // content_api
     WASM_PRICE_FN_CONSTS(
                          (on_content_call,           (int, int, int, int, int)      )
+                         (excute_operation,           (int, int, int)   )
                         );
     
     // context_free_api

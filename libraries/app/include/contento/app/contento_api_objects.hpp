@@ -166,6 +166,25 @@ struct tag_api_obj
    fc::uint128          trending = 0;
 };
 
+struct account_code_api_obj{
+   account_code_api_obj( const chain::account_object& a) :
+      name(a.name)
+   {
+      code.resize(a.code.size());
+      memcpy( code.data(), a.code.data(), a.code.size());
+
+      abi.resize(a.abi.size());
+      memcpy( abi.data(), a.abi.data(), a.abi.size());
+
+   }
+
+   account_code_api_obj() {}
+
+   account_name_type name;
+   std::vector<char> code;
+   std::vector<char> abi;
+};
+
 struct account_api_obj
 {
    account_api_obj( const chain::account_object& a, const chain::database& db ) :
@@ -218,7 +237,7 @@ struct account_api_obj
       witnesses_voted_for( a.witnesses_voted_for ),
       last_post( a.last_post ),
       last_root_post( a.last_root_post ),
-      code( to_string(a.code) ),
+      code( a.code ),
       abi( to_string(a.abi) )
    {
       size_t n = a.proxied_vsf_votes.size();
@@ -599,6 +618,12 @@ FC_REFLECT( contento::app::witness_api_obj,
              (running_version)
              (hardfork_version_vote)(hardfork_time_vote)
           )
+FC_REFLECT( contento::app::account_code_api_obj,
+           (name)
+           (code)
+           (abi)
+           )
+
 
 FC_REFLECT_DERIVED( contento::app::signed_block_api_obj, (contento::protocol::signed_block),
                      (block_id)

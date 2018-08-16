@@ -1,15 +1,15 @@
 /**
  *  @file
- *  @copyright defined in eos/LICENSE.txt
+ *  @copyright defined in contentos/LICENSE.txt
  */
 
-#include <eosiolib/eosio.hpp>
+#include <cosiolib/cosio.hpp>
 
 namespace asserter {
    struct assertdef {
       int8_t      condition;
       std::string message;
 
-      EOSLIB_SERIALIZE( assertdef, (condition)(message) )
+      COSLIB_SERIALIZE( assertdef, (condition)(message) )
    };
 }

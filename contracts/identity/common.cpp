@@ -1,6 +1,6 @@
 #include "common.hpp"
 
-#include <eosiolib/chain.h>
+#include <cosiolib/chain.h>
 
 namespace identity {
 

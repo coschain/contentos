@@ -1,6 +1,6 @@
-#include <eosiolib/multi_index.hpp>
+#include <cosiolib/multi_index.hpp>
 #include "../test_api/test_api.hpp"
-#include <eosiolib/print.hpp>
+#include <cosiolib/print.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <limits>
 #include <cmath>
@@ -10,7 +10,7 @@
 
 namespace _test_multi_index {
 
-   using eosio::key256;
+   using cosio::key256;
 
    struct record_idx64 {
       uint64_t id;
@@ -19,7 +19,7 @@ namespace _test_multi_index {
       auto primary_key()const { return id; }
       uint64_t get_secondary()const { return sec; }
 
-      EOSLIB_SERIALIZE( record_idx64, (id)(sec) )
+      COSLIB_SERIALIZE( record_idx64, (id)(sec) )
    };
 
    struct record_idx128 {
@@ -29,7 +29,7 @@ namespace _test_multi_index {
       auto primary_key()const { return id; }
       uint128_t get_secondary()const { return sec; }
 
-      EOSLIB_SERIALIZE( record_idx128, (id)(sec) )
+      COSLIB_SERIALIZE( record_idx128, (id)(sec) )
    };
 
    struct record_idx256 {
@@ -39,7 +39,7 @@ namespace _test_multi_index {
       auto primary_key()const { return id; }
       const key256& get_secondary()const { return sec; }
 
-      EOSLIB_SERIALIZE( record_idx256, (id)(sec) )
+      COSLIB_SERIALIZE( record_idx256, (id)(sec) )
    };
 
    struct record_idx_double {
@@ -49,7 +49,7 @@ namespace _test_multi_index {
       auto primary_key()const { return id; }
       double get_secondary()const { return sec; }
 
-      EOSLIB_SERIALIZE( record_idx_double, (id)(sec) )
+      COSLIB_SERIALIZE( record_idx_double, (id)(sec) )
    };
 
    struct record_idx_long_double {
@@ -59,13 +59,13 @@ namespace _test_multi_index {
       auto primary_key()const { return id; }
       long double get_secondary()const { return sec; }
 
-      EOSLIB_SERIALIZE( record_idx_long_double, (id)(sec) )
+      COSLIB_SERIALIZE( record_idx_long_double, (id)(sec) )
    };
 
    template<uint64_t TableName>
    void idx64_store_only(uint64_t receiver)
    {
-      using namespace eosio;
+      using namespace cosio;
 
       typedef record_idx64 record;
 
@@ -97,7 +97,7 @@ namespace _test_multi_index {
    template<uint64_t TableName>
    void idx64_check_without_storing(uint64_t receiver)
    {
-      using namespace eosio;
+      using namespace cosio;
 
       typedef record_idx64 record;
 
@@ -194,7 +194,7 @@ namespace _test_multi_index {
    template<uint64_t TableName>
    void idx128_store_only(uint64_t receiver)
    {
-      using namespace eosio;
+      using namespace cosio;
 
       typedef record_idx128 record;
 
@@ -217,7 +217,7 @@ namespace _test_multi_index {
    template<uint64_t TableName>
    void idx128_check_without_storing(uint64_t receiver)
    {
-      using namespace eosio;
+      using namespace cosio;
 
       typedef record_idx128 record;
 
@@ -256,7 +256,7 @@ namespace _test_multi_index {
    template<uint64_t TableName, uint64_t SecondaryIndex>
    auto idx64_table(uint64_t receiver)
    {
-      using namespace eosio;
+      using namespace cosio;
       typedef record_idx64 record;
       // Load table using multi_index
       multi_index<TableName, record,
@@ -301,7 +301,7 @@ void test_multi_index::idx128_general(uint64_t receiver, uint64_t code, uint64_t
 
 void test_multi_index::idx128_autoincrement_test(uint64_t receiver, uint64_t code, uint64_t action)
 {
-   using namespace eosio;
+   using namespace cosio;
    using namespace _test_multi_index;
 
    typedef record_idx128 record;
@@ -349,7 +349,7 @@ void test_multi_index::idx128_autoincrement_test(uint64_t receiver, uint64_t cod
 
 void test_multi_index::idx128_autoincrement_test_part1(uint64_t receiver, uint64_t code, uint64_t action)
 {
-   using namespace eosio;
+   using namespace cosio;
    using namespace _test_multi_index;
 
    typedef record_idx128 record;
@@ -382,7 +382,7 @@ void test_multi_index::idx128_autoincrement_test_part1(uint64_t receiver, uint64
 
 void test_multi_index::idx128_autoincrement_test_part2(uint64_t receiver, uint64_t code, uint64_t action)
 {
-   using namespace eosio;
+   using namespace cosio;
    using namespace _test_multi_index;
 
    typedef record_idx128 record;
@@ -438,7 +438,7 @@ void test_multi_index::idx128_autoincrement_test_part2(uint64_t receiver, uint64
 
 void test_multi_index::idx256_general(uint64_t receiver, uint64_t code, uint64_t action)
 {
-   using namespace eosio;
+   using namespace cosio;
    using namespace _test_multi_index;
 
    typedef record_idx256 record;
@@ -544,7 +544,7 @@ void test_multi_index::idx256_general(uint64_t receiver, uint64_t code, uint64_t
 
 void test_multi_index::idx_double_general(uint64_t receiver, uint64_t code, uint64_t action)
 {
-   using namespace eosio;
+   using namespace cosio;
    using namespace _test_multi_index;
 
    typedef record_idx_double record;
@@ -599,7 +599,7 @@ void test_multi_index::idx_double_general(uint64_t receiver, uint64_t code, uint
 
 void test_multi_index::idx_long_double_general(uint64_t receiver, uint64_t code, uint64_t action)
 {
-   using namespace eosio;
+   using namespace cosio;
    using namespace _test_multi_index;
 
    typedef record_idx_long_double record;

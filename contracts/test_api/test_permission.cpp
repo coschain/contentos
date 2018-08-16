@@ -1,15 +1,15 @@
 /**
  * @file action_test.cpp
- * @copyright defined in eos/LICENSE.txt
+ * @copyright defined in contentos/LICENSE.txt
  */
-#include <eosiolib/permission.h>
-#include <eosiolib/db.h>
+#include <cosiolib/permission.h>
+#include <cosiolib/db.h>
 
-#include <eosiolib/eosio.hpp>
-#include <eosiolib/print.hpp>
-#include <eosiolib/compiler_builtins.h>
-#include <eosiolib/serialize.hpp>
-#include <eosiolib/action.hpp>
+#include <cosiolib/cosio.hpp>
+#include <cosiolib/print.hpp>
+#include <cosiolib/compiler_builtins.h>
+#include <cosiolib/serialize.hpp>
+#include <cosiolib/action.hpp>
 
 #include "test_api.hpp"
 
@@ -20,13 +20,13 @@ struct check_auth_msg {
    permission_name      permission;
    std::vector<public_key>   pubkeys;
 
-   EOSLIB_SERIALIZE( check_auth_msg, (account)(permission)(pubkeys)  )
+   COSLIB_SERIALIZE( check_auth_msg, (account)(permission)(pubkeys)  )
 };
 
 void test_permission::check_authorization(uint64_t receiver, uint64_t code, uint64_t action) {
    (void)code;
    (void)action;
-   using namespace eosio;
+   using namespace cosio;
 
    auto self = receiver;
    auto params = unpack_action_data<check_auth_msg>();
@@ -55,13 +55,13 @@ struct test_permission_last_used_msg {
    permission_name  permission;
    int64_t          last_used_time;
 
-   EOSLIB_SERIALIZE( test_permission_last_used_msg, (account)(permission)(last_used_time) )
+   COSLIB_SERIALIZE( test_permission_last_used_msg, (account)(permission)(last_used_time) )
 };
 
 void test_permission::test_permission_last_used(uint64_t /* receiver */, uint64_t code, uint64_t action) {
    (void)code;
    (void)action;
-   using namespace eosio;
+   using namespace cosio;
 
    auto params = unpack_action_data<test_permission_last_used_msg>();
 
@@ -71,7 +71,7 @@ void test_permission::test_permission_last_used(uint64_t /* receiver */, uint64_
 void test_permission::test_account_creation_time(uint64_t /* receiver */, uint64_t code, uint64_t action) {
    (void)code;
    (void)action;
-   using namespace eosio;
+   using namespace cosio;
 
    auto params = unpack_action_data<test_permission_last_used_msg>();
 

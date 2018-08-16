@@ -53,6 +53,7 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
       vector<optional<account_api_obj>> lookup_account_names(const vector<string>& account_names)const;
       set<string> lookup_accounts(const string& lower_bound_name, uint32_t limit)const;
       uint64_t get_account_count()const;
+      account_code_api_obj get_account_code(string name ) const;
 
       // Witnesses
       vector<optional<witness_api_obj>> get_witnesses(const vector<witness_id_type>& witness_ids)const;
@@ -393,6 +394,26 @@ vector< extended_account > database_api_impl::get_accounts( vector< string > nam
    }
 
    return results;
+}
+
+account_code_api_obj database_api::get_account_code(string name ) const
+{
+   return determine_read_lock( [&]()
+                              {
+                                 return my->get_account_code( name );
+                              });
+}
+
+account_code_api_obj database_api_impl::get_account_code(string name)const
+{
+   const auto& idx  = _db.get_index< account_index >().indices().get< by_name >();
+   const auto& vidx = _db.get_index< witness_vote_index >().indices().get< by_account_witness >();
+
+   auto itr = idx.find( name );
+   if ( itr != idx.end() ){
+      return account_code_api_obj( *itr );
+   }
+   FC_ASSERT( FALSE, "no account found");
 }
 
 vector<account_id_type> database_api::get_account_references( account_id_type account_id )const
