@@ -11,8 +11,8 @@
 # install cmd
 	cd build
 	1.first install sdk-dir
-		cd contract
-		make install		// must succes then can continue
+		cd contracts
+		make		// must succes then can continue
 		sudo make install
 		cd ..
 	2. install cosio-wast2wasm
