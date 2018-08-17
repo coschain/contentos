@@ -1,7 +1,7 @@
 /**
  *  @file
- *  @copyright defined in eos/LICENSE.txt
+ *  @copyright defined in contentos/LICENSE.txt
  */
-#include <eosiolib/eosio.hpp>
+#include <cosiolib/cosio.hpp>
 
 

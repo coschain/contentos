@@ -1,6 +1,6 @@
-#include <eosiolib/multi_index.hpp>
+#include <cosiolib/multi_index.hpp>
 #include "../test_api/test_api.hpp"
-#include <eosiolib/print.hpp>
+#include <cosiolib/print.hpp>
 #include <boost/range/iterator_range.hpp>
 #include <limits>
 #include <cmath>
@@ -10,7 +10,7 @@
 
 namespace _test_multi_index {
 
-   using eosio::key256;
+   using cosio::key256;
 
    struct record_idx64 {
       uint64_t id;
@@ -19,7 +19,7 @@ namespace _test_multi_index {
       auto primary_key()const { return id; }
       uint64_t get_secondary()const { return sec; }
 
-      EOSLIB_SERIALIZE( record_idx64, (id)(sec) )
+      COSLIB_SERIALIZE( record_idx64, (id)(sec) )
    };
 
    struct record_idx128 {
@@ -29,7 +29,7 @@ namespace _test_multi_index {
       auto primary_key()const { return id; }
       uint128_t get_secondary()const { return sec; }
 
-      EOSLIB_SERIALIZE( record_idx128, (id)(sec) )
+      COSLIB_SERIALIZE( record_idx128, (id)(sec) )
    };
 
    struct record_idx256 {
@@ -39,7 +39,7 @@ namespace _test_multi_index {
       auto primary_key()const { return id; }
       const key256& get_secondary()const { return sec; }
 
-      EOSLIB_SERIALIZE( record_idx256, (id)(sec) )
+      COSLIB_SERIALIZE( record_idx256, (id)(sec) )
    };
 
    struct record_idx_double {
@@ -49,7 +49,7 @@ namespace _test_multi_index {
       auto primary_key()const { return id; }
       double get_secondary()const { return sec; }
 
-      EOSLIB_SERIALIZE( record_idx_double, (id)(sec) )
+      COSLIB_SERIALIZE( record_idx_double, (id)(sec) )
    };
 
    struct record_idx_long_double {
@@ -59,13 +59,13 @@ namespace _test_multi_index {
       auto primary_key()const { return id; }
       long double get_secondary()const { return sec; }
 
-      EOSLIB_SERIALIZE( record_idx_long_double, (id)(sec) )
+      COSLIB_SERIALIZE( record_idx_long_double, (id)(sec) )
    };
 
    template<uint64_t TableName>
    void idx64_store_only(uint64_t receiver)
    {
-      using namespace eosio;
+      using namespace cosio;
 
       typedef record_idx64 record;
 
@@ -97,7 +97,7 @@ namespace _test_multi_index {
    template<uint64_t TableName>
    void idx64_check_without_storing(uint64_t receiver)
    {
-      using namespace eosio;
+      using namespace cosio;
 
       typedef record_idx64 record;
 
@@ -113,46 +113,46 @@ namespace _test_multi_index {
       // find by primary key
       {
          auto itr = table.find(999);
-         eosio_assert(itr == table.end(), "idx64_general - table.find() of non-existing primary key");
+         contento_assert(itr == table.end(), "idx64_general - table.find() of non-existing primary key");
 
          itr = table.find(976);
-         eosio_assert(itr != table.end() && itr->sec == N(emily), "idx64_general - table.find() of existing primary key");
+         contento_assert(itr != table.end() && itr->sec == N(emily), "idx64_general - table.find() of existing primary key");
 
          ++itr;
-         eosio_assert(itr == table.end(), "idx64_general - increment primary iterator to end");
+         contento_assert(itr == table.end(), "idx64_general - increment primary iterator to end");
       }
 
       // iterate forward starting with charlie
       {
          auto itr = secondary_index.lower_bound(N(charlie));
-         eosio_assert(itr != secondary_index.end() && itr->sec == N(charlie), "idx64_general - secondary_index.lower_bound()");
+         contento_assert(itr != secondary_index.end() && itr->sec == N(charlie), "idx64_general - secondary_index.lower_bound()");
 
          ++itr;
-         eosio_assert(itr != secondary_index.end() && itr->id == 976 && itr->sec == N(emily), "idx64_general - increment secondary iterator");
+         contento_assert(itr != secondary_index.end() && itr->id == 976 && itr->sec == N(emily), "idx64_general - increment secondary iterator");
 
          ++itr;
-         eosio_assert(itr != secondary_index.end() && itr->id == 110 && itr->sec == N(joe), "idx64_general - increment secondary iterator again");
+         contento_assert(itr != secondary_index.end() && itr->id == 110 && itr->sec == N(joe), "idx64_general - increment secondary iterator again");
 
          ++itr;
-         eosio_assert(itr == secondary_index.end(), "idx64_general - increment secondary iterator to end");
+         contento_assert(itr == secondary_index.end(), "idx64_general - increment secondary iterator to end");
       }
 
       // iterate backward starting with second bob
       {
          auto pk_itr = table.find(781);
-         eosio_assert(pk_itr != table.end() && pk_itr->sec == N(bob), "idx64_general - table.find() of existing primary key");
+         contento_assert(pk_itr != table.end() && pk_itr->sec == N(bob), "idx64_general - table.find() of existing primary key");
 
          auto itr = secondary_index.iterator_to(*pk_itr);
-         eosio_assert(itr->id == 781 && itr->sec == N(bob), "idx64_general - iterator to existing object in secondary index");
+         contento_assert(itr->id == 781 && itr->sec == N(bob), "idx64_general - iterator to existing object in secondary index");
 
          --itr;
-         eosio_assert(itr != secondary_index.end() && itr->id == 540 && itr->sec == N(bob), "idx64_general - decrement secondary iterator");
+         contento_assert(itr != secondary_index.end() && itr->id == 540 && itr->sec == N(bob), "idx64_general - decrement secondary iterator");
 
          --itr;
-         eosio_assert(itr != secondary_index.end() && itr->id == 650 && itr->sec == N(allyson), "idx64_general - decrement secondary iterator again");
+         contento_assert(itr != secondary_index.end() && itr->id == 650 && itr->sec == N(allyson), "idx64_general - decrement secondary iterator again");
 
          --itr;
-         eosio_assert(itr == secondary_index.begin() && itr->id == 265 && itr->sec == N(alice), "idx64_general - decrement secondary iterator to beginning");
+         contento_assert(itr == secondary_index.begin() && itr->id == 265 && itr->sec == N(alice), "idx64_general - decrement secondary iterator to beginning");
       }
 
       // iterate backward starting with emily using const_reverse_iterator
@@ -163,11 +163,11 @@ namespace _test_multi_index {
 
          auto itr = --std::make_reverse_iterator( secondary_index.find( N(emily) ) );
          for( ; itr != secondary_index.rend(); ++itr ) {
-            eosio_assert(pk_itr != pks.end(), "idx64_general - unexpected continuation of secondary index in reverse iteration");
-            eosio_assert(*pk_itr == itr->id, "idx64_general - primary key mismatch in reverse iteration");
+            contento_assert(pk_itr != pks.end(), "idx64_general - unexpected continuation of secondary index in reverse iteration");
+            contento_assert(*pk_itr == itr->id, "idx64_general - primary key mismatch in reverse iteration");
             ++pk_itr;
          }
-         eosio_assert( pk_itr == pks.end(), "idx64_general - did not iterate backwards through secondary index properly" );
+         contento_assert( pk_itr == pks.end(), "idx64_general - did not iterate backwards through secondary index properly" );
       }
 
       // modify and erase
@@ -183,18 +183,18 @@ namespace _test_multi_index {
          });
 
          auto itr1 = table.find(ssn);
-         eosio_assert(itr1 != table.end() && itr1->sec == N(billy), "idx64_general - table.modify()");
+         contento_assert(itr1 != table.end() && itr1->sec == N(billy), "idx64_general - table.modify()");
 
          table.erase(itr1);
          auto itr2 = table.find(ssn);
-         eosio_assert( itr2 == table.end(), "idx64_general - table.erase()");
+         contento_assert( itr2 == table.end(), "idx64_general - table.erase()");
       }
    }
 
    template<uint64_t TableName>
    void idx128_store_only(uint64_t receiver)
    {
-      using namespace eosio;
+      using namespace cosio;
 
       typedef record_idx128 record;
 
@@ -217,7 +217,7 @@ namespace _test_multi_index {
    template<uint64_t TableName>
    void idx128_check_without_storing(uint64_t receiver)
    {
-      using namespace eosio;
+      using namespace cosio;
 
       typedef record_idx128 record;
 
@@ -238,17 +238,17 @@ namespace _test_multi_index {
          uint128_t multiplier = 1ULL << 63;
 
          auto itr = secondary_index.begin();
-         eosio_assert( itr->primary_key() == 0 && itr->get_secondary() == multiplier*0, "idx128_general - secondary key sort" );
+         contento_assert( itr->primary_key() == 0 && itr->get_secondary() == multiplier*0, "idx128_general - secondary key sort" );
          ++itr;
-         eosio_assert( itr->primary_key() == 1 && itr->get_secondary() == multiplier*1, "idx128_general - secondary key sort" );
+         contento_assert( itr->primary_key() == 1 && itr->get_secondary() == multiplier*1, "idx128_general - secondary key sort" );
          ++itr;
-         eosio_assert( itr->primary_key() == 2 && itr->get_secondary() == multiplier*2, "idx128_general - secondary key sort" );
+         contento_assert( itr->primary_key() == 2 && itr->get_secondary() == multiplier*2, "idx128_general - secondary key sort" );
          ++itr;
-         eosio_assert( itr->primary_key() == 4 && itr->get_secondary() == multiplier*4, "idx128_general - secondary key sort" );
+         contento_assert( itr->primary_key() == 4 && itr->get_secondary() == multiplier*4, "idx128_general - secondary key sort" );
          ++itr;
-         eosio_assert( itr->primary_key() == 3 && itr->get_secondary() == multiplier*6, "idx128_general - secondary key sort" );
+         contento_assert( itr->primary_key() == 3 && itr->get_secondary() == multiplier*6, "idx128_general - secondary key sort" );
          ++itr;
-         eosio_assert( itr == secondary_index.end(), "idx128_general - secondary key sort" );
+         contento_assert( itr == secondary_index.end(), "idx128_general - secondary key sort" );
       }
 
    }
@@ -256,7 +256,7 @@ namespace _test_multi_index {
    template<uint64_t TableName, uint64_t SecondaryIndex>
    auto idx64_table(uint64_t receiver)
    {
-      using namespace eosio;
+      using namespace cosio;
       typedef record_idx64 record;
       // Load table using multi_index
       multi_index<TableName, record,
@@ -301,7 +301,7 @@ void test_multi_index::idx128_general(uint64_t receiver, uint64_t code, uint64_t
 
 void test_multi_index::idx128_autoincrement_test(uint64_t receiver, uint64_t code, uint64_t action)
 {
-   using namespace eosio;
+   using namespace cosio;
    using namespace _test_multi_index;
 
    typedef record_idx128 record;
@@ -323,13 +323,13 @@ void test_multi_index::idx128_autoincrement_test(uint64_t receiver, uint64_t cod
    uint64_t expected_key = 4;
    for( const auto& r : table.get_index<N(bysecondary)>() )
    {
-      eosio_assert( r.primary_key() == expected_key, "idx128_autoincrement_test - unexpected primary key" );
+      contento_assert( r.primary_key() == expected_key, "idx128_autoincrement_test - unexpected primary key" );
       --expected_key;
    }
-   eosio_assert( expected_key == static_cast<uint64_t>(-1), "idx128_autoincrement_test - did not iterate through secondary index properly" );
+   contento_assert( expected_key == static_cast<uint64_t>(-1), "idx128_autoincrement_test - did not iterate through secondary index properly" );
 
    auto itr = table.find(3);
-   eosio_assert( itr != table.end(), "idx128_autoincrement_test - could not find object with primary key of 3" );
+   contento_assert( itr != table.end(), "idx128_autoincrement_test - could not find object with primary key of 3" );
 
    // The modification below would trigger an error:
    /*
@@ -344,12 +344,12 @@ void test_multi_index::idx128_autoincrement_test(uint64_t receiver, uint64_t cod
    });
    table.erase(itr);
 
-   eosio_assert( table.available_primary_key() == 101, "idx128_autoincrement_test - next_primary_key was not correct after record modify" );
+   contento_assert( table.available_primary_key() == 101, "idx128_autoincrement_test - next_primary_key was not correct after record modify" );
 }
 
 void test_multi_index::idx128_autoincrement_test_part1(uint64_t receiver, uint64_t code, uint64_t action)
 {
-   using namespace eosio;
+   using namespace cosio;
    using namespace _test_multi_index;
 
    typedef record_idx128 record;
@@ -373,16 +373,16 @@ void test_multi_index::idx128_autoincrement_test_part1(uint64_t receiver, uint64
    uint64_t expected_key = 2;
    for( const auto& r : table.get_index<N(bysecondary)>() )
    {
-      eosio_assert( r.primary_key() == expected_key, "idx128_autoincrement_test_part1 - unexpected primary key" );
+      contento_assert( r.primary_key() == expected_key, "idx128_autoincrement_test_part1 - unexpected primary key" );
       --expected_key;
    }
-   eosio_assert( expected_key == 0, "idx128_autoincrement_test_part1 - did not iterate through secondary index properly" );
+   contento_assert( expected_key == 0, "idx128_autoincrement_test_part1 - did not iterate through secondary index properly" );
 
 }
 
 void test_multi_index::idx128_autoincrement_test_part2(uint64_t receiver, uint64_t code, uint64_t action)
 {
-   using namespace eosio;
+   using namespace cosio;
    using namespace _test_multi_index;
 
    typedef record_idx128 record;
@@ -395,7 +395,7 @@ void test_multi_index::idx128_autoincrement_test_part2(uint64_t receiver, uint64
          indexed_by< N(bysecondary), const_mem_fun<record, uint128_t, &record::get_secondary> >
       > table( receiver, receiver );
 
-      eosio_assert( table.available_primary_key() == 3, "idx128_autoincrement_test_part2 - did not recover expected next primary key");
+      contento_assert( table.available_primary_key() == 3, "idx128_autoincrement_test_part2 - did not recover expected next primary key");
    }
 
    multi_index<table_name, record,
@@ -419,13 +419,13 @@ void test_multi_index::idx128_autoincrement_test_part2(uint64_t receiver, uint64
    uint64_t expected_key = 4;
    for( const auto& r : table.get_index<N(bysecondary)>() )
    {
-      eosio_assert( r.primary_key() == expected_key, "idx128_autoincrement_test_part2 - unexpected primary key" );
+      contento_assert( r.primary_key() == expected_key, "idx128_autoincrement_test_part2 - unexpected primary key" );
       --expected_key;
    }
-   eosio_assert( expected_key == static_cast<uint64_t>(-1), "idx128_autoincrement_test_part2 - did not iterate through secondary index properly" );
+   contento_assert( expected_key == static_cast<uint64_t>(-1), "idx128_autoincrement_test_part2 - did not iterate through secondary index properly" );
 
    auto itr = table.find(3);
-   eosio_assert( itr != table.end(), "idx128_autoincrement_test_part2 - could not find object with primary key of 3" );
+   contento_assert( itr != table.end(), "idx128_autoincrement_test_part2 - could not find object with primary key of 3" );
 
    table.emplace( payer, [&]( auto& r) {
       r.id  = 100;
@@ -433,12 +433,12 @@ void test_multi_index::idx128_autoincrement_test_part2(uint64_t receiver, uint64
    });
    table.erase(itr);
 
-   eosio_assert( table.available_primary_key() == 101, "idx128_autoincrement_test_part2 - next_primary_key was not correct after record update" );
+   contento_assert( table.available_primary_key() == 101, "idx128_autoincrement_test_part2 - next_primary_key was not correct after record update" );
 }
 
 void test_multi_index::idx256_general(uint64_t receiver, uint64_t code, uint64_t action)
 {
-   using namespace eosio;
+   using namespace cosio;
    using namespace _test_multi_index;
 
    typedef record_idx256 record;
@@ -479,24 +479,24 @@ void test_multi_index::idx256_general(uint64_t receiver, uint64_t code, uint64_t
 
    {
       auto itr = table.begin();
-      eosio_assert( itr->primary_key() == 1 && itr->get_secondary() == fourtytwo, "idx256_general - primary key sort" );
+      contento_assert( itr->primary_key() == 1 && itr->get_secondary() == fourtytwo, "idx256_general - primary key sort" );
       ++itr;
-      eosio_assert( itr->primary_key() == 2 && itr->get_secondary() == onetwothreefour, "idx256_general - primary key sort" );
+      contento_assert( itr->primary_key() == 2 && itr->get_secondary() == onetwothreefour, "idx256_general - primary key sort" );
       ++itr;
-      eosio_assert( itr->primary_key() == 3 && itr->get_secondary() == fourtytwo, "idx256_general - primary key sort" );
+      contento_assert( itr->primary_key() == 3 && itr->get_secondary() == fourtytwo, "idx256_general - primary key sort" );
       ++itr;
-      eosio_assert( itr == table.end(), "idx256_general - primary key sort" );
+      contento_assert( itr == table.end(), "idx256_general - primary key sort" );
    }
 
    auto secidx = table.get_index<N(bysecondary)>();
 
    auto lower1 = secidx.lower_bound(key256::make_from_word_sequence<uint64_t>(0ULL, 0ULL, 0ULL, 40ULL));
    print("First entry with a secondary key of at least 40 has ID=", lower1->id, ".\n");
-   eosio_assert( lower1->id == 1, "idx256_general - lower_bound" );
+   contento_assert( lower1->id == 1, "idx256_general - lower_bound" );
 
    auto lower2 = secidx.lower_bound(key256::make_from_word_sequence<uint64_t>(0ULL, 0ULL, 0ULL, 50ULL));
    print("First entry with a secondary key of at least 50 has ID=", lower2->id, ".\n");
-   eosio_assert( lower2->id == 2, "idx256_general - lower_bound" );
+   contento_assert( lower2->id == 2, "idx256_general - lower_bound" );
 
    if( table.iterator_to(*lower2) == e ) {
       print("Previously found entry is the same as the one found earlier with a primary key value of 2.\n");
@@ -509,20 +509,20 @@ void test_multi_index::idx256_general(uint64_t receiver, uint64_t code, uint64_t
 
    {
       auto itr = secidx.begin();
-      eosio_assert( itr->primary_key() == 1, "idx256_general - secondary key sort" );
+      contento_assert( itr->primary_key() == 1, "idx256_general - secondary key sort" );
       ++itr;
-      eosio_assert( itr->primary_key() == 3, "idx256_general - secondary key sort" );
+      contento_assert( itr->primary_key() == 3, "idx256_general - secondary key sort" );
       ++itr;
-      eosio_assert( itr->primary_key() == 2, "idx256_general - secondary key sort" );
+      contento_assert( itr->primary_key() == 2, "idx256_general - secondary key sort" );
       ++itr;
-      eosio_assert( itr == secidx.end(), "idx256_general - secondary key sort" );
+      contento_assert( itr == secidx.end(), "idx256_general - secondary key sort" );
    }
 
    auto upper = secidx.upper_bound(key256{std::array<uint64_t,4>{{0, 0, 0, 42}}});
 
    print("First entry with a secondary key greater than 42 has ID=", upper->id, ".\n");
-   eosio_assert( upper->id == 2, "idx256_general - upper_bound" );
-   eosio_assert( upper->id == secidx.get(onetwothreefour).id, "idx256_general - secondary index get" );
+   contento_assert( upper->id == 2, "idx256_general - upper_bound" );
+   contento_assert( upper->id == secidx.get(onetwothreefour).id, "idx256_general - secondary index get" );
 
    print("Removed entry with ID=", lower1->id, ".\n");
    secidx.erase( lower1 );
@@ -534,17 +534,17 @@ void test_multi_index::idx256_general(uint64_t receiver, uint64_t code, uint64_t
 
    {
       auto itr = table.rbegin();
-      eosio_assert( itr->primary_key() == 3 && itr->get_secondary() == fourtytwo, "idx256_general - primary key sort after remove" );
+      contento_assert( itr->primary_key() == 3 && itr->get_secondary() == fourtytwo, "idx256_general - primary key sort after remove" );
       ++itr;
-      eosio_assert( itr->primary_key() == 2 && itr->get_secondary() == onetwothreefour, "idx256_general - primary key sort after remove" );
+      contento_assert( itr->primary_key() == 2 && itr->get_secondary() == onetwothreefour, "idx256_general - primary key sort after remove" );
       ++itr;
-      eosio_assert( itr == table.rend(), "idx256_general - primary key sort after remove" );
+      contento_assert( itr == table.rend(), "idx256_general - primary key sort after remove" );
    }
 }
 
 void test_multi_index::idx_double_general(uint64_t receiver, uint64_t code, uint64_t action)
 {
-   using namespace eosio;
+   using namespace cosio;
    using namespace _test_multi_index;
 
    typedef record_idx_double record;
@@ -574,32 +574,32 @@ void test_multi_index::idx_double_general(uint64_t receiver, uint64_t code, uint
 
    uint64_t expected_key = 10;
    for( const auto& obj : secidx ) {
-      eosio_assert( obj.primary_key() == expected_key, "idx_double_general - unexpected primary key" );
+      contento_assert( obj.primary_key() == expected_key, "idx_double_general - unexpected primary key" );
 
       double prod = obj.sec * obj.id;
 
       print(" id = ", obj.id, ", sec = ", obj.sec, ", sec * id = ", prod, "\n");
 
-      eosio_assert( std::abs(prod - expected_product) <= tolerance,
+      contento_assert( std::abs(prod - expected_product) <= tolerance,
                     "idx_double_general - product of secondary and id not equal to expected_product within tolerance" );
 
       --expected_key;
    }
-   eosio_assert( expected_key == 0, "idx_double_general - did not iterate through secondary index properly" );
+   contento_assert( expected_key == 0, "idx_double_general - did not iterate through secondary index properly" );
 
    {
       auto itr = secidx.lower_bound( expected_product / 5.5 );
-      eosio_assert( std::abs(1.0 / itr->sec - 5000000.0) <= tolerance, "idx_double_general - lower_bound" );
+      contento_assert( std::abs(1.0 / itr->sec - 5000000.0) <= tolerance, "idx_double_general - lower_bound" );
 
       itr = secidx.upper_bound( expected_product / 5.0 );
-      eosio_assert( std::abs(1.0 / itr->sec - 4000000.0) <= tolerance, "idx_double_general - upper_bound" );
+      contento_assert( std::abs(1.0 / itr->sec - 4000000.0) <= tolerance, "idx_double_general - upper_bound" );
 
    }
 }
 
 void test_multi_index::idx_long_double_general(uint64_t receiver, uint64_t code, uint64_t action)
 {
-   using namespace eosio;
+   using namespace cosio;
    using namespace _test_multi_index;
 
    typedef record_idx_long_double record;
@@ -631,25 +631,25 @@ void test_multi_index::idx_long_double_general(uint64_t receiver, uint64_t code,
 
    uint64_t expected_key = 10;
    for( const auto& obj : secidx ) {
-      eosio_assert( obj.primary_key() == expected_key, "idx_long_double_general - unexpected primary key" );
+      contento_assert( obj.primary_key() == expected_key, "idx_long_double_general - unexpected primary key" );
 
       long double prod = obj.sec * obj.id;
 
       print(" id = ", obj.id, ", sec = ", obj.sec, ", sec * id = ", prod, "\n");
 
-      eosio_assert( std::abs(prod - expected_product) <= tolerance,
+      contento_assert( std::abs(prod - expected_product) <= tolerance,
                     "idx_long_double_general - product of secondary and id not equal to expected_product within tolerance" );
 
       --expected_key;
    }
-   eosio_assert( expected_key == 0, "idx_long_double_general - did not iterate through secondary index properly" );
+   contento_assert( expected_key == 0, "idx_long_double_general - did not iterate through secondary index properly" );
 
    {
       auto itr = secidx.lower_bound( expected_product / 5.5l );
-      eosio_assert( std::abs(1.0l / itr->sec - 5000000.0l) <= tolerance, "idx_long_double_general - lower_bound" );
+      contento_assert( std::abs(1.0l / itr->sec - 5000000.0l) <= tolerance, "idx_long_double_general - lower_bound" );
 
       itr = secidx.upper_bound( expected_product / 5.0l );
-      eosio_assert( std::abs(1.0l / itr->sec - 4000000.0l) <= tolerance, "idx_long_double_general - upper_bound" );
+      contento_assert( std::abs(1.0l / itr->sec - 4000000.0l) <= tolerance, "idx_long_double_general - upper_bound" );
 
    }
 }
@@ -692,7 +692,7 @@ void test_multi_index::idx64_pass_pk_ref_to_other_table(uint64_t receiver, uint6
    auto table2 = _test_multi_index::idx64_table<N(indextable2), N(bysecondary)>(receiver);
 
    auto table1_pk_itr = table1.find(781);
-   eosio_assert(table1_pk_itr != table1.end() && table1_pk_itr->sec == N(bob), "idx64_pass_pk_ref_to_other_table - table.find() of existing primary key");
+   contento_assert(table1_pk_itr != table1.end() && table1_pk_itr->sec == N(bob), "idx64_pass_pk_ref_to_other_table - table.find() of existing primary key");
 
    // Should fail
    table2.iterator_to(*table1_pk_itr);
@@ -704,7 +704,7 @@ void test_multi_index::idx64_pass_sk_ref_to_other_table(uint64_t receiver, uint6
    auto table2 = _test_multi_index::idx64_table<N(indextable2), N(bysecondary)>(receiver);
 
    auto table1_pk_itr = table1.find(781);
-   eosio_assert(table1_pk_itr != table1.end() && table1_pk_itr->sec == N(bob), "idx64_pass_sk_ref_to_other_table - table.find() of existing primary key");
+   contento_assert(table1_pk_itr != table1.end() && table1_pk_itr->sec == N(bob), "idx64_pass_sk_ref_to_other_table - table.find() of existing primary key");
 
    auto table2_sec_index = table2.get_index<N(bysecondary)>();
    // Should fail
@@ -776,7 +776,7 @@ void test_multi_index::idx64_modify_primary_key(uint64_t receiver, uint64_t code
    auto table = _test_multi_index::idx64_table<N(indextable1), N(bysecondary)>(receiver);
 
    auto pk_itr = table.find(781);
-   eosio_assert(pk_itr != table.end() && pk_itr->sec == N(bob), "idx64_modify_primary_key - table.find() of existing primary key");
+   contento_assert(pk_itr != table.end() && pk_itr->sec == N(bob), "idx64_modify_primary_key - table.find() of existing primary key");
 
    auto payer = receiver;
 
@@ -791,7 +791,7 @@ void test_multi_index::idx64_run_out_of_avl_pk(uint64_t receiver, uint64_t code,
    auto table = _test_multi_index::idx64_table<N(indextable1), N(bysecondary)>(receiver);
 
    auto pk_itr = table.find(781);
-   eosio_assert(pk_itr != table.end() && pk_itr->sec == N(bob), "idx64_modify_primary_key - table.find() of existing primary key");
+   contento_assert(pk_itr != table.end() && pk_itr->sec == N(bob), "idx64_modify_primary_key - table.find() of existing primary key");
 
    auto payer = receiver;
 
@@ -799,7 +799,7 @@ void test_multi_index::idx64_run_out_of_avl_pk(uint64_t receiver, uint64_t code,
       r.id = static_cast<uint64_t>(-4);
       r.sec = N(alice);
    });
-   eosio_assert(table.available_primary_key() == static_cast<uint64_t>(-3), "idx64_run_out_of_avl_pk - incorrect available primary key");
+   contento_assert(table.available_primary_key() == static_cast<uint64_t>(-3), "idx64_run_out_of_avl_pk - incorrect available primary key");
 
    table.emplace( payer, [&]( auto& r ) {
       r.id = table.available_primary_key();
@@ -816,11 +816,11 @@ void test_multi_index::idx64_sk_cache_pk_lookup(uint64_t receiver, uint64_t code
 
    auto sec_index = table.get_index<N(bysecondary)>();
    auto sk_itr = sec_index.find(N(bob));
-   eosio_assert(sk_itr != sec_index.end() && sk_itr->id == 540, "idx64_sk_cache_pk_lookup - sec_index.find() of existing secondary key");
+   contento_assert(sk_itr != sec_index.end() && sk_itr->id == 540, "idx64_sk_cache_pk_lookup - sec_index.find() of existing secondary key");
 
    auto pk_itr = table.iterator_to(*sk_itr);
    auto prev_itr = --pk_itr;
-   eosio_assert(prev_itr->id == 265 && prev_itr->sec == N(alice), "idx64_sk_cache_pk_lookup - previous record");
+   contento_assert(prev_itr->id == 265 && prev_itr->sec == N(alice), "idx64_sk_cache_pk_lookup - previous record");
 }
 
 void test_multi_index::idx64_pk_cache_sk_lookup(uint64_t receiver, uint64_t code, uint64_t action)
@@ -829,12 +829,12 @@ void test_multi_index::idx64_pk_cache_sk_lookup(uint64_t receiver, uint64_t code
 
 
    auto pk_itr = table.find(540);
-   eosio_assert(pk_itr != table.end() && pk_itr->sec == N(bob), "idx64_pk_cache_sk_lookup - table.find() of existing primary key");
+   contento_assert(pk_itr != table.end() && pk_itr->sec == N(bob), "idx64_pk_cache_sk_lookup - table.find() of existing primary key");
 
    auto sec_index = table.get_index<N(bysecondary)>();
    auto sk_itr = sec_index.iterator_to(*pk_itr);
    auto next_itr = ++sk_itr;
-   eosio_assert(next_itr->id == 781 && next_itr->sec == N(bob), "idx64_pk_cache_sk_lookup - next record");
+   contento_assert(next_itr->id == 781 && next_itr->sec == N(bob), "idx64_pk_cache_sk_lookup - next record");
 }
 
 #pragma GCC diagnostic pop

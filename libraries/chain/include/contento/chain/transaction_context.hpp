@@ -17,7 +17,6 @@ namespace contento { namespace chain {
 
          void exec();
          void finalize();
-         void squash();
 
          inline void add_net_usage( uint64_t u ) { }
 

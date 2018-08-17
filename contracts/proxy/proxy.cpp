@@ -1,13 +1,13 @@
 /**
  *  @file
- *  @copyright defined in eos/LICENSE.txt
+ *  @copyright defined in contentos/LICENSE.txt
  */
 #include <proxy/proxy.hpp>
-#include <eosiolib/transaction.hpp>
+#include <cosiolib/transaction.hpp>
 #include <eosio.token/eosio.token.hpp>
 
 namespace proxy {
-   using namespace eosio;
+   using namespace cosio;
 
    namespace configs {
 
@@ -15,7 +15,7 @@ namespace proxy {
          auto it = db_find_i64(self, self, N(config), config::key);
          if (it != -1) {
             auto size = db_get_i64(it, (char*)&out, sizeof(config));
-            eosio_assert(size == sizeof(config), "Wrong record size");
+            contento_assert(size == sizeof(config), "Wrong record size");
             return true;
          } else {
             return false;
@@ -37,11 +37,11 @@ namespace proxy {
       config code_config;
       const auto self = receiver;
       auto get_res = configs::get(code_config, self);
-      eosio_assert(get_res, "Attempting to use unconfigured proxy");
+      contento_assert(get_res, "Attempting to use unconfigured proxy");
       if (transfer.from == self) {
-         eosio_assert(transfer.to == code_config.owner,  "proxy may only pay its owner" );
+         contento_assert(transfer.to == code_config.owner,  "proxy may only pay its owner" );
       } else {
-         eosio_assert(transfer.to == self, "proxy is not involved in this transfer");
+         contento_assert(transfer.to == self, "proxy is not involved in this transfer");
          T new_transfer = T(transfer);
          new_transfer.from = self;
          new_transfer.to = code_config.owner;
@@ -63,21 +63,21 @@ namespace proxy {
       configs::get(code_config, self);
       code_config.owner = params.owner;
       code_config.delay = params.delay;
-      eosio::print("Setting owner to: ", name{params.owner}, " with delay: ", params.delay, "\n");
+      cosio::print("Setting owner to: ", name{params.owner}, " with delay: ", params.delay, "\n");
       configs::store(code_config, self);
    }
 
    template<size_t ...Args>
    void apply_onerror(uint64_t receiver, const onerror& error ) {
-      eosio::print("starting onerror\n");
+      cosio::print("starting onerror\n");
       const auto self = receiver;
       config code_config;
-      eosio_assert(configs::get(code_config, self), "Attempting use of unconfigured proxy");
+      contento_assert(configs::get(code_config, self), "Attempting use of unconfigured proxy");
 
       auto id = code_config.next_id++;
       configs::store(code_config, self);
 
-      eosio::print("Resending Transaction: ", error.sender_id, " as ", id, "\n");
+      cosio::print("Resending Transaction: ", error.sender_id, " as ", id, "\n");
       transaction dtrx = error.unpack_sent_trx();
       dtrx.delay_sec = code_config.delay;
       dtrx.send(id, self);
@@ -85,7 +85,7 @@ namespace proxy {
 }
 
 using namespace proxy;
-using namespace eosio;
+using namespace cosio;
 
 extern "C" {
 
@@ -95,7 +95,7 @@ extern "C" {
          apply_onerror( receiver, onerror::from_current_action() );
       } else if( code == N(eosio.token) ) {
          if( action == N(transfer) ) {
-            apply_transfer(receiver, code, unpack_action_data<eosio::token::transfer_args>());
+            apply_transfer(receiver, code, unpack_action_data<cosio::token::transfer_args>());
          }
       } else if( code == receiver ) {
          if( action == N(setowner) ) {

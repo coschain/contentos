@@ -50,7 +50,7 @@ namespace contento { namespace protocol {
 //            escrow_transfer_operation,
 //            escrow_dispute_operation,
 //            escrow_release_operation,
-            pow2_operation,
+//            pow2_operation,
 //            escrow_approve_operation,
             transfer_to_savings_operation,
             transfer_from_savings_operation,
@@ -100,6 +100,9 @@ namespace contento { namespace protocol {
    bool is_virtual_operation( const operation& op );
 
    bool is_admin_operation( const operation& op );
+
+   bool is_vm_operation( const operation& op );
+
 
 } } // contento::protocol
 

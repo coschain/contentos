@@ -42,6 +42,14 @@ struct is_admin_visitor
    }
 };
 
+struct is_vm_op_visitor {
+   typedef bool result_type;
+
+   template<typename T>
+   bool operator()( T&& v )const { return false; }
+   bool operator()( const vm_operation& )const { return true; }
+};
+
 bool is_virtual_operation( const operation& op )
 {
    return op.visit( is_vop_visitor() );
@@ -52,6 +60,11 @@ bool is_admin_operation( const operation& op )
 {
    return op.visit( is_admin_visitor() );
 }
+
+bool is_vm_operation( const operation& op ){
+   return op.visit( is_vm_op_visitor() );
+}
+
 
 } } // contento::protocol
 

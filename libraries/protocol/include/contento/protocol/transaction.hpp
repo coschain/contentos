@@ -85,6 +85,14 @@ namespace contento { namespace protocol {
          const authority_getter& get_posting,
          uint32_t max_recursion = CONTENTO_MAX_SIG_CHECK_DEPTH )const;
 
+      void verify_ops_authority(
+                            const vector<operation>& ops,
+                            const chain_id_type& chain_id,
+                            const authority_getter& get_active,
+                            const authority_getter& get_owner,
+                            const authority_getter& get_posting,
+                            uint32_t max_recursion = CONTENTO_MAX_SIG_CHECK_DEPTH )const;
+
       set<public_key_type> minimize_required_signatures(
          const chain_id_type& chain_id,
          const flat_set<public_key_type>& available_keys,

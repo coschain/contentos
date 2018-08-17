@@ -8,14 +8,11 @@ set(DEFAULT_SYSTEM_INCLUDE_FOLDERS
 
 set(STANDARD_INCLUDE_FOLDERS ${CMAKE_SOURCE_DIR}/contracts ${CMAKE_SOURCE_DIR}/externals/magic_get/include)
 
-add_subdirectory(eosiolib)
+add_subdirectory(cosiolib)
 add_subdirectory(musl)
 add_subdirectory(libc++)
 #add_subdirectory(simple.token)
-#add_subdirectory(eosio.token)
-#add_subdirectory(eosio.msig)
 #add_subdirectory(multi_index_test)
-#add_subdirectory(eosio.system)
 #add_subdirectory(identity)
 #add_subdirectory(stltest)
 #add_subdirectory(exchange)
@@ -23,6 +20,8 @@ add_subdirectory(libc++)
 
 #add_subdirectory(bancor)
 add_subdirectory(hello)
+#add_subdirectory(hicontent)
+
 #add_subdirectory(asserter)
 #add_subdirectory(infinite)
 #add_subdirectory(proxy)
@@ -32,14 +31,26 @@ add_subdirectory(hello)
 #add_subdirectory(test_api_multi_index)
 #add_subdirectory(test_ram_limit)
 #add_subdirectory(social)
-#add_subdirectory(eosio.bios)
 #add_subdirectory(noop)
 #add_subdirectory(dice)
 #add_subdirectory(tic_tac_toe)
 #add_subdirectory(payloadless)
 
-install(DIRECTORY eosiolib DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR})
+
+file(GLOB SKELETONS RELATIVE ${CMAKE_SOURCE_DIR}/contracts "skeleton/*")
+
+# Documented multiple output support is broken, so properly setting up the multiple
+# dependencies in the custom target is not possible.  (CMake 3.5)
+add_custom_command(OUTPUT share/cosio/skeleton/skeleton.cpp
+                   COMMAND ${CMAKE_COMMAND} -E make_directory ../share/cosio/skeleton
+                   COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/skeleton ../share/cosio/skeleton
+                   DEPENDS ${SKELETONS}
+                   COMMENT Copying skeleton contract...
+                   VERBATIM)
+add_custom_target(copy_skeleton_contract ALL DEPENDS share/cosio/skeleton/skeleton.cpp)
+
+install(DIRECTORY cosiolib DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR})
 install(DIRECTORY musl DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR})
 install(DIRECTORY libc++ DESTINATION ${CMAKE_INSTALL_FULL_INCLUDEDIR})
-install(DIRECTORY skeleton DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/eosio)
-install_directory_permissions(DIRECTORY ${CMAKE_INSTALL_FULL_DATAROOTDIR}/eosio)
+install(DIRECTORY skeleton DESTINATION ${CMAKE_INSTALL_FULL_DATAROOTDIR}/cosio)
+install_directory_permissions(DIRECTORY ${CMAKE_INSTALL_FULL_DATAROOTDIR}/cosio)

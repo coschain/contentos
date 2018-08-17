@@ -1,7 +1,7 @@
-#include <eosiolib/eosio.hpp>
-using namespace eosio;
+#include <cosiolib/cosio.hpp>
+using namespace cosio;
 
-class hello : public eosio::contract {
+class hello : public cosio::contract {
   public:
       using contract::contract;
 
@@ -11,4 +11,4 @@ class hello : public eosio::contract {
       }
 };
 
-EOSIO_ABI( hello, (hi) )
+COSIO_ABI( hello, (hi) )

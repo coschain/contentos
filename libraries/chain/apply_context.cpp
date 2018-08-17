@@ -66,6 +66,7 @@ void apply_context::exec_one()
 
    } FC_CAPTURE_AND_RETHROW((_pending_console_output.str()));
 
+   std::cout << "***************\nVM EXCUTE:\n" << _pending_console_output.str() << "\n*************\n" << std::endl;
    // TODOO: print debug
    reset_console();
 }
@@ -528,10 +529,22 @@ uint64_t apply_context::next_recv_sequence( account_name receiver ) {
 }
 
 std::vector<char> apply_context::on_vm_request( const std::vector<char>& req_body ){
-   FC_ASSERT(FALSE, "todo");
-   //return control.get_vm_interface()->on_vm_request(req_body);
+   return control.get_vm_interface()->on_vm_request(req_body);
 }
 
+bool apply_context::excute_operation( const std::vector<char>& op_buff ){
 
+   fc::datastream<char*> ds( (char*)op_buff.data(), op_buff.size());
+   contento::protocol::operation op;
+   fc::raw::unpack(ds, op);
+
+   EOS_ASSERT( !is_vm_operation(op), transaction_exception, "Cant\'t Excute vm_operation, use send_inline instead");
+   EOS_ASSERT( !is_virtual_operation(op), transaction_exception, "virtual operation not permitted");
+
+   return control.get_op_excutor()->execute_operation( trx_context, op);
+}
+
+void apply_context::add_action_price(uint64_t price, int wasm_expr_id) {
+}
 
 } } /// contento::chain

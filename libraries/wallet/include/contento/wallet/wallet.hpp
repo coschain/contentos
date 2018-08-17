@@ -187,6 +187,7 @@ class wallet_api
        * @returns the public account data stored in the blockchain
        */
       account_api_obj                     get_account( string account_name ) const;
+      account_code_api_obj                get_account_code( string account_name ) const;
 
       /** Returns the current wallet filename.
        *
@@ -954,14 +955,30 @@ class wallet_api
       annotated_signed_transaction prove( string challenged, bool broadcast );
 
       /**
-       * 
+       * set_contract, set_code and set_abi have the same input parameters
        * 
        * @param accountname The account who want to publish a contract
        * @param contract_dir filepath of .wast and .abi file
        * @param contract_name name of the contract
        * @param broadcast true if you wish to broadcast the transaction
        */
+
       annotated_signed_transaction set_contract(string accountname, string contract_dir, string contract_name, bool broadcast);
+
+      annotated_signed_transaction set_code(string accountname, string contract_dir, string contract_name, bool broadcast);
+
+      annotated_signed_transaction set_abi(string accountname, string contract_dir, string contract_name, bool broadcast);
+
+      /**
+       * 
+       * @param caller The account who want to exec the action
+       * @param contract_name name of the contract
+       * @param action_name name of the contract action
+       * @param action_data the parameter of the action, can either be a 
+       *        json string or a file contains a json string
+       * @param broadcast true if you wish to broadcast the transaction
+       */
+      annotated_signed_transaction push_action(string caller, string contract_name, string action_name, string action_data, bool broadcast);
 
       /**
        *  Account operations have sequence numbers from 0 to N where N is the most recent operation. This method
@@ -1006,6 +1023,9 @@ class wallet_api
       annotated_signed_transaction decline_voting_rights( string account, bool decline, bool broadcast );
 
       annotated_signed_transaction claim_reward_balance( string account, asset reward_steem, asset reward_sbd, asset reward_vests, bool broadcast );
+
+      void set_code_callback( string accountname, string contract_dir, string contract_name, signed_transaction& tx );
+      void set_abi_callback( string accountname, string contract_dir, string contract_name, signed_transaction& tx );
 };
 
 struct plain_keys {
@@ -1051,6 +1071,7 @@ FC_API( contento::wallet::wallet_api,
         (list_witnesses)
         (get_witness)
         (get_account)
+        (get_account_code)
         (get_block)
         (get_ops_in_block)
 //        (get_feed_history)
@@ -1130,6 +1151,9 @@ FC_API( contento::wallet::wallet_api,
 
         /// contract api
         (set_contract)
+        (set_code)
+        (set_abi)
+        (push_action)
       )
 
 FC_REFLECT( contento::wallet::memo_data, (from)(to)(nonce)(check)(encrypted) )

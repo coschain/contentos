@@ -1,8 +1,8 @@
 /**
  *  @file
- *  @copyright defined in eos/LICENSE.txt
+ *  @copyright defined in contentos/LICENSE.txt
  */
-#include <eosiolib/eosio.hpp>
+#include <cosiolib/cosio.hpp>
 #include "../test_api/test_api.hpp"
 
 #include "test_db.cpp"
@@ -23,7 +23,7 @@ extern "C" {
       WASM_TEST_HANDLER_EX(test_db, misaligned_secondary_key256_tests);
 
       //unhandled test call
-      eosio_assert(false, "Unknown Test");
+      contento_assert(false, "Unknown Test");
    }
 
 }

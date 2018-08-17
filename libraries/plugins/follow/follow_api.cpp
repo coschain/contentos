@@ -271,13 +271,14 @@ vector< account_reputation > follow_api_impl::get_account_reputations( string lo
 follow_api::follow_api( const contento::app::api_context& ctx )
 {
    my = std::make_shared< detail::follow_api_impl >( ctx.app );
+   call_from_vm = ctx.session.lock()->from_vm;
 }
 
 void follow_api::on_api_startup() {}
 
 vector<follow_api_obj> follow_api::get_followers( string following, string start_follower, follow_type type, uint16_t limit )const
 {
-   return my->app.chain_database()->with_read_lock( [&]()
+   return determine_read_lock( *my->app.chain_database(), [&]()
    {
       return my->get_followers( following, start_follower, type, limit );
    });
@@ -285,7 +286,7 @@ vector<follow_api_obj> follow_api::get_followers( string following, string start
 
 vector<follow_api_obj> follow_api::get_following( string follower, string start_following, follow_type type, uint16_t limit )const
 {
-   return my->app.chain_database()->with_read_lock( [&]()
+   return determine_read_lock( *my->app.chain_database(),  [&]()
    {
       return my->get_following( follower, start_following, type, limit );
    });
@@ -293,7 +294,7 @@ vector<follow_api_obj> follow_api::get_following( string follower, string start_
 
 follow_count_api_obj follow_api::get_follow_count( string account )const
 {
-   return my->app.chain_database()->with_read_lock( [&]()
+   return determine_read_lock( *my->app.chain_database(),  [&]()
    {
       return my->get_follow_count( account );
    });
@@ -301,7 +302,7 @@ follow_count_api_obj follow_api::get_follow_count( string account )const
 
 vector< feed_entry > follow_api::get_feed_entries( string account, uint32_t entry_id, uint16_t limit )const
 {
-   return my->app.chain_database()->with_read_lock( [&]()
+   return determine_read_lock( *my->app.chain_database(),  [&]()
    {
       return my->get_feed_entries( account, entry_id, limit );
    });
@@ -309,7 +310,7 @@ vector< feed_entry > follow_api::get_feed_entries( string account, uint32_t entr
 
 vector< comment_feed_entry > follow_api::get_feed( string account, uint32_t entry_id, uint16_t limit )const
 {
-   return my->app.chain_database()->with_read_lock( [&]()
+   return determine_read_lock( *my->app.chain_database(),  [&]()
    {
       return my->get_feed( account, entry_id, limit );
    });
@@ -317,7 +318,7 @@ vector< comment_feed_entry > follow_api::get_feed( string account, uint32_t entr
 
 vector< blog_entry > follow_api::get_blog_entries( string account, uint32_t entry_id, uint16_t limit )const
 {
-   return my->app.chain_database()->with_read_lock( [&]()
+   return determine_read_lock( *my->app.chain_database(),  [&]()
    {
       return my->get_blog_entries( account, entry_id, limit );
    });
@@ -325,7 +326,7 @@ vector< blog_entry > follow_api::get_blog_entries( string account, uint32_t entr
 
 vector< comment_blog_entry > follow_api::get_blog( string account, uint32_t entry_id, uint16_t limit )const
 {
-   return my->app.chain_database()->with_read_lock( [&]()
+   return determine_read_lock( *my->app.chain_database(),  [&]()
    {
       return my->get_blog( account, entry_id, limit );
    });
@@ -333,14 +334,14 @@ vector< comment_blog_entry > follow_api::get_blog( string account, uint32_t entr
 
 vector< account_reputation > follow_api::get_account_reputations( string lower_bound_name, uint32_t limit )const
 {
-   return my->app.chain_database()->with_read_lock( [&]()
+   return determine_read_lock( *my->app.chain_database(),  [&]()
    {
       return my->get_account_reputations( lower_bound_name, limit );
    });
 }
 vector< account_name_type > follow_api::get_reblogged_by( const string& author, const string& permlink )const {
   auto& db = *my->app.chain_database();
-  return db.with_read_lock( [&](){
+  return determine_read_lock(db, [&](){
       vector<account_name_type> result;
       const auto& post = db.get_comment( author, permlink );
       const auto& blog_idx = db.get_index<blog_index,by_comment>();
@@ -355,7 +356,7 @@ vector< account_name_type > follow_api::get_reblogged_by( const string& author, 
 
 vector< pair< account_name_type, uint32_t > > follow_api::get_blog_authors( const account_name_type& blog )const {
   auto& db = *my->app.chain_database();
-  return db.with_read_lock( [&](){
+  return determine_read_lock(db, [&](){
     vector< pair< account_name_type, uint32_t > > result;
     const auto& stats_idx = db.get_index<blog_author_stats_index,by_blogger_guest_count>();
     auto itr = stats_idx.lower_bound( boost::make_tuple( blog ) );

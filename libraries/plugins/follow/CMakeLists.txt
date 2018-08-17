@@ -5,6 +5,7 @@ add_library( contento_follow
              follow_api.cpp
              follow_operations.cpp
              follow_evaluators.cpp
+             ${HEADERS}
            )
 
 target_link_libraries( contento_follow contento_chain contento_protocol contento_app )

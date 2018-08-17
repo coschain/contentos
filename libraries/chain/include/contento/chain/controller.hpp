@@ -18,6 +18,18 @@ namespace contento { namespace chain {
 
    ////class fork_database;
 
+   class vm_content_api_interface {
+   public:
+      virtual std::vector<char> on_vm_request( const std::vector<char>& req_body ) = 0;
+   };
+
+   class transaction_context;
+   class op_excute_callback {
+   public:
+      virtual bool execute_operation(const transaction_context& trx_context, const contento::protocol::operation& op ) = 0;
+   };
+
+
    class controller {
       public:
 
@@ -55,8 +67,25 @@ namespace contento { namespace chain {
             return pretty_output;
          }
 
-      private:
+         void set_vm_interface(vm_content_api_interface* ptr){
+            _vm_interface = ptr;
+         }
 
+         vm_content_api_interface* get_vm_interface(){
+            return _vm_interface;
+         }
+
+         void set_op_excute_callback(op_excute_callback* ptr){
+            _vm_op_excutor = ptr;
+         }
+
+         op_excute_callback* get_op_excutor(){
+            return _vm_op_excutor;
+         }
+
+      private:
+         vm_content_api_interface*  _vm_interface;
+         op_excute_callback*        _vm_op_excutor;
          std::unique_ptr<controller_impl> my;
 
    };

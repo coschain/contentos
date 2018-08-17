@@ -192,6 +192,8 @@ class database_api
 
       vector< extended_account > get_accounts( vector< string > names ) const;
 
+      account_code_api_obj get_account_code(string name ) const;
+
       /**
        *  @return all accounts that referr to the key or account id in their owner or active authorities.
        */
@@ -432,7 +434,21 @@ class database_api
 
       void recursively_fetch_content( state& _state, discussion& root, set<string>& referenced_accounts )const;
 
+      template< typename Lambda >
+      auto determine_read_lock( Lambda&& callback ) const -> decltype( (*(Lambda*)nullptr)() ){
+            if ( !call_from_vm ){
+               return _db_for_lock.with_read_lock( [&]()
+                                             {
+                                                return callback();
+                                             });
+            } else {
+               return callback();
+            }
+      }
+
+      contento::chain::database&             _db_for_lock;
       std::shared_ptr< database_api_impl >   my;
+      bool  call_from_vm;
 };
 
 } }
@@ -499,6 +515,8 @@ FC_API(contento::app::database_api,
    (get_account_history)
    (get_owner_history)
    (get_recovery_request)
+   (get_account_code)
+
    // (get_escrow)
    (get_withdraw_routes)
    (get_account_bandwidth)

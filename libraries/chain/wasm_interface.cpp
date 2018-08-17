@@ -24,7 +24,10 @@
 #include <boost/bind.hpp>
 #include <fstream>
 
+#include "wasm_price.hpp"
+
 namespace contento { namespace chain {
+
    using namespace webassembly;
    using namespace webassembly::common;
 
@@ -863,27 +866,31 @@ class authorization_api : public context_aware_api {
       using context_aware_api::context_aware_api;
 
    void require_authorization( const account_name& account ) {
-      context.require_authorization( account );
+      //context.require_authorization( account );
    }
 
    bool has_authorization( const account_name& account )const {
-      return context.has_authorization( account );
+      //return context.has_authorization( account );
+      // TODOO:
+      return true;
    }
 
    void require_authorization(const account_name& account,
                                                  const permission_name& permission) {
-      context.require_authorization( account, permission );
+      //context.require_authorization( account, permission );
    }
 
    void require_recipient( account_name recipient ) {
-      context.require_recipient( recipient );
+      //context.require_recipient( recipient );
    }
 
    bool is_account( const account_name& account )const {
-      return context.is_account( account );
+      //return context.is_account( account );
+      return false;
    }
 
-};*/
+};
+*/
 
 class system_api : public context_aware_api {
    public:
@@ -1331,10 +1338,6 @@ public:
    using context_aware_api::context_aware_api;
 
    int on_content_call( array_ptr<const char> query_str, size_t data_len, array_ptr<char> out_result, size_t length ) {
-//      FC_ASSERT( data_len < context.control.get_global_properties().configuration.max_inline_action_size,
-//                "inline action too big" );
-
-      std::string query = std::string(query_str, data_len);
       std::vector<char> vec(data_len);
       const char* ptr = query_str;
       vec.assign(ptr, ptr + data_len);
@@ -1342,6 +1345,13 @@ public:
       if ( length >= result.size() )
          memcpy( out_result, result.data(), result.size() );
       return result.size();
+   }
+
+   bool excute_operation( array_ptr<const char> op_buff, size_t data_len ){
+      std::vector<char> vec(data_len);
+      const char* ptr = op_buff;
+      vec.assign(ptr, ptr + data_len);
+      return context.excute_operation(vec);
    }
 
 };
@@ -1649,111 +1659,111 @@ class call_depth_api : public context_aware_api {
       }
 };
 
-REGISTER_INJECTED_INTRINSICS(call_depth_api,
-   (call_depth_assert,  void()               )
+REGISTER_INJECTED_INTRINSICS_WITH_PRICE(call_depth_api,
+   WITH_PRICE (call_depth_assert,  void()               )
 );
 
-REGISTER_INTRINSICS(compiler_builtins,
-   (__ashlti3,     void(int, int64_t, int64_t, int)               )
-   (__ashrti3,     void(int, int64_t, int64_t, int)               )
-   (__lshlti3,     void(int, int64_t, int64_t, int)               )
-   (__lshrti3,     void(int, int64_t, int64_t, int)               )
-   (__divti3,      void(int, int64_t, int64_t, int64_t, int64_t)  )
-   (__udivti3,     void(int, int64_t, int64_t, int64_t, int64_t)  )
-   (__modti3,      void(int, int64_t, int64_t, int64_t, int64_t)  )
-   (__umodti3,     void(int, int64_t, int64_t, int64_t, int64_t)  )
-   (__multi3,      void(int, int64_t, int64_t, int64_t, int64_t)  )
-   (__addtf3,      void(int, int64_t, int64_t, int64_t, int64_t)  )
-   (__subtf3,      void(int, int64_t, int64_t, int64_t, int64_t)  )
-   (__multf3,      void(int, int64_t, int64_t, int64_t, int64_t)  )
-   (__divtf3,      void(int, int64_t, int64_t, int64_t, int64_t)  )
-   (__eqtf2,       int(int64_t, int64_t, int64_t, int64_t)        )
-   (__netf2,       int(int64_t, int64_t, int64_t, int64_t)        )
-   (__getf2,       int(int64_t, int64_t, int64_t, int64_t)        )
-   (__gttf2,       int(int64_t, int64_t, int64_t, int64_t)        )
-   (__lttf2,       int(int64_t, int64_t, int64_t, int64_t)        )
-   (__letf2,       int(int64_t, int64_t, int64_t, int64_t)        )
-   (__cmptf2,      int(int64_t, int64_t, int64_t, int64_t)        )
-   (__unordtf2,    int(int64_t, int64_t, int64_t, int64_t)        )
-   (__negtf2,      void (int, int64_t, int64_t)                   )
-   (__floatsitf,   void (int, int)                                )
-   (__floatunsitf, void (int, int)                                )
-   (__floatditf,   void (int, int64_t)                            )
-   (__floatunditf, void (int, int64_t)                            )
-   (__floattidf,   double (int64_t, int64_t)                      )
-   (__floatuntidf, double (int64_t, int64_t)                      )
-   (__floatsidf,   double(int)                                    )
-   (__extendsftf2, void(int, float)                               )
-   (__extenddftf2, void(int, double)                              )
-   (__fixtfti,     void(int, int64_t, int64_t)                    )
-   (__fixtfdi,     int64_t(int64_t, int64_t)                      )
-   (__fixtfsi,     int(int64_t, int64_t)                          )
-   (__fixunstfti,  void(int, int64_t, int64_t)                    )
-   (__fixunstfdi,  int64_t(int64_t, int64_t)                      )
-   (__fixunstfsi,  int(int64_t, int64_t)                          )
-   (__fixsfti,     void(int, float)                               )
-   (__fixdfti,     void(int, double)                              )
-   (__fixunssfti,  void(int, float)                               )
-   (__fixunsdfti,  void(int, double)                              )
-   (__trunctfdf2,  double(int64_t, int64_t)                       )
-   (__trunctfsf2,  float(int64_t, int64_t)                        )
+REGISTER_INTRINSICS_WITH_PRICE(compiler_builtins,
+   WITH_PRICE (__ashlti3,     void(int, int64_t, int64_t, int)               )
+   WITH_PRICE (__ashrti3,     void(int, int64_t, int64_t, int)               )
+   WITH_PRICE (__lshlti3,     void(int, int64_t, int64_t, int)               )
+   WITH_PRICE (__lshrti3,     void(int, int64_t, int64_t, int)               )
+   WITH_PRICE (__divti3,      void(int, int64_t, int64_t, int64_t, int64_t)  )
+   WITH_PRICE (__udivti3,     void(int, int64_t, int64_t, int64_t, int64_t)  )
+   WITH_PRICE (__modti3,      void(int, int64_t, int64_t, int64_t, int64_t)  )
+   WITH_PRICE (__umodti3,     void(int, int64_t, int64_t, int64_t, int64_t)  )
+   WITH_PRICE (__multi3,      void(int, int64_t, int64_t, int64_t, int64_t)  )
+   WITH_PRICE (__addtf3,      void(int, int64_t, int64_t, int64_t, int64_t)  )
+   WITH_PRICE (__subtf3,      void(int, int64_t, int64_t, int64_t, int64_t)  )
+   WITH_PRICE (__multf3,      void(int, int64_t, int64_t, int64_t, int64_t)  )
+   WITH_PRICE (__divtf3,      void(int, int64_t, int64_t, int64_t, int64_t)  )
+   WITH_PRICE (__eqtf2,       int(int64_t, int64_t, int64_t, int64_t)        )
+   WITH_PRICE (__netf2,       int(int64_t, int64_t, int64_t, int64_t)        )
+   WITH_PRICE (__getf2,       int(int64_t, int64_t, int64_t, int64_t)        )
+   WITH_PRICE (__gttf2,       int(int64_t, int64_t, int64_t, int64_t)        )
+   WITH_PRICE (__lttf2,       int(int64_t, int64_t, int64_t, int64_t)        )
+   WITH_PRICE (__letf2,       int(int64_t, int64_t, int64_t, int64_t)        )
+   WITH_PRICE (__cmptf2,      int(int64_t, int64_t, int64_t, int64_t)        )
+   WITH_PRICE (__unordtf2,    int(int64_t, int64_t, int64_t, int64_t)        )
+   WITH_PRICE (__negtf2,      void (int, int64_t, int64_t)                   )
+   WITH_PRICE (__floatsitf,   void (int, int)                                )
+   WITH_PRICE (__floatunsitf, void (int, int)                                )
+   WITH_PRICE (__floatditf,   void (int, int64_t)                            )
+   WITH_PRICE (__floatunditf, void (int, int64_t)                            )
+   WITH_PRICE (__floattidf,   double (int64_t, int64_t)                      )
+   WITH_PRICE (__floatuntidf, double (int64_t, int64_t)                      )
+   WITH_PRICE (__floatsidf,   double(int)                                    )
+   WITH_PRICE (__extendsftf2, void(int, float)                               )
+   WITH_PRICE (__extenddftf2, void(int, double)                              )
+   WITH_PRICE (__fixtfti,     void(int, int64_t, int64_t)                    )
+   WITH_PRICE (__fixtfdi,     int64_t(int64_t, int64_t)                      )
+   WITH_PRICE (__fixtfsi,     int(int64_t, int64_t)                          )
+   WITH_PRICE (__fixunstfti,  void(int, int64_t, int64_t)                    )
+   WITH_PRICE (__fixunstfdi,  int64_t(int64_t, int64_t)                      )
+   WITH_PRICE (__fixunstfsi,  int(int64_t, int64_t)                          )
+   WITH_PRICE (__fixsfti,     void(int, float)                               )
+   WITH_PRICE (__fixdfti,     void(int, double)                              )
+   WITH_PRICE (__fixunssfti,  void(int, float)                               )
+   WITH_PRICE (__fixunsdfti,  void(int, double)                              )
+   WITH_PRICE (__trunctfdf2,  double(int64_t, int64_t)                       )
+   WITH_PRICE (__trunctfsf2,  float(int64_t, int64_t)                        )
 );
 
-REGISTER_INTRINSICS(privileged_api,
-   (is_feature_active,                int(int64_t)                          )
-   (activate_feature,                 void(int64_t)                         )
-//    (get_resource_limits,              void(int64_t,int,int,int)             )
-//    (set_resource_limits,              void(int64_t,int64_t,int64_t,int64_t) )
-//    (set_proposed_producers,           int64_t(int,int)                      )
-   (get_blockchain_parameters_packed, int(int, int)                         )
-   (set_blockchain_parameters_packed, void(int,int)                         )
-   (is_privileged,                    int(int64_t)                          )
-   (set_privileged,                   void(int64_t, int)                    )
+REGISTER_INTRINSICS_WITH_PRICE(privileged_api,
+   WITH_PRICE (is_feature_active,                int(int64_t)                          )
+   WITH_PRICE (activate_feature,                 void(int64_t)                         )
+//   WITH_PRICE (get_resource_limits,              void(int64_t,int,int,int)             )
+//   WITH_PRICE (set_resource_limits,              void(int64_t,int64_t,int64_t,int64_t) )
+//   WITH_PRICE (set_proposed_producers,           int64_t(int,int)                      )
+   WITH_PRICE (get_blockchain_parameters_packed, int(int, int)                         )
+   WITH_PRICE (set_blockchain_parameters_packed, void(int,int)                         )
+   WITH_PRICE (is_privileged,                    int(int64_t)                          )
+   WITH_PRICE (set_privileged,                   void(int64_t, int)                    )
 );
 
-// REGISTER_INJECTED_INTRINSICS(transaction_context,
-//    (checktime,      void())
-// );
+REGISTER_INJECTED_INTRINSICS_WITH_PRICE(transaction_context,
+   WITH_PRICE (checktime,      void())
+);
 
-REGISTER_INTRINSICS(producer_api,
-   (get_active_producers,      int(int, int) )
+REGISTER_INTRINSICS_WITH_PRICE(producer_api,
+   WITH_PRICE (get_active_producers,      int(int, int) )
 );
 
 #define DB_SECONDARY_INDEX_METHODS_SIMPLE(IDX) \
-   (db_##IDX##_store,          int(int64_t,int64_t,int64_t,int64_t,int))\
-   (db_##IDX##_remove,         void(int))\
-   (db_##IDX##_update,         void(int,int64_t,int))\
-   (db_##IDX##_find_primary,   int(int64_t,int64_t,int64_t,int,int64_t))\
-   (db_##IDX##_find_secondary, int(int64_t,int64_t,int64_t,int,int))\
-   (db_##IDX##_lowerbound,     int(int64_t,int64_t,int64_t,int,int))\
-   (db_##IDX##_upperbound,     int(int64_t,int64_t,int64_t,int,int))\
-   (db_##IDX##_end,            int(int64_t,int64_t,int64_t))\
-   (db_##IDX##_next,           int(int, int))\
-   (db_##IDX##_previous,       int(int, int))
+   WITH_PRICE (db_##IDX##_store,          int(int64_t,int64_t,int64_t,int64_t,int))\
+   WITH_PRICE (db_##IDX##_remove,         void(int))\
+   WITH_PRICE (db_##IDX##_update,         void(int,int64_t,int))\
+   WITH_PRICE (db_##IDX##_find_primary,   int(int64_t,int64_t,int64_t,int,int64_t))\
+   WITH_PRICE (db_##IDX##_find_secondary, int(int64_t,int64_t,int64_t,int,int))\
+   WITH_PRICE (db_##IDX##_lowerbound,     int(int64_t,int64_t,int64_t,int,int))\
+   WITH_PRICE (db_##IDX##_upperbound,     int(int64_t,int64_t,int64_t,int,int))\
+   WITH_PRICE (db_##IDX##_end,            int(int64_t,int64_t,int64_t))\
+   WITH_PRICE (db_##IDX##_next,           int(int, int))\
+   WITH_PRICE (db_##IDX##_previous,       int(int, int))
 
 #define DB_SECONDARY_INDEX_METHODS_ARRAY(IDX) \
-      (db_##IDX##_store,          int(int64_t,int64_t,int64_t,int64_t,int,int))\
-      (db_##IDX##_remove,         void(int))\
-      (db_##IDX##_update,         void(int,int64_t,int,int))\
-      (db_##IDX##_find_primary,   int(int64_t,int64_t,int64_t,int,int,int64_t))\
-      (db_##IDX##_find_secondary, int(int64_t,int64_t,int64_t,int,int,int))\
-      (db_##IDX##_lowerbound,     int(int64_t,int64_t,int64_t,int,int,int))\
-      (db_##IDX##_upperbound,     int(int64_t,int64_t,int64_t,int,int,int))\
-      (db_##IDX##_end,            int(int64_t,int64_t,int64_t))\
-      (db_##IDX##_next,           int(int, int))\
-      (db_##IDX##_previous,       int(int, int))
+      WITH_PRICE (db_##IDX##_store,          int(int64_t,int64_t,int64_t,int64_t,int,int))\
+      WITH_PRICE (db_##IDX##_remove,         void(int))\
+      WITH_PRICE (db_##IDX##_update,         void(int,int64_t,int,int))\
+      WITH_PRICE (db_##IDX##_find_primary,   int(int64_t,int64_t,int64_t,int,int,int64_t))\
+      WITH_PRICE (db_##IDX##_find_secondary, int(int64_t,int64_t,int64_t,int,int,int))\
+      WITH_PRICE (db_##IDX##_lowerbound,     int(int64_t,int64_t,int64_t,int,int,int))\
+      WITH_PRICE (db_##IDX##_upperbound,     int(int64_t,int64_t,int64_t,int,int,int))\
+      WITH_PRICE (db_##IDX##_end,            int(int64_t,int64_t,int64_t))\
+      WITH_PRICE (db_##IDX##_next,           int(int, int))\
+      WITH_PRICE (db_##IDX##_previous,       int(int, int))
 
-REGISTER_INTRINSICS( database_api,
-   (db_store_i64,        int(int64_t,int64_t,int64_t,int64_t,int,int))
-   (db_update_i64,       void(int,int64_t,int,int))
-   (db_remove_i64,       void(int))
-   (db_get_i64,          int(int, int, int))
-   (db_next_i64,         int(int, int))
-   (db_previous_i64,     int(int, int))
-   (db_find_i64,         int(int64_t,int64_t,int64_t,int64_t))
-   (db_lowerbound_i64,   int(int64_t,int64_t,int64_t,int64_t))
-   (db_upperbound_i64,   int(int64_t,int64_t,int64_t,int64_t))
-   (db_end_i64,          int(int64_t,int64_t,int64_t))
+REGISTER_INTRINSICS_WITH_PRICE( database_api,
+   WITH_PRICE (db_store_i64,        int(int64_t,int64_t,int64_t,int64_t,int,int))
+   WITH_PRICE (db_update_i64,       void(int,int64_t,int,int))
+   WITH_PRICE (db_remove_i64,       void(int))
+   WITH_PRICE (db_get_i64,          int(int, int, int))
+   WITH_PRICE (db_next_i64,         int(int, int))
+   WITH_PRICE (db_previous_i64,     int(int, int))
+   WITH_PRICE (db_find_i64,         int(int64_t,int64_t,int64_t,int64_t))
+   WITH_PRICE (db_lowerbound_i64,   int(int64_t,int64_t,int64_t,int64_t))
+   WITH_PRICE (db_upperbound_i64,   int(int64_t,int64_t,int64_t,int64_t))
+   WITH_PRICE (db_end_i64,          int(int64_t,int64_t,int64_t))
 
    DB_SECONDARY_INDEX_METHODS_SIMPLE(idx64)
    DB_SECONDARY_INDEX_METHODS_SIMPLE(idx128)
@@ -1762,161 +1772,165 @@ REGISTER_INTRINSICS( database_api,
    DB_SECONDARY_INDEX_METHODS_SIMPLE(idx_long_double)
 );
 
-REGISTER_INTRINSICS(crypto_api,
-   (assert_recover_key,     void(int, int, int, int, int) )
-   (recover_key,            int(int, int, int, int, int)  )
-   (assert_sha256,          void(int, int, int)           )
-   (assert_sha1,            void(int, int, int)           )
-   (assert_sha512,          void(int, int, int)           )
-   (assert_ripemd160,       void(int, int, int)           )
-   (sha1,                   void(int, int, int)           )
-   (sha256,                 void(int, int, int)           )
-   (sha512,                 void(int, int, int)           )
-   (ripemd160,              void(int, int, int)           )
+REGISTER_INTRINSICS_WITH_PRICE(crypto_api,
+   WITH_PRICE (assert_recover_key,     void(int, int, int, int, int) )
+   WITH_PRICE (recover_key,            int(int, int, int, int, int)  )
+   WITH_PRICE (assert_sha256,          void(int, int, int)           )
+   WITH_PRICE (assert_sha1,            void(int, int, int)           )
+   WITH_PRICE (assert_sha512,          void(int, int, int)           )
+   WITH_PRICE (assert_ripemd160,       void(int, int, int)           )
+   WITH_PRICE (sha1,                   void(int, int, int)           )
+   WITH_PRICE (sha256,                 void(int, int, int)           )
+   WITH_PRICE (sha512,                 void(int, int, int)           )
+   WITH_PRICE (ripemd160,              void(int, int, int)           )
+);
+
+
+//REGISTER_INTRINSICS_WITH_PRICE(permission_api,
+//   WITH_PRICE (check_transaction_authorization, int(int, int, int, int, int, int)                  )
+//   WITH_PRICE (check_permission_authorization,  int(int64_t, int64_t, int, int, int, int, int64_t) )
+//   WITH_PRICE (get_permission_last_used,        int64_t(int64_t, int64_t) )
+//   WITH_PRICE (get_account_creation_time,       int64_t(int64_t) )
+//);
+
+REGISTER_INTRINSICS_WITH_PRICE(system_api,
+   WITH_PRICE (current_time, int64_t()       )
+   WITH_PRICE (publication_time,   int64_t() )
+);
+
+
+REGISTER_INTRINSICS_WITH_PRICE(context_free_system_api,
+   WITH_PRICE (abort,                void()              )
+   WITH_PRICE (contento_assert,         void(int, int)      )
+   WITH_PRICE (contento_assert_message, void(int, int, int) )
+   WITH_PRICE (contento_assert_code,    void(int, int64_t)  )
+   WITH_PRICE (contento_exit,           void(int)           )
+);
+
+REGISTER_INTRINSICS_WITH_PRICE(action_api,
+   WITH_PRICE (read_action_data,       int(int, int)  )
+   WITH_PRICE (action_data_size,       int()          )
+   WITH_PRICE (current_receiver,   int64_t()          )
 );
 
 /*
-REGISTER_INTRINSICS(permission_api,
-   (check_transaction_authorization, int(int, int, int, int, int, int)                  )
-   (check_permission_authorization,  int(int64_t, int64_t, int, int, int, int, int64_t) )
-   (get_permission_last_used,        int64_t(int64_t, int64_t) )
-   (get_account_creation_time,       int64_t(int64_t) )
-);*/
+REGISTER_INTRINSICS_WITH_PRICE(authorization_api,
+   WITH_PRICE (require_recipient,     void(int64_t)          )
+   ((require_authorization, void(int64_t), "require_auth", void(authorization_api::*)(const account_name&) ), ::contento::chain::wasm_price::require_auth )
+   ((require_authorization, void(int64_t, int64_t), "require_auth2", void(authorization_api::*)(const account_name&, const permission_name& permission) ), ::contento::chain::wasm_price::require_auth2 )
+   ((has_authorization,     int(int64_t), "has_auth", bool(authorization_api::*)(const account_name&)const ), ::contento::chain::wasm_price::has_auth )
+   WITH_PRICE (is_account,            int(int64_t)           )
+); */
 
-
-REGISTER_INTRINSICS(system_api,
-   (current_time, int64_t()       )
-   (publication_time,   int64_t() )
+REGISTER_INTRINSICS_WITH_PRICE(console_api,
+   WITH_PRICE (prints,                void(int)      )
+   WITH_PRICE (prints_l,              void(int, int) )
+   WITH_PRICE (printi,                void(int64_t)  )
+   WITH_PRICE (printui,               void(int64_t)  )
+   WITH_PRICE (printi128,             void(int)      )
+   WITH_PRICE (printui128,            void(int)      )
+   WITH_PRICE (printsf,               void(float)    )
+   WITH_PRICE (printdf,               void(double)   )
+   WITH_PRICE (printqf,               void(int)      )
+   WITH_PRICE (printn,                void(int64_t)  )
+   WITH_PRICE (printhex,              void(int, int) )
 );
 
-REGISTER_INTRINSICS(context_free_system_api,
-   (abort,                void()              )
-   (contento_assert,         void(int, int)      )
-   (contento_assert_message, void(int, int, int) )
-   (contento_assert_code,    void(int, int64_t)  )
-   (contento_exit,           void(int)           )
+
+
+REGISTER_INTRINSICS_WITH_PRICE(context_free_transaction_api,
+   WITH_PRICE (read_transaction,       int(int, int)            )
+   WITH_PRICE (transaction_size,       int()                    )
+   WITH_PRICE (expiration,             int()                    )
+   WITH_PRICE (tapos_block_prefix,     int()                    )
+   WITH_PRICE (tapos_block_num,        int()                    )
+   WITH_PRICE (get_action,             int (int, int, int, int) )
 );
 
-REGISTER_INTRINSICS(action_api,
-   (read_action_data,       int(int, int)  )
-   (action_data_size,       int()          )
-   (current_receiver,   int64_t()          )
-);
-/*
-REGISTER_INTRINSICS(authorization_api,
-   (require_recipient,     void(int64_t)          )
-   (require_authorization, void(int64_t), "require_auth", void(authorization_api::*)(const account_name&) )
-   (require_authorization, void(int64_t, int64_t), "require_auth2", void(authorization_api::*)(const account_name&, const permission_name& permission) )
-   (has_authorization,     int(int64_t), "has_auth", bool(authorization_api::*)(const account_name&)const )
-   (is_account,            int(int64_t)           )
-);*/
-
-REGISTER_INTRINSICS(console_api,
-   (prints,                void(int)      )
-   (prints_l,              void(int, int) )
-   (printi,                void(int64_t)  )
-   (printui,               void(int64_t)  )
-   (printi128,             void(int)      )
-   (printui128,            void(int)      )
-   (printsf,               void(float)    )
-   (printdf,               void(double)   )
-   (printqf,               void(int)      )
-   (printn,                void(int64_t)  )
-   (printhex,              void(int, int) )
+REGISTER_INTRINSICS_WITH_PRICE(transaction_api,
+   WITH_PRICE (send_inline,               void(int, int)               )
+   WITH_PRICE (send_context_free_inline,  void(int, int)               )
+   WITH_PRICE (send_deferred,             void(int, int64_t, int, int, int32_t) )
+   WITH_PRICE (cancel_deferred,           int(int)                     )
 );
 
-REGISTER_INTRINSICS(context_free_transaction_api,
-   (read_transaction,       int(int, int)            )
-   (transaction_size,       int()                    )
-   (expiration,             int()                    )
-   (tapos_block_prefix,     int()                    )
-   (tapos_block_num,        int()                    )
-   (get_action,             int (int, int, int, int) )
-);
-
-REGISTER_INTRINSICS(transaction_api,
-   (send_inline,               void(int, int)               )
-   (send_context_free_inline,  void(int, int)               )
-   (send_deferred,             void(int, int64_t, int, int, int32_t) )
-   (cancel_deferred,           int(int)                     )
-);
-
-REGISTER_INTRINSICS(content_api,
-   (on_content_call,           int(int, int, int, int)      )
+REGISTER_INTRINSICS_WITH_PRICE(content_api,
+   WITH_PRICE (on_content_call,           int(int, int, int, int)      )
+   WITH_PRICE (excute_operation,           int(int, int)      )
 );
 
 /*
-REGISTER_INTRINSICS(context_free_api,
-   (get_context_free_data, int(int, int, int) )
-)
+REGISTER_INTRINSICS_WITH_PRICE(context_free_api,
+   WITH_PRICE (get_context_free_data, int(int, int, int) )
+);
 */
 
-REGISTER_INTRINSICS(memory_api,
-   (memcpy,                 int(int, int, int)  )
-   (memmove,                int(int, int, int)  )
-   (memcmp,                 int(int, int, int)  )
-   (memset,                 int(int, int, int)  )
+REGISTER_INTRINSICS_WITH_PRICE(memory_api,
+   WITH_PRICE (memcpy,                 int(int, int, int)  )
+   WITH_PRICE (memmove,                int(int, int, int)  )
+   WITH_PRICE (memcmp,                 int(int, int, int)  )
+   WITH_PRICE (memset,                 int(int, int, int)  )
 );
 
-REGISTER_INJECTED_INTRINSICS(softfloat_api,
-      (_contento_f32_add,       float(float, float)    )
-      (_contento_f32_sub,       float(float, float)    )
-      (_contento_f32_mul,       float(float, float)    )
-      (_contento_f32_div,       float(float, float)    )
-      (_contento_f32_min,       float(float, float)    )
-      (_contento_f32_max,       float(float, float)    )
-      (_contento_f32_copysign,  float(float, float)    )
-      (_contento_f32_abs,       float(float)           )
-      (_contento_f32_neg,       float(float)           )
-      (_contento_f32_sqrt,      float(float)           )
-      (_contento_f32_ceil,      float(float)           )
-      (_contento_f32_floor,     float(float)           )
-      (_contento_f32_trunc,     float(float)           )
-      (_contento_f32_nearest,   float(float)           )
-      (_contento_f32_eq,        int(float, float)      )
-      (_contento_f32_ne,        int(float, float)      )
-      (_contento_f32_lt,        int(float, float)      )
-      (_contento_f32_le,        int(float, float)      )
-      (_contento_f32_gt,        int(float, float)      )
-      (_contento_f32_ge,        int(float, float)      )
-      (_contento_f64_add,       double(double, double) )
-      (_contento_f64_sub,       double(double, double) )
-      (_contento_f64_mul,       double(double, double) )
-      (_contento_f64_div,       double(double, double) )
-      (_contento_f64_min,       double(double, double) )
-      (_contento_f64_max,       double(double, double) )
-      (_contento_f64_copysign,  double(double, double) )
-      (_contento_f64_abs,       double(double)         )
-      (_contento_f64_neg,       double(double)         )
-      (_contento_f64_sqrt,      double(double)         )
-      (_contento_f64_ceil,      double(double)         )
-      (_contento_f64_floor,     double(double)         )
-      (_contento_f64_trunc,     double(double)         )
-      (_contento_f64_nearest,   double(double)         )
-      (_contento_f64_eq,        int(double, double)    )
-      (_contento_f64_ne,        int(double, double)    )
-      (_contento_f64_lt,        int(double, double)    )
-      (_contento_f64_le,        int(double, double)    )
-      (_contento_f64_gt,        int(double, double)    )
-      (_contento_f64_ge,        int(double, double)    )
-      (_contento_f32_promote,    double(float)         )
-      (_contento_f64_demote,     float(double)         )
-      (_contento_f32_trunc_i32s, int(float)            )
-      (_contento_f64_trunc_i32s, int(double)           )
-      (_contento_f32_trunc_i32u, int(float)            )
-      (_contento_f64_trunc_i32u, int(double)           )
-      (_contento_f32_trunc_i64s, int64_t(float)        )
-      (_contento_f64_trunc_i64s, int64_t(double)       )
-      (_contento_f32_trunc_i64u, int64_t(float)        )
-      (_contento_f64_trunc_i64u, int64_t(double)       )
-      (_contento_i32_to_f32,     float(int32_t)        )
-      (_contento_i64_to_f32,     float(int64_t)        )
-      (_contento_ui32_to_f32,    float(int32_t)        )
-      (_contento_ui64_to_f32,    float(int64_t)        )
-      (_contento_i32_to_f64,     double(int32_t)       )
-      (_contento_i64_to_f64,     double(int64_t)       )
-      (_contento_ui32_to_f64,    double(int32_t)       )
-      (_contento_ui64_to_f64,    double(int64_t)       )
+REGISTER_INJECTED_INTRINSICS_WITH_PRICE(softfloat_api,
+    WITH_PRICE (_contento_f32_add,       float(float, float)    )
+    WITH_PRICE (_contento_f32_sub,       float(float, float)    )
+    WITH_PRICE (_contento_f32_mul,       float(float, float)    )
+    WITH_PRICE (_contento_f32_div,       float(float, float)    )
+    WITH_PRICE (_contento_f32_min,       float(float, float)    )
+    WITH_PRICE (_contento_f32_max,       float(float, float)    )
+    WITH_PRICE (_contento_f32_copysign,  float(float, float)    )
+    WITH_PRICE (_contento_f32_abs,       float(float)           )
+    WITH_PRICE (_contento_f32_neg,       float(float)           )
+    WITH_PRICE (_contento_f32_sqrt,      float(float)           )
+    WITH_PRICE (_contento_f32_ceil,      float(float)           )
+    WITH_PRICE (_contento_f32_floor,     float(float)           )
+    WITH_PRICE (_contento_f32_trunc,     float(float)           )
+    WITH_PRICE (_contento_f32_nearest,   float(float)           )
+    WITH_PRICE (_contento_f32_eq,        int(float, float)      )
+    WITH_PRICE (_contento_f32_ne,        int(float, float)      )
+    WITH_PRICE (_contento_f32_lt,        int(float, float)      )
+    WITH_PRICE (_contento_f32_le,        int(float, float)      )
+    WITH_PRICE (_contento_f32_gt,        int(float, float)      )
+    WITH_PRICE (_contento_f32_ge,        int(float, float)      )
+    WITH_PRICE (_contento_f64_add,       double(double, double) )
+    WITH_PRICE (_contento_f64_sub,       double(double, double) )
+    WITH_PRICE (_contento_f64_mul,       double(double, double) )
+    WITH_PRICE (_contento_f64_div,       double(double, double) )
+    WITH_PRICE (_contento_f64_min,       double(double, double) )
+    WITH_PRICE (_contento_f64_max,       double(double, double) )
+    WITH_PRICE (_contento_f64_copysign,  double(double, double) )
+    WITH_PRICE (_contento_f64_abs,       double(double)         )
+    WITH_PRICE (_contento_f64_neg,       double(double)         )
+    WITH_PRICE (_contento_f64_sqrt,      double(double)         )
+    WITH_PRICE (_contento_f64_ceil,      double(double)         )
+    WITH_PRICE (_contento_f64_floor,     double(double)         )
+    WITH_PRICE (_contento_f64_trunc,     double(double)         )
+    WITH_PRICE (_contento_f64_nearest,   double(double)         )
+    WITH_PRICE (_contento_f64_eq,        int(double, double)    )
+    WITH_PRICE (_contento_f64_ne,        int(double, double)    )
+    WITH_PRICE (_contento_f64_lt,        int(double, double)    )
+    WITH_PRICE (_contento_f64_le,        int(double, double)    )
+    WITH_PRICE (_contento_f64_gt,        int(double, double)    )
+    WITH_PRICE (_contento_f64_ge,        int(double, double)    )
+    WITH_PRICE (_contento_f32_promote,    double(float)         )
+    WITH_PRICE (_contento_f64_demote,     float(double)         )
+    WITH_PRICE (_contento_f32_trunc_i32s, int(float)            )
+    WITH_PRICE (_contento_f64_trunc_i32s, int(double)           )
+    WITH_PRICE (_contento_f32_trunc_i32u, int(float)            )
+    WITH_PRICE (_contento_f64_trunc_i32u, int(double)           )
+    WITH_PRICE (_contento_f32_trunc_i64s, int64_t(float)        )
+    WITH_PRICE (_contento_f64_trunc_i64s, int64_t(double)       )
+    WITH_PRICE (_contento_f32_trunc_i64u, int64_t(float)        )
+    WITH_PRICE (_contento_f64_trunc_i64u, int64_t(double)       )
+    WITH_PRICE (_contento_i32_to_f32,     float(int32_t)        )
+    WITH_PRICE (_contento_i64_to_f32,     float(int64_t)        )
+    WITH_PRICE (_contento_ui32_to_f32,    float(int32_t)        )
+    WITH_PRICE (_contento_ui64_to_f32,    float(int64_t)        )
+    WITH_PRICE (_contento_i32_to_f64,     double(int32_t)       )
+    WITH_PRICE (_contento_i64_to_f64,     double(int64_t)       )
+    WITH_PRICE (_contento_ui32_to_f64,    double(int32_t)       )
+    WITH_PRICE (_contento_ui64_to_f64,    double(int64_t)       )
 );
 
 std::istream& operator>>(std::istream& in, wasm_interface::vm_type& runtime) {
@@ -1931,4 +1945,35 @@ std::istream& operator>>(std::istream& in, wasm_interface::vm_type& runtime) {
    return in;
 }
 
+    //
+    // prices for basic intrinsics:
+    // price of wasm::Expression::XXXX = WASM_PRICE_XXXX
+    //
+    SET_BASIC_INTRINSIC_PRICES( WASM_PRICE_,
+                               (BlockId)
+                               (IfId)
+                               (LoopId)
+                               (BreakId)
+                               (SwitchId)
+                               (CallId)
+                               (CallImportId)
+                               (CallIndirectId)
+                               (GetLocalId)
+                               (SetLocalId)
+                               (GetGlobalId)
+                               (SetGlobalId)
+                               (LoadId)
+                               (StoreId)
+                               (ConstId)
+                               (UnaryId)
+                               (BinaryId)
+                               (SelectId)
+                               (DropId)
+                               (ReturnId)
+                               (HostId)
+                               (NopId)
+                               (UnreachableId)
+                               );
+
 } } /// contento::chain
+

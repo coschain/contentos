@@ -3,6 +3,7 @@
 #include <fc/reflect/reflect.hpp>
 
 #include <limits>
+#include <string>
 
 namespace fc {
 
@@ -90,6 +91,8 @@ namespace fc {
           return safe( a.value % b.value );
       }
 
+
+
       safe operator - ()const
       {
           if( value == std::numeric_limits<T>::min() ) FC_CAPTURE_AND_THROW( overflow_exception, (*this) );
@@ -146,6 +149,11 @@ namespace fc {
           return bak;
       }
 
+      operator std::string()const
+      {
+           return std::to_string( value );
+      }
+
       friend bool operator == ( const safe& a, const safe& b )
       {
           return a.value == b.value;
@@ -158,6 +166,8 @@ namespace fc {
       {
           return a == b.value;
       }
+
+
 
       friend bool operator < ( const safe& a, const safe& b )
       {

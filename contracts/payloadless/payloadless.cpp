@@ -1,8 +1,8 @@
-#include <eosiolib/eosio.hpp>
-#include <eosiolib/print.hpp>
-using namespace eosio;
+#include <cosiolib/cosio.hpp>
+#include <cosiolib/print.hpp>
+using namespace cosio;
 
-class payloadless : public eosio::contract {
+class payloadless : public cosio::contract {
   public:
       using contract::contract;
 
@@ -11,4 +11,4 @@ class payloadless : public eosio::contract {
       }
 };
 
-EOSIO_ABI( payloadless, (doit) )
+COSIO_ABI( payloadless, (doit) )

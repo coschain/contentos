@@ -84,7 +84,7 @@ api_context::api_context( application& _app, const std::string& _api_name, std::
 
 namespace detail {
 
-   class application_impl : public graphene::net::node_delegate
+   class application_impl : public graphene::net::node_delegate, vm_content_api_interface
    {
    public:
       fc::optional<fc::temp_file> _lock_file;
@@ -275,7 +275,7 @@ namespace detail {
          fc::datastream<char*> ds( (char*)req_body.data(), req_body.size());
          std::string api_name;
          fc::raw::unpack(ds, api_name);
-         for( const std::string& name : _vm_apis )
+         for( const std::string& name : _public_apis )
          {
             if (name != api_name){
                continue;
@@ -335,6 +335,7 @@ namespace detail {
       {
           //controller::config cfg;
            //control.reset(cfg);
+         _chain_db->get_vm_ctrl()->set_vm_interface(this);
       }
 
       ~application_impl(){}
@@ -1086,7 +1087,7 @@ void application::set_program_options(boost::program_options::options_descriptio
          ("seed-node,s", bpo::value<vector<string>>()->composing(), "P2P nodes to connect to on startup (may specify multiple times)")
          ("checkpoint,c", bpo::value<vector<string>>()->composing(), "Pairs of [BLOCK_NUM,BLOCK_ID] that should be enforced as checkpoints.")
          ("shared-file-dir", bpo::value<string>(), "Location of the shared memory file. Defaults to data_dir/blockchain")
-         ("shared-file-size", bpo::value<string>()->default_value("54G"), "Size of the shared memory file. Default: 54G")
+         ("shared-file-size", bpo::value<string>()->default_value("1G"), "Size of the shared memory file. Default: 1G")
          ("rpc-endpoint", bpo::value<string>()->implicit_value("127.0.0.1:8090"), "Endpoint for websocket RPC to listen on")
          ("rpc-tls-endpoint", bpo::value<string>()->implicit_value("127.0.0.1:8089"), "Endpoint for TLS websocket RPC to listen on")
          ("rpc-http-endpoint", bpo::value<string>()->implicit_value("127.0.0.1:8088"), "Endpoint for http RPC to listen on")

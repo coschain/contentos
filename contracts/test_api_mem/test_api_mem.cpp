@@ -1,8 +1,8 @@
 /**
  *  @file
- *  @copyright defined in eos/LICENSE.txt
+ *  @copyright defined in contentos/LICENSE.txt
  */
-#include <eosiolib/eosio.hpp>
+#include <cosiolib/cosio.hpp>
 #include "../test_api/test_api.hpp"
 
 #include "test_extended_memory.cpp"
@@ -43,7 +43,7 @@ extern "C" {
       WASM_TEST_HANDLER(test_memory, test_outofbound_13);
       
       //unhandled test call
-      eosio_assert(false, "Unknown Test");
+      contento_assert(false, "Unknown Test");
    }
 
 }
