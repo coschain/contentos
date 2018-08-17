@@ -237,7 +237,7 @@ struct account_api_obj
       witnesses_voted_for( a.witnesses_voted_for ),
       last_post( a.last_post ),
       last_root_post( a.last_root_post ),
-      code( a.code ),
+      code( to_string(a.code) ),
       abi( to_string(a.abi) )
    {
       size_t n = a.proxied_vsf_votes.size();

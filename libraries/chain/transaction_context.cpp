@@ -30,6 +30,7 @@ namespace contento { namespace chain {
       FC_ASSERT( is_initialized, "must first initialize" );
    }
 
+
    void transaction_context::check_net_usage()const {
    }
 

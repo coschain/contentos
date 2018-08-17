@@ -69,7 +69,8 @@ namespace contento { namespace chain {
             skip_validate               = 1 << 10, ///< used prior to checkpoint, skips validate() call on transaction
             skip_validate_invariants    = 1 << 11, ///< used to skip database invariant check on block application
             skip_undo_block             = 1 << 12, ///< used to skip undo db on reindex
-            skip_block_log              = 1 << 13  ///< used to skip block logging on reindex
+            skip_block_log              = 1 << 13,  ///< used to skip block logging on reindex
+            skip_apply_transaction      = 1 << 14
          };
 
          /**
@@ -450,6 +451,7 @@ namespace contento { namespace chain {
 
          ///Steps involved in applying a new block
          ///@{
+         uint32_t process_checkpoints( const signed_block& next_block , uint32_t skip_old );
 
          const witness_object& validate_block_header( uint32_t skip, const signed_block& next_block )const;
          void create_block_summary(const signed_block& next_block);

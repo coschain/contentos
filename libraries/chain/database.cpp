@@ -601,6 +601,8 @@ bool database::_push_block(const signed_block& new_block)
          //Only switch forks if new_head is actually higher than head
          if( new_head->data.block_num() > head_block_num() )
          {
+            _pending_tx_session.reset();// the BP node should never invoke this line
+
             // wlog( "Switching to fork: ${id}", ("id",new_head->data.id()) );
             auto branches = _fork_db.fetch_branch_from(new_head->data.id(), head_block_id());
 
@@ -654,9 +656,15 @@ bool database::_push_block(const signed_block& new_block)
 
    try
    {
-      auto session = start_undo_session( true );
-      apply_block(new_block, skip);
-      session.push();
+       if( !( skip & skip_apply_transaction ) )
+       {
+            _pending_tx_session.reset();
+            auto session = start_undo_session( true );
+            apply_block(new_block, skip);
+            session.push();
+       } else {
+            apply_block(new_block, skip);
+       }
    }
    catch( const fc::exception& e )
    {
@@ -728,6 +736,8 @@ void database::_push_transaction( const signed_transaction& trx )
    // The transaction applied successfully. Merge its changes into the pending block session.
    temp_session.squash();
 
+   _pending_tx_session.reset();
+
    // notify anyone listening to pending transactions
    notify_on_pending_transaction( trx );
 }
@@ -774,6 +784,14 @@ signed_block database::_generate_block(
    size_t total_block_size = max_block_header_size;
 
    signed_block pending_block;
+   _current_trx_in_block = 0;
+
+   // i don't think _checkpoints should exists, so delete it
+   //uint32_t skip_new;
+   //pending_block.previous = head_block_id();
+   //if ( _checkpoints.size() && _checkpoints.rbegin()->second != block_id_type() ) {
+   //    skip_new = process_checkpoints( pending_block, skip );
+   //}
 
    with_write_lock( [&]()
    {
@@ -810,6 +828,28 @@ signed_block database::_generate_block(
             continue;
          }
 
+         try {
+             //_apply_transaction( trx_wrapper );
+            auto temp_session = start_undo_session( true );
+            detail::with_skip_flags( *this, skip, [&]()
+            {
+                _apply_transaction( trx_wrapper );
+            });
+            
+             temp_session.squash();
+
+             total_block_size += fc::raw::pack_size( trx_wrapper );
+             pending_block.transactions.push_back( trx_wrapper );
+             ++_current_trx_in_block;
+         }
+         catch ( const fc::exception& e )
+         {
+            // Do nothing, transaction will not be re-applied
+            //wlog( "Transaction was not processed while generating block due to ${e}", ("e", e) );
+            //wlog( "The transaction was ${t}", ("t", tx) );
+         }
+
+         /*
          try
          {
             auto temp_session = start_undo_session( true );
@@ -825,13 +865,14 @@ signed_block database::_generate_block(
             //wlog( "Transaction was not processed while generating block due to ${e}", ("e", e) );
             //wlog( "The transaction was ${t}", ("t", tx) );
          }
+         */
       }
       if( postponed_tx_count > 0 )
       {
          wlog( "Postponed ${n} transactions due to block size limit", ("n", postponed_tx_count) );
       }
 
-      _pending_tx_session.reset();
+      //_pending_tx_session.reset();
        
 #ifdef IS_TEST_NET
        if( BOOST_UNLIKELY( head_block_id() == block_id_type() && init_genesis_hardforks ) )
@@ -892,9 +933,20 @@ signed_block database::_generate_block(
       FC_ASSERT( fc::raw::pack_size(pending_block) <= CONTENTO_MAX_BLOCK_SIZE );
    }
 
-   push_block( pending_block, skip );
+   //_pending_tx_session.push();
 
-   return pending_block;
+    
+    auto res = push_block( pending_block, skip | skip_apply_transaction );
+    if ( res ) {
+        std::cout << "in _generate_block function, BP node should never come here!" << std::endl;
+    } else {
+        if ( pending_block.block_num() == head_block_num() )
+        {
+            _pending_tx_session.push();
+        }
+    }
+
+    return pending_block;
 }
 
 /**
@@ -927,7 +979,7 @@ void database::clear_pending()
    {
       assert( (_pending_tx.size() == 0) || _pending_tx_session.valid() );
       _pending_tx.clear();
-      _pending_tx_session.reset();
+      //_pending_tx_session.reset();
    }
    FC_CAPTURE_AND_RETHROW()
 }
@@ -2403,6 +2455,7 @@ void database::apply_block( const signed_block& next_block, uint32_t skip )
    //fc::time_point begin_time = fc::time_point::now();
 
    auto block_num = next_block.block_num();
+   /*
    if( _checkpoints.size() && _checkpoints.rbegin()->second != block_id_type() )
    {
       auto itr = _checkpoints.find( block_num );
@@ -2417,13 +2470,23 @@ void database::apply_block( const signed_block& next_block, uint32_t skip )
               | skip_block_size_check
               | skip_tapos_check
               | skip_authority_check
-              /* | skip_merkle_check While blockchain is being downloaded, txs need to be validated against block headers */
+              // | skip_merkle_check While blockchain is being downloaded, txs need to be validated against block headers 
               | skip_undo_history_check
               | skip_witness_schedule_check
               | skip_validate
               | skip_validate_invariants
               ;
    }
+   */
+   
+    //if ( _checkpoints.size() && _checkpoints.rbegin()->second != block_id_type() ) {
+    //   auto skip_tmp = process_checkpoints( next_block, skip );
+    //   if( skip & skip_apply_transaction ) {
+    //       skip = skip_tmp | skip_apply_transaction;
+    //   } else {
+    //       skip = skip_tmp;
+    //   }
+    //}
 
    detail::with_skip_flags( *this, skip, [&]()
    {
@@ -2567,17 +2630,19 @@ void database::_apply_block( const signed_block& next_block )
       );
 //   }
 
-   for( const auto& trx_wrapper : next_block.transactions )
-   {
-      /* We do not need to push the undo state for each transaction
-       * because they either all apply and are valid or the
-       * entire block fails to apply.  We only need an "undo" state
-       * for transactions when validating broadcast transactions or
-       * when building a block.
-       */
-      apply_transaction( trx_wrapper, skip );
-      ++_current_trx_in_block;
-   }
+    if( !( skip & skip_apply_transaction ) ){
+        for( const auto& trx_wrapper : next_block.transactions )
+        {
+            /* We do not need to push the undo state for each transaction
+            * because they either all apply and are valid or the
+            * entire block fails to apply.  We only need an "undo" state
+            * for transactions when validating broadcast transactions or
+            * when building a block.
+            */
+            apply_transaction( trx_wrapper, skip );
+            ++_current_trx_in_block;
+        }
+    }
 
    update_global_dynamic_data(next_block);
    update_signing_witness(signing_witness, next_block);
@@ -2802,7 +2867,6 @@ std::shared_ptr<transaction_context> database::_apply_transaction(const transact
          fc::raw::pack( transaction.packed_trx, trx );
       });
    }
-
    notify_on_pre_apply_transaction( trx );
 
    //Finally process the operations
@@ -4081,5 +4145,44 @@ void database::retally_witness_vote_counts( bool force )
       }
    }
 }
+
+
+uint32_t database::process_checkpoints( const signed_block& next_block, uint32_t skip_old ) {
+      auto block_num = next_block.block_num();
+      auto itr = _checkpoints.find( block_num );
+      if( itr != _checkpoints.end() )
+         FC_ASSERT( next_block.id() == itr->second, "Block did not match checkpoint", ("checkpoint",*itr)("block_id",next_block.id()) );
+      uint32_t skip = skip_old;
+
+      if( _checkpoints.rbegin()->first >= block_num )
+         skip = skip_witness_signature
+              | skip_transaction_signatures
+              | skip_transaction_dupe_check
+              | skip_fork_db
+              | skip_block_size_check
+              | skip_tapos_check
+              | skip_authority_check
+              /* | skip_merkle_check While blockchain is being downloaded, txs need to be validated against block headers */
+              | skip_undo_history_check
+              | skip_witness_schedule_check
+              | skip_validate
+              | skip_validate_invariants
+              ;
+       return skip;
+}
+
+// just for link error
+/*
+asset database::to_sbd( const asset& steem )const
+{
+    return asset(0);
+}
+
+// just for link error
+asset database::to_steem( const asset& sbd )const
+{
+    return asset(0);
+}
+*/
 
 } } //contento::chain
