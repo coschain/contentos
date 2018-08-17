@@ -28,19 +28,19 @@ using boost::container::flat_set;
 
 namespace contento { namespace chain {
 
-// static inline void print_debug(account_name receiver, const action_trace& ar) {
-//    if (!ar.console.empty()) {
-//       auto prefix = fc::format_string(
-//                                       "\n[(${a},${n})->${r}]",
-//                                       fc::mutable_variant_object()
-//                                       ("a", ar.act.account)
-//                                       ("n", ar.act.name)
-//                                       ("r", receiver));
-//       dlog(prefix + ": CONSOLE OUTPUT BEGIN =====================\n"
-//            + ar.console
-//            + prefix + ": CONSOLE OUTPUT END   =====================" );
-//    }
-// }
+static inline void print_debug(account_name receiver, const std::string& log, const vm_operation& op) {
+   if (!log.empty()) {
+      auto prefix = fc::format_string(
+                                      "\n[(${a},${n})->${r}]",
+                                      fc::mutable_variant_object()
+                                      ("a", op.contract_name)
+                                      ("n", op.action_name)
+                                      ("r", receiver));
+      dlog(prefix + ": CONSOLE OUTPUT BEGIN =====================\n"
+           + log
+           + prefix + ": CONSOLE OUTPUT END   =====================" );
+   }
+}
 
 void apply_context::exec_one()
 {
@@ -66,8 +66,8 @@ void apply_context::exec_one()
 
    } FC_CAPTURE_AND_RETHROW((_pending_console_output.str()));
 
-   std::cout << "***************\nVM EXCUTE:\n" << _pending_console_output.str() << "\n*************\n" << std::endl;
-   // TODOO: print debug
+   //std::cout << "***************\nVM EXCUTE:\n" << _pending_console_output.str() << "\n*************\n" << std::endl;
+   print_debug(receiver, _pending_console_output.str(), op);
    reset_console();
 }
 
