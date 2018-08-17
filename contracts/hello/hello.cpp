@@ -23,6 +23,7 @@ class hello : public cosio::contract {
     
     //@abi action
     void withdraw(account_name user, int64_t value){
+        pay_prohibited();
          int64_t cb = get_contract_balance();
         print("\n before withdraw  contract balance is : ",cb);
 

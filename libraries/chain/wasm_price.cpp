@@ -83,6 +83,7 @@
 #define WASM_PRICE_FN_get_contract_balance                                   400
 #define WASM_PRICE_FN_transfer                                               1000
 #define WASM_PRICE_FN_get_value                                              100
+#define WASM_PRICE_FN_pay_prohibited                                         150
 
 // database_api
 #define WASM_PRICE_FN_db_end_i64                                             61
@@ -518,6 +519,7 @@ namespace contento { namespace chain { namespace wasm_price {
                          (get_contract_balance,      (int64_t) )
                          (transfer,                  (void*, int64_t, int64_t))
                          (get_value,                 (int64_t))
+                         (pay_prohibited,            (void*))
                          );
     
     // database_api
