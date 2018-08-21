@@ -5,10 +5,11 @@
 #include <fc/variant.hpp>
 #include <boost/algorithm/string.hpp>
 #include <fc/exception/exception.hpp>
+#include <fc/uint128.hpp>
 
 namespace contento { namespace protocol {
 
-   static constexpr uint64_t char_to_symbol( char c ) {
+   static const uint64_t char_to_symbol( char c ) {
       if( c >= 'a' && c <= 'z' )
          return (c - 'a') + 6;
       if( c >= '1' && c <= '5' )
@@ -20,7 +21,7 @@ namespace contento { namespace protocol {
    // to its 5-bit slot starting with the highest slot for the first char.
    // The 13th char, if str is long enough, is encoded into 4-bit chunk
    // and placed in the lowest 4 bits. 64 = 12 * 5 + 4
-   static constexpr uint64_t string_to_name( const char* str )
+   static const uint64_t string_to_name( const char* str )
    {
       uint64_t name = 0;
       int i = 0;
@@ -36,6 +37,30 @@ namespace contento { namespace protocol {
       // 4 bits of 'name'
       if (i == 12)
           name |= char_to_symbol(str[12]) & 0x0F;
+      return name;
+   }
+
+   static const fc::uint128_t string_to_name16( const char* str )
+   {
+
+      uint len = 0;
+      while(str[len]) ++len;
+
+      fc::uint128_t name = 0;
+
+      if (len <= 8) {
+        for( uint i = 0; i < len; ++i) {
+          name.lo |= (uint64_t(str[i]) << (8 * i));
+        }
+      } else if ( len <= 16 ) {
+        for( uint i = 0; i < 8; ++i) {
+          name.lo |= (uint64_t(str[i]) << (8 * i));
+        }
+        for( uint i = 8; i < len; ++i) {
+          name.hi |= (uint64_t(str[i]) << (8 * i));
+        }
+      }
+      
       return name;
    }
 
@@ -121,17 +146,99 @@ namespace contento { namespace protocol {
       return names;
    }
 
+#define N16(X) contento::protocol::string_to_name16(#X)
+
+   struct name16 {
+      name16(){}
+      name16( const char* str )   { set(str);           } 
+      name16( const std::string& str ) { set( str.c_str() ); }
+      name16( const name16& n ) { value = n.value; }
+      name16( const fc::uint128_t& v ):value(v) {}
+
+      operator std::string()const;
+
+      bool empty()const { return 0 == value.lo && 0 == value.hi; }
+      bool good()const  { return !empty();   }
+
+      uint32_t size() const {
+          return value == 0 ? 0 : 16;
+      }
+
+      uint32_t length() const {
+          return value == 0 ? 0 : 16;
+      }
+
+      void set( const char* str );
+
+      name16& operator=( fc::uint128_t v ) {
+         value = v;
+         return *this;
+      }
+
+      name16& operator=( const std::string& n ) {
+         value = name16(n).value;
+         return *this;
+      }
+      name16& operator=( const char* n ) {
+         value = name16(n).value;
+         return *this;
+      }
+
+      name16& operator=( const name16& n ) {
+          value = n.value;
+          return *this;
+      }
+
+      friend std::string operator + ( const name16& a, const std::string& b ) {
+        return std::string(a) + b;
+      }
+      friend std::string operator + ( const std::string& a, const name16& b ) {
+        return a + std::string(b);
+      }
+
+    //   friend std::string operator + ( const name& a, const name& b ) {
+    //     return std::string(a) + std::string(b);
+    //   }
+
+      friend std::ostream& operator << ( std::ostream& out, const name16& n ) {
+         return out << std::string(n);
+      }
+
+      friend bool operator < ( const name16& a, const name16& b ) { return a.value < b.value; }
+      friend bool operator <= ( const name16& a, const name16& b ) { return a.value <= b.value; }
+      friend bool operator > ( const name16& a, const name16& b ) { return a.value > b.value; }
+      friend bool operator >=( const name16& a, const name16& b ) { return a.value >= b.value; }
+      friend bool operator == ( const name16& a, const name16& b ) { return a.value == b.value; }
+
+      friend bool operator == ( const name16& a, fc::uint128_t b ) { return a.value == b; }
+      friend bool operator != ( const name16& a, fc::uint128_t b ) { return a.value != b; }
+
+      friend bool operator != ( const name16& a, const name16& b ) { return a.value != b.value; }
+
+      //   operator bool()const            { return value; }
+      fc::uint128_t to_uint128_t() const        { return value; }
+      //   operator unsigned __int128()const       { return value; }
+
+      fc::uint128_t value = 0;
+   };
+
+
+   inline std::vector<name16> sort_names( std::vector<name16>&& names ) {
+      fc::deduplicate(names);
+      return names;
+   }
+
 } } // contento::protocol
 
 namespace std {
-   template<> struct hash<contento::protocol::name> : private hash<uint64_t> {
-      typedef contento::protocol::name argument_type;
-      typedef typename hash<uint64_t>::result_type result_type;
-      result_type operator()(const argument_type& name) const noexcept
-      {
-         return hash<uint64_t>::operator()(name.value);
-      }
-   };
+  //  template<> struct hash<contento::protocol::name> : private hash<uint64_t> {
+  //     typedef contento::protocol::name argument_type;
+  //     typedef typename hash<uint64_t>::result_type result_type;
+  //     result_type operator()(const argument_type& name) const noexcept
+  //     {
+  //        return hash<uint64_t>::operator()(name.value);
+  //     }
+  //  };
 };
 
 namespace fc {

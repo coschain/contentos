@@ -29,9 +29,47 @@ namespace contento { namespace protocol {
       return str;
    }
 
+   void name16::set( const char* str ) {
+      const auto len = strnlen(str, 17);
+      FC_ASSERT(len <= 16, "Name is longer than 16 characters (${name}) ", ("name", std::string(str)));
+      value = string_to_name16(str);
+   }
+
+   name16::operator std::string()const {
+    //  static const char* charmap = ".12345abcdefghijklmnopqrstuvwxyz";
+
+      std::string str("");
+
+      fc::uint128_t tmp = value;
+
+      if(tmp.hi > 0 && tmp.lo > 0) {
+        while(tmp.lo > 0) {
+          char c = tmp.lo & 0xFF;
+          str += c;
+          tmp.lo >>= 8;
+        }
+        while(tmp.hi > 0) {
+          char c = tmp.hi & 0xFF;
+          str += c;
+          tmp.hi >>= 8;
+        }
+      } else if(tmp.hi == 0 && tmp.lo > 0) {
+        while(tmp.lo > 0) {
+          char c = tmp.lo & 0xFF;
+          str += c;
+          tmp.lo >>= 8;
+        }
+      }
+
+      boost::algorithm::trim_right_if( str, []( char c ){ return c == '.'; } );
+      return str;
+   }
+
 } } /// contento::protocol
 
 namespace fc {
   void to_variant(const contento::protocol::name& c, fc::variant& v) { v = std::string(c); }
   void from_variant(const fc::variant& v, contento::protocol::name& check) { check = v.get_string(); }
+  void to_variant(const contento::protocol::name16& c, fc::variant& v) { v = std::string(c); }
+  void from_variant(const fc::variant& v, contento::protocol::name16& check) { check = v.get_string(); }
 } // fc
