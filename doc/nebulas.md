@@ -8,15 +8,15 @@ Nebulas dpos
 - producer数组更新时机，一般是21个producer都轮流生产之后，更新下一轮21个（每次更新可以随机打乱顺序）
 - fork的处理（最长链胜出）
 - irreversible block的设定（经过2/3+1 个producer认可的block为irreversible
-- 星云链的dpos还带了一个lru缓存，存储block，检查同一时刻重复block
 
 ### 移植可行性
 基于nebulas的go版本代码改造，删掉多余的功能，增加缺少的功能
 
-####多余
+#### 多余
 - dynasty功能，dpos完全不需要，目前nebulas的dpos是他们的过渡策略，最终要使用pod（devotion）
+- 星云链的dpos还带了一个lru缓存，存储block，检查同一时刻重复block（可有可无）
 
-####缺少
+#### 缺少
 - 投票机制，nebulas目前是指定的producer，轮流出块，没有投票机制。
 - producer更新，每一轮（21个）按照得票数更新一次
 - contentos的witness有个time_shared名额
@@ -24,7 +24,7 @@ Nebulas dpos
 - contentos有个producer的参与率判断
 - contentos的producers可以决定一些参数： account_creation_fee  maximum_block_size  sbd_interest_rate
 
-####contentos共识相关文件
+#### contentos共识相关文件
 contentos的共识主要在两个文件中：
 - witness_schedule.cpp  更新witness逻辑
 - witness_plugin.cpp  生产loop逻辑
