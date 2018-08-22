@@ -9,6 +9,71 @@ Nebulas dpos
 - fork的处理（最长链胜出）
 - irreversible block的设定（经过2/3+1 个producer认可的block为irreversible
 
+### Nebulas dpos
+#### dpos.go
+```
+func NewDpos() *Dpos {  创建dpos对象
+
+func (dpos *Dpos) Setup(neblet core.Neblet) error {  初始化
+
+func (dpos *Dpos) Start() {  启动dpos的loop
+
+func (dpos *Dpos) Stop() {  停止loop
+
+func (dpos *Dpos) EnableMining(passphrase string) error {  loop中的一个开关
+
+func (dpos *Dpos) DisableMining() error {  loop中的一个开关
+
+func (dpos *Dpos) Enable() bool {  loop中的一个开关
+
+func less(a *core.Block, b *core.Block) bool {  比较两个block的height高度，用于ForkChoice
+
+func (dpos *Dpos) ForkChoice() error {   fork处理，选择最长链
+
+func (dpos *Dpos) UpdateLIB() {  更新irreversible
+
+func (dpos *Dpos) Pending() bool {  返回是否在pending状态，pending状态不能产生block
+
+func (dpos *Dpos) SuspendMining() {  设置pending = true (外层sync的时候会让loop停止)
+
+func (dpos *Dpos) ResumeMining() {  设置pending = false
+
+func verifyBlockSign(miner *core.Address, block *core.Block) error {  通过block的hash和签名导出producer地址，对比
+
+func (dpos *Dpos) CheckDoubleMint(block *core.Block) bool {  检查同一时刻是否存在两个不同hash的block
+
+func (dpos *Dpos) VerifyBlock(block *core.Block) error {  验证block，主要是验证签名
+
+func (dpos *Dpos) unlock(passphrase string) error {  调用其他模块解锁账户
+
+func (dpos *Dpos) newBlock(tail *core.Block, consensusState state.ConsensusState, deadlineInMs int64) (*core.Block, error) { 创建新block
+
+func lastSlot(nowInMs int64) int64 {  返回当前最后一个slot的index
+
+func nextSlot(nowInMs int64) int64 {  返回下一个slot的index
+
+func deadline(nowInMs int64) int64 {  返回生产block的最大允许时间
+
+func (dpos *Dpos) checkDeadline(tail *core.Block, nowInMs int64) (int64, error) {  检查生产block的时间，并且调用deadline
+
+func (dpos *Dpos) checkProposer(tail *core.Block, nowInMs int64) (state.ConsensusState, error) {  检查是否是该由自己生产block
+
+func (dpos *Dpos) pushAndBroadcast(tail *core.Block, block *core.Block) error {  调用其他模块广播
+
+func (dpos *Dpos) mintBlock(now int64) error {  loop中调用这个，这个做一些检查：checkDeadline  checkProposer 然后 newBlock  pushAndBroadcast
+
+func (dpos *Dpos) blockLoop() {  Start()调用这个，生产block的loop
+```
+#### dpos_state.go
+```
+func (dpos *Dpos) CheckTimeout(block *core.Block) bool {  判断block超时
+func (ds *State) Dynasty() ([]byteutils.Hash, error) {  同TraverseDynasty
+func FindProposer(now int64, miners []byteutils.Hash) (proposer byteutils.Hash, err error) {  根据时间找到该生产block的producer
+func (ds *State) Proposer() byteutils.Hash {  返回选中的producer
+func (ds *State) NextConsensusState(elapsedSecond int64, worldState state.WorldState) (state.ConsensusState, error) {  根据时间返回最新的consensus状态对象，该对象包含下次该由谁打包的决定信息
+func TraverseDynasty(dynasty *trie.Trie) ([]byteutils.Hash, error) {  返回所有producer（放在trie结构里）
+```
+
 ### 移植可行性
 基于nebulas的go版本代码改造，删掉多余的功能，增加缺少的功能
 
