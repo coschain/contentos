@@ -1,6 +1,10 @@
 Nebulas dpos
 ----------
 
+### 使用go语言的区块链
+- 本体 ont ``` 共识机制是VBFT ```
+- 星云链 nebulas ``` dpos过渡，最终pod ```
+
 ### 实现dpos的几个要点
 - 基于时间的统一的producer选取机制，基于时间判断是否到生产时刻，要考虑时间误差
 - 产生block时的自身私钥（地址）验证，保证每个producer只有一个真正的生产node
@@ -70,3 +74,7 @@ contentos的共识主要在两个文件中：
 - witness_plugin.cpp  生产loop逻辑
 - database.cpp  irreversible的处理
 - fork.cpp  fork的处理
+
+### 难度
+直接从xxx移植到yyy看似简单粗暴，但是两套代码逻辑是不一样的，直接迁移后需要调整结构的工作里可能远远大于迁移，而且这样搞bug不好控制。
+结合nubulas和contentos各自的共识机制，按照需求重写出自己需要的dpos go语言代码，这样应该是最顺畅、最合理的。
