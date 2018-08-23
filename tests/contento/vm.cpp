@@ -113,12 +113,11 @@ bytes param_to_bin(database &db, name contract_name, name action_name, std::stri
 
 static void push_action(database &db, fc::ecc::private_key key, 
                         const name& caller, const name& contract_name, 
-                        const name& action_name, const std::string& action_param, int64_t v) {
+                        const name& action_name, const std::string& action_param, const asset& v) {
    bytes bin = param_to_bin(db, contract_name, action_name, action_param);
    signed_transaction tx;
    vm_operation vop = vm_operation(caller, contract_name, action_name, bin);
-    vop.value.amount = v;
-    vop.value.symbol = COC_SYMBOL;
+    vop.value = v;
     
     tx.operations.push_back(vop);
     tx.set_expiration( db.head_block_time() + 30 );
@@ -139,13 +138,17 @@ BOOST_AUTO_TEST_CASE( setcodes )
     set_code(db, hello_private_key, N(hello), "../../contracts/hello/hello.wast");
     set_abi(db, hello_private_key, N(hello), "../../contracts/hello/hello.abi");
 
-    push_action(db, buttnaked_private_key, N(buttnaked), N(hello), N(hi), "[\"buttnaked\"]", 0);
-    push_action(db, hello_private_key, N(hello), N(hello), N(hi), "[\"hello\"]", 50);
+    asset v;
+    v.amount = 0;
+    push_action(db, buttnaked_private_key, N(buttnaked), N(hello), N(hi), "[\"buttnaked\"]", v);
+    v.amount = 50;
+    push_action(db, hello_private_key, N(hello), N(hello), N(hi), "[\"hello\"]", v);
     
     const account_object& acct2 = db.get_account( "hello" );
     BOOST_REQUIRE( acct2.balance.amount.value == 0 );
     
-    push_action(db, hello_private_key, N(hello), N(hello), N(withdraw), "[\"hello\",50]",0);
+    v.amount = 0;
+    push_action(db, hello_private_key, N(hello), N(hello), N(withdraw), "[\"hello\",\"50 COC\"]",v);
     
     const account_object& acct3 = db.get_account( "hello" );
     BOOST_REQUIRE( acct3.balance.amount.value == 50 );

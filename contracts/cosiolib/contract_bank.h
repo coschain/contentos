@@ -5,6 +5,7 @@
 #pragma once
 
 #include <cosiolib/types.h>
+#include <cosiolib/asset.hpp>
 
 /**
  *  @defgroup chainapi Chain API
@@ -24,7 +25,7 @@ extern "C" {
      * @param name : balance receiver
      * @param value : amount to transfer
      */
-   void transfer( account_name name, int64_t value );
+    void transfer( account_name name, const cosio::asset* value );
 
     /**
      * get caller's value that want to give to contract

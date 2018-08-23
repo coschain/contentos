@@ -548,15 +548,15 @@ int64_t apply_context::get_contract_balance()  {
     return account.coc_balance.amount.value;
 }
     
-void apply_context::transfer( account_name name, int64_t value)  {
+void apply_context::transfer( account_name name, const asset& value)  {
     
     const auto& to_account = control.get_account(name);
     const auto& from_account = control.get_contract_account(receiver);
     
-    FC_ASSERT( get_contract_balance() >= value, "Contract does not have sufficient funds for transfer." );
-    asset s(value,COC_SYMBOL);
-    control.adjust_contract_balance( from_account, -s );
-    control.adjust_balance( to_account, s );
+    FC_ASSERT( get_contract_balance() >= value.amount, "Contract does not have sufficient funds for transfer." );
+//    asset s(value,COC_SYMBOL);
+    control.adjust_contract_balance( from_account, -value );
+    control.adjust_balance( to_account, value );
 }
     
 int64_t apply_context::get_value() {

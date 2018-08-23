@@ -1,6 +1,9 @@
 #include <cosiolib/contract_bank.h>
 #include <cosiolib/chain.h>
 #include <cosiolib/cosio.hpp>
+#include <cosiolib/asset.hpp>
+using cosio::asset;
+
 using namespace cosio;
 
 class hello : public cosio::contract {
@@ -22,7 +25,8 @@ class hello : public cosio::contract {
       }
     
     //@abi action
-    void withdraw(account_name user, int64_t value){
+    void withdraw(account_name user, const asset& value){
+        print("111");
         pay_prohibited();
          int64_t cb = get_contract_balance();
         print("\n before withdraw  contract balance is : ",cb);
