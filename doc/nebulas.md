@@ -2,8 +2,8 @@ Nebulas dpos
 ----------
 
 ### 使用go语言的区块链
-- 本体 ont ``` 共识机制是VBFT ```
-- 星云链 nebulas ``` dpos过渡，最终pod ```
+- 本体 ont ``` 共识机制是VBFT ``` [ont vbft](https://www.jianshu.com/p/bcf5a529ea49)
+- 星云链 nebulas ``` dpos过渡，最终pod ``` [nebulas pod](https://nebulas.io/docs/NebulasTechnicalWhitepaperZh.pdf)
 
 ### 实现dpos的几个要点
 - 基于时间的统一的producer选取机制，基于时间判断是否到生产时刻，要考虑时间误差
