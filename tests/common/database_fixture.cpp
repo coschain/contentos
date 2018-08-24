@@ -189,7 +189,7 @@ void database_fixture::open_database()
    if( !data_dir ) {
       data_dir = fc::temp_directory( graphene::utilities::temp_directory_path() );
       db._log_hardforks = false;
-      db.open( data_dir->path(), data_dir->path(), INITIAL_TEST_SUPPLY, 1024 * 1024 * 8, chainbase::database::read_write ); // 8 MB file for testing
+      db.open( data_dir->path(), data_dir->path(), INITIAL_TEST_SUPPLY, 1024 * 1024 * 128, chainbase::database::read_write ); // 8 MB file for testing
    }
 }
 
@@ -348,32 +348,15 @@ void database_fixture::fund(
          {
             if( amount.symbol == COC_SYMBOL )
                a.balance += amount;
-            else if( amount.symbol == SBD_SYMBOL )
-            {
-            //    a.sbd_balance += amount;
-            //    a.sbd_seconds_last_update = db.head_block_time();
-            }
          });
 
          db.modify( db.get_dynamic_global_properties(), [&]( dynamic_global_property_object& gpo )
          {
-            // if( amount.symbol == COC_SYMBOL )
-            //    gpo.current_supply += amount;
-            // else if( amount.symbol == SBD_SYMBOL )
-            //    gpo.current_sbd_supply += amount;
+            if( amount.symbol == COC_SYMBOL )
+               gpo.current_supply += amount;
+               gpo.virtual_supply += amount;
+
          });
-
-         if( amount.symbol == SBD_SYMBOL )
-         {
-            const auto& median_feed = db.get_feed_history();
-            if( median_feed.current_median_history.is_null() )
-               db.modify( median_feed, [&]( feed_history_object& f )
-               {
-                  f.current_median_history = price( asset( 1, SBD_SYMBOL ), asset( 1, COC_SYMBOL ) );
-               });
-         }
-
-         db.update_virtual_supply();
       }, default_skip );
    }
    FC_CAPTURE_AND_RETHROW( (account_name)(amount) )

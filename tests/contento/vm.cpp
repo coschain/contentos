@@ -1,4 +1,4 @@
-//#ifdef IS_TEST_NET
+#ifdef IS_TEST_NET
 #include <regex>
 #include <boost/test/unit_test.hpp>
 
@@ -145,4 +145,4 @@ BOOST_AUTO_TEST_CASE( setcodes )
 
 BOOST_AUTO_TEST_SUITE_END()
 
-//#endif // IS_TEST_NET
+#endif // IS_TEST_NET

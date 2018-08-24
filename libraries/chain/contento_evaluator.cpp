@@ -11,10 +11,6 @@
 #include <diff_match_patch.h>
 #include <boost/locale/encoding_utf.hpp>
 
-#ifndef CONTENTO_ASA
-#define CONTENTO_ASA
-#endif
-
 using boost::locale::conv::utf_to_utf;
 
 std::wstring utf8_to_wstring(const std::string& str)
@@ -630,6 +626,7 @@ void comment_options_evaluator::do_apply( const comment_options_operation& o )
 
 void comment_evaluator::do_apply( const comment_operation& o )
 { try {
+    FC_ASSERT(5>6, "fuck you");
     FC_ASSERT( o.title.size() + o.body.size() + o.json_metadata.size(), "Cannot update comment because nothing appears to be changing." );
     const auto& by_permlink_idx = _db.get_index< comment_index >().indices().get< by_permlink >();
     auto itr = by_permlink_idx.find( boost::make_tuple( o.author, o.permlink ) );
@@ -637,13 +634,11 @@ void comment_evaluator::do_apply( const comment_operation& o )
     FC_ASSERT( !(auth.owner_challenged || auth.active_challenged ), "Operation cannot be processed because account is currently challenged." );
     comment_id_type id;
     const comment_object* parent = nullptr;
-    // 这个就是判断是不是 subject
     if( o.parent_author != CONTENTO_ROOT_POST_PARENT )
     {
         parent = &_db.get_comment( o.parent_author, o.parent_permlink );
         FC_ASSERT( parent->depth < CONTENTO_MAX_COMMENT_DEPTH, "Comment is nested ${x} posts deep, maximum depth is ${y}.", ("x",parent->depth)("y",CONTENTO_MAX_COMMENT_DEPTH) );
     }
-    //   if( ( _db.has_hardfork( CONTENTO_HARDFORK_0_17__926 ) ) && o.json_metadata.size() )
     if (o.json_metadata.size())
         FC_ASSERT( fc::is_utf8( o.json_metadata ), "JSON Metadata must be UTF-8" );
     auto now = _db.head_block_time();
@@ -652,35 +647,14 @@ void comment_evaluator::do_apply( const comment_operation& o )
         if( o.parent_author != CONTENTO_ROOT_POST_PARENT )
         {
             FC_ASSERT( _db.get( parent->root_comment ).allow_replies, "The parent comment has disabled replies." );
-            // 即使 parent 已经结算过了，也应该继续允许评论
-            //         if( _db.has_hardfork( CONTENTO_HARDFORK_0_12__177 ) && !_db.has_hardfork( CONTENTO_HARDFORK_0_17__869 ) )
-            //            FC_ASSERT( _db.calculate_discussion_payout_time( *parent ) != fc::time_point_sec::maximum(), "Discussion is frozen." );
         }
-        //      if( _db.has_hardfork( CONTENTO_HARDFORK_0_12__176 ) )
-        //      {
         
-    #ifdef CONTENTO_ASA
-        // 我测试的时候不希望有这个限制
         if( o.parent_author == CONTENTO_ROOT_POST_PARENT )
             FC_ASSERT( ( now - auth.last_root_post ) >= CONTENTO_MIN_ROOT_COMMENT_INTERVAL, "You may only post once every 5 minutes.", ("now",now)("last_root_post", auth.last_root_post) );
         else
             FC_ASSERT( (now - auth.last_post) >= CONTENTO_MIN_REPLY_INTERVAL, "You may only comment once every 20 seconds.", ("now",now)("auth.last_post",auth.last_post) );
-    #endif
-        //      }
-        //      else if( _db.has_hardfork( CONTENTO_HARDFORK_0_6__113 ) )
-        //      {
-        //         if( o.parent_author == CONTENTO_ROOT_POST_PARENT )
-        //             FC_ASSERT( (now - auth.last_post) >= CONTENTO_MIN_ROOT_COMMENT_INTERVAL, "You may only post once every 5 minutes.", ("now",now)("auth.last_post",auth.last_post) );
-        //         else
-        //             FC_ASSERT( (now - auth.last_post) >= CONTENTO_MIN_REPLY_INTERVAL, "You may only comment once every 20 seconds.", ("now",now)("auth.last_post",auth.last_post) );
-        //      }
-        //      else
-        //      {
-        //         FC_ASSERT( (now - auth.last_post) > fc::seconds(60), "You may only post once per minute.", ("now",now)("auth.last_post",auth.last_post) );
-        //      }
         uint16_t reward_weight = CONTENTO_100_PERCENT;
-        // 我现在不想使用 bandwidth
-        // 所以我注释掉了 bandwidth 计算逻辑
+
         //      uint64_t post_bandwidth = auth.post_bandwidth;
         //      if( _db.has_hardfork( CONTENTO_HARDFORK_0_12__176 ) && !_db.has_hardfork( CONTENTO_HARDFORK_0_17__733 ) && o.parent_author == CONTENTO_ROOT_POST_PARENT )
         //      {
@@ -766,58 +740,50 @@ void comment_evaluator::do_apply( const comment_operation& o )
     }
     else // start edit case
     {
-        // 没什么特别需要修改的地方
         const auto& comment = *itr;
-        //      if( !_db.has_hardfork( CONTENTO_HARDFORK_0_17__772 ) )
-        //      {
-        //         if( _db.has_hardfork( CONTENTO_HARDFORK_0_14__306 ) )
-        //            FC_ASSERT( _db.calculate_discussion_payout_time( comment ) != fc::time_point_sec::maximum(), "The comment is archived." );
-        //         else if( _db.has_hardfork( CONTENTO_HARDFORK_0_10 ) )
-        //            FC_ASSERT( comment.last_payout == fc::time_point_sec::min(), "Can only edit during the first 24 hours." );
-        //      }
         _db.modify( comment, [&]( comment_object& com )
-                   {
-                       com.last_update   = _db.head_block_time();
-                       com.active        = com.last_update;
-                       strcmp_equal equal;
-                       if( !parent )
-                       {
-                           FC_ASSERT( com.parent_author == account_name_type(), "The parent of a comment cannot change." );
-                           FC_ASSERT( equal( com.parent_permlink, o.parent_permlink ), "The permlink of a comment cannot change." );
-                       }
-                       else
-                       {
-                           FC_ASSERT( com.parent_author == o.parent_author, "The parent of a comment cannot change." );
-                           FC_ASSERT( equal( com.parent_permlink, o.parent_permlink ), "The permlink of a comment cannot change." );
-                       }
-                       if( o.title.size() )         from_string( com.title, o.title );
-                       if( o.json_metadata.size() )
-                       {
-                           if( fc::is_utf8( o.json_metadata ) )
-                               from_string( com.json_metadata, o.json_metadata );
-                           else
-                               wlog( "Comment ${a}/${p} contains invalid UTF-8 metadata", ("a", o.author)("p", o.permlink) );
-                       }
-                       if( o.body.size() ) {
-                           try {
-                               diff_match_patch<std::wstring> dmp;
-                               auto patch = dmp.patch_fromText( utf8_to_wstring(o.body) );
-                               if( patch.size() ) {
-                                   auto result = dmp.patch_apply( patch, utf8_to_wstring( to_string( com.body ) ) );
-                                   auto patched_body = wstring_to_utf8(result.first);
-                                   if( !fc::is_utf8( patched_body ) ) {
-                                       idump(("invalid utf8")(patched_body));
-                                       from_string( com.body, fc::prune_invalid_utf8(patched_body) );
-                                   } else { from_string( com.body, patched_body ); }
-                               }
-                               else { // replace
-                                   from_string( com.body, o.body );
-                               }
-                           } catch ( ... ) {
-                               from_string( com.body, o.body );
-                           }
-                       }
-                   });
+        {
+            com.last_update   = _db.head_block_time();
+            com.active        = com.last_update;
+            strcmp_equal equal;
+            if( !parent )
+            {
+                FC_ASSERT( com.parent_author == account_name_type(), "The parent of a comment cannot change." );
+                FC_ASSERT( equal( com.parent_permlink, o.parent_permlink ), "The permlink of a comment cannot change." );
+            }
+            else
+            {
+                FC_ASSERT( com.parent_author == o.parent_author, "The parent of a comment cannot change." );
+                FC_ASSERT( equal( com.parent_permlink, o.parent_permlink ), "The permlink of a comment cannot change." );
+            }
+            if( o.title.size() )         from_string( com.title, o.title );
+            if( o.json_metadata.size() )
+            {
+                if( fc::is_utf8( o.json_metadata ) )
+                    from_string( com.json_metadata, o.json_metadata );
+                else
+                    wlog( "Comment ${a}/${p} contains invalid UTF-8 metadata", ("a", o.author)("p", o.permlink) );
+            }
+            if( o.body.size() ) {
+                try {
+                    diff_match_patch<std::wstring> dmp;
+                    auto patch = dmp.patch_fromText( utf8_to_wstring(o.body) );
+                    if( patch.size() ) {
+                        auto result = dmp.patch_apply( patch, utf8_to_wstring( to_string( com.body ) ) );
+                        auto patched_body = wstring_to_utf8(result.first);
+                        if( !fc::is_utf8( patched_body ) ) {
+                            idump(("invalid utf8")(patched_body));
+                            from_string( com.body, fc::prune_invalid_utf8(patched_body) );
+                        } else { from_string( com.body, patched_body ); }
+                    }
+                    else { // replace
+                        from_string( com.body, o.body );
+                    }
+                } catch ( ... ) {
+                    from_string( com.body, o.body );
+                }
+            }
+        });
     } // end EDIT case
 } FC_CAPTURE_AND_RETHROW( (o) ) }
 
@@ -1366,15 +1332,7 @@ void vote_evaluator::do_apply( const vote_operation& o )
    int64_t max_vote_denom = dgpo.vote_power_reserve_rate * CONTENTO_VOTE_REGENERATION_SECONDS / (60*60*24);
    FC_ASSERT( max_vote_denom > 0 );
 
-//    if( !_db.has_hardfork( CONTENTO_HARDFORK_0_14__259 ) )
-//    {
-//       FC_ASSERT( max_vote_denom == 200 );   // TODO: Remove this assert
-//       used_power = (used_power / max_vote_denom)+1;
-//    }
-//    else
-//    {
-      used_power = (used_power + max_vote_denom - 1) / max_vote_denom;
-//    }
+   used_power = (used_power + max_vote_denom - 1) / max_vote_denom;
    FC_ASSERT( used_power <= current_power, "Account does not have enough power to vote." );
 
 //   int64_t abs_rshares    = ((uint128_t(voter.effective_vesting_shares().amount.value) * used_power) / (CONTENTO_100_PERCENT)).to_uint64();

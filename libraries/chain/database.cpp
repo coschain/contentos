@@ -1608,7 +1608,7 @@ void database::process_comment_cashout()
     //  add all rshares about to be cashed out to the reward funds. This ensures equal satoshi per rshare payment
     // 就只有 cashout 的时候会累加进 recent_claims
 //
-//#ifdef CONTENTO_ASA
+#ifdef CONTENTO_ASA
     while( current != cidx.end())
     {
         std::cout << current -> permlink << "\n";
@@ -1618,7 +1618,7 @@ void database::process_comment_cashout()
         ++current;
     }
     current = cidx.begin();
-//#endif
+#endif
 
     while( current != cidx.end() && current->cashout_time <= head_block_time() )
     {

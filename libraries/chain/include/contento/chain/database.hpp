@@ -3,6 +3,7 @@
  */
 #pragma once
 #include <contento/chain/global_property_object.hpp>
+#include <contento/chain/global_reward_property_object.hpp>
 #include <contento/chain/transaction_context.hpp>
 #include <contento/chain/hardfork.hpp>
 #include <contento/chain/node_property_object.hpp>
