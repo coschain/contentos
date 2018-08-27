@@ -56,6 +56,8 @@ namespace contento { namespace chain {
     //      }
     //      FC_ASSERT( false, "unexpected deadline exception code" );
     //   }
+       
+       FC_ASSERT( gas() <= max_gas, "out of gas" );
    }
 
    void transaction_context::pause_billing_timer() {
@@ -80,7 +82,7 @@ namespace contento { namespace chain {
         this->wasm_to_gas = wasm_to_gas;
     }
 
-    uint64_t transaction_context::gas() {
+    uint64_t transaction_context::gas() const {
         uint64_t gas = wasm_to_gas * bill.second;
         if (bill.first > 0) {
             gas += ram_to_gas * (uint64_t)bill.first;

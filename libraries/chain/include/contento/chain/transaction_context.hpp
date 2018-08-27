@@ -33,7 +33,7 @@ namespace contento { namespace chain {
          void add_ram_usage( account_name account, int64_t ram_delta );
          void add_wasm_price( account_name account, uint64_t price );
          void init_bill(uint64_t max_gas, uint64_t ram_to_gas, uint64_t wasm_to_gas);
-         uint64_t gas();
+         uint64_t gas() const;
 
          void apply( const vm_operation& op, account_name receiver, bool context_free = false, uint32_t recurse_depth = 0 );
          inline void apply( const vm_operation& op, bool context_free = false ) {

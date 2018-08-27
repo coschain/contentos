@@ -2465,34 +2465,41 @@ void vm_evaluator::do_apply( const vm_operation& o )  {
     auto caller = _db.get_account(o.caller);
     FC_ASSERT( caller.balance.amount >= 0 && caller.balance.symbol == COC_SYMBOL, "Not enough balance to run vm_operation." );
     
-    ctx->init_bill( (uint64_t)caller.balance.amount.value, 10, 10);
-    bool contract_error = false;
-    fc::exception contract_exception;
+    ctx->init_bill( (uint64_t)caller.balance.amount.value * config::gas_per_coc, 10, 10);
+    bool error = false;
+    fc::exception exc;
     try {
         ctx->apply(o);
     } catch(fc::exception& e) {
-        contract_error = true;
-        contract_exception = e;
+        error = true;
+        exc = e;
     } catch(...) {
-        contract_error = true;
+        error = true;
     }
-
-    try {
-        uint64_t gas_cost = ctx->gas();
-        uint64_t coc_cost = gas_cost / config::gas_per_coc;
-        transfer_operation pay;
-        pay.from = o.caller;
-        pay.to = config::gas_fee_account_name;
-        pay.amount = asset(coc_cost, COC_SYMBOL);
-        pay.memo = "gas fee";
-        
-        transfer_evaluator(_db).do_apply(pay);
-    } catch(...) {
-        if (contract_error) {
-            throw contract_exception;
-        } else {
-            throw;
+    
+    uint64_t gas_cost = ctx->gas();
+    uint64_t coc_cost = gas_cost / config::gas_per_coc;
+    if (coc_cost > 0) {
+        try {
+            transfer_operation pay;
+            pay.from = o.caller;
+            pay.to = config::gas_fee_account_name;
+            pay.amount = asset(coc_cost, COC_SYMBOL);
+            pay.memo = "gas fee";
+            
+            transfer_evaluator(_db).do_apply(pay);
+        } catch(fc::exception& e) {
+            if (!error) {
+                error = true;
+                exc = e;
+            }
+        } catch(...) {
+            error = true;
         }
+    }
+    
+    if (error) {
+        throw exc;
     }
 }
 
