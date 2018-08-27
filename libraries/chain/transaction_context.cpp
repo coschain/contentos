@@ -19,7 +19,6 @@ namespace contento { namespace chain {
 
    void transaction_context::init( )
    {
-      bills.clear();
       is_initialized = true;
    }
 
@@ -66,21 +65,27 @@ namespace contento { namespace chain {
    }
 
    void transaction_context::add_ram_usage( account_name account, int64_t ram_delta ) {
-       auto iter = bills.find(account);
-       if (iter == bills.end()) {
-           bills[account] = std::make_pair(0, 0);
-           iter = bills.find(account);
-       }
-       iter->second.first += ram_delta;
+       bill.first += ram_delta;
    }
     
     void transaction_context::add_wasm_price( account_name account, uint64_t price ) {
-        auto iter = bills.find(account);
-        if (iter == bills.end()) {
-            bills[account] = std::make_pair(0, 0);
-            iter = bills.find(account);
+        bill.second += price;
+    }
+    
+    void transaction_context::init_bill(uint64_t max_gas, uint64_t ram_to_gas, uint64_t wasm_to_gas) {
+        this->bill.first = 0;
+        this->bill.second = 0;
+        this->max_gas = max_gas;
+        this->ram_to_gas = ram_to_gas;
+        this->wasm_to_gas = wasm_to_gas;
+    }
+
+    uint64_t transaction_context::gas() {
+        uint64_t gas = wasm_to_gas * bill.second;
+        if (bill.first > 0) {
+            gas += ram_to_gas * (uint64_t)bill.first;
         }
-        iter->second.second += price;
+        return gas;
     }
 
    void transaction_context::apply( const vm_operation& op, account_name receiver, bool context_free, uint32_t recurse_depth ) {
