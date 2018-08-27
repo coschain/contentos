@@ -811,7 +811,7 @@ signed_block database::_generate_block(
 
       uint64_t postponed_tx_count = 0;
       // pop pending state (reset to head block state)
-      for( const transaction_wrapper& trx_wrapper : _pending_tx )
+      for(  transaction_wrapper& trx_wrapper : _pending_tx )
       {
          // Only include transactions that have not expired yet for currently generating block,
          // this should clear problem transactions and allow block production to continue
@@ -2403,7 +2403,7 @@ void database::init_genesis( uint64_t init_supply )
 }
 
 
-void database::validate_transaction( const transaction_wrapper& trx_wrapper )
+void database::validate_transaction(  transaction_wrapper& trx_wrapper )
 {
    database::with_write_lock( [&]()
    {
@@ -2630,8 +2630,10 @@ void database::_apply_block( const signed_block& next_block )
       );
 //   }
 
+    transaction_wrapper tmp_wrapper;
+    
     if( !( skip & skip_apply_transaction ) ){
-        for( const auto& trx_wrapper : next_block.transactions )
+        for(  auto& trx_wrapper : next_block.transactions )
         {
             /* We do not need to push the undo state for each transaction
             * because they either all apply and are valid or the
@@ -2639,7 +2641,10 @@ void database::_apply_block( const signed_block& next_block )
             * for transactions when validating broadcast transactions or
             * when building a block.
             */
-            apply_transaction( trx_wrapper, skip );
+            tmp_wrapper = trx_wrapper;
+            tmp_wrapper.invoice.gas_usage = 0;
+            apply_transaction( tmp_wrapper, skip );
+            FC_ASSERT(tmp_wrapper.invoice.gas_usage == trx_wrapper.invoice.gas_usage, "mismatched gas fee");
             ++_current_trx_in_block;
         }
     }
@@ -2793,14 +2798,14 @@ try {
    }
 } FC_CAPTURE_AND_RETHROW() }
 
-void database::apply_transaction(const transaction_wrapper& trx_wrapper, uint32_t skip)
+void database::apply_transaction( transaction_wrapper& trx_wrapper, uint32_t skip)
 {
    detail::with_skip_flags( *this, skip, [&]() { _apply_transaction(trx_wrapper); });
    notify_on_applied_transaction( trx_wrapper.sig_trx );
 }
 
 
-std::shared_ptr<transaction_context> database::_apply_transaction(const transaction_wrapper& trx_wrapper)
+std::shared_ptr<transaction_context> database::_apply_transaction( transaction_wrapper& trx_wrapper)
 { try {
    auto trx = trx_wrapper.sig_trx;
 
@@ -2872,14 +2877,25 @@ std::shared_ptr<transaction_context> database::_apply_transaction(const transact
    //Finally process the operations
    auto trx_ctx = std::make_shared<transaction_context>(ctrl, trx, trx_id);
    _current_op_in_trx = 0;
-   for( const auto& op : trx.operations )
-   { try {
-      apply_operation(op, trx_ctx);
-      ++_current_op_in_trx;
-     } FC_CAPTURE_AND_RETHROW( (op) );
-   }
+    
+    try {
+    
+       for( const auto& op : trx.operations )
+       {
+           try {
+               apply_operation(op, trx_ctx);
+               ++_current_op_in_trx;
+           } FC_CAPTURE_AND_RETHROW( (op) );
+       }
+        
+    } catch(...) {
+        trx_wrapper.invoice.gas_usage = trx_ctx->gas_paid();
+        throw;
+    }
+    
    _current_trx_id = transaction_id_type();
-
+    trx_wrapper.invoice.gas_usage = trx_ctx->gas_paid();
+    
    return trx_ctx;
 } FC_CAPTURE_AND_RETHROW( (trx_wrapper) ) }
 

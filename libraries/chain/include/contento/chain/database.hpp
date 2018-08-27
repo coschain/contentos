@@ -387,7 +387,7 @@ namespace contento { namespace chain {
           *  This method validates transactions without adding it to the pending state.
           *  @throw if an error occurs
           */
-         void validate_transaction( const transaction_wrapper& trx );
+         void validate_transaction(  transaction_wrapper& trx );
 
          /** when popping a block, the transactions that were removed get cached here so they
           * can be reapplied at the proper time */
@@ -443,10 +443,10 @@ namespace contento { namespace chain {
          optional< chainbase::database::session > _pending_tx_session;
 
          void apply_block( const signed_block& next_block, uint32_t skip = skip_nothing );
-         void apply_transaction( const transaction_wrapper& trx_wrapper, uint32_t skip = skip_nothing );
+         void apply_transaction(  transaction_wrapper& trx_wrapper, uint32_t skip = skip_nothing );
          void _apply_block( const signed_block& next_block );
 
-         std::shared_ptr<transaction_context> _apply_transaction( const transaction_wrapper& trx_wrapper );
+         std::shared_ptr<transaction_context> _apply_transaction(  transaction_wrapper& trx_wrapper );
          void apply_operation( const operation& op, std::shared_ptr<transaction_context> ctx );
 
          ///Steps involved in applying a new block

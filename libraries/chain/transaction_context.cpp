@@ -89,6 +89,14 @@ namespace contento { namespace chain {
         }
         return gas;
     }
+    
+    void transaction_context::add_paid_gas(uint64_t paid_gas) {
+        this->paid_gas += paid_gas;
+    }
+    
+    uint64_t transaction_context::gas_paid() const {
+        return this->paid_gas;
+    }
 
    void transaction_context::apply( const vm_operation& op, account_name receiver, bool context_free, uint32_t recurse_depth ) {
       apply_context  acontext( control, *this, op, recurse_depth );

@@ -2488,6 +2488,8 @@ void vm_evaluator::do_apply( const vm_operation& o )  {
             pay.memo = "gas fee";
             
             transfer_evaluator(_db).do_apply(pay);
+            ctx->add_paid_gas(gas_cost);
+            
         } catch(fc::exception& e) {
             if (!error) {
                 error = true;
