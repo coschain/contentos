@@ -261,8 +261,16 @@ void apply_context::update_db_usage( const account_name& payer, int64_t delta ) 
    }
    trx_context.add_ram_usage(payer, delta);
     */
+    
+    //
+    // caller pays for everything.
+    //
+    trx_context.add_ram_usage( op.caller, delta );
 }
 
+void apply_context::add_action_price(uint64_t price, int wasm_expr_id) {
+    trx_context.add_wasm_price( op.caller, price );
+}
 
 int apply_context::get_action( uint32_t type, uint32_t index, char* buffer, size_t buffer_size )const
 {
@@ -542,9 +550,6 @@ bool apply_context::excute_operation( const std::vector<char>& op_buff ){
    EOS_ASSERT( !is_virtual_operation(op), transaction_exception, "virtual operation not permitted");
 
    return control.get_op_excutor()->execute_operation( trx_context, op);
-}
-
-void apply_context::add_action_price(uint64_t price, int wasm_expr_id) {
 }
 
 } } /// contento::chain

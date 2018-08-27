@@ -19,6 +19,7 @@ namespace contento { namespace chain {
 
    void transaction_context::init( )
    {
+      bills.clear();
       is_initialized = true;
    }
 
@@ -65,8 +66,22 @@ namespace contento { namespace chain {
    }
 
    void transaction_context::add_ram_usage( account_name account, int64_t ram_delta ) {
-      
+       auto iter = bills.find(account);
+       if (iter == bills.end()) {
+           bills[account] = std::make_pair(0, 0);
+           iter = bills.find(account);
+       }
+       iter->second.first += ram_delta;
    }
+    
+    void transaction_context::add_wasm_price( account_name account, uint64_t price ) {
+        auto iter = bills.find(account);
+        if (iter == bills.end()) {
+            bills[account] = std::make_pair(0, 0);
+            iter = bills.find(account);
+        }
+        iter->second.second += price;
+    }
 
    void transaction_context::apply( const vm_operation& op, account_name receiver, bool context_free, uint32_t recurse_depth ) {
       apply_context  acontext( control, *this, op, recurse_depth );

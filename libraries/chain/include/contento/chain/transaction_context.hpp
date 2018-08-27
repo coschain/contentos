@@ -1,8 +1,11 @@
 #pragma once
 #include <contento/chain/controller.hpp>
 #include <contento/protocol/contento_operations.hpp>
+#include <utility>
 
 namespace contento { namespace chain {
+    
+   using bill_type = std::pair<int64_t, uint64_t>;
 
    class transaction_context {
       private:
@@ -28,6 +31,7 @@ namespace contento { namespace chain {
          void resume_billing_timer();
 
          void add_ram_usage( account_name account, int64_t ram_delta );
+         void add_wasm_price( account_name account, uint64_t price );
 
          void apply( const vm_operation& op, account_name receiver, bool context_free = false, uint32_t recurse_depth = 0 );
          inline void apply( const vm_operation& op, bool context_free = false ) {
@@ -48,7 +52,8 @@ namespace contento { namespace chain {
          fc::time_point                start;
 
          fc::time_point                published;
-
+       
+         std::map<account_name, bill_type> bills;
 
         // vector<action_receipt>        executed;
         //  flat_set<account_name>        bill_to_accounts;
