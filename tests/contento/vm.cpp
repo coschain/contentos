@@ -130,6 +130,10 @@ BOOST_AUTO_TEST_CASE( setcodes )
 {
     ACTORS((contento)(hello)(buttnaked));
     //fund("hello", 100);
+    
+    fund("hello", 5000);
+    fund("buttnaked", 5000);
+    
     set_code(db, hello_private_key, N(hello), "../contracts/hello/hello.wast");
     set_abi(db, hello_private_key, N(hello), "../contracts/hello/hello.abi");
 
