@@ -2465,7 +2465,15 @@ void vm_evaluator::do_apply( const vm_operation& o )  {
     auto caller = _db.get_account(o.caller);
     FC_ASSERT( caller.balance.amount >= 0 && caller.balance.symbol == COC_SYMBOL, "Not enough balance to run vm_operation." );
     
-    ctx->init_bill( (uint64_t)caller.balance.amount.value * config::gas_per_coc, 10, 10);
+    const uint64_t max_tps = 3000;
+    uint32_t tps = _db.tps();
+    if (tps >= max_tps) tps = max_tps - 1;
+    
+    ctx->init_bill( (uint64_t)caller.balance.amount.value * config::gas_per_coc,
+                   10,
+                   1 * max_tps / (max_tps - tps)
+                   );
+    
     bool error = false;
     fc::exception exc;
     try {
