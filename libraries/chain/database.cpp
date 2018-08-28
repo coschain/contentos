@@ -88,9 +88,109 @@ class database_impl
 database_impl::database_impl( database& self )
    : _self(self), _evaluator_registry(self) {}
 
+    
+    //
+    // TPS stats by counting trx# of latest irreversible blocks.
+    //
+    class tps_stats {
+    public:
+        tps_stats( database& self );
+        
+        // neccessary information out of a signed block
+        struct block_info {
+            uint32_t block_num;
+            fc::time_point_sec timestamp;
+            size_t trx_count;
+        };
+        
+        // update the stats.
+        void update();
+        
+        // get TPS.
+        uint32_t tps();
+        
+        database& _self;
+        std::map<uint32_t, block_info> _latest_blocks;
+        std::list<uint32_t> _latest_block_nums;
+        uint32_t trx_total = 0;
+    };
+    
+    tps_stats::tps_stats( database& self ): _self(self) {
+        
+    }
+    
+    uint32_t tps_stats::tps() {
+        uint32_t r = 0;
+        
+        // we need at least 2 blocks to calculate TPS.
+        if (_latest_blocks.size() > 1) {
+            block_info &info1 = _latest_blocks[_latest_block_nums.back()];
+            block_info &info0 = _latest_blocks[_latest_block_nums.front()];
+            uint32_t t1 = info1.timestamp.sec_since_epoch();
+            uint32_t t0 = info0.timestamp.sec_since_epoch();
+            if (t1 > t0) {
+                r = (trx_total - info0.trx_count)/ (t1 - t0);
+            }
+        }
+        return r;
+    }
+    
+    void tps_stats::update() {
+        uint32_t end = _self.last_non_undoable_block_num();
+        if (end <= 0) {
+            // no irreversible block yet
+            return;
+        }
+        uint32_t cache_end = _latest_block_nums.size()? _latest_block_nums.back() : 0;
+        if (end == cache_end) {
+            // last irreversible block not changed
+            return;
+        }
+        
+        // when cache data seems wrong, clear it.
+        if (cache_end > 0 && end != cache_end + 1) {
+            _latest_blocks.clear();
+            _latest_block_nums.clear();
+            trx_total = 0;
+            cache_end = 0;
+        }
+        
+        // remove old cache items.
+        const uint32_t window_size = 100;
+        uint32_t exp_begin = end > window_size? end - window_size : 1;
+        uint32_t cache_begin = _latest_block_nums.size()? _latest_block_nums.front() : 0;
+        long remove_count = (long)exp_begin - (long)cache_begin;
+        long i;
+        if (cache_begin > 0 && remove_count > 0) {
+            for (i = 0; i < remove_count && _latest_block_nums.size(); i++) {
+                uint32_t block_num = _latest_block_nums.front();
+                trx_total -= _latest_blocks[block_num].trx_count;
+                _latest_blocks.erase(block_num);
+                _latest_block_nums.pop_front();
+            }
+        }
+        
+        // put missing block info into cache.
+        cache_end = _latest_block_nums.size()? _latest_block_nums.back() : 0;
+        for (i = (exp_begin <= cache_end? cache_end + 1 : exp_begin); i <= end; i++) {
+            if (_latest_blocks.find(i) == _latest_blocks.end()) {
+                auto block = _self.fetch_block_by_number(i);
+                block_info info;
+                info.block_num = i;
+                info.timestamp = block->timestamp;
+                info.trx_count = block->transactions.size();
+                _latest_blocks[i] = info;
+                _latest_block_nums.push_back(i);
+                trx_total += info.trx_count;
+            }
+        }
+    }
+
+    
 database::database()
    : _my( new database_impl(*this) ),
-     ctrl(*this) {
+     ctrl(*this),
+    _tps_stats( new tps_stats(*this) ) {
         ctrl.set_op_excute_callback(this);
      }
 
@@ -145,6 +245,9 @@ void database::open( const fc::path& data_dir, const fc::path& shared_mem_dir, u
       with_read_lock( [&]()
       {
          init_hardforks(); // Writes to local state, but reads from db
+          
+          _tps_stats->update();
+          
       });
    }
    FC_CAPTURE_LOG_AND_RETHROW( (data_dir)(shared_mem_dir)(shared_file_size) )
@@ -3063,7 +3166,8 @@ void database::update_signing_witness(const witness_object& signing_witness, con
 void database::update_last_irreversible_block()
 { try {
    const dynamic_global_property_object& dpo = get_dynamic_global_properties();
-
+    auto old_num = dpo.last_irreversible_block_num;
+    
    /**
     * Prior to voting taking over, we must be more conservative...
     *
@@ -3136,6 +3240,11 @@ void database::update_last_irreversible_block()
    }
 
    _fork_db.set_max_size( dpo.head_block_number - dpo.last_irreversible_block_num + 1 );
+    
+    if (old_num != dpo.last_irreversible_block_num ) {
+        _tps_stats->update();
+    }
+    
 } FC_CAPTURE_AND_RETHROW() }
 
 
@@ -4200,5 +4309,9 @@ asset database::to_steem( const asset& sbd )const
     return asset(0);
 }
 */
+    
+    uint32_t database::tps() {
+        return _tps_stats->tps();
+    }
 
 } } //contento::chain

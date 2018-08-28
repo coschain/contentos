@@ -36,6 +36,8 @@ namespace contento { namespace chain {
    namespace util {
       struct comment_reward_context;
    }
+    
+    class tps_stats;
 
    /**
     *   @class database
@@ -434,6 +436,9 @@ namespace contento { namespace chain {
 #endif
 
          bool execute_operation(const transaction_context& trx_context, const operation& op );
+       
+       uint32_t tps();
+       
    protected:
          //Mark pop_undo() as protected -- we do not want outside calling pop_undo(); it should call pop_block() instead
          //void pop_undo() { object_database::pop_undo(); }
@@ -506,6 +511,7 @@ namespace contento { namespace chain {
          std::string                       _json_schema;
 
          contento::chain::controller ctrl;
+         std::unique_ptr< tps_stats > _tps_stats;
    };
 
 } }
