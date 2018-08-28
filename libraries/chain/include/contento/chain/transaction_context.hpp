@@ -52,8 +52,8 @@ namespace contento { namespace chain {
          controller&                   control;
          const signed_transaction&     trx;
          transaction_id_type           id;
-         //transaction_trace_ptr         trace;
          fc::time_point                start;
+
 
          fc::time_point                published;
 
@@ -66,11 +66,14 @@ namespace contento { namespace chain {
 
       private:
          bool                          is_initialized = false;
+
        bill_type                      bill = {0, 0};
        uint64_t                       max_gas = 0;
        uint64_t                       ram_to_gas = 1;
        uint64_t                       wasm_to_gas = 1;
        uint64_t                       paid_gas = 0;
+
+         fc::time_point                _deadline;
    };
 
 } }
