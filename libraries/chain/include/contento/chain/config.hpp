@@ -24,7 +24,7 @@ const static auto default_state_size            = 1*1024*1024*1024ll;
 const static uint64_t system_account_name    = N(contento);
 const static uint64_t null_account_name      = N(contento.null);
 const static uint64_t producers_account_name = N(contento.prods);
-const static uint64_t gas_fee_account_name   = N(contento.gas);
+const static uint64_t gas_fee_account_name   = N(contento);
 
 // Active permission of producers account requires greater than 2/3 of the producers to authorize
 const static uint64_t majority_producers_permission_name = N(prod.major); // greater than 1/2 of producers needed to authorize
