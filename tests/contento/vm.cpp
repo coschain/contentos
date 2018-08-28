@@ -130,8 +130,8 @@ BOOST_AUTO_TEST_CASE( setcodes )
 {
     ACTORS((contento)(hello)(buttnaked));
     //fund("hello", 100);
-    set_code(db, hello_private_key, N(hello), "../../contracts/hello/hello.wast");
-    set_abi(db, hello_private_key, N(hello), "../../contracts/hello/hello.abi");
+    set_code(db, hello_private_key, N(hello), "../contracts/hello/hello.wast");
+    set_abi(db, hello_private_key, N(hello), "../contracts/hello/hello.abi");
 
     push_action(db, buttnaked_private_key, N(buttnaked), N(hello), N(hi), "[\"buttnaked\"]");
     push_action(db, hello_private_key, N(hello), N(hello), N(hi), "[\"buttnaked\"]");
