@@ -14,28 +14,31 @@ class hello : public cosio::contract {
       void hi( account_name user ) {
           print("\n ====== enter contract hi function ====== \n");
 
-           int64_t cb = get_contract_balance();
-          print("contract balance is : ", cb);
+          asset cb;
+          get_contract_balance(cb);
+          print("in hi contract balance is : ", cb.amount);
 
           int64_t value = get_value();
 
-          print("\n values is :", value);
          print( "\n Hello, ", name{user} );
           print("\n ====== exit contract hi function ====== \n");
       }
     
     //@abi action
-    void withdraw(account_name user, const asset& value){
-        print("111");
+    void withdraw(account_name account, const asset& value){
+        
         pay_prohibited();
-         int64_t cb = get_contract_balance();
-        print("\n before withdraw  contract balance is : ",cb);
+       
+        asset cb;
+        get_contract_balance(cb);
+        print("\n before withdraw  contract balance is : ",cb.amount);
 
         // transfer contract balance to user's account
-        transfer(user,value);
+        transfer(account,value);
         
-         int64_t cb2 = get_contract_balance();
-        print("\n after withdraw  contract balance is : ",cb2);
+        asset cb2;
+        get_contract_balance(cb2);
+        print("\n after withdraw  contract balance is : ",cb2.amount);
     }
 };
 

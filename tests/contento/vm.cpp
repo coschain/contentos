@@ -89,6 +89,18 @@ bytes param_to_bin(database &db, name contract_name, name action_name, std::stri
          throw;
       }
    }
+    //
+    if(param == "[\"hello\",\"50 COC\"]"){
+        asset s;
+        fc::from_variant( action_args_var[1], s );
+        
+        std::string h;
+//        account_name
+         //fc::from_variant( action_args_var[0], h );
+    }
+    
+    //
+    
 
    const auto contract_acc = db.get_account(contract_name);
    abi_def abi;
@@ -130,28 +142,31 @@ BOOST_FIXTURE_TEST_SUITE( vm, contento_fixture )
 BOOST_AUTO_TEST_CASE( setcodes )
 {
     ACTORS((contento)(hello)(buttnaked));
-    fund("hello", 50);
+    fund("hello", 50000);
     
      const account_object& acct1 = db.get_account( "hello" );
-    BOOST_REQUIRE( acct1.balance.amount.value == 50 );
+    BOOST_REQUIRE( acct1.balance.amount.value == 50000 );
     
     set_code(db, hello_private_key, N(hello), "../../contracts/hello/hello.wast");
     set_abi(db, hello_private_key, N(hello), "../../contracts/hello/hello.abi");
 
-    asset v;
-    v.amount = 0;
+    asset v = asset::from_string( "0.000 COC" );
     push_action(db, buttnaked_private_key, N(buttnaked), N(hello), N(hi), "[\"buttnaked\"]", v);
-    v.amount = 50;
-    push_action(db, hello_private_key, N(hello), N(hello), N(hi), "[\"hello\"]", v);
+    asset v2 = asset::from_string( "50.000 COC" );;
+    push_action(db, hello_private_key, N(hello), N(hello), N(hi), "[\"hello\"]", v2);
     
     const account_object& acct2 = db.get_account( "hello" );
     BOOST_REQUIRE( acct2.balance.amount.value == 0 );
     
+    std::cout<<"vm.cpp COC_SYMBOL:"<<v.symbol<<"\n";
+   string a = "[\"hello\",\"50.000 COC\"]";
+     //string a = "[\"50.000 COC\"]";
     v.amount = 0;
-    push_action(db, hello_private_key, N(hello), N(hello), N(withdraw), "[\"hello\",\"50 COC\"]",v);
+    push_action(db, hello_private_key, N(hello), N(hello), N(withdraw), a,v);
+    
     
     const account_object& acct3 = db.get_account( "hello" );
-    BOOST_REQUIRE( acct3.balance.amount.value == 50 );
+    BOOST_REQUIRE( acct3.balance.amount.value == 50000 );
     
     //BOOST_REQUIRE_THROW( report_comment(db, "user3", "bob", "b001", "1.000 TESTS", "porn", true, true, user3_private_key), fc::exception );
     //BOOST_REQUIRE_NO_THROW( set_code(db, hector_post_key, N(hector), code) );

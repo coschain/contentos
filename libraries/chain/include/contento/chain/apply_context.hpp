@@ -552,7 +552,7 @@ class apply_context {
       int  db_upperbound_i64( uint64_t code, uint64_t scope, uint64_t table, uint64_t id );
       int  db_end_i64( uint64_t code, uint64_t scope, uint64_t table );
     
-      int64_t get_contract_balance();
+      asset get_contract_balance();
       void transfer( account_name name, const asset& value);
       int64_t get_value();
 

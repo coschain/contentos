@@ -516,8 +516,8 @@ namespace contento { namespace chain { namespace wasm_price {
     
     // contract_balance_api
     WASM_PRICE_FN_CONSTS(
-                         (get_contract_balance,      (int64_t) )
-                         (transfer,                  (void*, int64_t, int))
+                         (get_contract_balance,      (void*, int) )
+                         (transfer,                  (void*,int64_t, int))
                          (get_value,                 (int64_t))
                          (pay_prohibited,            (void*))
                          );

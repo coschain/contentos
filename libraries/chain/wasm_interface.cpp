@@ -686,14 +686,20 @@ class contract_bank_api : public context_aware_api {
    public:
       using context_aware_api::context_aware_api;
 
-      int64_t get_contract_balance() {
+      void get_contract_balance(asset& ast) {
           // todo get contract balance form db
-          return context.get_contract_balance();
+          ast = context.get_contract_balance();
       }
 
-      void transfer(account_name name, const asset& value) {
+      void transfer(account_name account, const asset& value) {
           // todo transfer COC/vesting to name from contract_bank
-          context.transfer(name,value);
+          std::cout<<"\n enter transfer !!!"<<"\n";
+          
+          std::cout<<"\n tranfer value:"<<value.amount.value<<"\n";
+          
+          context.transfer(account,value);
+          
+          std::cout<<" account:"<<account<<"no thing to transfer amount:"<<value.amount.value<<" symbol:"<<value.symbol<<"\n";
       }
 
       int64_t get_value() {
@@ -1756,7 +1762,7 @@ REGISTER_INTRINSICS_WITH_PRICE(producer_api,
 );
 
 REGISTER_INTRINSICS_WITH_PRICE(contract_bank_api,
-   WITH_PRICE (get_contract_balance,      int64_t())
+   WITH_PRICE (get_contract_balance,      void(int))
    WITH_PRICE (transfer,      void(int64_t,int) )
    WITH_PRICE (get_value,      int64_t() )
    WITH_PRICE (pay_prohibited, void())

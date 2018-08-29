@@ -543,9 +543,9 @@ bool apply_context::excute_operation( const std::vector<char>& op_buff ){
    return control.get_op_excutor()->execute_operation( trx_context, op);
 }
 
-int64_t apply_context::get_contract_balance()  {
+asset apply_context::get_contract_balance()  {
     const auto& account = control.get_contract_account(receiver);
-    return account.coc_balance.amount.value;
+    return account.coc_balance;
 }
     
 void apply_context::transfer( account_name name, const asset& value)  {
@@ -553,7 +553,7 @@ void apply_context::transfer( account_name name, const asset& value)  {
     const auto& to_account = control.get_account(name);
     const auto& from_account = control.get_contract_account(receiver);
     
-    FC_ASSERT( get_contract_balance() >= value.amount, "Contract does not have sufficient funds for transfer." );
+    FC_ASSERT( get_contract_balance() >= value, "Contract does not have sufficient funds for transfer." );
 //    asset s(value,COC_SYMBOL);
     control.adjust_contract_balance( from_account, -value );
     control.adjust_balance( to_account, value );
