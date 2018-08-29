@@ -5,6 +5,7 @@ add_library( contento_app
              api.cpp
              application.cpp
              impacted.cpp
+             contract_storage.cpp
              plugin.cpp
              ${HEADERS}
            )

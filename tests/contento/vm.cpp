@@ -1,4 +1,4 @@
-//#ifdef IS_TEST_NET
+#ifdef IS_TEST_NET
 #include <regex>
 #include <boost/test/unit_test.hpp>
 
@@ -134,8 +134,8 @@ BOOST_AUTO_TEST_CASE( setcodes )
     fund("hello", 5000);
     fund("buttnaked", 5000);
     
-    set_code(db, hello_private_key, N(hello), "../contracts/hello/hello.wast");
-    set_abi(db, hello_private_key, N(hello), "../contracts/hello/hello.abi");
+    set_code(db, hello_private_key, N(hello), "../../contracts/hello/hello.wast");
+    set_abi(db, hello_private_key, N(hello), "../../contracts/hello/hello.abi");
 
     push_action(db, buttnaked_private_key, N(buttnaked), N(hello), N(hi), "[\"buttnaked\"]");
     push_action(db, hello_private_key, N(hello), N(hello), N(hi), "[\"buttnaked\"]");
@@ -149,4 +149,4 @@ BOOST_AUTO_TEST_CASE( setcodes )
 
 BOOST_AUTO_TEST_SUITE_END()
 
-//#endif // IS_TEST_NET
+#endif // IS_TEST_NET

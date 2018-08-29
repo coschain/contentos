@@ -185,6 +185,11 @@ struct account_code_api_obj{
    std::vector<char> abi;
 };
 
+struct table_rows_api_obj {
+   vector<vector<char>> raw_data_rows;
+   bool more = false;
+};
+
 struct account_api_obj
 {
    account_api_obj( const chain::account_object& a, const chain::database& db ) :
@@ -624,6 +629,10 @@ FC_REFLECT( contento::app::account_code_api_obj,
            (abi)
            )
 
+FC_REFLECT( contento::app::table_rows_api_obj,
+           (raw_data_rows)
+           (more)
+           )
 
 FC_REFLECT_DERIVED( contento::app::signed_block_api_obj, (contento::protocol::signed_block),
                      (block_id)
