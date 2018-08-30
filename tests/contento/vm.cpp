@@ -151,8 +151,9 @@ BOOST_AUTO_TEST_CASE( hello )
     set_code(db, hello_private_key, N(hello), "../../contracts/hello/hello.wast");
     set_abi(db, hello_private_key, N(hello), "../../contracts/hello/hello.abi");
 
-    push_action(db, buttnaked_private_key, N(buttnaked), N(hello), N(hi), "[\"buttnaked\"]");
-    push_action(db, hello_private_key, N(hello), N(hello), N(hi), "[\"buttnaked\"]");
+    asset v;
+    push_action(db, buttnaked_private_key, N(buttnaked), N(hello), N(hi), "[\"buttnaked\"]",v);
+    push_action(db, hello_private_key, N(hello), N(hello), N(hi), "[\"buttnaked\"]",v);
 
     //set_code(db, buttnaked_private_key, N(buttnaked), "../../tests/contento/contracts/table.wast");
     //set_abi(db, buttnaked_private_key, N(buttnaked), "../../tests/contento/contracts/table.abi");
@@ -179,19 +180,19 @@ BOOST_AUTO_TEST_CASE( hello )
         set_abi(db, user1_private_key, N(user1), "../../contracts/hello/hello.abi");
         
         // user2 send coc to contract
-        asset v1 = asset::from_string( "50.000 COC" );
-        push_action(db, user2_private_key, N(user2), N(user1), N(save), "", v1);
+        asset v1 = asset::from_string( "39.997 COC" ); // gas lost 3, self keep 10000, send to contract 39997
+        BOOST_REQUIRE_NO_THROW(push_action(db, user2_private_key, N(user2), N(user1), N(save), "", v1));
         
         // check send result
         const account_object& acct3 = db.get_account( "user2" );
-        BOOST_REQUIRE( acct3.balance.amount.value == 0 );
+        BOOST_REQUIRE( acct3.balance.amount.value == 10000 );
         const contract_balance_object& cbo1 = db.get_contract_account( "user1" );// user1 is contract name
-        BOOST_REQUIRE( cbo1.coc_balance.amount.value == 50000 );
+        BOOST_REQUIRE( cbo1.coc_balance.amount.value == 39997 );
         
         // user2 withdraw 25 coc back
         string a = "[\"user2\",\"10.000 COC\"]";
         asset v2;
-        push_action(db, user2_private_key, N(user2), N(user1), N(withdraw), a,v2);
+        BOOST_REQUIRE_NO_THROW(push_action(db, user2_private_key, N(user2), N(user1), N(withdraw), a,v2));
         
         // check withdraw result
         const account_object& acct4 = db.get_account( "user2" );
@@ -242,7 +243,7 @@ BOOST_AUTO_TEST_CASE( hello )
         
         // pre send coc to contract
         asset v3 = asset::from_string( "50.000 COC" );
-        push_action(db, user1_private_key, N(user1), N(user1), N(save), "", v3);
+        BOOST_REQUIRE_NO_THROW(push_action(db, user1_private_key, N(user1), N(user1), N(save), "", v3));
         const contract_balance_object& cbo1 = db.get_contract_account( "user1" );// user1 is contract name
         BOOST_REQUIRE( cbo1.coc_balance.amount.value == 50000 );
         
@@ -268,17 +269,18 @@ BOOST_AUTO_TEST_CASE( storage )
     set_code(db, storage_private_key, N(storage), "../../../tests/contento/contracts/storage/storage.wast");
     set_abi(db, storage_private_key, N(storage), "../../../tests/contento/contracts/storage/storage.abi");
     
-    push_action(db, storage_private_key, N(storage), N(storage), N(placeoffer), 
-         "[ \"storage\", \"3.0000 COC\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]");
+    asset v;
+    push_action(db, storage_private_key, N(storage), N(storage), N(placeoffer),
+         "[ \"storage\", \"3.0000 COC\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]",v);
     BOOST_REQUIRE_THROW(
-       push_action(db, hello_private_key, N(hello), N(storage), N(placeoffer), 
-                  "[ \"storage\", \"3.0000 COC\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]"), 
+       push_action(db, hello_private_key, N(hello), N(storage), N(placeoffer),
+                  "[ \"storage\", \"3.0000 COC\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]",v), 
        fc::exception
     );
     push_action(db, storage_private_key, N(storage), N(storage), N(canceloffer), 
-         "[\"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\"]");
+         "[\"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\"]",v);
     push_action(db, hello_private_key, N(hello), N(storage), N(placeoffer), 
-                "[ \"hello\", \"3.0000 COC\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]");
+                "[ \"hello\", \"3.0000 COC\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]",v);
     
 }
 
