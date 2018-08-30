@@ -193,7 +193,7 @@ namespace contento { namespace protocol {
       account_name_type author;
       string            permlink;
 
-      asset             max_accepted_payout    = asset( 1000000000, SBD_SYMBOL );       /// SBD value of the maximum payout this post will receive
+      asset             max_accepted_payout    = asset( 1000000000, COC_SYMBOL);       /// SBD value of the maximum payout this post will receive
       uint16_t          percent_steem_dollars  = CONTENTO_100_PERCENT; /// the percent of Steem Dollars to key, unkept amounts will be received as Steem Power
       bool              allow_votes            = true;      /// allows a post to receive votes;
       bool              allow_curation_rewards = true; /// allows voters to recieve curation rewards. Rewards return to reward fund.

@@ -1,4 +1,4 @@
-#ifdef IS_TEST_NET
+#ifdef IS_TEST_NET_2
 #include <regex>
 #include <boost/test/unit_test.hpp>
 

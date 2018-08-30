@@ -64,6 +64,7 @@ clean_database_fixture::clean_database_fixture()
    // Fill up the rest of the required miners
    for( int i = CONTENTO_NUM_INIT_MINERS; i < 5; i++ )
    {
+       const account_object& acct = db.get_account( CONTENTO_INIT_MINER_NAME );
       account_create( CONTENTO_INIT_MINER_NAME + fc::to_string( i ), init_account_pub_key );
       fund( CONTENTO_INIT_MINER_NAME + fc::to_string( i ), CONTENTO_MIN_PRODUCER_REWARD.amount.value );
       witness_create( CONTENTO_INIT_MINER_NAME + fc::to_string( i ), init_account_priv_key, "foo.bar", init_account_pub_key, CONTENTO_MIN_PRODUCER_REWARD.amount );
@@ -237,21 +238,6 @@ const account_object& database_fixture::account_create(
      op.json_metadata = json_metadata;
 
      trx.operations.push_back( op );
-//      }
-//      else
-//      {
-//         account_create_operation op;
-//         op.new_account_name = name;
-//         op.creator = creator;
-//         op.fee = asset( fee, STEEM_SYMBOL );
-//         op.owner = authority( 1, key, 1 );
-//         op.active = authority( 1, key, 1 );
-//         op.posting = authority( 1, post_key, 1 );
-//         op.memo_key = key;
-//         op.json_metadata = json_metadata;
-//
-//         trx.operations.push_back( op );
-//      }
 
       trx.set_expiration( db.head_block_time() + CONTENTO_MAX_TIME_UNTIL_EXPIRATION );
       trx.sign( creator_key, db.get_chain_id() );
@@ -354,7 +340,7 @@ void database_fixture::fund(
          {
             if( amount.symbol == COC_SYMBOL )
                gpo.current_supply += amount;
-               gpo.virtual_supply += amount;
+               gpo.total_coc += amount;
 
          });
       }, default_skip );
@@ -377,13 +363,6 @@ void database_fixture::convert(
          db.adjust_balance( account, db.to_sbd( amount ) );
          db.adjust_supply( -amount );
          db.adjust_supply( db.to_sbd( amount ) );
-      }
-      else if ( amount.symbol == SBD_SYMBOL )
-      {
-         db.adjust_balance( account, -amount );
-         db.adjust_balance( account, db.to_steem( amount ) );
-         db.adjust_supply( -amount );
-         db.adjust_supply( db.to_steem( amount ) );
       }
    } FC_CAPTURE_AND_RETHROW( (account_name)(amount) )
 }
@@ -474,9 +453,9 @@ void database_fixture::set_price_feed( const price& new_price )
 
    generate_blocks( CONTENTO_BLOCKS_PER_HOUR );
    BOOST_REQUIRE(
-#ifdef IS_TEST_NET
-      !db.skip_price_feed_limit_check ||
-#endif
+//#ifdef IS_TEST_NET
+//      !db.skip_price_feed_limit_check ||
+//#endif
       db.get(feed_history_id_type()).current_median_history == new_price
    );
 }

@@ -426,12 +426,12 @@ namespace contento { namespace chain {
             return &ctrl;
          }
 
-#ifdef IS_TEST_NET
-         bool liquidity_rewards_enabled = true;
-         bool skip_price_feed_limit_check = true;
-         bool skip_transaction_delta_check = true;
-         bool init_genesis_hardforks = true;
-#endif
+// #ifdef IS_TEST_NET
+//          bool liquidity_rewards_enabled = true;
+//          bool skip_price_feed_limit_check = true;
+//          bool skip_transaction_delta_check = true;
+//          bool init_genesis_hardforks = true;
+// #endif
 
          bool execute_operation(const transaction_context& trx_context, const operation& op );
    protected:

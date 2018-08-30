@@ -65,25 +65,8 @@ void witness_update_evaluator::do_apply( const witness_update_operation& o )
 {
    _db.get_account( o.owner ); // verify owner exists
 
-//    if ( _db.has_hardfork( CONTENTO_HARDFORK_0_1 ) )
-//    {
-      FC_ASSERT( o.url.size() <= CONTENTO_MAX_WITNESS_URL_LENGTH, "URL is too long" );
-//    }
-//    else if( o.url.size() > CONTENTO_MAX_WITNESS_URL_LENGTH )
-//    {
-//       // after HF, above check can be moved to validate() if reindex doesn't show this warning
-//       wlog( "URL is too long in block ${b}", ("b", _db.head_block_num()+1) );
-//    }
-
-//    if ( _db.has_hardfork( CONTENTO_HARDFORK_0_14__410 ) )
-//    {
-      FC_ASSERT( o.props.account_creation_fee.symbol == COC_SYMBOL );
-//    }
-//    else if( o.props.account_creation_fee.symbol != COC_SYMBOL )
-//    {
-//       // after HF, above check can be moved to validate() if reindex doesn't show this warning
-//       wlog( "Wrong fee symbol in block ${b}", ("b", _db.head_block_num()+1) );
-//    }
+    FC_ASSERT( o.url.size() <= CONTENTO_MAX_WITNESS_URL_LENGTH, "URL is too long" );
+    FC_ASSERT( o.props.account_creation_fee.symbol == COC_SYMBOL );
 
    const auto& by_witness_name_idx = _db.get_index< witness_index >().indices().get< by_name >();
    auto wit_itr = by_witness_name_idx.find( o.owner );
@@ -284,14 +267,6 @@ void account_create_evaluator::do_apply( const account_create_operation& o )
    FC_ASSERT( creator.balance >= o.fee, "Insufficient balance to create account.", ( "creator.balance", creator.balance )( "required", o.fee ) );
 
 
-//      const witness_schedule_object& wso = _db.get_witness_schedule_object();
-//      FC_ASSERT( o.fee >= asset( wso.median_props.account_creation_fee.amount * CONTENTO_CREATE_ACCOUNT_WITH_STEEM_MODIFIER, COC_SYMBOL ), "Insufficient Fee: ${f} required, ${p} provided.",
-//                 ("f", wso.median_props.account_creation_fee * asset( CONTENTO_CREATE_ACCOUNT_WITH_STEEM_MODIFIER, COC_SYMBOL ) )
-//                 ("p", o.fee) );
-
-
-//    if( _db.has_hardfork( CONTENTO_HARDFORK_0_15__465 ) )
-//    {
       for( auto& a : o.owner.account_auths )
       {
          _db.get_account( a.first );
@@ -306,10 +281,15 @@ void account_create_evaluator::do_apply( const account_create_operation& o )
       {
          _db.get_account( a.first );
       }
-//    }
 
    _db.modify( creator, [&]( account_object& c ){
       c.balance -= o.fee;
+   });
+    
+    _db.modify( _db.get_dynamic_global_properties(), [&]( dynamic_global_property_object& gpo )
+   {
+       gpo.total_coc -= o.fee;
+       
    });
 
    const auto& new_account = _db.create< account_object >( [&]( account_object& acc )
@@ -392,6 +372,10 @@ void account_create_with_delegation_evaluator::do_apply( const account_create_wi
       c.balance -= o.fee;
       c.delegated_vesting_shares += o.delegation;
    });
+    
+    _db.modify(props, [&](dynamic_global_property_object& p){
+        p.total_coc -= o.fee; 
+    });
 
    const auto& new_account = _db.create< account_object >( [&]( account_object& acc )
    {
@@ -522,20 +506,15 @@ void account_update_evaluator::do_apply( const account_update_operation& o )
 void delete_comment_evaluator::do_apply( const delete_comment_operation& o )
 {
 
-      const auto& auth = _db.get_account( o.author );
-      FC_ASSERT( !(auth.owner_challenged || auth.active_challenged ), "Operation cannot be processed because account is currently challenged." );
+    const auto& auth = _db.get_account( o.author );
+    FC_ASSERT( !(auth.owner_challenged || auth.active_challenged ), "Operation cannot be processed because account is currently challenged." );
 
-   const auto& comment = _db.get_comment( o.author, o.permlink );
-   FC_ASSERT( comment.children == 0, "Cannot delete a comment with replies." );
+    const auto& comment = _db.get_comment( o.author, o.permlink );
+    FC_ASSERT( comment.children == 0, "Cannot delete a comment with replies." );
 
-      FC_ASSERT( comment.cashout_time != fc::time_point_sec::maximum() );
-//
-//   if( _db.has_hardfork( CONTENTO_HARDFORK_0_19__977 ) )
-//      FC_ASSERT( comment.net_rshares <= 0, "Cannot delete a comment with net positive votes." );
+    FC_ASSERT( comment.cashout_time != fc::time_point_sec::maximum() );
 
-//   if( comment.net_rshares > 0 ) return;
-
-   const auto& vote_idx = _db.get_index<comment_vote_index>().indices().get<by_comment_voter>();
+    const auto& vote_idx = _db.get_index<comment_vote_index>().indices().get<by_comment_voter>();
 
    auto vote_itr = vote_idx.lower_bound( comment_id_type(comment.id) );
    while( vote_itr != vote_idx.end() && vote_itr->comment == comment.id ) {
@@ -626,7 +605,6 @@ void comment_options_evaluator::do_apply( const comment_options_operation& o )
 
 void comment_evaluator::do_apply( const comment_operation& o )
 { try {
-    FC_ASSERT(5>6, "fuck you");
     FC_ASSERT( o.title.size() + o.body.size() + o.json_metadata.size(), "Cannot update comment because nothing appears to be changing." );
     const auto& by_permlink_idx = _db.get_index< comment_index >().indices().get< by_permlink >();
     auto itr = by_permlink_idx.find( boost::make_tuple( o.author, o.permlink ) );
@@ -707,7 +685,6 @@ void comment_evaluator::do_apply( const comment_operation& o )
                com.depth = parent->depth + 1;
                com.category = parent->category;
                com.root_comment = parent->root_comment;
-               // 如果 parent 已经结算，那么 comment 就不应该继续结算
                if(parent->cashout_time == fc::time_point_sec::maximum())
                    com.cashout_time = fc::time_point_sec::maximum();
                else
@@ -725,7 +702,6 @@ void comment_evaluator::do_apply( const comment_operation& o )
        });
         id = new_comment.id;
         /// this loop can be skiped for validate-only nodes as it is merely gathering stats for indicies
-        // 重复找到根，然后累加
         auto now = _db.head_block_time();
         while( parent ) {
             _db.modify( *parent, [&]( comment_object& p ){
@@ -998,50 +974,70 @@ void transfer_to_vesting_evaluator::do_apply( const transfer_to_vesting_operatio
 void convert_from_vesting_evaluator::do_apply(const convert_from_vesting_operation & o)
 {
     const auto& account = _db.get_account(o.account);
-    FC_ASSERT(o.vesting_shares > asset(0, VESTS_SYMBOL), "Could not convert from negative or zero");
+    FC_ASSERT(o.vesting_shares >= asset(0, VESTS_SYMBOL), "Could not convert from negative");
     FC_ASSERT( account.vesting_shares >= asset( 0, VESTS_SYMBOL ), "Account does not have sufficient Steem Power for withdraw." );
     FC_ASSERT( account.vesting_shares - account.delegated_vesting_shares >= o.vesting_shares, "Account does not have sufficient Steem Power for withdraw." );
-    FC_ASSERT(account.next_vesting_withdrawal == time_point_sec::maximum(), "Could not convert vestings as last request is processing.");
     
-    
-    int vesting_withdraw_intervals = CONTENTO_VESTING_WITHDRAW_INTERVALS; /// 13 weeks = 1 quarter of a year
-    
-    auto new_vesting_withdraw_rate = asset( o.vesting_shares.amount / vesting_withdraw_intervals, VESTS_SYMBOL );
-    
-    // 向下取整导致的确可能为 0
-    if (new_vesting_withdraw_rate.amount == 0)
-        new_vesting_withdraw_rate.amount = 1;
-    
-    const auto& wd_idx = _db.get_index< withdraw_vesting_index >().indices().get< by_account >();
-
-    _db.modify( account, [&]( account_object& a )
+    // reset convert status
+    if( o.vesting_shares.amount == 0 )
     {
-       FC_ASSERT( account.vesting_withdraw_rate  != new_vesting_withdraw_rate, "This operation would not change the vesting withdraw rate." );
-       
-       a.vesting_withdraw_rate = new_vesting_withdraw_rate;
-       a.next_vesting_withdrawal = _db.head_block_time() + fc::seconds(CONTENTO_VESTING_WITHDRAW_INTERVAL_SECONDS);
-       a.to_withdraw = o.vesting_shares.amount;
-       a.withdrawn = 0;
-    });
+        FC_ASSERT( account.vesting_withdraw_rate.amount  != 0, "This operation would not change the vesting withdraw rate." );
         
-    auto itr = wd_idx.find( account.id );
-
-    if( itr == wd_idx.end() )
-    {
-        _db.create< withdraw_vesting_object >( [&]( withdraw_vesting_object& wvo )
-        {
-            wvo.account = account.id;
-            wvo.vesting_shares = new_vesting_withdraw_rate;
+        _db.modify( account, [&]( account_object& a ) {
+            a.vesting_withdraw_rate = asset( 0, VESTS_SYMBOL );
+            a.next_vesting_withdrawal = time_point_sec::maximum();
+            a.to_withdraw = 0;
+            a.withdrawn = 0;
         });
+        
+        const auto& wd_idx = _db.get_index< withdraw_vesting_index >().indices().get< by_account >();
+        
+        auto itr = wd_idx.find( account.id );
+        if( itr != wd_idx.end() ){
+            _db.remove( *itr );
+        }
         
     }
     else
     {
-        _db.modify( *itr, [&]( withdraw_vesting_object& wvo )
-       {
-           wvo.account = account.id;
-           wvo.vesting_shares = new_vesting_withdraw_rate;
-       });
+        int vesting_withdraw_intervals = CONTENTO_VESTING_WITHDRAW_INTERVALS; /// 13 weeks = 1 quarter of a year
+        
+        auto new_vesting_withdraw_rate = asset( o.vesting_shares.amount / vesting_withdraw_intervals, VESTS_SYMBOL );
+        
+        if (new_vesting_withdraw_rate.amount == 0)
+            new_vesting_withdraw_rate.amount = 1;
+        
+        const auto& wd_idx = _db.get_index< withdraw_vesting_index >().indices().get< by_account >();
+
+        _db.modify( account, [&]( account_object& a )
+        {
+           FC_ASSERT( account.vesting_withdraw_rate  != new_vesting_withdraw_rate, "This operation would not change the vesting withdraw rate." );
+           
+           a.vesting_withdraw_rate = new_vesting_withdraw_rate;
+           a.next_vesting_withdrawal = _db.head_block_time() + fc::seconds(CONTENTO_VESTING_WITHDRAW_INTERVAL_SECONDS);
+           a.to_withdraw = o.vesting_shares.amount;
+           a.withdrawn = 0;
+        });
+        
+        auto itr = wd_idx.find( account.id );
+
+        if( itr == wd_idx.end() )
+        {
+            _db.create< withdraw_vesting_object >( [&]( withdraw_vesting_object& wvo )
+            {
+                wvo.account = account.id;
+                wvo.vesting_shares = new_vesting_withdraw_rate;
+            });
+            
+        }
+        else
+        {
+            _db.modify( *itr, [&]( withdraw_vesting_object& wvo )
+           {
+               wvo.account = account.id;
+               wvo.vesting_shares = new_vesting_withdraw_rate;
+           });
+        }
     }
     
 }
@@ -1053,18 +1049,6 @@ void withdraw_vesting_evaluator::do_apply( const withdraw_vesting_operation& o )
 
    FC_ASSERT( account.vesting_shares >= asset( 0, VESTS_SYMBOL ), "Account does not have sufficient Steem Power for withdraw." );
    FC_ASSERT( account.vesting_shares - account.delegated_vesting_shares >= o.vesting_shares, "Account does not have sufficient Steem Power for withdraw." );
-
-//   if( !account.mined && _db.has_hardfork( CONTENTO_HARDFORK_0_1 ) )
-//   {
-//      const auto& props = _db.get_dynamic_global_properties();
-//      const witness_schedule_object& wso = _db.get_witness_schedule_object();
-//
-//      asset min_vests = wso.median_props.account_creation_fee * props.get_vesting_share_price();
-//      min_vests.amount.value *= 10;
-//
-//      FC_ASSERT( account.vesting_shares > min_vests || ( _db.has_hardfork( CONTENTO_HARDFORK_0_16__562 ) && o.vesting_shares.amount == 0 ),
-//                 "Account registered by another account requires 10x account creation fee worth of Steem Power before it can be powered down." );
-//   }
 
    if( o.vesting_shares.amount == 0 )
    {
@@ -1336,11 +1320,8 @@ void vote_evaluator::do_apply( const vote_operation& o )
    FC_ASSERT( used_power <= current_power, "Account does not have enough power to vote." );
 
 //   int64_t abs_rshares    = ((uint128_t(voter.effective_vesting_shares().amount.value) * used_power) / (CONTENTO_100_PERCENT)).to_uint64();
-#ifdef CONTENTO_ASA
-    int64_t abs_rshares = (uint128_t(voter.balance.amount.value * used_power) / (CONTENTO_100_PERCENT)).to_uint64();
-#else
+
     int64_t abs_rshares = (uint128_t(voter.vesting_shares.amount.value * used_power) / (CONTENTO_100_PERCENT)).to_uint64();
-#endif
     
     
 
@@ -1370,12 +1351,10 @@ void vote_evaluator::do_apply( const vote_operation& o )
       /// this is the rshares voting for or against the post
       int64_t rshares        = o.weight < 0 ? -abs_rshares : abs_rshares;
 
-#ifndef CONTENTO_ASA
       if( rshares > 0 )
       {
         FC_ASSERT( _db.head_block_time() < comment.cashout_time - CONTENTO_UPVOTE_LOCKOUT_HF17, "Cannot increase payout within last twelve hours before payout." );
       }
-#endif
 
       _db.modify( voter, [&]( account_object& a ){
          a.voting_power = current_power - used_power;
@@ -1552,10 +1531,10 @@ void vote_evaluator::do_apply( const vote_operation& o )
       /// this is the rshares voting for or against the post
       int64_t rshares        =   o.weight < 0 ? -abs_rshares : abs_rshares;
 
-//      if( itr->rshares < rshares )
-//      {
-//        FC_ASSERT( _db.head_block_time() < comment.cashout_time - CONTENTO_UPVOTE_LOCKOUT_HF17, "Cannot increase payout within last twelve hours before payout." );
-//      }
+     if( itr->rshares < rshares )
+     {
+       FC_ASSERT( _db.head_block_time() < comment.cashout_time - CONTENTO_UPVOTE_LOCKOUT_HF17, "Cannot increase payout within last twelve hours before payout." );
+     }
 
       _db.modify( voter, [&]( account_object& a ){
          a.voting_power = current_power - used_power;
@@ -2308,10 +2287,8 @@ void claim_reward_balance_evaluator::do_apply( const claim_reward_balance_operat
    _db.modify( _db.get_dynamic_global_properties(), [&]( dynamic_global_property_object& gpo )
    {
       gpo.total_vesting_shares += op.reward_vests;
-      gpo.total_vesting_fund_coc += reward_vesting_steem_to_move;
+      gpo.total_coc += reward_vesting_steem_to_move;
 
-//      gpo.pending_rewarded_vesting_shares -= op.reward_vests;
-//      gpo.pending_rewarded_vesting_steem -= reward_vesting_steem_to_move;
    });
 
    _db.adjust_proxied_witness_votes( acnt, op.reward_vests.amount );
