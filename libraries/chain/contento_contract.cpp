@@ -8,6 +8,7 @@
 #include <contento/chain/controller.hpp>
 //#include <contento/chain/transaction_context.hpp>
 #include <contento/chain/apply_context.hpp>
+#include <contento/chain/transaction_context.hpp>
 #include <contento/chain/exceptions.hpp>
 
 #include <contento/chain/account_object.hpp>
@@ -62,10 +63,10 @@ void apply_contento_setcode(apply_context& context) {
       aso.code_sequence += 1;
    });*/
 
-    /* TODOO:
+
     if (new_size != old_size) {
       context.trx_context.add_ram_usage( act.account, new_size - old_size );
-   }*/
+   }
 }
 
 void apply_contento_setabi(apply_context& context) {
@@ -97,10 +98,10 @@ void apply_contento_setabi(apply_context& context) {
       aso.abi_sequence += 1;
    });
      */
-    /* TODOO:
+
    if (new_size != old_size) {
       context.trx_context.add_ram_usage( act.account, new_size - old_size );
-   }*/
+   }
 }
 
 } } // namespace contento::chain

@@ -113,7 +113,7 @@ namespace contento { namespace protocol {
 
    struct transaction_invoice {
          uint32_t status = 200;
-         uint32_t gas_usage = 0;
+         uint64_t gas_usage = 0;
    };
 
    struct transaction_wrapper {

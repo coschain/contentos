@@ -1,4 +1,4 @@
-#ifdef IS_TEST_NET
+#ifdef IS_TEST_NET_
 #include <boost/test/unit_test.hpp>
 
 #include <contento/chain/account_object.hpp>

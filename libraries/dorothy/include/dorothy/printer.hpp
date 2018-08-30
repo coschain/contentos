@@ -33,7 +33,7 @@ namespace dorothy {
             void print(TablePrinter& tp, Iterator current)
             {
                 tp << (current->id._id) << (current -> head_block_number) << (current -> time.sec_since_epoch()) << 
-                (std::string(current -> current_witness)) << (current -> virtual_supply.to_string()) << 
+                (std::string(current -> current_witness)) <<  
                 (current ->current_supply.to_string()) << (current -> total_vesting_shares.to_string()) << 
                 (current -> last_irreversible_block_num);
             }

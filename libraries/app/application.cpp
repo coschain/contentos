@@ -605,6 +605,7 @@ namespace detail {
                // you can help the network code out by throwing a block_older_than_undo_history exception.
                // when the net code sees that, it will stop trying to push blocks from that chain, but
                // leave that peer connected so that they can get sync blocks from us
+
                bool result = _chain_db->push_block(blk_msg.block, (_is_block_producer | _force_validate) ? database::skip_nothing : database::skip_transaction_signatures);
 
                if( !sync_mode )

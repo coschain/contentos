@@ -3,7 +3,9 @@
 #include <graphene/utilities/words.hpp>
 
 #include <contento/app/api.hpp>
+//#include <contento/app/contract_storage.hpp>
 #include <contento/chain/abi_serializer.hpp>
+#include <contento/chain/config.hpp>
 #include <contento/protocol/base.hpp>
 #include <contento/protocol/types.hpp>
 #include <contento/protocol/config.hpp>
@@ -364,6 +366,14 @@ public:
    {
       auto account = _remote_db->get_account_code( account_name );
       return account;
+   }
+
+   table_rows_api_obj get_table_rows(string code, string scope, string table,
+                              string lower_bound, string upper_bound, int limit,
+                              string key_type, string index_pos, string encode_type) const 
+   {
+      return _remote_db->get_table_rows(code, scope, table, lower_bound, upper_bound, 
+                                        limit, key_type, index_pos, encode_type);
    }
 
    string get_wallet_filename() const { return _wallet_filename; }
@@ -1106,6 +1116,34 @@ account_api_obj wallet_api::get_account( string account_name ) const
 account_code_api_obj wallet_api::get_account_code( string account_name ) const
 {
    return my->get_account_code( account_name );
+}
+
+table_rows_api_obj wallet_api::get_table_rows(string code, string scope, string table,
+                                  string lower_bound, string upper_bound, int limit,
+                                  string key_type, string index_pos, string encode_type) const
+{
+   auto obj = my->get_table_rows(code, scope, table, lower_bound, upper_bound, 
+                                        limit, key_type, index_pos, encode_type);
+   return obj;
+   /*
+   auto contract = get_account_code(code);
+   abi_def abi;
+   abi_serializer::to_abi(obj.abi, abi);
+   
+   abi_serializer abis;
+   abis.set_abi(abi, fc::microseconds(abi_serializer_max_time));
+
+   struct get_table_rows_result {
+      variants rows;
+      bool     more = false;
+   }
+   get_table_rows_result result;
+   for(auto ele : obj.raw_data_rows) {
+      result.rows.emplace_back(abis.binary_to_variant(abis.get_table_type(table), ele, fc::microseconds(abi_serializer_max_time)));
+   }
+   result.more = obj.more;
+   auto mvo_result = fc::mutable_variant_object("rows", fc::variant(result.rows))("more", result.more)
+   return fc::json::to_pretty_string(fc::variant(mvo_result));*/
 }
 
 bool wallet_api::import_key(string wif_key)

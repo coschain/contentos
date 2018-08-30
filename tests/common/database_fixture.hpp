@@ -135,7 +135,7 @@ namespace contento { namespace chain {
 using namespace contento::protocol;
 
 #ifdef IS_TEST_NET
-const string init_key_name = "init_key";
+const string init_key_name = "contento";
 #else
 const string init_key_name = "contento";
 #endif //end IS_TEST_NET

@@ -1,4 +1,4 @@
-//#ifdef IS_TEST_NET
+#ifdef IS_TEST_NET
 #include <regex>
 #include <boost/test/unit_test.hpp>
 
@@ -139,22 +139,23 @@ static void push_action(database &db, fc::ecc::private_key key,
 
 BOOST_FIXTURE_TEST_SUITE( vm, contento_fixture )
 
-BOOST_AUTO_TEST_CASE( setcodes )
+BOOST_AUTO_TEST_CASE( hello )
 {
     ACTORS((contento)(hello)(buttnaked));
-    fund("hello", 50000);
     
-     const account_object& acct1 = db.get_account( "hello" );
-    BOOST_REQUIRE( acct1.balance.amount.value == 50000 );
+    //fund("hello", 100);
+    
+    fund("hello", 5000);
+    fund("buttnaked", 5000);
     
     set_code(db, hello_private_key, N(hello), "../../contracts/hello/hello.wast");
     set_abi(db, hello_private_key, N(hello), "../../contracts/hello/hello.abi");
 
-    asset v = asset::from_string( "0.000 COC" );
-    push_action(db, buttnaked_private_key, N(buttnaked), N(hello), N(hi), "[\"buttnaked\"]", v);
-    asset v2 = asset::from_string( "50.000 COC" );;
-    push_action(db, hello_private_key, N(hello), N(hello), N(hi), "[\"hello\"]", v2);
-    
+    push_action(db, buttnaked_private_key, N(buttnaked), N(hello), N(hi), "[\"buttnaked\"]");
+    push_action(db, hello_private_key, N(hello), N(hello), N(hi), "[\"buttnaked\"]");
+
+    //set_code(db, buttnaked_private_key, N(buttnaked), "../../tests/contento/contracts/table.wast");
+    //set_abi(db, buttnaked_private_key, N(buttnaked), "../../tests/contento/contracts/table.abi");
     
     //BOOST_REQUIRE_THROW( report_comment(db, "user3", "bob", "b001", "1.000 TESTS", "porn", true, true, user3_private_key), fc::exception );
     //BOOST_REQUIRE_NO_THROW( set_code(db, hector_post_key, N(hector), code) );
@@ -255,6 +256,32 @@ BOOST_AUTO_TEST_CASE( setcodes )
         BOOST_REQUIRE_THROW(push_action(db, user1_private_key, N(someuser), N(user1), N(withdraw), a, v5),fc::exception);
     }
 
+BOOST_AUTO_TEST_CASE( storage )
+{
+    ACTORS((contento)(hello)(buttnaked)(storage));
+    //fund("hello", 100);
+    
+    fund("hello", 5000);
+    fund("buttnaked", 5000);
+    fund("storage", 5000);
+
+    set_code(db, storage_private_key, N(storage), "../../../tests/contento/contracts/storage/storage.wast");
+    set_abi(db, storage_private_key, N(storage), "../../../tests/contento/contracts/storage/storage.abi");
+    
+    push_action(db, storage_private_key, N(storage), N(storage), N(placeoffer), 
+         "[ \"storage\", \"3.0000 COC\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]");
+    BOOST_REQUIRE_THROW(
+       push_action(db, hello_private_key, N(hello), N(storage), N(placeoffer), 
+                  "[ \"storage\", \"3.0000 COC\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]"), 
+       fc::exception
+    );
+    push_action(db, storage_private_key, N(storage), N(storage), N(canceloffer), 
+         "[\"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\"]");
+    push_action(db, hello_private_key, N(hello), N(storage), N(placeoffer), 
+                "[ \"hello\", \"3.0000 COC\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]");
+    
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
-//#endif // IS_TEST_NET
+#endif // IS_TEST_NET

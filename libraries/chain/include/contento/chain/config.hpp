@@ -24,6 +24,7 @@ const static auto default_state_size            = 1*1024*1024*1024ll;
 const static uint64_t system_account_name    = N(contento);
 const static uint64_t null_account_name      = N(contento.null);
 const static uint64_t producers_account_name = N(contento.prods);
+const static uint64_t gas_fee_account_name   = N(contento);
 
 // Active permission of producers account requires greater than 2/3 of the producers to authorize
 const static uint64_t majority_producers_permission_name = N(prod.major); // greater than 1/2 of producers needed to authorize
@@ -49,6 +50,8 @@ static const uint32_t account_cpu_usage_average_window_ms  = 24*60*60*1000l;
 static const uint32_t account_net_usage_average_window_ms  = 24*60*60*1000l;
 static const uint32_t block_cpu_usage_average_window_ms    = 60*1000l;
 static const uint32_t block_size_average_window_ms         = 60*1000l;
+static const int64_t  max_trx_duration                     = 200*1000l; // us
+static const int64_t  abi_serializer_max_time              = 20*1000l;
 
 //const static uint64_t   default_max_storage_size       = 10 * 1024;
 //const static uint32_t   default_max_trx_runtime        = 10*1000;
@@ -92,6 +95,8 @@ const static uint32_t   setcode_ram_bytes_multiplier       = 10;     ///< multip
 const static uint32_t   hashing_checktime_block_size       = 10*1024;  /// call checktime from hashing intrinsic once per this number of bytes
 
 const static contento::chain::wasm_interface::vm_type default_wasm_runtime = contento::chain::wasm_interface::vm_type::binaryen;
+
+const static uint64_t   gas_per_coc  = 1000;
 
 /**
  *  The number of sequential blocks produced by a single producer

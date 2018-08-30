@@ -189,6 +189,10 @@ class wallet_api
       account_api_obj                     get_account( string account_name ) const;
       account_code_api_obj                get_account_code( string account_name ) const;
 
+      table_rows_api_obj                get_table_rows(string code, string scope, string table,
+                                                string lower_bound, string upper_bound, int limit,
+                                                string key_type, string index_pos, string encode_type) const;
+
       /** Returns the current wallet filename.
        *
        * This is the filename that will be used when automatically saving the wallet.
@@ -1072,6 +1076,7 @@ FC_API( contento::wallet::wallet_api,
         (get_witness)
         (get_account)
         (get_account_code)
+        (get_table_rows)
         (get_block)
         (get_ops_in_block)
 //        (get_feed_history)
