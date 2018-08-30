@@ -150,19 +150,22 @@ BOOST_AUTO_TEST_CASE( hello )
     
 }
 
-BOOST_AUTO_TEST_CASE( table )
+BOOST_AUTO_TEST_CASE( storage )
 {
-    ACTORS((contento)(hello)(buttnaked));
+    ACTORS((contento)(hello)(buttnaked)(storage));
     //fund("hello", 100);
     
     fund("hello", 5000);
     fund("buttnaked", 5000);
+    fund("storage", 5000);
 
-    set_code(db, buttnaked_private_key, N(buttnaked), "../../../tests/contento/contracts/table.wast");
-    set_abi(db, buttnaked_private_key, N(buttnaked), "../../../tests/contento/contracts/table.abi");
+    set_code(db, storage_private_key, N(storage), "../../../tests/contento/contracts/storage.wast");
+    set_abi(db, storage_private_key, N(storage), "../../../tests/contento/contracts/storage.abi");
     
-    push_action(db, buttnaked_private_key, N(buttnaked), N(buttnaked), N(placeoffer), 
+    push_action(db, storage_private_key, N(storage), N(storage), N(placeoffer), 
          "[ \"buttnaked\", \"3.0000 COC\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]");
+    push_action(db, storage_private_key, N(storage), N(storage), N(canceloffer), 
+         "[\"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\"]");
     
 }
 
