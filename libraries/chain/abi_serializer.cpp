@@ -78,7 +78,8 @@ namespace contento { namespace chain {
       //built_in_types.emplace("block_timestamp_type",      pack_unpack<block_timestamp_type>());
 
       built_in_types.emplace("name",                      pack_unpack<name>());
-
+      built_in_types.emplace("namex",                     pack_unpack<namex>());
+      built_in_types.emplace("namex_",                    pack_unpack<namex>());
       built_in_types.emplace("bytes",                     pack_unpack<bytes>());
       built_in_types.emplace("string",                    pack_unpack<string>());
 

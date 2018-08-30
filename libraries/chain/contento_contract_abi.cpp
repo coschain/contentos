@@ -6,7 +6,8 @@ namespace contento { namespace chain {
 vector<type_def> common_type_defs() {
    vector<type_def> types;
 
-   types.push_back( type_def{"account_name", "name"} );
+   types.push_back( type_def{"account_name", "namex"} );
+//    types.push_back( type_def{"account_name2", "namex"} );
    types.push_back( type_def{"permission_name", "name"} );
    types.push_back( type_def{"action_name", "name"} );
    types.push_back( type_def{"table_name", "name"} );

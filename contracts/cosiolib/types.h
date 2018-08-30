@@ -19,7 +19,7 @@ extern "C" {
  *  @{
  */
 
-typedef uint64_t account_name;
+// typedef uint64_t account_name;
 typedef uint64_t permission_name;
 typedef uint64_t table_name;
 typedef uint32_t time;
@@ -50,6 +50,16 @@ struct ALIGNED(checksum160) {
 struct ALIGNED(checksum512) {
    uint8_t hash[64];
 };
+
+struct ALIGNED(namex_) {
+    uint8_t value[16];
+};
+
+// struct ALIGNED(namex_) {
+//     uint64_t value[2];
+// };
+
+typedef struct namex_ account_name;
 
 typedef struct checksum256 transaction_id_type;
 typedef struct checksum256 block_id_type;

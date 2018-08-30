@@ -224,6 +224,18 @@ inline datastream<Stream>& operator>>(datastream<Stream>& ds, checksum256& d) {
    ds.read((char*)&d.hash[0], sizeof(d.hash) );
    return ds;
 }
+   
+template<typename Stream>
+inline datastream<Stream>& operator<<(datastream<Stream>& ds, const namex_& d) {
+   ds.write( (const char*)&d.value[0], sizeof(d.value) );
+   return ds;
+}
+
+template<typename Stream>
+inline datastream<Stream>& operator>>(datastream<Stream>& ds, namex_& d) {
+   ds.read((char*)&d.value[0], sizeof(d.value) );
+   return ds;
+}
 
 template<typename DataStream>
 DataStream& operator << ( DataStream& ds, const name& v ) {
@@ -234,6 +246,30 @@ DataStream& operator << ( DataStream& ds, const name& v ) {
 template<typename DataStream>
 DataStream& operator >> ( DataStream& ds, name& v ) {
    ds >> v.value;
+   return ds;
+}
+   
+template<typename DataStream>
+DataStream& operator << ( DataStream& ds, const namex& v ) {
+   ds << v.value;
+   return ds;
+}
+
+template<typename DataStream>
+DataStream& operator >> ( DataStream& ds, namex& v ) {
+   ds >> v.value;
+   return ds;
+}
+
+template<typename DataStream>
+DataStream& operator << ( DataStream& ds, const uint128_x& v ) {
+   ds << v.hi << v.lo;
+   return ds;
+}
+
+template<typename DataStream>
+DataStream& operator >> ( DataStream& ds, uint128_x& v ) {
+   ds >> v.hi >> v.lo;
    return ds;
 }
 

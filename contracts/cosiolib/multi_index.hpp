@@ -34,23 +34,23 @@ struct secondary_index_db_functions<TYPE> {\
    static int32_t db_idx_next( int32_t iterator, uint64_t* primary )          { return db_##IDX##_next( iterator, primary ); }\
    static int32_t db_idx_previous( int32_t iterator, uint64_t* primary )      { return db_##IDX##_previous( iterator, primary ); }\
    static void    db_idx_remove( int32_t iterator  )                          { db_##IDX##_remove( iterator ); }\
-   static int32_t db_idx_end( uint64_t code, uint64_t scope, uint64_t table ) { return db_##IDX##_end( code, scope, table ); }\
-   static int32_t db_idx_store( uint64_t scope, uint64_t table, uint64_t payer, uint64_t id, const TYPE& secondary ) {\
+   static int32_t db_idx_end( account_name code, uint64_t scope, uint64_t table ) { return db_##IDX##_end( code, scope, table ); }\
+   static int32_t db_idx_store( uint64_t scope, uint64_t table, account_name payer, uint64_t id, const TYPE& secondary ) {\
       return db_##IDX##_store( scope, table, payer, id, &secondary );\
    }\
-   static void    db_idx_update( int32_t iterator, uint64_t payer, const TYPE& secondary ) {\
+   static void    db_idx_update( int32_t iterator, account_name payer, const TYPE& secondary ) {\
       db_##IDX##_update( iterator, payer, &secondary );\
    }\
-   static int32_t db_idx_find_primary( uint64_t code, uint64_t scope, uint64_t table, uint64_t primary, TYPE& secondary ) {\
+   static int32_t db_idx_find_primary( account_name code, uint64_t scope, uint64_t table, uint64_t primary, TYPE& secondary ) {\
       return db_##IDX##_find_primary( code, scope, table, &secondary, primary );\
    }\
-   static int32_t db_idx_find_secondary( uint64_t code, uint64_t scope, uint64_t table, const TYPE& secondary, uint64_t& primary ) {\
+   static int32_t db_idx_find_secondary( account_name code, uint64_t scope, uint64_t table, const TYPE& secondary, uint64_t& primary ) {\
       return db_##IDX##_find_secondary( code, scope, table, &secondary, &primary );\
    }\
-   static int32_t db_idx_lowerbound( uint64_t code, uint64_t scope, uint64_t table, TYPE& secondary, uint64_t& primary ) {\
+   static int32_t db_idx_lowerbound( account_name code, uint64_t scope, uint64_t table, TYPE& secondary, uint64_t& primary ) {\
       return db_##IDX##_lowerbound( code, scope, table, &secondary, &primary );\
    }\
-   static int32_t db_idx_upperbound( uint64_t code, uint64_t scope, uint64_t table, TYPE& secondary, uint64_t& primary ) {\
+   static int32_t db_idx_upperbound( account_name code, uint64_t scope, uint64_t table, TYPE& secondary, uint64_t& primary ) {\
       return db_##IDX##_upperbound( code, scope, table, &secondary, &primary );\
    }\
 };
@@ -61,23 +61,23 @@ struct secondary_index_db_functions<TYPE> {\
    static int32_t db_idx_next( int32_t iterator, uint64_t* primary )          { return db_##IDX##_next( iterator, primary ); }\
    static int32_t db_idx_previous( int32_t iterator, uint64_t* primary )      { return db_##IDX##_previous( iterator, primary ); }\
    static void    db_idx_remove( int32_t iterator )                           { db_##IDX##_remove( iterator ); }\
-   static int32_t db_idx_end( uint64_t code, uint64_t scope, uint64_t table ) { return db_##IDX##_end( code, scope, table ); }\
-   static int32_t db_idx_store( uint64_t scope, uint64_t table, uint64_t payer, uint64_t id, const TYPE& secondary ) {\
+   static int32_t db_idx_end( account_name code, uint64_t scope, uint64_t table ) { return db_##IDX##_end( code, scope, table ); }\
+   static int32_t db_idx_store( uint64_t scope, uint64_t table, account_name payer, uint64_t id, const TYPE& secondary ) {\
       return db_##IDX##_store( scope, table, payer, id, secondary.data(), TYPE::num_words() );\
    }\
-   static void    db_idx_update( int32_t iterator, uint64_t payer, const TYPE& secondary ) {\
+   static void    db_idx_update( int32_t iterator, account_name payer, const TYPE& secondary ) {\
       db_##IDX##_update( iterator, payer, secondary.data(), TYPE::num_words() );\
    }\
-   static int32_t db_idx_find_primary( uint64_t code, uint64_t scope, uint64_t table, uint64_t primary, TYPE& secondary ) {\
+   static int32_t db_idx_find_primary( account_name code, uint64_t scope, uint64_t table, uint64_t primary, TYPE& secondary ) {\
       return db_##IDX##_find_primary( code, scope, table, secondary.data(), TYPE::num_words(), primary );\
    }\
-   static int32_t db_idx_find_secondary( uint64_t code, uint64_t scope, uint64_t table, const TYPE& secondary, uint64_t& primary ) {\
+   static int32_t db_idx_find_secondary( account_name code, uint64_t scope, uint64_t table, const TYPE& secondary, uint64_t& primary ) {\
       return db_##IDX##_find_secondary( code, scope, table, secondary.data(), TYPE::num_words(), &primary );\
    }\
-   static int32_t db_idx_lowerbound( uint64_t code, uint64_t scope, uint64_t table, TYPE& secondary, uint64_t& primary ) {\
+   static int32_t db_idx_lowerbound( account_name code, uint64_t scope, uint64_t table, TYPE& secondary, uint64_t& primary ) {\
       return db_##IDX##_lowerbound( code, scope, table, secondary.data(), TYPE::num_words(), &primary );\
    }\
-   static int32_t db_idx_upperbound( uint64_t code, uint64_t scope, uint64_t table, TYPE& secondary, uint64_t& primary ) {\
+   static int32_t db_idx_upperbound( account_name code, uint64_t scope, uint64_t table, TYPE& secondary, uint64_t& primary ) {\
       return db_##IDX##_upperbound( code, scope, table, secondary.data(), TYPE::num_words(), &primary );\
    }\
 };
@@ -140,7 +140,7 @@ class multi_index
 
       static_assert( validate_table_name(TableName), "multi_index does not support table names with a length greater than 12");
 
-      uint64_t _code;
+      namex _code;
       uint64_t _scope;
 
       mutable uint64_t _next_primary_key;
@@ -383,7 +383,7 @@ class multi_index
             }
 
             template<typename Lambda>
-            void modify( const_iterator itr, uint64_t payer, Lambda&& updater ) {
+            void modify( const_iterator itr, account_name payer, Lambda&& updater ) {
                contento_assert( itr != cend(), "cannot pass end iterator to modify" );
 
                _multidx->modify( *itr, payer, std::forward<Lambda&&>(updater) );
@@ -489,7 +489,7 @@ class multi_index
 
    public:
 
-      multi_index( uint64_t code, uint64_t scope )
+      multi_index( account_name code, uint64_t scope )
       :_code(code),_scope(scope),_next_primary_key(unset_next_primary_key)
       {}
 
@@ -644,7 +644,7 @@ class multi_index
       }
 
       template<typename Lambda>
-      const_iterator emplace( uint64_t payer, Lambda&& constructor ) {
+      const_iterator emplace( account_name payer, Lambda&& constructor ) {
          using namespace _multi_index_detail;
 
          contento_assert( _code == current_receiver(), "cannot create objects in table of another contract" ); // Quick fix for mutating db using multi_index that shouldn't allow mutation. Real fix can come in RC2.
@@ -689,14 +689,14 @@ class multi_index
       }
 
       template<typename Lambda>
-      void modify( const_iterator itr, uint64_t payer, Lambda&& updater ) {
+      void modify( const_iterator itr, account_name payer, Lambda&& updater ) {
          contento_assert( itr != end(), "cannot pass end iterator to modify" );
 
          modify( *itr, payer, std::forward<Lambda&&>(updater) );
       }
 
       template<typename Lambda>
-      void modify( const T& obj, uint64_t payer, Lambda&& updater ) {
+      void modify( const T& obj, account_name payer, Lambda&& updater ) {
          using namespace _multi_index_detail;
 
          const auto& objitem = static_cast<const item&>(obj);

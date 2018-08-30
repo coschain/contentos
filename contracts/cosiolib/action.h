@@ -149,5 +149,9 @@ extern "C" {
     *  @return the account which specifies the current receiver of the action
     */
    account_name current_receiver();
+   
+   void current_caller(namex_* caller);
+
+   void current_coder(namex_* coder);
    ///@ } actioncapi
 }

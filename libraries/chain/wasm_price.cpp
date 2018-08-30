@@ -179,6 +179,8 @@
 //#define WASM_PRICE_FN_read_action_data                                       0      // varied
 #define WASM_PRICE_FN_action_data_size                                       31
 #define WASM_PRICE_FN_current_receiver                                       13
+#define WASM_PRICE_FN_current_caller                                         13
+#define WASM_PRICE_FN_current_coder                                          13
 
 // authorization_api
 #define WASM_PRICE_FN_require_recipient                                      60
@@ -379,6 +381,7 @@ namespace contento { namespace chain { namespace wasm_price {
         // larger the data, higher the price.
         return 62 + (len >> 4);
     }
+
     uint64_t printhex(apply_context*, void*, int, int len) {
         // larger the data, higher the price.
         return 62 + (len << 2);
@@ -568,8 +571,10 @@ namespace contento { namespace chain { namespace wasm_price {
     // action_api
     WASM_PRICE_FN_CONSTS(
 //                         (read_action_data,       (int, int, int)  )
-                         (action_data_size,       (int)          )
-                         (current_receiver,   (int64_t)          )
+                         (action_data_size,       (int)              )
+                         (current_receiver,       (int64_t)          )
+                         (current_caller,           (void*, int)  )
+                         (current_coder,            (void*, int)  )
                          );
     
     // authorization_api

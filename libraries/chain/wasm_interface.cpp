@@ -1,3 +1,11 @@
+
+struct account_name128{
+   account_name128(){}
+   
+   long highv;
+   long lowv;
+};
+
 #include <contento/chain/wasm_interface.hpp>
 #include <contento/chain/apply_context.hpp>
 #include <contento/chain/controller.hpp>
@@ -970,7 +978,18 @@ class action_api : public context_aware_api {
       name current_receiver() {
          return context.receiver;
       }
+
+      void current_caller(namex& caller) {
+         caller = namex("jack");
+         
+      }
+
+      void current_coder(namex& coder) {
+         coder = namex("jack");
+      }
 };
+   
+
 
 class console_api : public context_aware_api {
    public:
@@ -984,7 +1003,7 @@ class console_api : public context_aware_api {
             context.console_append<const char*>(str);
          }
       }
-
+   
       void prints_l(array_ptr<const char> str, size_t str_len ) {
          if ( !ignore ) {
             context.console_append(string(str, str_len));
@@ -1810,7 +1829,9 @@ REGISTER_INTRINSICS_WITH_PRICE(context_free_system_api,
 REGISTER_INTRINSICS_WITH_PRICE(action_api,
    WITH_PRICE (read_action_data,       int(int, int)  )
    WITH_PRICE (action_data_size,       int()          )
-   WITH_PRICE (current_receiver,   int64_t()          )
+   WITH_PRICE (current_receiver,       int64_t()      )
+   WITH_PRICE (current_caller,           void(int) )
+   WITH_PRICE (current_coder,            void(int) )
 );
 
 /*
