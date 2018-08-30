@@ -163,9 +163,16 @@ BOOST_AUTO_TEST_CASE( storage )
     set_abi(db, storage_private_key, N(storage), "../../../tests/contento/contracts/storage.abi");
     
     push_action(db, storage_private_key, N(storage), N(storage), N(placeoffer), 
-         "[ \"buttnaked\", \"3.0000 COC\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]");
+         "[ \"storage\", \"3.0000 COC\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]");
+    BOOST_REQUIRE_THROW(
+       push_action(db, hello_private_key, N(hello), N(storage), N(placeoffer), 
+                  "[ \"storage\", \"3.0000 COC\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]"), 
+       fc::exception
+    );
     push_action(db, storage_private_key, N(storage), N(storage), N(canceloffer), 
          "[\"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\"]");
+    push_action(db, hello_private_key, N(hello), N(storage), N(placeoffer), 
+            "[ \"storage\", \"3.0000 COC\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]")
     
 }
 
