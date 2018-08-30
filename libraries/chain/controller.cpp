@@ -4,7 +4,7 @@
 #include <contento/chain/global_property_object.hpp>
 #include <chainbase/chainbase.hpp>
 #include <fc/io/json.hpp>
-
+#include <contento/chain/exceptions.hpp>
 #include <contento/chain/contento_contract.hpp>
 
 namespace contento { namespace chain {

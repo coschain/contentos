@@ -3,14 +3,10 @@
  *  @copyright defined in eos/LICENSE.txt
  */
 #include <contento/chain/abi_serializer.hpp>
-#include <contento/chain/contract_types.hpp>
-//#include <contento/chain/authority.hpp>
-#include <contento/chain/chain_config.hpp>
-//#include <contento/chain/transaction.hpp>
-#include <contento/chain/util/asset.hpp>
 #include <fc/io/raw.hpp>
 #include <boost/algorithm/string/predicate.hpp>
 #include <fc/io/varint.hpp>
+#include <contento/protocol/asset.hpp>
 
 using namespace boost;
 
@@ -91,7 +87,7 @@ namespace contento { namespace chain {
 
       //built_in_types.emplace("symbol",                    pack_unpack<symbol>());
       //built_in_types.emplace("symbol_code",               pack_unpack<symbol_code>());
-       built_in_types.emplace("asset",                     pack_unpack<util::asset>());
+       built_in_types.emplace("asset",                     pack_unpack<asset>());
       //built_in_types.emplace("extended_asset",            pack_unpack<extended_asset>());
    }
 

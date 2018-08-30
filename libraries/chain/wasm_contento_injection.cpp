@@ -1,11 +1,5 @@
-#include <contento/chain/wasm_contento_constraints.hpp>
 #include <contento/chain/wasm_contento_injection.hpp>
-#include <contento/chain/wasm_contento_binary_ops.hpp>
-#include <fc/exception/exception.hpp>
-#include <contento/chain/exceptions.hpp>
 #include "IR/Module.h"
-#include "IR/Operators.h"
-#include "WASM/WASM.h"
 
 namespace contento { namespace chain { namespace wasm_injections {
 using namespace IR;

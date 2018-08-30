@@ -8,7 +8,6 @@
 #include <IR/Validate.h>
 #include <WAST/WAST.h>
 #include <WASM/WASM.h>
-#include <Runtime/Runtime.h>
 #include <sstream>
 #include <iomanip>
 #include <fc/exception/exception.hpp>

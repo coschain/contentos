@@ -3,10 +3,10 @@
  *  @copyright defined in eos/LICENSE.txt
  */
 #pragma once
-#include <contento/chain/controller.hpp>
 #include <contento/protocol/transaction.hpp>
 #include <contento/protocol/contento_operations.hpp>
 #include <contento/chain/contract_table_objects.hpp>
+#include <contento/chain/controller.hpp>
 #include <fc/utility.hpp>
 #include <sstream>
 #include <algorithm>
@@ -16,7 +16,7 @@ namespace chainbase { class database; }
 
 namespace contento { namespace chain {
 
-class controller;
+using contento::protocol::vm_operation;
 class transaction_context;
 
 class apply_context {

@@ -1,22 +1,22 @@
 #pragma once
 
+#include <contento/chain/types.hpp>
 #include <contento/chain/abi_serializer.hpp>
 #include <contento/chain/account_object.hpp>
 #include <contento/chain/wasm_interface.hpp>
+#include <contento/protocol/operations.hpp>
 
-namespace chainbase {
+namespace chainbase
+{
    class database;
-}
-
+} // chainbase
 
 namespace contento { namespace chain {
-    class apply_context;
+   class apply_context;
+   class account_object;
    struct controller_impl;
-   //using chainbase::database;
 
    using apply_handler = std::function<void(apply_context&)>;
-
-   ////class fork_database;
 
    class vm_content_api_interface {
    public:
@@ -26,22 +26,22 @@ namespace contento { namespace chain {
    class transaction_context;
    class op_excute_callback {
    public:
-      virtual bool execute_operation(const transaction_context& trx_context, const contento::protocol::operation& op ) = 0;
+      virtual bool execute_operation(const transaction_context& trx_context, const ::contento::protocol::operation& op ) = 0;
    };
 
 
    class controller {
       public:
 
-         controller(chainbase::database &db);
+         controller(::chainbase::database &db);
          ~controller();
 
          void add_indices();
        bool is_producing_block() const;
 
-         chainbase::database& db()const;
+         ::chainbase::database& db()const;
 
-         const account_object&                 get_account( account_name n )const;
+         const account_object&                 get_account( ::contento::chain::account_name n )const;
          const dynamic_global_property_object& get_global_properties() const;
          const time_point_sec head_block_time() const;
          const apply_handler* find_apply_handler( account_name contract, scope_name scope, action_name act )const;

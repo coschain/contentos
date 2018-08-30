@@ -1,6 +1,6 @@
 #pragma once
 #include <contento/chain/controller.hpp>
-#include <contento/protocol/contento_operations.hpp>
+#include <contento/protocol/transaction.hpp>
 #include <utility>
 
 namespace contento { namespace chain {
