@@ -692,20 +692,13 @@ class contract_bank_api : public context_aware_api {
       }
 
       void transfer(account_name account, const asset& value) {
-          // todo transfer COC/vesting to name from contract_bank
-          std::cout<<"\n enter transfer !!!"<<"\n";
-          
-          std::cout<<"\n tranfer value:"<<value.amount.value<<"\n";
-          
+          // todo transfer COC to name from contract_bank
           context.transfer(account,value);
-          
-          std::cout<<" account:"<<account<<"no thing to transfer amount:"<<value.amount.value<<" symbol:"<<value.symbol<<"\n";
       }
 
       int64_t get_value() {
           // todo get name's vm_op's value
           return context.get_value();
-          //return 100;
       }
     
       void pay_prohibited() {

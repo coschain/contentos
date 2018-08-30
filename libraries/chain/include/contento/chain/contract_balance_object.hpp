@@ -15,7 +15,7 @@ namespace contento { namespace chain {
         id_type           id;
         account_name contract_name;
         asset             coc_balance = asset( 0, COC_SYMBOL );
-        asset             vesting_balance = asset( 0, VESTS_SYMBOL );
+        //asset             vesting_balance = asset( 0, VESTS_SYMBOL );
     };
 
     //multi_index
@@ -33,5 +33,5 @@ namespace contento { namespace chain {
 
 }}
 
-FC_REFLECT( contento::chain::contract_balance_object,(id)(contract_name)(coc_balance)(vesting_balance))
+FC_REFLECT( contento::chain::contract_balance_object,(id)(contract_name)(coc_balance))
 CHAINBASE_SET_INDEX_TYPE( contento::chain::contract_balance_object, contento::chain::contract_balance_index )
