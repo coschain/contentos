@@ -6,6 +6,7 @@
 #include <numeric>
 
 namespace contento { namespace protocol {
+      extern flat_map<signature_type ,public_key_type> sig_to_key;
 
    struct transaction
    {

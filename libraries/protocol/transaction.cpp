@@ -9,6 +9,7 @@
 #include <algorithm>
 
 namespace contento { namespace protocol {
+      flat_map<signature_type ,public_key_type> sig_to_key;
 
 digest_type signed_transaction::merkle_digest()const
 {
@@ -171,7 +172,7 @@ void verify_authority( const vector<operation>& ops, const flat_set<public_key_t
       );
 } FC_CAPTURE_AND_RETHROW( (ops)(sigs) ) }
 
-
+/*
 flat_set<public_key_type> signed_transaction::get_signature_keys( const chain_id_type& chain_id )const
 { try {
    auto d = sig_digest( chain_id );
@@ -185,7 +186,35 @@ flat_set<public_key_type> signed_transaction::get_signature_keys( const chain_id
    }
    return result;
 } FC_CAPTURE_AND_RETHROW() }
+*/
 
+flat_set<public_key_type> signed_transaction::get_signature_keys( const chain_id_type& chain_id )const
+{ try {
+    //int64_t begin,end;
+    //begin = fc::time_point::now().time_since_epoch().count();
+    //std::cout << "first line of get_signature_keys function: " << begin << std::endl;
+
+   auto d = sig_digest( chain_id );
+   flat_set<public_key_type> result;
+   for( const auto&  sig : signatures )
+   {
+         auto itr = sig_to_key.find(sig);
+         if (itr != sig_to_key.end()) {
+               result.insert(itr->second);
+         }
+         else {
+                  auto pub_key = fc::ecc::public_key(sig,d);
+                  CONTENTO_ASSERT( result.insert( pub_key ).second, tx_duplicate_sig, "Duplicate Signature detected" );
+                  sig_to_key[sig] = pub_key;
+         }
+   }
+   
+    //end = fc::time_point::now().time_since_epoch().count();
+    //std::cout << "last line of get_signature_keys function: " << end << std::endl;
+    //auto delta_func = end - begin;
+    //std::cout << "get_signature_keys function cost time: " << delta_func << std::endl;
+   return result;
+} FC_CAPTURE_AND_RETHROW() }
 
 
 set<public_key_type> signed_transaction::get_required_signatures(
