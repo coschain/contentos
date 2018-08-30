@@ -155,18 +155,6 @@ BOOST_AUTO_TEST_CASE( setcodes )
     asset v2 = asset::from_string( "50.000 COC" );;
     push_action(db, hello_private_key, N(hello), N(hello), N(hi), "[\"hello\"]", v2);
     
-    const account_object& acct2 = db.get_account( "hello" );
-    BOOST_REQUIRE( acct2.balance.amount.value == 0 );
-    
-    std::cout<<"vm.cpp COC_SYMBOL:"<<v.symbol<<"\n";
-   string a = "[\"hello\",\"50.000 COC\"]";
-     //string a = "[\"50.000 COC\"]";
-    v.amount = 0;
-    push_action(db, hello_private_key, N(hello), N(hello), N(withdraw), a,v);
-    
-    
-    const account_object& acct3 = db.get_account( "hello" );
-    BOOST_REQUIRE( acct3.balance.amount.value == 50000 );
     
     //BOOST_REQUIRE_THROW( report_comment(db, "user3", "bob", "b001", "1.000 TESTS", "porn", true, true, user3_private_key), fc::exception );
     //BOOST_REQUIRE_NO_THROW( set_code(db, hector_post_key, N(hector), code) );
@@ -191,7 +179,7 @@ BOOST_AUTO_TEST_CASE( setcodes )
         
         // user2 send coc to contract
         asset v1 = asset::from_string( "50.000 COC" );
-        push_action(db, user2_private_key, N(user2), N(user1), N(hi), "[\"hello2\"]", v1);
+        push_action(db, user2_private_key, N(user2), N(user1), N(save), "", v1);
         
         // check send result
         const account_object& acct3 = db.get_account( "user2" );
@@ -212,7 +200,7 @@ BOOST_AUTO_TEST_CASE( setcodes )
         
         // user2 send invalid coc to contract, should throw exception
         asset v3 = asset::from_string( "200.000 COC" );
-        BOOST_REQUIRE_THROW(push_action(db, user2_private_key, N(user2), N(user1), N(hi), "[\"hello2\"]", v3),fc::exception);
+        BOOST_REQUIRE_THROW(push_action(db, user2_private_key, N(user2), N(user1), N(save), "", v3),fc::exception);
         
         // user2 withdraw invalid coc from contract, should throw exception
         a = "[\"user2\",\"50.000 COC\"]";
@@ -244,7 +232,7 @@ BOOST_AUTO_TEST_CASE( setcodes )
         
         // user1 send coc to no exist contract, should throw exception
         asset v1 = asset::from_string( "50.000 COC" );
-        BOOST_REQUIRE_THROW(push_action(db, user1_private_key, N(user1), N(somecontract), N(hi), "[\"hi hi hi\"]", v1),fc::exception);
+        BOOST_REQUIRE_THROW(push_action(db, user1_private_key, N(user1), N(somecontract), N(save), "", v1),fc::exception);
         
         //  user1 withdraw coc from no exist contract, should throw exception
         string a = "[\"user1\",\"50.000 COC\"]";
@@ -253,13 +241,13 @@ BOOST_AUTO_TEST_CASE( setcodes )
         
         // pre send coc to contract
         asset v3 = asset::from_string( "50.000 COC" );
-        push_action(db, user1_private_key, N(user1), N(user1), N(hi), "[\"hello\"]", v3);
+        push_action(db, user1_private_key, N(user1), N(user1), N(save), "", v3);
         const contract_balance_object& cbo1 = db.get_contract_account( "user1" );// user1 is contract name
         BOOST_REQUIRE( cbo1.coc_balance.amount.value == 50000 );
         
         // no exist user send coc to contract, should throw exception
         asset v4 = asset::from_string( "50.000 COC" );
-        BOOST_REQUIRE_THROW(push_action(db, user1_private_key, N(someuser), N(user1), N(hi), "[\"good morning\"]", v4),fc::exception);
+        BOOST_REQUIRE_THROW(push_action(db, user1_private_key, N(someuser), N(user1), N(save), "", v4),fc::exception);
         
         // no exist user withdraw coc from contract, should throw exception
         a = "[\"user1\",\"50.000 COC\"]";

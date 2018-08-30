@@ -12,17 +12,13 @@ class hello : public cosio::contract {
 
       //@abi action
       void hi( account_name user ) {
-          print("\n ====== enter contract hi function ====== \n");
-
-          asset cb;
-          get_contract_balance(cb);
-          print("in hi contract balance is : ", cb.amount);
-
-          int64_t value = get_value();
-
          print( "\n Hello, ", name{user} );
-          print("\n ====== exit contract hi function ====== \n");
       }
+    
+    //@abi action
+    void save(){
+        
+    }
     
     //@abi action
     void withdraw(account_name account, const asset& value){
