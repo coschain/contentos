@@ -1,6 +1,7 @@
 #pragma once
 #include <contento/app/applied_operation.hpp>
 #include <contento/app/state.hpp>
+#include <contento/app/contract_storage.hpp>
 
 #include <contento/chain/database.hpp>
 #include <contento/chain/contento_objects.hpp>
@@ -191,6 +192,12 @@ class database_api
       //////////////
 
       vector< extended_account > get_accounts( vector< string > names ) const;
+
+      account_code_api_obj get_account_code(string name ) const;
+
+      table_rows_api_obj get_table_rows(string code, string scope, string table,
+                              string lower_bound, string upper_bound, int limit,
+                              string key_type, string index_pos, string encode_type) const;
 
       /**
        *  @return all accounts that referr to the key or account id in their owner or active authorities.
@@ -513,6 +520,9 @@ FC_API(contento::app::database_api,
    (get_account_history)
    (get_owner_history)
    (get_recovery_request)
+   (get_account_code)
+   (get_table_rows)
+
    // (get_escrow)
    (get_withdraw_routes)
    (get_account_bandwidth)

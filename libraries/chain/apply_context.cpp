@@ -28,19 +28,19 @@ using boost::container::flat_set;
 
 namespace contento { namespace chain {
 
-// static inline void print_debug(account_name receiver, const action_trace& ar) {
-//    if (!ar.console.empty()) {
-//       auto prefix = fc::format_string(
-//                                       "\n[(${a},${n})->${r}]",
-//                                       fc::mutable_variant_object()
-//                                       ("a", ar.act.account)
-//                                       ("n", ar.act.name)
-//                                       ("r", receiver));
-//       dlog(prefix + ": CONSOLE OUTPUT BEGIN =====================\n"
-//            + ar.console
-//            + prefix + ": CONSOLE OUTPUT END   =====================" );
-//    }
-// }
+static inline void print_debug(account_name receiver, const std::string& log, const vm_operation& op) {
+   if (!log.empty()) {
+      auto prefix = fc::format_string(
+                                      "\n[(${a},${n})->${r}]",
+                                      fc::mutable_variant_object()
+                                      ("a", op.contract_name)
+                                      ("n", op.action_name)
+                                      ("r", receiver));
+      dlog(prefix + ": CONSOLE OUTPUT BEGIN =====================\n"
+           + log
+           + prefix + ": CONSOLE OUTPUT END   =====================" );
+   }
+}
 
 void apply_context::exec_one()
 {
@@ -66,8 +66,8 @@ void apply_context::exec_one()
 
    } FC_CAPTURE_AND_RETHROW((_pending_console_output.str()));
 
-   std::cout << "***************\nVM EXCUTE:\n" << _pending_console_output.str() << "\n*************\n" << std::endl;
-   // TODOO: print debug
+   //std::cout << "***************\nVM EXCUTE:\n" << _pending_console_output.str() << "\n*************\n" << std::endl;
+   print_debug(receiver, _pending_console_output.str(), op);
    reset_console();
 }
 
@@ -261,8 +261,16 @@ void apply_context::update_db_usage( const account_name& payer, int64_t delta ) 
    }
    trx_context.add_ram_usage(payer, delta);
     */
+    
+    //
+    // caller pays for everything.
+    //
+    trx_context.add_ram_usage( op.caller, delta );
 }
 
+void apply_context::add_action_price(uint64_t price, int wasm_expr_id) {
+    trx_context.add_wasm_price( op.caller, price );
+}
 
 int apply_context::get_action( uint32_t type, uint32_t index, char* buffer, size_t buffer_size )const
 {
@@ -542,9 +550,6 @@ bool apply_context::excute_operation( const std::vector<char>& op_buff ){
    EOS_ASSERT( !is_virtual_operation(op), transaction_exception, "virtual operation not permitted");
 
    return control.get_op_excutor()->execute_operation( trx_context, op);
-}
-
-void apply_context::add_action_price(uint64_t price, int wasm_expr_id) {
 }
 
 } } /// contento::chain

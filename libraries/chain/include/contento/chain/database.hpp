@@ -37,6 +37,8 @@ namespace contento { namespace chain {
    namespace util {
       struct comment_reward_context;
    }
+    
+    class tps_stats;
 
    /**
     *   @class database
@@ -70,7 +72,8 @@ namespace contento { namespace chain {
             skip_validate               = 1 << 10, ///< used prior to checkpoint, skips validate() call on transaction
             skip_validate_invariants    = 1 << 11, ///< used to skip database invariant check on block application
             skip_undo_block             = 1 << 12, ///< used to skip undo db on reindex
-            skip_block_log              = 1 << 13  ///< used to skip block logging on reindex
+            skip_block_log              = 1 << 13,  ///< used to skip block logging on reindex
+            skip_apply_transaction      = 1 << 14
          };
 
          /**
@@ -387,7 +390,7 @@ namespace contento { namespace chain {
           *  This method validates transactions without adding it to the pending state.
           *  @throw if an error occurs
           */
-         void validate_transaction( const transaction_wrapper& trx );
+         void validate_transaction(  transaction_wrapper& trx );
 
          /** when popping a block, the transactions that were removed get cached here so they
           * can be reapplied at the proper time */
@@ -434,6 +437,9 @@ namespace contento { namespace chain {
 // #endif
 
          bool execute_operation(const transaction_context& trx_context, const operation& op );
+       
+       uint32_t tps();
+       
    protected:
          //Mark pop_undo() as protected -- we do not want outside calling pop_undo(); it should call pop_block() instead
          //void pop_undo() { object_database::pop_undo(); }
@@ -443,14 +449,15 @@ namespace contento { namespace chain {
          optional< chainbase::database::session > _pending_tx_session;
 
          void apply_block( const signed_block& next_block, uint32_t skip = skip_nothing );
-         void apply_transaction( const transaction_wrapper& trx_wrapper, uint32_t skip = skip_nothing );
+         void apply_transaction(  transaction_wrapper& trx_wrapper, uint32_t skip = skip_nothing );
          void _apply_block( const signed_block& next_block );
 
-         std::shared_ptr<transaction_context> _apply_transaction( const transaction_wrapper& trx_wrapper );
+         std::shared_ptr<transaction_context> _apply_transaction(  transaction_wrapper& trx_wrapper );
          void apply_operation( const operation& op, std::shared_ptr<transaction_context> ctx );
 
          ///Steps involved in applying a new block
          ///@{
+         uint32_t process_checkpoints( const signed_block& next_block , uint32_t skip_old );
 
          const witness_object& validate_block_header( uint32_t skip, const signed_block& next_block )const;
          void create_block_summary(const signed_block& next_block);
@@ -505,6 +512,7 @@ namespace contento { namespace chain {
          std::string                       _json_schema;
 
          contento::chain::controller ctrl;
+         std::unique_ptr< tps_stats > _tps_stats;
    };
 
 } }

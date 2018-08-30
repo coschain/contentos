@@ -605,6 +605,7 @@ namespace detail {
                // you can help the network code out by throwing a block_older_than_undo_history exception.
                // when the net code sees that, it will stop trying to push blocks from that chain, but
                // leave that peer connected so that they can get sync blocks from us
+
                bool result = _chain_db->push_block(blk_msg.block, (_is_block_producer | _force_validate) ? database::skip_nothing : database::skip_transaction_signatures);
 
                if( !sync_mode )
@@ -1086,7 +1087,7 @@ void application::set_program_options(boost::program_options::options_descriptio
          ("seed-node,s", bpo::value<vector<string>>()->composing(), "P2P nodes to connect to on startup (may specify multiple times)")
          ("checkpoint,c", bpo::value<vector<string>>()->composing(), "Pairs of [BLOCK_NUM,BLOCK_ID] that should be enforced as checkpoints.")
          ("shared-file-dir", bpo::value<string>(), "Location of the shared memory file. Defaults to data_dir/blockchain")
-         ("shared-file-size", bpo::value<string>()->default_value("54G"), "Size of the shared memory file. Default: 54G")
+         ("shared-file-size", bpo::value<string>()->default_value("1G"), "Size of the shared memory file. Default: 1G")
          ("rpc-endpoint", bpo::value<string>()->implicit_value("127.0.0.1:8090"), "Endpoint for websocket RPC to listen on")
          ("rpc-tls-endpoint", bpo::value<string>()->implicit_value("127.0.0.1:8089"), "Endpoint for TLS websocket RPC to listen on")
          ("rpc-http-endpoint", bpo::value<string>()->implicit_value("127.0.0.1:8088"), "Endpoint for http RPC to listen on")

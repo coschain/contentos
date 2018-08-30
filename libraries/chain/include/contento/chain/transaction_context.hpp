@@ -1,8 +1,11 @@
 #pragma once
 #include <contento/chain/controller.hpp>
 #include <contento/protocol/contento_operations.hpp>
+#include <utility>
 
 namespace contento { namespace chain {
+    
+   using bill_type = std::pair<int64_t, uint64_t>;
 
    class transaction_context {
       private:
@@ -28,6 +31,11 @@ namespace contento { namespace chain {
          void resume_billing_timer();
 
          void add_ram_usage( account_name account, int64_t ram_delta );
+         void add_wasm_price( account_name account, uint64_t price );
+         void init_bill(uint64_t max_gas, uint64_t ram_to_gas, uint64_t wasm_to_gas);
+         void add_paid_gas(uint64_t paid_gas);
+         uint64_t gas() const;
+         uint64_t gas_paid() const;
 
          void apply( const vm_operation& op, account_name receiver, bool context_free = false, uint32_t recurse_depth = 0 );
          inline void apply( const vm_operation& op, bool context_free = false ) {
@@ -44,11 +52,10 @@ namespace contento { namespace chain {
          controller&                   control;
          const signed_transaction&     trx;
          transaction_id_type           id;
-         //transaction_trace_ptr         trace;
          fc::time_point                start;
 
-         fc::time_point                published;
 
+         fc::time_point                published;
 
         // vector<action_receipt>        executed;
         //  flat_set<account_name>        bill_to_accounts;
@@ -59,6 +66,14 @@ namespace contento { namespace chain {
 
       private:
          bool                          is_initialized = false;
+
+       bill_type                      bill = {0, 0};
+       uint64_t                       max_gas = 0;
+       uint64_t                       ram_to_gas = 1;
+       uint64_t                       wasm_to_gas = 1;
+       uint64_t                       paid_gas = 0;
+
+         fc::time_point                _deadline;
    };
 
 } }

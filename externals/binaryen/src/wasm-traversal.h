@@ -79,35 +79,39 @@ struct Visitor {
       scope_exit report_on_exit([this,curr](){
           static_cast<SubType*>(this)->reportVisit(curr);
       });
-      
-    
-    switch (curr->_id) {
-      case Expression::Id::BlockId: DELEGATE(Block);
-      case Expression::Id::IfId: DELEGATE(If);
-      case Expression::Id::LoopId: DELEGATE(Loop);
-      case Expression::Id::BreakId: DELEGATE(Break);
-      case Expression::Id::SwitchId: DELEGATE(Switch);
-      case Expression::Id::CallId: DELEGATE(Call);
-      case Expression::Id::CallImportId: DELEGATE(CallImport);
-      case Expression::Id::CallIndirectId: DELEGATE(CallIndirect);
-      case Expression::Id::GetLocalId: DELEGATE(GetLocal);
-      case Expression::Id::SetLocalId: DELEGATE(SetLocal);
-      case Expression::Id::GetGlobalId: DELEGATE(GetGlobal);
-      case Expression::Id::SetGlobalId: DELEGATE(SetGlobal);
-      case Expression::Id::LoadId: DELEGATE(Load);
-      case Expression::Id::StoreId: DELEGATE(Store);
-      case Expression::Id::ConstId: DELEGATE(Const);
-      case Expression::Id::UnaryId: DELEGATE(Unary);
-      case Expression::Id::BinaryId: DELEGATE(Binary);
-      case Expression::Id::SelectId: DELEGATE(Select);
-      case Expression::Id::DropId: DELEGATE(Drop);
-      case Expression::Id::ReturnId: DELEGATE(Return);
-      case Expression::Id::HostId: DELEGATE(Host);
-      case Expression::Id::NopId: DELEGATE(Nop);
-      case Expression::Id::UnreachableId: DELEGATE(Unreachable);
-      case Expression::Id::InvalidId:
-      default: WASM_UNREACHABLE();
-    }
+
+      try {
+        switch (curr->_id) {
+          case Expression::Id::BlockId: DELEGATE(Block);
+          case Expression::Id::IfId: DELEGATE(If);
+          case Expression::Id::LoopId: DELEGATE(Loop);
+          case Expression::Id::BreakId: DELEGATE(Break);
+          case Expression::Id::SwitchId: DELEGATE(Switch);
+          case Expression::Id::CallId: DELEGATE(Call);
+          case Expression::Id::CallImportId: DELEGATE(CallImport);
+          case Expression::Id::CallIndirectId: DELEGATE(CallIndirect);
+          case Expression::Id::GetLocalId: DELEGATE(GetLocal);
+          case Expression::Id::SetLocalId: DELEGATE(SetLocal);
+          case Expression::Id::GetGlobalId: DELEGATE(GetGlobal);
+          case Expression::Id::SetGlobalId: DELEGATE(SetGlobal);
+          case Expression::Id::LoadId: DELEGATE(Load);
+          case Expression::Id::StoreId: DELEGATE(Store);
+          case Expression::Id::ConstId: DELEGATE(Const);
+          case Expression::Id::UnaryId: DELEGATE(Unary);
+          case Expression::Id::BinaryId: DELEGATE(Binary);
+          case Expression::Id::SelectId: DELEGATE(Select);
+          case Expression::Id::DropId: DELEGATE(Drop);
+          case Expression::Id::ReturnId: DELEGATE(Return);
+          case Expression::Id::HostId: DELEGATE(Host);
+          case Expression::Id::NopId: DELEGATE(Nop);
+          case Expression::Id::UnreachableId: DELEGATE(Unreachable);
+          case Expression::Id::InvalidId:
+          default: WASM_UNREACHABLE();
+        }
+      } catch(...) {
+          report_on_exit.enable(false);
+          throw;
+      }
 
     #undef DELEGATE
   }
