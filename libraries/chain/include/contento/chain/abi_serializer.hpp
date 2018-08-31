@@ -4,7 +4,6 @@
  */
 #pragma once
 #include <contento/chain/abi_def.hpp>
-#include <contento/chain/exceptions.hpp>
 #include <fc/variant_object.hpp>
 
 namespace contento { namespace chain {

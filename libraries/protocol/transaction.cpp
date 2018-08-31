@@ -4,7 +4,6 @@
 
 #include <fc/io/raw.hpp>
 #include <fc/bitutil.hpp>
-#include <fc/smart_ref_impl.hpp>
 
 #include <algorithm>
 

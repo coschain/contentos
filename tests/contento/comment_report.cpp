@@ -1,4 +1,5 @@
-#ifdef IS_TEST_NET
+// please recheck the unittest
+#ifdef IS_TEST_NET2
 #include <boost/test/unit_test.hpp>
 
 #include <contento/chain/account_object.hpp>

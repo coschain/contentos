@@ -4,8 +4,6 @@
  */
 #pragma once
 
-#include <contento/chain/types.hpp>
-#include <contento/chain/contract_types.hpp>
 
 namespace contento { namespace chain {
 

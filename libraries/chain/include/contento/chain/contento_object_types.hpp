@@ -78,7 +78,9 @@ enum object_type
    index256_object_type,
    index_double_object_type,
    index_long_double_object_type,
-   account_sequence_object_type
+   account_sequence_object_type,
+   //contract_balance_object
+   contract_balance_object_type
 };
 
 class dynamic_global_property_object;
@@ -113,6 +115,7 @@ class block_stats_object;
 class reward_fund_object;
 class vesting_delegation_object;
 class vesting_delegation_expiration_object;
+class contract_balance_object;
 /*
 class table_id_object;
 class key_value_object;
@@ -155,6 +158,7 @@ typedef oid< block_stats_object                     > block_stats_id_type;
 typedef oid< reward_fund_object                     > reward_fund_id_type;
 typedef oid< vesting_delegation_object              > vesting_delegation_id_type;
 typedef oid< vesting_delegation_expiration_object   > vesting_delegation_expiration_id_type;
+typedef oid< contract_balance_object   > contract_balance_id_type;
 
 enum bandwidth_type
 {
@@ -279,6 +283,7 @@ FC_REFLECT_ENUM( contento::chain::object_type,
                   (index_double_object_type)
                   (index_long_double_object_type)
                   (account_sequence_object_type)
+                  (contract_balance_object_type)
                )
 
 FC_REFLECT_TYPENAME( contento::chain::shared_string )

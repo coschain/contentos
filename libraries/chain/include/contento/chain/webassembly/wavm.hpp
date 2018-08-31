@@ -2,7 +2,6 @@
 
 #include <contento/chain/webassembly/common.hpp>
 #include <contento/chain/webassembly/runtime_interface.hpp>
-#include <softfloat.hpp>
 #include "Runtime/Runtime.h"
 #include "IR/Types.h"
 

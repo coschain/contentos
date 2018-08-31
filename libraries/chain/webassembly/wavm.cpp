@@ -1,18 +1,12 @@
 #include <contento/chain/webassembly/wavm.hpp>
-#include <contento/chain/wasm_contento_constraints.hpp>
-#include <contento/chain/wasm_contento_injection.hpp>
 #include <contento/chain/apply_context.hpp>
 #include <contento/chain/exceptions.hpp>
 
 #include "IR/Module.h"
-#include "Platform/Platform.h"
-#include "WAST/WAST.h"
-#include "IR/Operators.h"
 #include "IR/Validate.h"
 #include "Runtime/Linker.h"
-#include "Runtime/Intrinsics.h"
+#include "WASM/WASM.h"
 
-#include <mutex>
 
 using namespace IR;
 using namespace Runtime;

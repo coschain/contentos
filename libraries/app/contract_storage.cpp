@@ -33,7 +33,7 @@ uint64_t contract_storage::get_table_index_name(const get_table_rows_params& p, 
       pos = 2;
    } else if (starts_with(p.index_position, "fi")) { // five, fifth
       pos = 3;
-   } else if (starts_with(p.index_position, "six")) { // six, sixth
+   } else if (starts_with(p.index_position, "six")) { // six, sixthe
       pos = 4;
    } else if (starts_with(p.index_position, "sev")) { // seven, seventh
       pos = 5;
@@ -67,43 +67,45 @@ table_rows_api_obj contract_storage::get_table_rows( const get_table_rows_params
    abi_serializer::to_abi(acc->abi, abi);
 
    bool primary = false;
+   table_rows_api_obj result;
    auto table_with_index = get_table_index_name( p, primary );
    if( primary ) {
       CONTENTO_ASSERT( p.table == table_with_index, chain::contract_table_query_exception, "Invalid table name ${t}", ( "t", p.table ));
       auto table_type = get_table_type( abi, p.table );
       if( table_type == KEYi64 || p.key_type == "i64" || p.key_type == "name" ) {
-         return get_table_rows_ex<key_value_index>(p);
+         result = get_table_rows_ex<key_value_index>(p); // TODOO: move
+      } else {
+         CONTENTO_ASSERT( false, chain::contract_table_query_exception, "Invalid table type ${type}", ("type",table_type)("abi",abi));
       }
-      CONTENTO_ASSERT( false, chain::contract_table_query_exception, "Invalid table type ${type}", ("type",table_type)("abi",abi));
    } else {
       CONTENTO_ASSERT( !p.key_type.empty(), chain::contract_table_query_exception, "key type required for non-primary index" );
 
       if (p.key_type == contract_storage_def::i64 || p.key_type == "name") {
-         return get_table_rows_by_seckey<index64_index, uint64_t>(p, [](uint64_t v)->uint64_t {
+         result = get_table_rows_by_seckey<index64_index, uint64_t>(p, [](uint64_t v)->uint64_t {
             return v;
          });
       }
       else if (p.key_type == contract_storage_def::i128) {
-         return get_table_rows_by_seckey<index128_index, uint128_t>(p, [](uint128_t v)->uint128_t {
+         result = get_table_rows_by_seckey<index128_index, uint128_t>(p, [](uint128_t v)->uint128_t {
             return v;
          });
       }
       else if (p.key_type == contract_storage_def::i256) {
          if ( p.encode_type == contract_storage_def::hex) {
             using  conv = keytype_converter<contract_storage_def::sha256,contract_storage_def::hex>;
-            return get_table_rows_by_seckey<conv::index_type, conv::input_type>(p, conv::function());
+            result = get_table_rows_by_seckey<conv::index_type, conv::input_type>(p, conv::function());
          }
          using  conv = keytype_converter<contract_storage_def::i256>;
-         return get_table_rows_by_seckey<conv::index_type, conv::input_type>(p, conv::function());
+         result = get_table_rows_by_seckey<conv::index_type, conv::input_type>(p, conv::function());
       }
       else if (p.key_type == contract_storage_def::float64) {
-         return get_table_rows_by_seckey<index_double_index, double>(p, [](double v)->float64_t {
+         result = get_table_rows_by_seckey<index_double_index, double>(p, [](double v)->float64_t {
             float64_t f = *(float64_t *)&v;
             return f;
          });
       }
       else if (p.key_type == contract_storage_def::float128) {
-         return get_table_rows_by_seckey<index_long_double_index, double>(p, [](double v)->float128_t{
+         result = get_table_rows_by_seckey<index_long_double_index, double>(p, [](double v)->float128_t{
             float64_t f = *(float64_t *)&v;
             float128_t f128;
             f64_to_f128M(f, &f128);
@@ -112,14 +114,17 @@ table_rows_api_obj contract_storage::get_table_rows( const get_table_rows_params
       }
       else if (p.key_type == contract_storage_def::sha256) {
          using  conv = keytype_converter<contract_storage_def::sha256,contract_storage_def::hex>;
-         return get_table_rows_by_seckey<conv::index_type, conv::input_type>(p, conv::function());
+         result = get_table_rows_by_seckey<conv::index_type, conv::input_type>(p, conv::function());
       }
       else if(p.key_type == contract_storage_def::ripemd160) {
          using  conv = keytype_converter<contract_storage_def::ripemd160,contract_storage_def::hex>;
-         return get_table_rows_by_seckey<conv::index_type, conv::input_type>(p, conv::function());
+         result = get_table_rows_by_seckey<conv::index_type, conv::input_type>(p, conv::function());
+      } else {
+         CONTENTO_ASSERT(false, chain::contract_table_query_exception, "Unsupported secondary index type: ${t}", ("t", p.key_type));
       }
-      CONTENTO_ASSERT(false, chain::contract_table_query_exception, "Unsupported secondary index type: ${t}", ("t", p.key_type));
    }
+
+   return result;
 }
 
 template<>
