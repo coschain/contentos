@@ -21,6 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
+#define USE_BIN_API
+
 #include <contento/app/api.hpp>
 #include <contento/app/api_access.hpp>
 #include <contento/app/application.hpp>

@@ -41,10 +41,11 @@ namespace fc {
   class api;
 
   class api_connection;
-
+  #ifdef USE_BIN_API
   namespace bapi {
       class binary_api_connection;
   }
+  #endif
 
   typedef uint32_t api_id_type;
 
@@ -57,8 +58,9 @@ namespace fc {
         virtual uint64_t get_handle()const = 0;
 
         virtual api_id_type register_api( api_connection& conn )const = 0;
+        #ifdef USE_BIN_API
         virtual api_id_type register_api2( fc::bapi::binary_api_connection& conn )const = 0;
-
+        #endif
         // defined in api_connection.hpp
         template< typename T >
         api<T, identity_member> as();
@@ -96,7 +98,9 @@ namespace fc {
 //      template< typename T >
 //      virtual api_id_type register_api( T& conn )const override;    // defined in api_connection.hpp
      virtual api_id_type register_api( api_connection& conn )const override;
+     #ifdef USE_BIN_API
      virtual api_id_type register_api2( fc::bapi::binary_api_connection& conn )const override;
+     #endif
 
       vtable_type& operator*()const  { FC_ASSERT( _vtable ); return *_vtable; }
       vtable_type* operator->()const {  FC_ASSERT( _vtable ); return _vtable.get(); }
