@@ -105,7 +105,10 @@ database_impl::database_impl( database& self )
         };
         
         // update the stats.
-        void update();
+        void update(bool reset_before_update = false);
+        
+        // clear all cached data.
+        void reset();
         
         // get TPS.
         uint32_t tps();
@@ -136,7 +139,17 @@ database_impl::database_impl( database& self )
         return r;
     }
     
-    void tps_stats::update() {
+    void tps_stats::reset() {
+        _latest_blocks.clear();
+        _latest_block_nums.clear();
+        trx_total = 0;
+    }
+    
+    void tps_stats::update(bool reset_before_update) {
+        if (reset_before_update) {
+            reset();
+        }
+        
         uint32_t end = _self.head_block_num();
         if (end <= 0) {
             // no block yet
@@ -150,9 +163,7 @@ database_impl::database_impl( database& self )
         
         // when cache data seems wrong, clear it.
         if (cache_end > 0 && end != cache_end + 1) {
-            _latest_blocks.clear();
-            _latest_block_nums.clear();
-            trx_total = 0;
+            reset();
             cache_end = 0;
         }
         
@@ -247,7 +258,7 @@ void database::open( const fc::path& data_dir, const fc::path& shared_mem_dir, u
       {
          init_hardforks(); // Writes to local state, but reads from db
           
-          _tps_stats->update();
+          _tps_stats->update(true);
           
       });
    }
@@ -664,7 +675,6 @@ bool database::push_block(const signed_block& new_block, uint32_t skip)
             try
             {
                result = _push_block(new_block);
-               _tps_stats->update();
             }
             FC_CAPTURE_AND_RETHROW( (new_block) )
          });
@@ -1073,6 +1083,8 @@ void database::pop_block()
       undo();
 
       _popped_tx.insert( _popped_tx.begin(), head_block->transactions.begin(), head_block->transactions.end() );
+       
+       _tps_stats->update(true);
 
    }
    FC_CAPTURE_AND_RETHROW()
@@ -2526,6 +2538,8 @@ void database::apply_block( const signed_block& next_block, uint32_t skip )
    {
       _apply_block( next_block );
    } );
+    
+   _tps_stats->update();
 
    /*try
    {
