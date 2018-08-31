@@ -187,7 +187,18 @@ struct account_code_api_obj{
 
 struct table_rows_api_obj {
    vector<vector<char>> raw_data_rows;
+   string json_payload;
    bool more = false;
+/*
+   table_rows_api_obj& operator=(const table_rows_api_obj &other) {
+      for(auto ele : other.raw_data_rows) {
+         raw_data_rows.emplace_back(ele);
+      }
+      json_payload = other.json_payload;
+      more = other.more;
+      return *this;
+   }
+   */
 };
 
 struct account_api_obj
@@ -631,6 +642,7 @@ FC_REFLECT( contento::app::account_code_api_obj,
 
 FC_REFLECT( contento::app::table_rows_api_obj,
            (raw_data_rows)
+           (json_payload)
            (more)
            )
 

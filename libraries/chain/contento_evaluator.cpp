@@ -2438,6 +2438,28 @@ void vm_evaluator::do_apply( const vm_operation& o )  {
     if (error) {
         throw exc;
     }
+    
+    // handle contract bank if pre steps is ok
+    // transfer asset from caller to contract
+    if(o.value.amount <= 0){
+        return;
+    }
+    const auto& from_account = _db.get_account(o.caller);
+    const auto& to_account = _db.get_contract_account(o.contract_name);
+    
+    if( from_account.active_challenged )
+    {
+        _db.modify( from_account, [&]( account_object& a )
+                   {
+                       a.active_challenged = false;
+                       a.last_active_proved = _db.head_block_time();
+                   });
+    }
+    
+    FC_ASSERT( _db.get_balance( from_account, o.value.symbol ) >= o.value, "Account does not have sufficient funds for transfer." );
+    _db.adjust_balance( from_account, -o.value );
+    _db.adjust_contract_balance( to_account, o.value );
+    // transfer asset from caller to contract
 }
 
 } } // contento::chain

@@ -16,6 +16,7 @@
 #include <contento/chain/shared_db_merkle.hpp>
 #include <contento/chain/operation_notification.hpp>
 #include <contento/chain/witness_schedule.hpp>
+#include <contento/chain/contract_balance_object.hpp>
 
 #include <contento/chain/util/asset.hpp>
 #include <contento/chain/util/reward.hpp>
@@ -491,6 +492,11 @@ const witness_object* database::find_witness( const account_name_type& name ) co
 const account_object& database::get_account( const account_name_type& name )const
 { try {
    return get< account_object, by_name >( name );
+} FC_CAPTURE_AND_RETHROW( (name) ) }
+    
+const contract_balance_object& database::get_contract_account( const account_name_type& name )const
+{ try {
+    return get< contract_balance_object, by_name >( name );
 } FC_CAPTURE_AND_RETHROW( (name) ) }
 
 const account_object* database::find_account( const account_name_type& name )const
@@ -2246,6 +2252,7 @@ void database::initialize_indexes()
    add_core_index< reward_fund_index                       >(*this);
    add_core_index< vesting_delegation_index                >(*this);
    add_core_index< vesting_delegation_expiration_index     >(*this);
+   add_core_index< contract_balance_index     >(*this);
 
    _plugin_index_signal();
 }
@@ -3394,6 +3401,20 @@ void database::adjust_balance( const account_object& a, const asset& delta )
     });
 }
 
+void database::adjust_contract_balance( const contract_balance_object& a, const asset& delta )
+{
+    modify( a, [&]( contract_balance_object& cbo )
+           {
+               switch( delta.symbol )
+               {
+                   case COC_SYMBOL:
+                       cbo.coc_balance += delta;
+                       break;
+                   default:
+                       FC_ASSERT( false, "invalid symbol" );
+               }
+           } );
+}
 
 void database::adjust_savings_balance( const account_object& a, const asset& delta )
 {

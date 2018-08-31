@@ -106,6 +106,40 @@ const account_object& controller::get_account( account_name name )const
    return my->db.get<account_object, by_name>(name);
 } FC_CAPTURE_AND_RETHROW( (name) ) }
 
+const contract_balance_object& controller::get_contract_account( account_name name )const
+{ try {
+    return my->db.get<contract_balance_object, by_name >( name );
+} FC_CAPTURE_AND_RETHROW( (name) ) }
+    
+void controller::adjust_balance( const account_object& a, const asset& delta )
+{
+    my->db.modify( a, [&]( account_object& acnt )
+           {
+               switch( delta.symbol )
+               {
+                   case COC_SYMBOL:
+                       acnt.balance += delta;
+                       break;
+                   default:
+                       FC_ASSERT( false, "invalid symbol" );
+               }
+           } );
+}
+    
+void controller::adjust_contract_balance( const contract_balance_object& a, const asset& delta )
+{
+    my->db.modify( a, [&]( contract_balance_object& cbo )
+           {
+               switch( delta.symbol )
+               {
+                   case COC_SYMBOL:
+                       cbo.coc_balance += delta;
+                       break;
+                   default:
+                       FC_ASSERT( false, "invalid symbol" );
+               }
+           } );
+}
 
 controller::~controller() {
 }

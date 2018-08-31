@@ -548,8 +548,26 @@ bool apply_context::excute_operation( const std::vector<char>& op_buff ){
 
    EOS_ASSERT( !is_vm_operation(op), transaction_exception, "Cant\'t Excute vm_operation, use send_inline instead");
    EOS_ASSERT( !is_virtual_operation(op), transaction_exception, "virtual operation not permitted");
-
    return control.get_op_excutor()->execute_operation( trx_context, op);
 }
 
+asset apply_context::get_contract_balance()  {
+    const auto& account = control.get_contract_account(receiver);
+    return account.coc_balance;
+}
+    
+void apply_context::transfer( account_name name, const asset& value)  {
+    
+    const auto& to_account = control.get_account(name);
+    const auto& from_account = control.get_contract_account(receiver);
+    
+    FC_ASSERT( get_contract_balance() >= value, "Contract does not have sufficient funds for transfer." );
+//    asset s(value,COC_SYMBOL);
+    control.adjust_contract_balance( from_account, -value );
+    control.adjust_balance( to_account, value );
+}
+    
+int64_t apply_context::get_value() {
+    return op.value.amount.value;
+}
 } } /// contento::chain
