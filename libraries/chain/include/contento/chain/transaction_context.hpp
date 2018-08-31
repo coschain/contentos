@@ -2,6 +2,7 @@
 #include <contento/chain/controller.hpp>
 #include <contento/protocol/transaction.hpp>
 #include <utility>
+#include <fc/exception/exception.hpp>
 
 namespace contento { namespace chain {
     
@@ -36,6 +37,9 @@ namespace contento { namespace chain {
          void add_paid_gas(uint64_t paid_gas);
          uint64_t gas() const;
          uint64_t gas_paid() const;
+         bool has_vm_error() const;
+         const fc::exception& vm_error() const;
+         void set_vm_error(const fc::exception& e );
 
          void apply( const vm_operation& op, account_name receiver, bool context_free = false, uint32_t recurse_depth = 0 );
          inline void apply( const vm_operation& op, bool context_free = false ) {
@@ -72,6 +76,8 @@ namespace contento { namespace chain {
        uint64_t                       ram_to_gas = 1;
        uint64_t                       wasm_to_gas = 1;
        uint64_t                       paid_gas = 0;
+       bool                           vm_error_occurred = false;
+       fc::exception                  vm_exc;
 
          fc::time_point                _deadline;
    };

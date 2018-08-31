@@ -2385,39 +2385,74 @@ void delegate_vesting_shares_evaluator::do_apply( const delegate_vesting_shares_
 }
 
 void vm_evaluator::do_apply( const vm_operation& o )  {
-    auto caller = _db.get_account(o.caller);
-    FC_ASSERT( caller.balance.amount >= 0 && caller.balance.symbol == COC_SYMBOL, "Not enough balance to run vm_operation." );
     
-    const uint64_t max_tps = 3000;
-    uint32_t tps = _db.tps();
-    if (tps >= max_tps) tps = max_tps - 1;
-    
-    ctx->init_bill( (uint64_t)caller.balance.amount.value * config::gas_per_coc,
-                   10,
-                   1 * max_tps / (max_tps - tps)
-                   );
-    
+    uint64_t gas = 0;
     bool error = false;
     fc::exception exc;
+    
+    const auto& caller = _db.get_account(o.caller);
+
+    auto session = _db.start_undo_session(true);
     try {
+        
+        if( caller.active_challenged )
+        {
+            _db.modify( caller, [&]( account_object& a )
+                       {
+                           a.active_challenged = false;
+                           a.last_active_proved = _db.head_block_time();
+                       });
+        }
+        
+        // caller->contract trasfer
+        if(o.value.amount > 0) {
+            gas += config::gas_per_contract_trasfer;
+            
+            FC_ASSERT( _db.get_balance( caller, o.value.symbol ) >= o.value, "Account does not have sufficient funds for transfer." );
+            _db.adjust_balance( caller, -o.value );
+            _db.adjust_contract_balance( _db.get_contract_account(o.contract_name), o.value );
+        }
+        
+        // apply vm action
+        int64_t caller_coc = _db.get_balance( caller, COC_SYMBOL ).amount.value;
+        FC_ASSERT( caller_coc < gas / config::gas_per_coc, "Not enough balance to apply vm action." );
+        
+        const uint64_t max_tps = 3000;
+        uint32_t tps = _db.tps();
+        if (tps >= max_tps) tps = max_tps - 1;
+        
+        ctx->init_bill( (uint64_t)caller_coc * config::gas_per_coc,
+                       10,
+                       1 * max_tps / (max_tps - tps)
+                       );
         ctx->apply(o);
-    } catch(fc::exception& e) {
+        
+    } catch (fc::exception& e) {
         error = true;
         exc = e;
-    } catch(...) {
+    } catch (...) {
         error = true;
     }
     
-    uint64_t coc_cost = ctx->gas() / config::gas_per_coc;
+    // prepare to pay the gas fee
+    gas += ctx->gas();
+    uint64_t coc_cost = gas / config::gas_per_coc;
+    uint64_t caller_coc = _db.get_balance( caller, COC_SYMBOL ).amount.value;
     
-    if (coc_cost > (uint64_t)caller.balance.amount.value) {
-        coc_cost = (uint64_t)caller.balance.amount.value;
+    if (coc_cost > caller_coc) {
+        // caller's balance is not enough for gas fee. we'll take all her money and mark an error.
+        coc_cost = caller_coc;
         if (!error) {
             error = true;
             exc = fc::exception(unspecified_exception_code, "exception", "Not enough balance for gas fee.");
         }
     }
+    // before paying gas fee, rollback any changes if any error occurred.
+    if (error) {
+        session.undo();
+    }
     
+    // pay gas fee
     if (coc_cost > 0) {
         try {
             transfer_operation pay;
@@ -2428,6 +2463,11 @@ void vm_evaluator::do_apply( const vm_operation& o )  {
             
             transfer_evaluator(_db).do_apply(pay);
             ctx->add_paid_gas(coc_cost * config::gas_per_coc);
+            
+            if (!error) {
+                // we reach here if and only if everything is ok. commit all changes.
+                session.squash();
+            }
             
         } catch(fc::exception& e) {
             if (!error) {
@@ -2440,30 +2480,8 @@ void vm_evaluator::do_apply( const vm_operation& o )  {
     }
     
     if (error) {
-        throw exc;
+        ctx->set_vm_error(exc);
     }
-    
-    // handle contract bank if pre steps is ok
-    // transfer asset from caller to contract
-    if(o.value.amount <= 0){
-        return;
-    }
-    const auto& from_account = _db.get_account(o.caller);
-    const auto& to_account = _db.get_contract_account(o.contract_name);
-    
-    if( from_account.active_challenged )
-    {
-        _db.modify( from_account, [&]( account_object& a )
-                   {
-                       a.active_challenged = false;
-                       a.last_active_proved = _db.head_block_time();
-                   });
-    }
-    
-    FC_ASSERT( _db.get_balance( from_account, o.value.symbol ) >= o.value, "Account does not have sufficient funds for transfer." );
-    _db.adjust_balance( from_account, -o.value );
-    _db.adjust_contract_balance( to_account, o.value );
-    // transfer asset from caller to contract
 }
 
 } } // contento::chain

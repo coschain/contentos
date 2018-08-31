@@ -80,6 +80,19 @@ namespace contento { namespace chain {
     uint64_t transaction_context::gas_paid() const {
         return this->paid_gas;
     }
+    
+    bool transaction_context::has_vm_error() const {
+        return vm_error_occurred;
+    }
+
+    const fc::exception& transaction_context::vm_error() const {
+        return vm_exc;
+    }
+    
+    void transaction_context::set_vm_error(const fc::exception& e ) {
+        vm_error_occurred = true;
+        vm_exc = e;
+    }
 
    void transaction_context::apply( const vm_operation& op, account_name receiver, bool context_free, uint32_t recurse_depth ) {
       apply_context  acontext( control, *this, op, recurse_depth );

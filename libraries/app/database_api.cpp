@@ -2315,6 +2315,9 @@ annotated_signed_transaction database_api::get_transaction( transaction_id_type 
          result.transaction_num   = itr->trx_in_block;
          result.invoice.status    = blk->transactions[itr->trx_in_block].invoice.status;
          result.invoice.gas_usage = blk->transactions[itr->trx_in_block].invoice.gas_usage;
+         result.invoice.vm_error      = blk->transactions[itr->trx_in_block].invoice.vm_error;
+         result.invoice.vm_error_code = blk->transactions[itr->trx_in_block].invoice.vm_error_code;
+          
          return result;
       }
       FC_ASSERT( false, "Unknown Transaction ${t}", ("t",id));

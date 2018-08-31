@@ -97,6 +97,7 @@ const static uint32_t   hashing_checktime_block_size       = 10*1024;  /// call 
 const static contento::chain::wasm_interface::vm_type default_wasm_runtime = contento::chain::wasm_interface::vm_type::binaryen;
 
 const static uint64_t   gas_per_coc  = 1000;
+const static uint64_t   gas_per_contract_trasfer  = gas_per_coc * 10;
 
 /**
  *  The number of sequential blocks produced by a single producer

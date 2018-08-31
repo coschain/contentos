@@ -2697,9 +2697,16 @@ void database::_apply_block( const signed_block& next_block )
             * when building a block.
             */
             tmp_wrapper = trx_wrapper;
+            tmp_wrapper.invoice.status = 200;
             tmp_wrapper.invoice.gas_usage = 0;
+            tmp_wrapper.invoice.vm_error = false;
+            tmp_wrapper.invoice.vm_error_code = 0;
             apply_transaction( tmp_wrapper, skip );
-            FC_ASSERT(tmp_wrapper.invoice.gas_usage == trx_wrapper.invoice.gas_usage, "mismatched gas fee");
+            FC_ASSERT(tmp_wrapper.invoice.status == trx_wrapper.invoice.status
+                      && tmp_wrapper.invoice.gas_usage == trx_wrapper.invoice.gas_usage
+                      && tmp_wrapper.invoice.vm_error == trx_wrapper.invoice.vm_error
+                      && tmp_wrapper.invoice.vm_error_code == trx_wrapper.invoice.vm_error_code
+                      ,"mismatched invoice");
             ++_current_trx_in_block;
         }
     }
@@ -2945,12 +2952,19 @@ std::shared_ptr<transaction_context> database::_apply_transaction( transaction_w
        }
         
     } catch(...) {
+        trx_wrapper.invoice.status = 500;
         trx_wrapper.invoice.gas_usage = trx_ctx->gas_paid();
+        trx_wrapper.invoice.vm_error = true;
+        trx_wrapper.invoice.vm_error_code = 0;
         throw;
     }
-    
+
    _current_trx_id = transaction_id_type();
+    
+    trx_wrapper.invoice.status = 200;
     trx_wrapper.invoice.gas_usage = trx_ctx->gas_paid();
+    trx_wrapper.invoice.vm_error = trx_ctx->has_vm_error();
+    trx_wrapper.invoice.vm_error_code = trx_ctx->vm_error().code();
     
    return trx_ctx;
 } FC_CAPTURE_AND_RETHROW( (trx_wrapper) ) }
