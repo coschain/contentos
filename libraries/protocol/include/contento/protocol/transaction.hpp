@@ -6,7 +6,18 @@
 #include <numeric>
 
 namespace contento { namespace protocol {
-      extern flat_map<signature_type ,public_key_type> sig_to_key;
+   struct signature_with_trx_hash {
+         signature_with_trx_hash(digest_type d, signature_type sig) : _d(d), _sig(sig) {}
+
+      friend bool operator < ( const signature_with_trx_hash& a, const signature_with_trx_hash& b ) {
+        return a._d == b._d ? a._d < b._d : a._sig < b._sig ;
+      }
+
+         digest_type     _d;
+         signature_type _sig;
+   };
+
+   extern flat_map<signature_with_trx_hash ,public_key_type> sig_to_key;
 
    struct transaction
    {
