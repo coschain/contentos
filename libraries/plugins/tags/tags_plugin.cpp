@@ -391,7 +391,7 @@ struct operation_visitor
 
    void operator()( const transfer_operation& op )const
    {
-      if( op.to == CONTENTO_NULL_ACCOUNT && op.amount.symbol == COC_SYMBOL )
+      if( op.to == N16(CONTENTO_NULL_ACCOUNT) && op.amount.symbol == COC_SYMBOL )
       {
          vector<string> part; part.reserve(4);
          auto path = op.memo;

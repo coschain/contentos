@@ -31,7 +31,7 @@ namespace contento { namespace chain {
 
          void apply( const vm_operation& op, account_name receiver, bool context_free = false, uint32_t recurse_depth = 0 );
          inline void apply( const vm_operation& op, bool context_free = false ) {
-            apply(op, op.contract_name, context_free);
+            apply(op, namex(op.contract_name), context_free);
          };
       private:
 

@@ -73,13 +73,13 @@ namespace contento { namespace chain { namespace wasm_price {
     WASM_PRICE_FN_DECLS(
                         (is_feature_active,                (int, int64_t)                          )
                         (activate_feature,                 (void*, int64_t)                         )
-                        (get_resource_limits,              (void*, int64_t,int,int,int)             )
-                        (set_resource_limits,              (void*, int64_t,int64_t,int64_t,int64_t) )
-                        (set_proposed_producers,           (int64_t, int,int)                      )
+                        // (get_resource_limits,              (void*, int64_t,int,int,int)             )
+                        // (set_resource_limits,              (void*, int,int64_t,int64_t,int64_t) )
+                        // (set_proposed_producers,           (int64_t, int,int)                      )
                         (get_blockchain_parameters_packed, (int, int, int)                         )
                         (set_blockchain_parameters_packed, (void*, int,int)                         )
-                        (is_privileged,                    (int, int64_t)                          )
-                        (set_privileged,                   (void*, int64_t, int)                    )
+                        (is_privileged,                    (int, int)                          )
+                        (set_privileged,                   (void*, int, int)                    )
                         );
     
     // transaction_context
@@ -93,41 +93,41 @@ namespace contento { namespace chain { namespace wasm_price {
                         );
     
 #define DECL_DB_SECONDARY_INDEX_METHODS_SIMPLE(IDX) \
-    (db_##IDX##_store,          (int, int64_t,int64_t,int64_t,int64_t,int))\
+    (db_##IDX##_store,          (int, int64_t,int64_t,int,int64_t,int))\
     (db_##IDX##_remove,         (void*, int))\
-    (db_##IDX##_update,         (void*, int,int64_t,int))\
-    (db_##IDX##_find_primary,   (int, int64_t,int64_t,int64_t,int,int64_t))\
-    (db_##IDX##_find_secondary, (int, int64_t,int64_t,int64_t,int,int))\
-    (db_##IDX##_lowerbound,     (int, int64_t,int64_t,int64_t,int,int))\
-    (db_##IDX##_upperbound,     (int, int64_t,int64_t,int64_t,int,int))\
-    (db_##IDX##_end,            (int, int64_t,int64_t,int64_t))\
+    (db_##IDX##_update,         (void*, int,int,int))\
+    (db_##IDX##_find_primary,   (int, int,int64_t,int64_t,int,int64_t))\
+    (db_##IDX##_find_secondary, (int, int,int64_t,int64_t,int,int))\
+    (db_##IDX##_lowerbound,     (int, int,int64_t,int64_t,int,int))\
+    (db_##IDX##_upperbound,     (int, int,int64_t,int64_t,int,int))\
+    (db_##IDX##_end,            (int, int,int64_t,int64_t))\
     (db_##IDX##_next,           (int, int, int))\
     (db_##IDX##_previous,       (int, int, int))
     
 #define DECL_DB_SECONDARY_INDEX_METHODS_ARRAY(IDX) \
-    (db_##IDX##_store,          (int, int64_t,int64_t,int64_t,int64_t,int,int))\
+    (db_##IDX##_store,          (int, int64_t,int64_t,int,int64_t,int,int))\
     (db_##IDX##_remove,         (void*, int))\
-    (db_##IDX##_update,         (void*, int,int64_t,int,int))\
-    (db_##IDX##_find_primary,   (int, int64_t,int64_t,int64_t,int,int,int64_t))\
-    (db_##IDX##_find_secondary, (int, int64_t,int64_t,int64_t,int,int,int))\
-    (db_##IDX##_lowerbound,     (int, int64_t,int64_t,int64_t,int,int,int))\
-    (db_##IDX##_upperbound,     (int, int64_t,int64_t,int64_t,int,int,int))\
-    (db_##IDX##_end,            (int, int64_t,int64_t,int64_t))\
+    (db_##IDX##_update,         (void*, int,int,int,int))\
+    (db_##IDX##_find_primary,   (int, int,int64_t,int64_t,int,int,int64_t))\
+    (db_##IDX##_find_secondary, (int, int,int64_t,int64_t,int,int,int))\
+    (db_##IDX##_lowerbound,     (int, int,int64_t,int64_t,int,int,int))\
+    (db_##IDX##_upperbound,     (int, int,int64_t,int64_t,int,int,int))\
+    (db_##IDX##_end,            (int, int,int64_t,int64_t))\
     (db_##IDX##_next,           (int, int, int))\
     (db_##IDX##_previous,       (int, int, int))
     
     // database_api
     WASM_PRICE_FN_DECLS(
-                        (db_store_i64,        (int, int64_t,int64_t,int64_t,int64_t,int,int))
-                        (db_update_i64,       (void*, int,int64_t,int,int))
+                        (db_store_i64,        (int, int64_t,int64_t,int,int64_t,int,int))
+                        (db_update_i64,       (void*, int,int,int,int))
                         (db_remove_i64,       (void*, int))
                         (db_get_i64,          (int, int, int, int))
                         (db_next_i64,         (int, int, int))
                         (db_previous_i64,     (int, int, int))
-                        (db_find_i64,         (int, int64_t,int64_t,int64_t,int64_t))
-                        (db_lowerbound_i64,   (int, int64_t,int64_t,int64_t,int64_t))
-                        (db_upperbound_i64,   (int, int64_t,int64_t,int64_t,int64_t))
-                        (db_end_i64,          (int, int64_t,int64_t,int64_t))
+                        (db_find_i64,         (int, int,int64_t,int64_t,int64_t))
+                        (db_lowerbound_i64,   (int, int,int64_t,int64_t,int64_t))
+                        (db_upperbound_i64,   (int, int,int64_t,int64_t,int64_t))
+                        (db_end_i64,          (int, int,int64_t,int64_t))
                         
                         DECL_DB_SECONDARY_INDEX_METHODS_SIMPLE(idx64)
                         DECL_DB_SECONDARY_INDEX_METHODS_SIMPLE(idx128)
@@ -177,7 +177,7 @@ namespace contento { namespace chain { namespace wasm_price {
     WASM_PRICE_FN_DECLS(
                         (read_action_data,       (int, int, int)  )
                         (action_data_size,       (int)            )
-                        (current_receiver,       (int64_t)        )
+                        // (current_receiver,       (int)        )
                         (current_caller,           (void*, int))
                         (current_coder,            (void*, int))
                         );
@@ -220,7 +220,7 @@ namespace contento { namespace chain { namespace wasm_price {
     WASM_PRICE_FN_DECLS(
                         (send_inline,               (void*, int, int)               )
                         (send_context_free_inline,  (void*, int, int)               )
-                        (send_deferred,             (void*, int, int64_t, int, int, int32_t) )
+                        (send_deferred,             (void*, int, int, int, int, int32_t) )
                         (cancel_deferred,           (int, int)                     )
                         );
     

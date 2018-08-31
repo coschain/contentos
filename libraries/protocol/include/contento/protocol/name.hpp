@@ -154,6 +154,7 @@ namespace contento { namespace protocol {
       namex( const std::string& str ) { set( str.c_str() ); }
       namex( const namex& n ) { value = n.value; }
       namex( const fc::uint128_t& v ):value(v) {}
+      namex( const uint64_t& v ) { value.hi = 0; value.lo = v; }
       
       operator std::string()const;
       
@@ -263,13 +264,15 @@ namespace contento { namespace protocol {
       
       //   operator bool()const            { return value; }
       fc::uint128_t to_uint128_t() const        { return value; }
+      uint64_t to_uint64_t() const { return value.lo; }
       //   operator unsigned __int128()const       { return value; }
       uint64_t get_hi() const {return value.hi;}
       uint64_t get_lo() const {return value.lo;}
       
       fc::uint128_t value = 0;
    };
-   
+
+//   static bool operator() ( const namex& a, const namex& b ) { return a.value < b.value; }
    
    inline std::vector<namex> sort_names( std::vector<namex>&& names ) {
       fc::deduplicate(names);

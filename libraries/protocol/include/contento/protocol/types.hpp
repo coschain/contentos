@@ -70,7 +70,8 @@ namespace contento {
 
       typedef fc::ecc::private_key        private_key_type;
       //typedef fc::sha256                  chain_id_type;
-      typedef name                      account_name_type;
+      typedef namex                       account_name_type;
+      typedef name                        scope_name_type;
       typedef fc::ripemd160               block_id_type;
       typedef fc::ripemd160               checksum_type;
       typedef fc::ripemd160               transaction_id_type;

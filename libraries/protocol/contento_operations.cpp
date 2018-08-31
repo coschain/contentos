@@ -19,14 +19,14 @@ namespace contento { namespace protocol {
       validate_account_name( reporter );
       validate_account_name( author );
       validate_permlink( permlink );
-      FC_ASSERT( is_asset_type( credit, COC_SYMBOL ), "report comment fee must be STEEM" );
+      FC_ASSERT( is_asset_type( credit, COC_SYMBOL ), "report comment fee must be COC" );
       FC_ASSERT( credit > asset( 0, COC_SYMBOL ), "report comment fee must be positive" );
    }
 
    void account_create_operation::validate() const
    {
       validate_account_name( new_account_name );
-      FC_ASSERT( is_asset_type( fee, COC_SYMBOL ), "Account creation fee must be STEEM" );
+      FC_ASSERT( is_asset_type( fee, COC_SYMBOL ), "Account creation fee must be COC" );
       owner.validate();
       active.validate();
 
@@ -42,7 +42,7 @@ namespace contento { namespace protocol {
    {
       validate_account_name( new_account_name );
       validate_account_name( creator );
-      FC_ASSERT( is_asset_type( fee, COC_SYMBOL ), "Account creation fee must be STEEM" );
+      FC_ASSERT( is_asset_type( fee, COC_SYMBOL ), "Account creation fee must be COC" );
       FC_ASSERT( is_asset_type( delegation, VESTS_SYMBOL ), "Delegation must be VESTS" );
 
       owner.validate();
@@ -161,7 +161,7 @@ namespace contento { namespace protocol {
    {
       validate_account_name( voter );
       validate_account_name( author );\
-      FC_ASSERT( abs(weight) <= CONTENTO_100_PERCENT, "Weight is not a STEEMIT percentage" );
+      FC_ASSERT( abs(weight) <= CONTENTO_100_PERCENT, "Weight is not a CONTENTO percentage" );
       validate_permlink( permlink );
    }
 

@@ -63,7 +63,7 @@ namespace contento { namespace chain {
       id_type               id;
       table_id              t_id;
       uint64_t              primary_key;
-      account_name          payer = uint64_t(0);
+      account_name          payer = namex("");
       shared_string         value;
    };
 
@@ -94,7 +94,7 @@ namespace contento { namespace chain {
          typename chainbase::object<ObjectTypeId,index_object>::id_type       id;
          table_id      t_id;
          uint64_t      primary_key;
-         account_name  payer = uint64_t(0);
+         account_name  payer = namex("");
          SecondaryKey  secondary_key;
       };
 
