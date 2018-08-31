@@ -60,17 +60,6 @@ uint64_t contract_storage::get_table_index_name(const get_table_rows_params& p, 
    return index;
 }
 
-void populate_json(table_rows_api_obj &obj, const abi_def &abi, name table) {
-   abi_serializer abis;
-   abis.set_abi(abi);
-
-   fc::variants rows;
-   for(auto ele : obj.raw_data_rows) {
-      rows.emplace_back(abis.binary_to_variant(abis.get_table_type(table), ele));
-   }
-   obj.json_payload = fc::json::to_pretty_string(fc::variant(rows));
-}
-
 table_rows_api_obj contract_storage::get_table_rows( const get_table_rows_params& p )const {
    const account_object *acc = _db.find<account_object, by_name>(p.code);
    CONTENTO_ASSERT(acc != nullptr, chain::contract_table_query_exception, "Failed to retrieve account for ${account}", ("account", p.code));
@@ -135,7 +124,6 @@ table_rows_api_obj contract_storage::get_table_rows( const get_table_rows_params
       }
    }
 
-   populate_json(result, abi, p.table);
    return result;
 }
 

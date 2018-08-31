@@ -67,6 +67,11 @@ struct wallet_data
    string                    ws_password;
 };
 
+struct wallet_table_rows {
+   fc::variants rows;
+   bool more = false;
+};
+
 enum authority_type
 {
    owner,
@@ -189,7 +194,7 @@ class wallet_api
       account_api_obj                     get_account( string account_name ) const;
       account_code_api_obj                get_account_code( string account_name ) const;
 
-      table_rows_api_obj                get_table_rows(string code, string scope, string table,
+      wallet_table_rows                get_table_rows(string code, string scope, string table,
                                                 string lower_bound, string upper_bound, int limit,
                                                 string key_type, string index_pos, string encode_type) const;
 
@@ -1046,14 +1051,17 @@ FC_REFLECT( contento::wallet::wallet_data,
             (ws_password)
           )
 
+FC_REFLECT( contento::wallet::wallet_table_rows,
+            (rows)
+            (more)
+          )          
+
 FC_REFLECT( contento::wallet::brain_key_info, (brain_priv_key)(wif_priv_key) (pub_key))
 
 FC_REFLECT( contento::wallet::plain_keys, (checksum)(keys) )
 
 FC_REFLECT_ENUM( contento::wallet::authority_type, (owner)(active)(posting) )
 
-// 不需要注释函数，注释掉这个 API 声明即可屏蔽调用
-// 相对来说，这样更加干净文明
 FC_API( contento::wallet::wallet_api,
         /// wallet api
         (help)(gethelp)
