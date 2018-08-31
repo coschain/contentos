@@ -61,6 +61,7 @@
 
 #include <contento/chain/wast_to_wasm.hpp>
 #include <contento/chain/contract_types.hpp>
+#include <contento/chain/exceptions.hpp>
 
 #ifndef WIN32
 # include <sys/types.h>

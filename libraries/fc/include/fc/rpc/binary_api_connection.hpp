@@ -10,7 +10,7 @@
 #include <utility>
 #include <fc/signals.hpp>
 //#include <fc/rpc/json_connection.hpp>
-
+#ifdef USE_BIN_API
 namespace fc {
    using std::vector;
 
@@ -98,7 +98,7 @@ namespace fc {
             {  FC_ASSERT( false ); return api_id_type(); }
          virtual api_id_type register_api2( fc::bapi::binary_api_connection& conn )const override
             {  FC_ASSERT( false ); return api_id_type(); }
-
+            
             api_id_type                         _api_id;
             std::weak_ptr<fc::bapi::binary_api_connection>   _binary_api_connection;
       };
@@ -539,3 +539,5 @@ namespace fc {
       return conn.register_api( *this );
    }
 } // fc::bapi
+
+#endif

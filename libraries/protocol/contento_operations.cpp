@@ -1,7 +1,6 @@
 #include <contento/protocol/contento_operations.hpp>
 #include <fc/io/json.hpp>
 
-#include <locale>
 
 namespace contento { namespace protocol {
 

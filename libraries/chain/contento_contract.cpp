@@ -3,19 +3,14 @@
  *  @copyright defined in eos/LICENSE.txt
  */
 #include <contento/chain/contento_contract.hpp>
-#include <contento/chain/contract_table_objects.hpp>
 
-#include <contento/chain/controller.hpp>
-//#include <contento/chain/transaction_context.hpp>
 #include <contento/chain/apply_context.hpp>
 #include <contento/chain/transaction_context.hpp>
-#include <contento/chain/exceptions.hpp>
 
 #include <contento/chain/account_object.hpp>
 #include <contento/chain/contract_types.hpp>
 
 #include <contento/chain/wasm_interface.hpp>
-#include <contento/chain/abi_serializer.hpp>
 
 #include <contento/chain/contract_balance_object.hpp>
 

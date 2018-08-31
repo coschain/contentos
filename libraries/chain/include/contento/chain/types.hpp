@@ -6,8 +6,6 @@
 #include <contento/chain/contento_object_types.hpp>
 #include <contento/protocol/types.hpp>
 
-#include <chainbase/chainbase.hpp>
-
 #include <fc/container/flat_fwd.hpp>
 #include <fc/io/varint.hpp>
 #include <fc/io/enum_type.hpp>

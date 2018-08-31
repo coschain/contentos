@@ -1,8 +1,6 @@
 #include <contento/chain/apply_context.hpp>
 #include <contento/chain/transaction_context.hpp>
-#include <contento/chain/exceptions.hpp>
 #include <contento/chain/config.hpp>
-#include <contento/chain/global_property_object.hpp>
 
 namespace contento { namespace chain {
 

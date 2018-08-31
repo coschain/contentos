@@ -4,9 +4,7 @@
 #include <contento/chain/custom_operation_interpreter.hpp>
 #include <contento/chain/contento_objects.hpp>
 #include <contento/chain/witness_objects.hpp>
-#include <contento/chain/block_summary_object.hpp>
 
-#include <contento/chain/util/reward.hpp>
 
 #ifndef IS_LOW_MEM
 #include <diff_match_patch.h>
@@ -28,8 +26,6 @@ std::string wstring_to_utf8(const std::wstring& str)
 
 #include <fc/uint128.hpp>
 #include <fc/utf8.hpp>
-
-#include <limits>
 
 namespace contento { namespace chain {
    using fc::uint128_t;

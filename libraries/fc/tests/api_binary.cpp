@@ -1,3 +1,5 @@
+#define USE_BIN_API
+
 #include <fc/api.hpp>
 #include <fc/log/logger.hpp>
 #include <fc/rpc/api_connection.hpp>

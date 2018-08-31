@@ -8,7 +8,9 @@
 #include <contento/chain/witness_objects.hpp>
 
 #include <boost/multi_index/composite_key.hpp>
+#include <boost/container/flat_map.hpp>
 
+#include <fc/interprocess/container.hpp>
 
 namespace contento { namespace chain {
 
