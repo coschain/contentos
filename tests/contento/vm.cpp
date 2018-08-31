@@ -180,32 +180,32 @@ BOOST_AUTO_TEST_CASE( hello )
         set_abi(db, user1_private_key, N(user1), "../../contracts/hello/hello.abi");
         
         // user2 send coc to contract
-        asset v1 = asset::from_string( "39.997 COC" ); // gas lost 3, self keep 10000, send to contract 39997
+        asset v1 = asset::from_string( "39.997 COC" ); // save function consume 0.003 coc, self keep 10000, send to contract 39997
         BOOST_REQUIRE_NO_THROW(push_action(db, user2_private_key, N(user2), N(user1), N(save), "", v1));
         
         // check send result
         const account_object& acct3 = db.get_account( "user2" );
-        BOOST_REQUIRE( acct3.balance.amount.value == 10000 );
+        BOOST_REQUIRE( acct3.balance.amount.value == 10000 ); // self keep 10000 + withdraw 10000 - some gas
         const contract_balance_object& cbo1 = db.get_contract_account( "user1" );// user1 is contract name
         BOOST_REQUIRE( cbo1.coc_balance.amount.value == 39997 );
         
-        // user2 withdraw 25 coc back
+        // user2 withdraw 10 coc back
         string a = "[\"user2\",\"10.000 COC\"]";
         asset v2;
         BOOST_REQUIRE_NO_THROW(push_action(db, user2_private_key, N(user2), N(user1), N(withdraw), a,v2));
         
         // check withdraw result
         const account_object& acct4 = db.get_account( "user2" );
-        BOOST_REQUIRE( acct4.balance.amount.value == 10000 );
+        BOOST_REQUIRE( acct4.balance.amount.value < 20000 );  // ??? how much gas?
         const contract_balance_object& cbo2 = db.get_contract_account( "user1" );// user1 is contract name
-        BOOST_REQUIRE( cbo2.coc_balance.amount.value == 40000 );
+        BOOST_REQUIRE( cbo2.coc_balance.amount.value == 29997 );
         
         // user2 send invalid coc to contract, should throw exception
-        asset v3 = asset::from_string( "200.000 COC" );
+        asset v3 = asset::from_string( "2000.000 COC" );
         BOOST_REQUIRE_THROW(push_action(db, user2_private_key, N(user2), N(user1), N(save), "", v3),fc::exception);
         
         // user2 withdraw invalid coc from contract, should throw exception
-        a = "[\"user2\",\"50.000 COC\"]";
+        a = "[\"user2\",\"2000.000 COC\"]";
         asset v4;
         BOOST_REQUIRE_THROW(push_action(db, user2_private_key, N(user2), N(user1), N(withdraw), a, v4),fc::exception);
         
@@ -233,22 +233,22 @@ BOOST_AUTO_TEST_CASE( hello )
         set_abi(db, user1_private_key, N(user1), "../../contracts/hello/hello.abi");
         
         // user1 send coc to no exist contract, should throw exception
-        asset v1 = asset::from_string( "50.000 COC" );
+        asset v1 = asset::from_string( "10.000 COC" );
         BOOST_REQUIRE_THROW(push_action(db, user1_private_key, N(user1), N(somecontract), N(save), "", v1),fc::exception);
         
         //  user1 withdraw coc from no exist contract, should throw exception
-        string a = "[\"user1\",\"50.000 COC\"]";
+        string a = "[\"user1\",\"10.000 COC\"]";
         asset v2;
         BOOST_REQUIRE_THROW(push_action(db, user1_private_key, N(user1), N(somecontract), N(withdraw), a, v2),fc::exception);
         
         // pre send coc to contract
-        asset v3 = asset::from_string( "50.000 COC" );
+        asset v3 = asset::from_string( "40.000 COC" );
         BOOST_REQUIRE_NO_THROW(push_action(db, user1_private_key, N(user1), N(user1), N(save), "", v3));
         const contract_balance_object& cbo1 = db.get_contract_account( "user1" );// user1 is contract name
-        BOOST_REQUIRE( cbo1.coc_balance.amount.value == 50000 );
+        BOOST_REQUIRE( cbo1.coc_balance.amount.value == 40000 );
         
         // no exist user send coc to contract, should throw exception
-        asset v4 = asset::from_string( "50.000 COC" );
+        asset v4 = asset::from_string( "10.000 COC" );
         BOOST_REQUIRE_THROW(push_action(db, user1_private_key, N(someuser), N(user1), N(save), "", v4),fc::exception);
         
         // no exist user withdraw coc from contract, should throw exception
