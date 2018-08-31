@@ -634,14 +634,6 @@ void comment_evaluator::do_apply( const comment_operation& o )
             FC_ASSERT( (now - auth.last_post) >= CONTENTO_MIN_REPLY_INTERVAL, "You may only comment once every 20 seconds.", ("now",now)("auth.last_post",auth.last_post) );
         uint16_t reward_weight = CONTENTO_100_PERCENT;
 
-        //      uint64_t post_bandwidth = auth.post_bandwidth;
-        //      if( _db.has_hardfork( CONTENTO_HARDFORK_0_12__176 ) && !_db.has_hardfork( CONTENTO_HARDFORK_0_17__733 ) && o.parent_author == CONTENTO_ROOT_POST_PARENT )
-        //      {
-        //         uint64_t post_delta_time = std::min( _db.head_block_time().sec_since_epoch() - auth.last_root_post.sec_since_epoch(), CONTENTO_POST_AVERAGE_WINDOW );
-        //         uint32_t old_weight = uint32_t( ( post_bandwidth * ( CONTENTO_POST_AVERAGE_WINDOW - post_delta_time ) ) / CONTENTO_POST_AVERAGE_WINDOW );
-        //         post_bandwidth = ( old_weight + CONTENTO_100_PERCENT );
-        //         reward_weight = uint16_t( std::min( ( CONTENTO_POST_WEIGHT_CONSTANT * CONTENTO_100_PERCENT ) / ( post_bandwidth * post_bandwidth ), uint64_t( CONTENTO_100_PERCENT ) ) );
-        //      }
         _db.modify( auth, [&]( account_object& a ) {
             if( o.parent_author == CONTENTO_ROOT_POST_PARENT )
             {

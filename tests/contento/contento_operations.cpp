@@ -1269,5 +1269,124 @@ BOOST_AUTO_TEST_CASE( convert_from_vesting_test){
     FC_LOG_AND_RETHROW()
 }
 
+BOOST_AUTO_TEST_CASE( rewards_test){
+    try {
+        BOOST_TEST_MESSAGE( "Testing: reward_test" );
+        
+        ACTORS( (alice)(bob)(sam)(dave) )
+        generate_block();
+        
+        vest( "alice", ASSET( "10.000 COC" ) );
+        vest( "bob" , ASSET( "10.000 COC" ) );
+        vest( "sam" , ASSET( "10.000 COC" ) );
+        vest( "dave" , ASSET( "10.000 COC" ) );
+        validate_database();
+        generate_block();
+        
+        {
+            const auto& alice = db.get_account( "alice" );
+            const auto& bob = db.get_account("bob");
+            const auto& sam = db.get_account("sam");
+            
+            signed_transaction tx;
+            comment_operation comment_op;
+            comment_op.author = "alice";
+            comment_op.permlink = "ab";
+            comment_op.category = "test";
+            comment_op.title = "ab problem";
+            comment_op.body = "ab problem";
+            tx.operations.push_back( comment_op );
+            tx.set_expiration( db.head_block_time() + CONTENTO_MAX_TIME_UNTIL_EXPIRATION );
+            tx.sign( alice_post_key, db.get_chain_id() );
+            db.push_transaction( tx, 0 );
+            
+            // post subject
+            generate_block();
+            
+            
+            comment_op.author = "sam";
+            comment_op.permlink = "abr";
+            comment_op.parent_author = "alice";
+            comment_op.parent_permlink = "ab";
+            tx.operations.clear();
+            tx.signatures.clear();
+            tx.operations.push_back(comment_op);
+            tx.set_expiration( db.head_block_time() + CONTENTO_MAX_TIME_UNTIL_EXPIRATION );
+            tx.sign( sam_post_key, db.get_chain_id() );
+            db.push_transaction( tx, 0 );
+            
+            auto cashout_time = db.head_block_time() + CONTENTO_CASHOUT_WINDOW_SECONDS;
+            
+            
+            const auto& gpro = db.get_dynamic_global_reward_properties();
+            
+            vote_operation op;
+            op.voter = "alice";
+            op.author = "alice";
+            op.permlink = "ab";
+            op.weight = CONTENTO_100_PERCENT;
+
+            tx.operations.clear();
+            tx.signatures.clear();
+
+            tx.operations.push_back( op );
+            tx.sign( alice_private_key, db.get_chain_id() );
+            db.push_transaction( tx, 0 ); 
+            
+
+            tx.operations.clear();
+            tx.signatures.clear();
+
+            op.voter = "bob";
+            tx.operations.push_back( op );
+            tx.sign( bob_private_key, db.get_chain_id() );
+            db.push_transaction( tx, 0 );
+            
+            generate_block();
+            
+            op.voter = "sam";
+            op.author = "sam";
+            op.permlink = "abr";
+            
+            tx.operations.clear();
+            tx.signatures.clear();
+            
+            tx.operations.push_back( op );
+            tx.sign( sam_private_key, db.get_chain_id() );
+            db.push_transaction( tx, 0 );
+
+            // hard to caculate how many reward in reward pool.
+            auto old_alice_vesting_shares = alice.vesting_shares;
+            auto old_bob_vesting_shares = bob.vesting_shares;
+            
+            generate_block();
+            
+            BOOST_REQUIRE(alice.vesting_shares.amount.value == old_alice_vesting_shares.amount.value);
+            BOOST_REQUIRE(bob.vesting_shares.amount.value == old_bob_vesting_shares.amount.value);
+            
+            generate_blocks(cashout_time);
+            
+            BOOST_REQUIRE(alice.vesting_shares.amount.value > old_alice_vesting_shares.amount.value);
+            BOOST_REQUIRE(bob.vesting_shares.amount.value == old_bob_vesting_shares.amount.value);
+        
+            BOOST_REQUIRE(gpro.subject_reward_balance.amount.value == 0);
+            
+            auto old_comment_reward_balance = gpro.comment_reward_balance;
+            auto old_sam_vesting_shares = sam.vesting_shares;
+            
+            // here, because of the curves are different, so comment_reward_balance won't drop to zero
+            generate_block();
+            
+            BOOST_REQUIRE(gpro.comment_reward_balance.amount.value < old_comment_reward_balance.amount.value);
+            BOOST_REQUIRE(sam.vesting_shares.amount.value > old_sam_vesting_shares.amount.value);
+            
+        }
+        
+        validate_database();
+        
+    }
+    FC_LOG_AND_RETHROW()
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 #endif

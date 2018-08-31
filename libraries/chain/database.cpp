@@ -1681,31 +1681,23 @@ share_type database::cashout_comment_helper( util::comment_reward_context& ctx, 
 
 void database::process_comment_cashout()
 {
-    /// don't allow any content to get paid out until the website is ready to launch
-    /// and people have had a week to start posting.  The first cashout will be the biggest because it
-    /// will represent 2+ months of rewards.
-//    const auto& gpo = get_dynamic_global_properties();
     const auto& grpo = get_dynamic_global_reward_properties();
 
-    //   util::comment_reward_context ctx;
-    // 去掉 price feed 机制
-    // ctx.current_steem_price = get_feed_history().current_median_history;
     modify( grpo, [&]( dynamic_global_reward_property_object& dcpo )
-       {
-           fc::microseconds decay_rate;
-           decay_rate = CONTENTO_RECENT_RSHARES_DECAY_RATE_HF17;
-           dcpo.comment_recent_claims -= ( dcpo.comment_recent_claims * ( head_block_time() - dcpo.comment_last_update ).to_seconds() ) / decay_rate.to_seconds();
-           dcpo.comment_last_update = head_block_time();
-       });
+    {
+        fc::microseconds decay_rate;
+        decay_rate = CONTENTO_RECENT_RSHARES_DECAY_RATE_HF17;
+        dcpo.comment_recent_claims -= ( dcpo.comment_recent_claims * ( head_block_time() - dcpo.comment_last_update ).to_seconds() ) / decay_rate.to_seconds();
+        dcpo.comment_last_update = head_block_time();
+        dcpo.subject_recent_claims -= ( dcpo.subject_recent_claims * ( head_block_time() - dcpo.subject_last_update ).to_seconds() ) / decay_rate.to_seconds();
+        dcpo.subject_last_update = head_block_time();
+    });
     reward_fund_context subject_rf_ctx, comment_rf_ctx;
     subject_rf_ctx.recent_claims = grpo.subject_recent_claims;
     subject_rf_ctx.reward_balance = grpo.subject_reward_balance;
     comment_rf_ctx.recent_claims = grpo.comment_recent_claims;
     comment_rf_ctx.reward_balance = grpo.comment_reward_balance;
-    // The index is by ID, so the ID should be the current size of the vector (0, 1, 2, etc...)
-    // assert( funds.size() == size_t( itr->id._id ) );
     const auto& cidx        = get_index< comment_index >().indices().get< contento::chain::by_cashout_time >();
-    //const auto& com_by_root = get_index< comment_index >().indices().get< by_root >();
     auto current = cidx.begin();
     //  add all rshares about to be cashed out to the reward funds. This ensures equal satoshi per rshare payment
 
@@ -1802,7 +1794,6 @@ void database::process_funds()
     modify( props, [&]( dynamic_global_property_object& p )
    {
        p.current_supply           += asset( new_coc, COC_SYMBOL );
-//       p.virtual_supply           += asset( new_coc, COC_SYMBOL );
    });
     
     modify( grprops, [&]( dynamic_global_reward_property_object& r){
@@ -1830,9 +1821,6 @@ void database::process_other_cashout()
             for(auto c = itr.begin();c != itr.end();++c){
                 reporters.push_back(c -> first);
             }
-//            modify( *current, [&]( comment_report_object& c ) {
-//                c.cashout_time = fc::time_point_sec::maximum();
-//            });
             remove( *current );
             ++current;
         }
@@ -1858,12 +1846,12 @@ void database::process_other_cashout()
         
         // accumulate new coc into reward balance
         modify( rpo, [&](dynamic_global_reward_property_object& r)
-               {
-                   r.subject_reward_balance += asset(creator_reward, COC_SYMBOL);
-                   r.comment_reward_balance += asset(commenter_reward, COC_SYMBOL);
-                   r.other_reward_balance = asset(0, COC_SYMBOL);
-                   r.tick = 1;
-               });
+        {
+            r.subject_reward_balance += asset(creator_reward, COC_SYMBOL);
+            r.comment_reward_balance += asset(commenter_reward, COC_SYMBOL);
+            r.other_reward_balance = asset(0, COC_SYMBOL);
+            r.tick = 1;
+        });
         
     }
     else{
