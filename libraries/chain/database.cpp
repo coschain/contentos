@@ -91,7 +91,7 @@ database_impl::database_impl( database& self )
 
     
     //
-    // TPS stats by counting trx# of latest irreversible blocks.
+    // TPS stats by counting trx# of latest blocks.
     //
     class tps_stats {
     public:
@@ -137,14 +137,14 @@ database_impl::database_impl( database& self )
     }
     
     void tps_stats::update() {
-        uint32_t end = _self.last_non_undoable_block_num();
+        uint32_t end = _self.head_block_num();
         if (end <= 0) {
-            // no irreversible block yet
+            // no block yet
             return;
         }
         uint32_t cache_end = _latest_block_nums.size()? _latest_block_nums.back() : 0;
         if (end == cache_end) {
-            // last irreversible block not changed
+            // last block not changed
             return;
         }
         
@@ -664,6 +664,7 @@ bool database::push_block(const signed_block& new_block, uint32_t skip)
             try
             {
                result = _push_block(new_block);
+               _tps_stats->update();
             }
             FC_CAPTURE_AND_RETHROW( (new_block) )
          });
@@ -2716,6 +2717,7 @@ void database::_apply_block( const signed_block& next_block )
    notify_applied_block( next_block );
 
    notify_changed_objects();
+
 } //FC_CAPTURE_AND_RETHROW( (next_block.block_num()) )  }
 FC_CAPTURE_LOG_AND_RETHROW( (next_block.block_num()) )
 }
@@ -3096,7 +3098,6 @@ void database::update_signing_witness(const witness_object& signing_witness, con
 void database::update_last_irreversible_block()
 { try {
    const dynamic_global_property_object& dpo = get_dynamic_global_properties();
-    auto old_num = dpo.last_irreversible_block_num;
     
    /**
     * Prior to voting taking over, we must be more conservative...
@@ -3170,11 +3171,7 @@ void database::update_last_irreversible_block()
    }
 
    _fork_db.set_max_size( dpo.head_block_number - dpo.last_irreversible_block_num + 1 );
-    
-    if (old_num != dpo.last_irreversible_block_num ) {
-        _tps_stats->update();
-    }
-    
+
 } FC_CAPTURE_AND_RETHROW() }
 
 
