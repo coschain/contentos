@@ -33,5 +33,41 @@ Contentos的收费策略要实现下面目标：
 - R3-2：确定byte的gas价格。
   - R3-2-1：byte价格暂取固定值：1 byte = 10 gas。
 
+## 3. 代码关键位置
 
+- R1-1：vm_evaluator::do_apply()
+
+- R1-2：vm_evaluator::do_apply()
+
+- R1-3：transaction_context::checktime() 
+
+- R2-1-1：各指令nop数定义：wasm_price.hpp:  #define WASM_PRICE_XXXXXId.  
+
+  注册指令nop数：wasm_interface.cpp:  SET_BASIC_INTRINSIC_PRICES(...)
+
+  注册到虚拟机：binaryen.cpp, binaryen_runtime::instantiate_module()
+
+- R2-1-2：各Import的nop计算函数定义和实现：wasm_price.hpp & wasm_price.cpp
+
+  注册Imports及其nop函数：wasm_interface.cpp: REGISTER_INTRINSICS_WITH_PRICE(...)
+
+  注册到虚拟机：binaryen.cpp, binaryen_runtime::instantiate_module()
+
+- R2-1-3：指令callback链：wasm-traversal.h:  wasm::Visitor::visit(),  report_on_exit
+
+  -> wasm_interpreter.h, RuntimeExpressionRunner::reportVisit()
+
+  -> binaryen.hpp, interpreter_interface::report()
+
+- R2-2-1：*done by eos.*  transaction_context::add_ram_usage()
+
+- R2-2-2：transaction_context::gas() 
+
+- R2-2-3：*done by eos.*  apply_contento_setcode(), config::setcode_ram_bytes_multiplier 
+
+- R3-1-1：contento::chain::database::tps(),  contento::chain::tps_stats::update(), contento::chain::tps_stats::tps()
+
+- R3-1-2：vm_evaluator::do_apply(), transaction_context::init_bill()
+
+- R3-2-1：vm_evaluator::do_apply(), transaction_context::init_bill()
 
