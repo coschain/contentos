@@ -92,6 +92,11 @@ namespace contento { namespace chain {
           * their votes reduced.
           */
          uint32_t vote_power_reserve_rate = 10;
+       
+       /**
+        * transactions per second based on latest blocks.
+        */
+       uint32_t tps = 0;
    };
 
    typedef multi_index_container<
@@ -124,5 +129,6 @@ FC_REFLECT( contento::chain::dynamic_global_property_object,
              (participation_count)
              (last_irreversible_block_num)
              (vote_power_reserve_rate)
+             (tps)
           )
 CHAINBASE_SET_INDEX_TYPE( contento::chain::dynamic_global_property_object, contento::chain::dynamic_global_property_index )

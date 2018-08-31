@@ -150,7 +150,8 @@ database_impl::database_impl( database& self )
             reset();
         }
         
-        uint32_t end = _self.head_block_num();
+        const dynamic_global_property_object& dpo = _self.get_dynamic_global_properties();
+        uint32_t end = dpo.head_block_number;
         if (end <= 0) {
             // no block yet
             return;
@@ -195,6 +196,15 @@ database_impl::database_impl( database& self )
                 _latest_block_nums.push_back(i);
                 trx_total += info.trx_count;
             }
+        }
+        
+        // update db
+        uint32_t current_tps = tps();
+        if (current_tps != dpo.tps) {
+            _self.modify( dpo, [current_tps]( dynamic_global_property_object& _dpo )
+                         {
+                             _dpo.tps = current_tps;
+                         } );
         }
     }
 
@@ -257,9 +267,6 @@ void database::open( const fc::path& data_dir, const fc::path& shared_mem_dir, u
       with_read_lock( [&]()
       {
          init_hardforks(); // Writes to local state, but reads from db
-          
-          _tps_stats->update(true);
-          
       });
    }
    FC_CAPTURE_LOG_AND_RETHROW( (data_dir)(shared_mem_dir)(shared_file_size) )
@@ -1081,10 +1088,10 @@ void database::pop_block()
 
       _fork_db.pop_block();
       undo();
+       
+       _tps_stats->reset();
 
       _popped_tx.insert( _popped_tx.begin(), head_block->transactions.begin(), head_block->transactions.end() );
-       
-       _tps_stats->update(true);
 
    }
    FC_CAPTURE_AND_RETHROW()
@@ -4152,7 +4159,7 @@ asset database::to_steem( const asset& sbd )const
 */
     
     uint32_t database::tps() {
-        return _tps_stats->tps();
+        return get_dynamic_global_properties().tps;
     }
 
 } } //contento::chain
