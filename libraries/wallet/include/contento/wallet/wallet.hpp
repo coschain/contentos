@@ -988,6 +988,16 @@ class wallet_api
        * @param broadcast true if you wish to broadcast the transaction
        */
       annotated_signed_transaction push_action(string caller, string contract_name, string action_name, string action_data, bool broadcast);
+    
+      /**
+       *
+       * @param caller The account who want to exec the action
+       * @param contract_name name of the contract
+       * @param action_name name of the contract action
+       * @param action_data the parameter of the action, can either be a
+       *        json string or a file contains a json string
+      */
+      asset estimate_gas(string caller, string contract_name, string action_name, string action_data);
 
       /**
        *  Account operations have sequence numbers from 0 to N where N is the most recent operation. This method
@@ -1167,6 +1177,7 @@ FC_API( contento::wallet::wallet_api,
         (set_code)
         (set_abi)
         (push_action)
+        (estimate_gas)
       )
 
 FC_REFLECT( contento::wallet::memo_data, (from)(to)(nonce)(check)(encrypted) )
