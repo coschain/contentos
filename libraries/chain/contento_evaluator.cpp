@@ -2415,13 +2415,13 @@ void vm_evaluator::do_apply( const vm_operation& o )  {
         
         // apply vm action
         int64_t caller_coc = _db.get_balance( caller, COC_SYMBOL ).amount.value;
-        FC_ASSERT( caller_coc < gas / config::gas_per_coc, "Not enough balance to apply vm action." );
+        FC_ASSERT( caller_coc >= gas / config::gas_per_coc, "Not enough balance to apply vm action." );
         
         const uint64_t max_tps = 3000;
         uint32_t tps = _db.tps();
         if (tps >= max_tps) tps = max_tps - 1;
         
-        ctx->init_bill( (uint64_t)caller_coc * config::gas_per_coc,
+        ctx->init_bill( (uint64_t)caller_coc * config::gas_per_coc - gas,
                        10,
                        1 * max_tps / (max_tps - tps)
                        );
@@ -2464,11 +2464,6 @@ void vm_evaluator::do_apply( const vm_operation& o )  {
             transfer_evaluator(_db).do_apply(pay);
             ctx->add_paid_gas(coc_cost * config::gas_per_coc);
             
-            if (!error) {
-                // we reach here if and only if everything is ok. commit all changes.
-                session.squash();
-            }
-            
         } catch(fc::exception& e) {
             if (!error) {
                 error = true;
@@ -2481,6 +2476,9 @@ void vm_evaluator::do_apply( const vm_operation& o )  {
     
     if (error) {
         ctx->set_vm_error(exc);
+    } else {
+        // everything is ok, commit all changes.
+        session.squash();
     }
 }
 
