@@ -33,6 +33,7 @@
 #include <contento/chain/contento_object_types.hpp>
 #include <contento/chain/database_exceptions.hpp>
 #include <contento/vmapi/contento_vm_api.hpp>
+#include <contento/gas_estimate/contento_gas_estimate.hpp>
 
 #include <fc/time.hpp>
 
@@ -350,6 +351,7 @@ namespace detail {
          _self->register_api_factory< contento::vmi::contento_vm_api >( "contento_vm_api" );
          _self->register_api_factory< network_node_api >( "network_node_api" );
          _self->register_api_factory< network_broadcast_api >( "network_broadcast_api" );
+         _self->register_api_factory< contento::gas_estimate::contento_gas_estimate_api >( "contento_gas_estimate_api" );
       }
 
       void startup()
