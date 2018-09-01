@@ -835,6 +835,44 @@ void database::push_transaction( const signed_transaction& trx, uint32_t skip )
    }
    FC_CAPTURE_AND_RETHROW( (trx) )
 }
+    
+transaction_wrapper database::test_push_transaction( const signed_transaction& trx, uint32_t skip )
+{
+    transaction_wrapper trx_wrapper;
+    trx_wrapper.sig_trx = trx;
+    
+    try {
+        try {
+            FC_ASSERT( fc::raw::pack_size(trx) <= (get_dynamic_global_properties().maximum_block_size - 256) );
+            set_producing( true );
+            detail::with_skip_flags( *this, skip, [&]() {
+                with_write_lock( [&]() {
+                    auto session = start_undo_session( true );
+                    
+                    asset lots_of_money(1000000000);
+                    for (const operation& op: trx.operations) {
+                        if ( op.contains<vm_operation>() ) {
+                            const auto& caller = get_account(op.get<vm_operation>().caller);
+                            if (caller.balance < lots_of_money) {
+                                adjust_balance( caller, lots_of_money - caller.balance );
+                            }
+                        }
+                    }
+                    
+                    _apply_transaction( trx_wrapper );
+                });
+            });
+            set_producing( false );
+        }
+        catch( ... )
+        {
+            set_producing( false );
+            throw;
+        }
+        return trx_wrapper;
+        
+    } FC_CAPTURE_AND_RETHROW( (trx) )
+}
 
 void database::_push_transaction( const signed_transaction& trx )
 {

@@ -185,6 +185,7 @@ namespace contento { namespace chain {
 
          bool push_block( const signed_block& b, uint32_t skip = skip_nothing );
          void push_transaction( const signed_transaction& trx, uint32_t skip = skip_nothing );
+         transaction_wrapper test_push_transaction( const signed_transaction& trx, uint32_t skip = skip_nothing );
          void _maybe_warn_multiple_production( uint32_t height )const;
          bool _push_block( const signed_block& b );
          void _push_transaction( const signed_transaction& trx );
