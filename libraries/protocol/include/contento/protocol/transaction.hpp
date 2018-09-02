@@ -7,12 +7,20 @@
 
 namespace contento { namespace protocol {
    struct signature_with_trx_hash {
-         signature_with_trx_hash(digest_type d, signature_type sig) : _d(d), _sig(sig) {}
-
+      signature_with_trx_hash(digest_type d, signature_type sig) : _d(d), _sig(sig) {}
+/*
       friend bool operator < ( const signature_with_trx_hash& a, const signature_with_trx_hash& b ) {
         return a._d == b._d ? a._d < b._d : a._sig < b._sig ;
       }
-
+*/
+      friend bool operator < ( const signature_with_trx_hash& a, const signature_with_trx_hash& b ) {
+        if ( a._d < b._d)
+            return true;
+        else if ( a._d > b._d )
+            return false;
+        else
+            return a._sig < b._sig;
+      }
          digest_type     _d;
          signature_type _sig;
    };

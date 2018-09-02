@@ -191,7 +191,6 @@ flat_set<public_key_type> signed_transaction::get_signature_keys( const chain_id
 { try {
     int64_t begin,end;
     begin = fc::time_point::now().time_since_epoch().count();
-    std::cout << "first line of get_signature_keys function: " << begin << std::endl;
 
    auto d = sig_digest( chain_id );
    flat_set<public_key_type> result;
@@ -209,7 +208,6 @@ flat_set<public_key_type> signed_transaction::get_signature_keys( const chain_id
    }
    
     end = fc::time_point::now().time_since_epoch().count();
-    std::cout << "last line of get_signature_keys function: " << end << std::endl;
     auto delta_func = end - begin;
     std::cout << "get_signature_keys function cost time: " << delta_func << std::endl;
    return result;

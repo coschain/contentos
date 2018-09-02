@@ -140,7 +140,7 @@ void apply_context::require_authorization( const account_name& account ) {
 
     const contento::protocol::chain_id_type& chain_id = CONTENTO_CHAIN_ID;
     try {
-        trx_context.trx.verify_authority( chain_id, get_active, get_owner, get_posting, CONTENTO_MAX_SIG_CHECK_DEPTH );
+        trx_context.trx.verify_authority( chain_id, get_active, get_owner, get_posting, 0 );
     }
     catch( protocol::tx_missing_active_auth& e )
     {

@@ -673,9 +673,7 @@ bool database::push_block(const signed_block& new_block, uint32_t skip)
       });
    });
 
-    std::cout << "before clear auth cache, cache size:" << contento::protocol::sig_to_key.size() << std::endl;
-   contento::protocol::sig_to_key.clear();
-    std::cout << "after clear auth cache, cache size:" << contento::protocol::sig_to_key.size() << std::endl;
+   contento::protocol::sig_to_key.clear(); //clear verify auth cache
 
    //fc::time_point end_time = fc::time_point::now();
    //fc::microseconds dt = end_time - begin_time;
@@ -2850,7 +2848,6 @@ std::shared_ptr<transaction_context> database::_apply_transaction( transaction_w
 { try {
     int64_t begin,end,before,after;
     begin = fc::time_point::now().time_since_epoch().count();
-    std::cout << "first line of _apply_transaction function: " << begin << std::endl;
 
    auto trx = trx_wrapper.sig_trx;
 
@@ -2877,10 +2874,8 @@ std::shared_ptr<transaction_context> database::_apply_transaction( transaction_w
       try
       {
               before = fc::time_point::now().time_since_epoch().count();
-              std::cout << "before verify_authority function: " << before << std::endl;
          trx.verify_authority( chain_id, get_active, get_owner, get_posting, CONTENTO_MAX_SIG_CHECK_DEPTH );
               after = fc::time_point::now().time_since_epoch().count();
-              std::cout << "after verify_authority function: " << after << std::endl;
          check_admin(trx.extract_admin_ops());
       }
       catch( protocol::tx_missing_active_auth& e )
@@ -2946,12 +2941,11 @@ std::shared_ptr<transaction_context> database::_apply_transaction( transaction_w
     trx_wrapper.invoice.gas_usage = trx_ctx->gas_paid();
 
     end = fc::time_point::now().time_since_epoch().count();
-    std::cout << "last line of _apply_transaction function: " << end << std::endl;
     
     auto delta_func = end - begin;
     auto delta_check = after - before;
-    std::cout << "_apply_transaction function cost time: " << delta_func << std::endl;
-    std::cout << "verify_authority function cost time: " << delta_check << "\n\n";
+    std::cout << "verify_authority function cost time: " << delta_check << std::endl;
+    std::cout << "_apply_transaction function cost time: " << delta_func << "\n\n";
     
    return trx_ctx;
 } FC_CAPTURE_AND_RETHROW( (trx_wrapper) ) }
