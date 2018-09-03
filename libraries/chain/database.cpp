@@ -2846,9 +2846,6 @@ void database::apply_transaction( transaction_wrapper& trx_wrapper, uint32_t ski
 
 std::shared_ptr<transaction_context> database::_apply_transaction( transaction_wrapper& trx_wrapper)
 { try {
-    int64_t begin,end,before,after;
-    begin = fc::time_point::now().time_since_epoch().count();
-
    auto trx = trx_wrapper.sig_trx;
 
    _current_trx_id = trx.id();
@@ -2873,9 +2870,7 @@ std::shared_ptr<transaction_context> database::_apply_transaction( transaction_w
 
       try
       {
-              before = fc::time_point::now().time_since_epoch().count();
          trx.verify_authority( chain_id, get_active, get_owner, get_posting, CONTENTO_MAX_SIG_CHECK_DEPTH );
-              after = fc::time_point::now().time_since_epoch().count();
          check_admin(trx.extract_admin_ops());
       }
       catch( protocol::tx_missing_active_auth& e )
@@ -2939,13 +2934,6 @@ std::shared_ptr<transaction_context> database::_apply_transaction( transaction_w
     
    _current_trx_id = transaction_id_type();
     trx_wrapper.invoice.gas_usage = trx_ctx->gas_paid();
-
-    end = fc::time_point::now().time_since_epoch().count();
-    
-    auto delta_func = end - begin;
-    auto delta_check = after - before;
-    std::cout << "verify_authority function cost time: " << delta_check << std::endl;
-    std::cout << "_apply_transaction function cost time: " << delta_func << "\n\n";
     
    return trx_ctx;
 } FC_CAPTURE_AND_RETHROW( (trx_wrapper) ) }

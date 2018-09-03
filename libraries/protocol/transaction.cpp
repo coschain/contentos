@@ -189,9 +189,6 @@ flat_set<public_key_type> signed_transaction::get_signature_keys( const chain_id
 
 flat_set<public_key_type> signed_transaction::get_signature_keys( const chain_id_type& chain_id )const
 { try {
-    int64_t begin,end;
-    begin = fc::time_point::now().time_since_epoch().count();
-
    auto d = sig_digest( chain_id );
    flat_set<public_key_type> result;
    for( const auto&  sig : signatures )
@@ -206,10 +203,6 @@ flat_set<public_key_type> signed_transaction::get_signature_keys( const chain_id
                   sig_to_key[ signature_with_trx_hash( d, sig ) ] = pub_key;
          }
    }
-   
-    end = fc::time_point::now().time_since_epoch().count();
-    auto delta_func = end - begin;
-    std::cout << "get_signature_keys function cost time: " << delta_func << std::endl;
    return result;
 } FC_CAPTURE_AND_RETHROW() }
 
