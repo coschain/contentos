@@ -218,7 +218,15 @@ BOOST_AUTO_TEST_CASE( hello )
         a = "[\"user2\",\"5.000 COC\"]";
         asset v6 = asset::from_string( "0.000 COC" );
         BOOST_REQUIRE_NO_THROW(push_action(db, user2_private_key, N(user2), N(user1), N(withdraw), a, v6));
+        const account_object& acct5 = db.get_account( "user2" );
+        BOOST_REQUIRE( acct5.balance.amount.value < 25000 );  // ??? how much gas?
+        const contract_balance_object& cbo3 = db.get_contract_account( "user1" );// user1 is contract name
+        BOOST_REQUIRE( cbo3.coc_balance.amount.value == 24997 );
         
+        // no exist user withdraw coc, should throw exception
+         a = "[\"user12345\",\"10.000 COC\"]";
+        asset v7;
+        BOOST_REQUIRE_THROW(push_action(db, user2_private_key, N(user2), N(user1), N(withdraw), a,v7),fc::exception);
         
     }
     
