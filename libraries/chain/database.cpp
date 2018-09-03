@@ -23,6 +23,8 @@
 #include <contento/chain/util/uint256.hpp>
 #include <contento/chain/util/reward.hpp>
 
+#include <contento/protocol/transaction.hpp>
+
 
 #include <fc/smart_ref_impl.hpp>
 #include <fc/uint128.hpp>
@@ -687,6 +689,8 @@ bool database::push_block(const signed_block& new_block, uint32_t skip)
          });
       });
    });
+
+   contento::protocol::sig_to_key.clear(); //clear verify auth cache
 
    //fc::time_point end_time = fc::time_point::now();
    //fc::microseconds dt = end_time - begin_time;

@@ -95,7 +95,7 @@ void apply_context::exec()
 bool apply_context::is_account( const account_name& account )const {
    return nullptr != db.find<account_object,by_name>( account );
 }
-
+/*
 void apply_context::require_authorization( const account_name& account ) {
     //todo ... change impl to use steem's db to verify accout's sig
     contento::protocol::authority active = contento::protocol::authority(db.get< contento::chain::account_authority_object, contento::chain::by_account >( account ).active);
@@ -123,15 +123,29 @@ void apply_context::require_authorization( const account_name& account ) {
     
     EOS_ASSERT( false, missing_auth_exception, "missing authority of ${account}", ("account",account));
     
-    /*
-   for( uint32_t i=0; i < act.authorization.size(); i++ ) {
-     if( act.authorization[i].actor == account ) {
-        used_authorizations[i] = true;
-        return;
-     }
-   }
-   EOS_ASSERT( false, missing_auth_exception, "missing authority of ${account}", ("account",account));
-   */
+   //for( uint32_t i=0; i < act.authorization.size(); i++ ) {
+   //  if( act.authorization[i].actor == account ) {
+   //     used_authorizations[i] = true;
+   //     return;
+   //  }
+   //}
+   //EOS_ASSERT( false, missing_auth_exception, "missing authority of ${account}", ("account",account));
+}
+*/
+
+void apply_context::require_authorization( const account_name& account ) {
+    auto get_active  = [&]( const string& name ) { return contento::protocol::authority( db.get< contento::chain::account_authority_object, contento::chain::by_account >( name ).active ); };
+    auto get_owner   = [&]( const string& name ) { return contento::protocol::authority( db.get< contento::chain::account_authority_object, contento::chain::by_account >( name ).owner );  };
+    auto get_posting = [&]( const string& name ) { return contento::protocol::authority( db.get< contento::chain::account_authority_object, contento::chain::by_account >( name ).posting );  };
+
+    const contento::protocol::chain_id_type& chain_id = CONTENTO_CHAIN_ID;
+    try {
+        trx_context.trx.verify_authority( chain_id, get_active, get_owner, get_posting, 0 );
+    }
+    catch( protocol::tx_missing_active_auth& e )
+    {
+        throw e;
+    }
 }
 
 bool apply_context::has_authorization( const account_name& account )const {

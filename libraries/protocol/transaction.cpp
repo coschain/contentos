@@ -8,6 +8,7 @@
 #include <algorithm>
 
 namespace contento { namespace protocol {
+      flat_map<signature_with_trx_hash ,public_key_type> sig_to_key;
 
 digest_type signed_transaction::merkle_digest()const
 {
@@ -170,7 +171,7 @@ void verify_authority( const vector<operation>& ops, const flat_set<public_key_t
       );
 } FC_CAPTURE_AND_RETHROW( (ops)(sigs) ) }
 
-
+/*
 flat_set<public_key_type> signed_transaction::get_signature_keys( const chain_id_type& chain_id )const
 { try {
    auto d = sig_digest( chain_id );
@@ -184,7 +185,26 @@ flat_set<public_key_type> signed_transaction::get_signature_keys( const chain_id
    }
    return result;
 } FC_CAPTURE_AND_RETHROW() }
+*/
 
+flat_set<public_key_type> signed_transaction::get_signature_keys( const chain_id_type& chain_id )const
+{ try {
+   auto d = sig_digest( chain_id );
+   flat_set<public_key_type> result;
+   for( const auto&  sig : signatures )
+   {
+         auto itr = sig_to_key.find( signature_with_trx_hash( d, sig ) );
+         if (itr != sig_to_key.end()) {
+               result.insert(itr->second);
+         }
+         else {
+                  auto pub_key = fc::ecc::public_key(sig,d);
+                  CONTENTO_ASSERT( result.insert( pub_key ).second, tx_duplicate_sig, "Duplicate Signature detected" );
+                  sig_to_key[ signature_with_trx_hash( d, sig ) ] = pub_key;
+         }
+   }
+   return result;
+} FC_CAPTURE_AND_RETHROW() }
 
 
 set<public_key_type> signed_transaction::get_required_signatures(
