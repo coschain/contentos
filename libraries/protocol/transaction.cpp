@@ -195,7 +195,7 @@ flat_set<public_key_type> signed_transaction::get_signature_keys( const chain_id
    {
          auto itr = sig_to_key.find( signature_with_trx_hash( d, sig ) );
          if (itr != sig_to_key.end()) {
-               result.insert(itr->second);
+               CONTENTO_ASSERT( result.insert( itr->second ).second, tx_duplicate_sig, "Duplicate Signature detected" );
          }
          else {
                   auto pub_key = fc::ecc::public_key(sig,d);
