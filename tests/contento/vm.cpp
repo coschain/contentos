@@ -207,7 +207,7 @@ BOOST_AUTO_TEST_CASE( hello )
         asset v3 = asset::from_string( "2000.000 COC" );
         push_action(db, user2_private_key, N(user2), N(user1), N(save), "", v3);
         const account_object& acct5 = db.get_account( "user2" );
-        BOOST_REQUIRE( acct5.balance.amount.value == origin_user );
+        BOOST_REQUIRE( acct5.balance.amount.value < origin_user );// consume gas
         const contract_balance_object& cbo3 = db.get_contract_account( "user1" );// user1 is contract name
         BOOST_REQUIRE( cbo3.coc_balance.amount.value == origin_contract );
         
@@ -215,38 +215,41 @@ BOOST_AUTO_TEST_CASE( hello )
         // user2 withdraw invalid coc from contract, should failed but no exception
         a = "[\"user2\",\"2000.000 COC\"]";
         asset v4;
+        origin_user = acct5.balance.amount.value;
         push_action(db, user2_private_key, N(user2), N(user1), N(withdraw), a, v4);
         const account_object& acct6 = db.get_account( "user2" );
-        BOOST_REQUIRE( acct6.balance.amount.value == origin_user );
+        BOOST_REQUIRE( acct6.balance.amount.value < origin_user );// consume gas
         const contract_balance_object& cbo4 = db.get_contract_account( "user1" );// user1 is contract name
         BOOST_REQUIRE( cbo4.coc_balance.amount.value == origin_contract );
         
         // user2 send coc to contract by a payprohibited api, should failed but no exception
         a = "[\"user2\",\"5.000 COC\"]";
         asset v5 = asset::from_string( "5.000 COC" );
+        origin_user = acct6.balance.amount.value;
         push_action(db, user2_private_key, N(user2), N(user1), N(withdraw), a, v5);
         const account_object& acct7 = db.get_account( "user2" );
-        BOOST_REQUIRE( acct7.balance.amount.value == origin_user );
+        BOOST_REQUIRE( acct7.balance.amount.value < origin_user);// consume gas
         const contract_balance_object& cbo5 = db.get_contract_account( "user1" );// user1 is contract name
         BOOST_REQUIRE( cbo5.coc_balance.amount.value == origin_contract );
         
-        // user2 send 0 coc to contract by a payprohibited api, it's ok
+        // user2 send 0 coc to contract by a payprohibited api, it's ok, and withdraw should success
         a = "[\"user2\",\"5.000 COC\"]";
         asset v6 = asset::from_string( "0.000 COC" );
         BOOST_REQUIRE_NO_THROW(push_action(db, user2_private_key, N(user2), N(user1), N(withdraw), a, v6));
         const account_object& acct8 = db.get_account( "user2" );
         BOOST_REQUIRE( acct8.balance.amount.value < 25000 );  // ??? how much gas?
         const contract_balance_object& cbo6 = db.get_contract_account( "user1" );// user1 is contract name
-        BOOST_REQUIRE( cbo6.coc_balance.amount.value == 24997 );
+        BOOST_REQUIRE( cbo6.coc_balance.amount.value == origin_contract - 5000 );
         
-        // no exist user withdraw coc, should failed but no exception
+        // user withdraw coc to a no exist user, should failed but no exception
          a = "[\"user12345\",\"10.000 COC\"]";
         asset v7;
-        push_action(db, user2_private_key, N(user2), N(user1), N(withdraw), a,v7);
+        origin_user = acct8.balance.amount.value;
+        BOOST_REQUIRE_NO_THROW(push_action(db, user2_private_key, N(user2), N(user1), N(withdraw), a,v7));
         const account_object& acct9 = db.get_account( "user2" );
-        BOOST_REQUIRE( acct9.balance.amount.value == origin_user );
+        BOOST_REQUIRE( acct9.balance.amount.value < origin_user );// consume gas
         const contract_balance_object& cbo7 = db.get_contract_account( "user1" );// user1 is contract name
-        BOOST_REQUIRE( cbo7.coc_balance.amount.value == origin_contract );
+        BOOST_REQUIRE( cbo7.coc_balance.amount.value == origin_contract - 5000);
         
     }
     
