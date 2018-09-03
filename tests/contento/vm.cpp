@@ -16,6 +16,7 @@
 #include <fc/io/json.hpp>
 
 #include "fixtures/contento_fixture.hpp"
+#include <contento/chain/contract_balance_object.hpp>
 
 using namespace contento::chain;
 using namespace contento::protocol;

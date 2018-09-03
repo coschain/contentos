@@ -4,7 +4,6 @@
 #include <contento/chain/abi_serializer.hpp>
 #include <contento/chain/account_object.hpp>
 #include <contento/chain/wasm_interface.hpp>
-#include <contento/chain/contract_balance_object.hpp>
 #include <contento/protocol/operations.hpp>
 
 namespace chainbase
@@ -15,7 +14,9 @@ namespace chainbase
 namespace contento { namespace chain {
    class apply_context;
    class account_object;
+   class contract_balance_object;
    struct controller_impl;
+   using contento::protocol::operation;
 
    using apply_handler = std::function<void(apply_context&)>;
 
@@ -27,7 +28,7 @@ namespace contento { namespace chain {
    class transaction_context;
    class op_excute_callback {
    public:
-      virtual bool execute_operation(const transaction_context& trx_context, const ::contento::protocol::operation& op ) = 0;
+      virtual bool execute_operation(const transaction_context& trx_context, const operation& op ) = 0;
    };
 
 

@@ -6,6 +6,7 @@
 #include <fc/io/json.hpp>
 #include <contento/chain/exceptions.hpp>
 #include <contento/chain/contento_contract.hpp>
+#include <contento/chain/contract_balance_object.hpp>
 
 namespace contento { namespace chain {
 

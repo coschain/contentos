@@ -7,6 +7,8 @@
 //#include <contento/chain/authorization_manager.hpp>
 //#include <contento/chain/resource_limits.hpp>
 #include <contento/chain/account_object.hpp>
+#include <contento/chain/contract_balance_object.hpp>
+
 //#include <contento/chain/global_property_object.hpp>
 
 /*#include <contento/protocol/authority.hpp>
