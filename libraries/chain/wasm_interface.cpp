@@ -691,7 +691,7 @@ class contract_bank_api : public context_aware_api {
           ast = context.get_contract_balance();
       }
 
-      void transfer(account_name account, const asset& value) {
+      void transfer(account_name& account, const asset& value) {
           // todo transfer COC to name from contract_bank
           context.transfer(account,value);
       }
@@ -1766,7 +1766,7 @@ REGISTER_INTRINSICS_WITH_PRICE(producer_api,
 
 REGISTER_INTRINSICS_WITH_PRICE(contract_bank_api,
    WITH_PRICE (get_contract_balance,      void(int))
-   WITH_PRICE (transfer,      void(int64_t,int) )
+   WITH_PRICE (transfer,      void(int,int) )
    WITH_PRICE (get_value,      int64_t() )
    WITH_PRICE (pay_prohibited, void())
 );

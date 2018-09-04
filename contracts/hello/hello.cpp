@@ -12,7 +12,7 @@ class hello : public cosio::contract {
 
       //@abi action
       void hi( account_name user ) {
-         print( "\n Hello, ", name{user} );
+         print( "\n Hello, ", namex{user} );
       }
     
     //@abi action

@@ -24,7 +24,7 @@ const static auto default_state_size            = 1*1024*1024*1024ll;
 const static namex system_account_name    = N16(contento);
 const static namex null_account_name      = N16(contento.null);
 const static namex producers_account_name = N16(contento.prods);
-const static namex gas_fee_account_name   = N6(contento);
+const static namex gas_fee_account_name   = N16(contento);
 
 // Active permission of producers account requires greater than 2/3 of the producers to authorize
 const static namex majority_producers_permission_name = N16(prod.major); // greater than 1/2 of producers needed to authorize
