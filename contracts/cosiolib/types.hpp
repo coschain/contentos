@@ -277,18 +277,6 @@ namespace cosio {
       return name;
    }
 
-//    uint64_t u8tou64(uint8_t const u8[8]) {
-//       uint64_t u64;
-//       memcpy(&u64, u8, sizeof(u64));
-//       return u64;
-//    }
-
-//    uint8_t* u64tou8(uint64_t const u64) {
-//       uint8_t result[sizeof(u64)];
-//       std::memcpy(result, &u64, sizeof(u64)); 
-//       return result;
-//    }
-
    uint128_x convert_name_u128(namex_ const name) {
       uint128_x u128;
       memcpy(&u128, &name, sizeof(u128));
@@ -310,8 +298,6 @@ namespace cosio {
       namex( const namex& n ) { value = n.value; }
       namex( const uint128_x& v ):value(v) {}
       namex( const namex_& n) {
-            // value.hi = n.value[0];
-            // value.lo = n.value[1];
             value = convert_name_u128(n);
       }
       
@@ -320,10 +306,6 @@ namespace cosio {
       };
 
       operator namex_()const{
-            // namex_ n;
-            // n.value[0]=value.hi;
-            // n.value[1]=value.lo;
-            // return n;
             return convert_u128_name(value);
       }
       

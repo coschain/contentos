@@ -242,6 +242,13 @@ namespace contento { namespace protocol {
       friend bool operator != ( const char* a, const namex& b ) {
          return std::string(a) != std::string(b);
       }
+
+      friend bool operator == ( const namex& a, const char* b ) {
+         return std::string(a) == std::string(b);
+      }
+      friend bool operator == ( const char* a, const namex& b ) {
+         return std::string(a) == std::string(b);
+      }
       
       //   friend std::string operator + ( const name& a, const name& b ) {
       //     return std::string(a) + std::string(b);
