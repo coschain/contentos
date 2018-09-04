@@ -7,6 +7,8 @@
 //#include <contento/chain/authorization_manager.hpp>
 //#include <contento/chain/resource_limits.hpp>
 #include <contento/chain/account_object.hpp>
+#include <contento/chain/contract_balance_object.hpp>
+
 //#include <contento/chain/global_property_object.hpp>
 
 /*#include <contento/protocol/authority.hpp>
@@ -28,19 +30,19 @@ using boost::container::flat_set;
 
 namespace contento { namespace chain {
 
-// static inline void print_debug(account_name receiver, const action_trace& ar) {
-//    if (!ar.console.empty()) {
-//       auto prefix = fc::format_string(
-//                                       "\n[(${a},${n})->${r}]",
-//                                       fc::mutable_variant_object()
-//                                       ("a", ar.act.account)
-//                                       ("n", ar.act.name)
-//                                       ("r", receiver));
-//       dlog(prefix + ": CONSOLE OUTPUT BEGIN =====================\n"
-//            + ar.console
-//            + prefix + ": CONSOLE OUTPUT END   =====================" );
-//    }
-// }
+static inline void print_debug(account_name receiver, const std::string& log, const vm_operation& op) {
+   if (!log.empty()) {
+      auto prefix = fc::format_string(
+                                      "\n[(${a},${n})->${r}]",
+                                      fc::mutable_variant_object()
+                                      ("a", op.contract_name)
+                                      ("n", op.action_name)
+                                      ("r", receiver));
+      dlog(prefix + ": CONSOLE OUTPUT BEGIN =====================\n"
+           + log
+           + prefix + ": CONSOLE OUTPUT END   =====================" );
+   }
+}
 
 void apply_context::exec_one()
 {
@@ -66,8 +68,8 @@ void apply_context::exec_one()
 
    } FC_CAPTURE_AND_RETHROW((_pending_console_output.str()));
 
-   std::cout << "***************\nVM EXCUTE:\n" << _pending_console_output.str() << "\n*************\n" << std::endl;
-   // TODOO: print debug
+   //std::cout << "***************\nVM EXCUTE:\n" << _pending_console_output.str() << "\n*************\n" << std::endl;
+   print_debug(receiver, _pending_console_output.str(), op);
    reset_console();
 }
 
@@ -95,7 +97,7 @@ void apply_context::exec()
 bool apply_context::is_account( const account_name& account )const {
    return nullptr != db.find<account_object,by_name>( account );
 }
-
+/*
 void apply_context::require_authorization( const account_name& account ) {
     //todo ... change impl to use steem's db to verify accout's sig
     contento::protocol::authority active = contento::protocol::authority(db.get< contento::chain::account_authority_object, contento::chain::by_account >( account ).active);
@@ -123,15 +125,29 @@ void apply_context::require_authorization( const account_name& account ) {
     
     EOS_ASSERT( false, missing_auth_exception, "missing authority of ${account}", ("account",account));
     
-    /*
-   for( uint32_t i=0; i < act.authorization.size(); i++ ) {
-     if( act.authorization[i].actor == account ) {
-        used_authorizations[i] = true;
-        return;
-     }
-   }
-   EOS_ASSERT( false, missing_auth_exception, "missing authority of ${account}", ("account",account));
-   */
+   //for( uint32_t i=0; i < act.authorization.size(); i++ ) {
+   //  if( act.authorization[i].actor == account ) {
+   //     used_authorizations[i] = true;
+   //     return;
+   //  }
+   //}
+   //EOS_ASSERT( false, missing_auth_exception, "missing authority of ${account}", ("account",account));
+}
+*/
+
+void apply_context::require_authorization( const account_name& account ) {
+    auto get_active  = [&]( const string& name ) { return contento::protocol::authority( db.get< contento::chain::account_authority_object, contento::chain::by_account >( name ).active ); };
+    auto get_owner   = [&]( const string& name ) { return contento::protocol::authority( db.get< contento::chain::account_authority_object, contento::chain::by_account >( name ).owner );  };
+    auto get_posting = [&]( const string& name ) { return contento::protocol::authority( db.get< contento::chain::account_authority_object, contento::chain::by_account >( name ).posting );  };
+
+    const contento::protocol::chain_id_type& chain_id = CONTENTO_CHAIN_ID;
+    try {
+        trx_context.trx.verify_authority( chain_id, get_active, get_owner, get_posting, 0 );
+    }
+    catch( protocol::tx_missing_active_auth& e )
+    {
+        throw e;
+    }
 }
 
 bool apply_context::has_authorization( const account_name& account )const {
@@ -261,8 +277,16 @@ void apply_context::update_db_usage( const account_name& payer, int64_t delta ) 
    }
    trx_context.add_ram_usage(payer, delta);
     */
+    
+    //
+    // caller pays for everything.
+    //
+    trx_context.add_ram_usage( op.caller, delta );
 }
 
+void apply_context::add_action_price(uint64_t price, int wasm_expr_id) {
+    trx_context.add_wasm_price( op.caller, price );
+}
 
 int apply_context::get_action( uint32_t type, uint32_t index, char* buffer, size_t buffer_size )const
 {
@@ -540,11 +564,26 @@ bool apply_context::excute_operation( const std::vector<char>& op_buff ){
 
    EOS_ASSERT( !is_vm_operation(op), transaction_exception, "Cant\'t Excute vm_operation, use send_inline instead");
    EOS_ASSERT( !is_virtual_operation(op), transaction_exception, "virtual operation not permitted");
-
    return control.get_op_excutor()->execute_operation( trx_context, op);
 }
 
-void apply_context::add_action_price(uint64_t price, int wasm_expr_id) {
+asset apply_context::get_contract_balance()  {
+    const auto& account = control.get_contract_account(receiver);
+    return account.coc_balance;
 }
-
+    
+void apply_context::transfer( account_name name, const asset& value)  {
+    
+    const auto& to_account = control.get_account(name);
+    const auto& from_account = control.get_contract_account(receiver);
+    
+    FC_ASSERT( get_contract_balance() >= value, "Contract does not have sufficient funds for transfer." );
+//    asset s(value,COC_SYMBOL);
+    control.adjust_contract_balance( from_account, -value );
+    control.adjust_balance( to_account, value );
+}
+    
+int64_t apply_context::get_value() {
+    return op.value.amount.value;
+}
 } } /// contento::chain

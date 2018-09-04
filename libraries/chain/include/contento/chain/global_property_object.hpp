@@ -49,11 +49,10 @@ namespace contento { namespace chain {
           */
          uint32_t num_pow_witnesses = 0;
 
-         asset       virtual_supply             = asset( 0, COC_SYMBOL );
+//         asset       virtual_supply             = asset( 0, COC_SYMBOL );
          asset       current_supply             = asset( 0, COC_SYMBOL );
-         asset       total_vesting_fund_coc   = asset( 0, COC_SYMBOL );
+         asset       total_coc   = asset( 0, COC_SYMBOL );
          asset       total_vesting_shares       = asset( 0, VESTS_SYMBOL );
-         asset       total_reward_fund_steem    = asset( 0, COC_SYMBOL );
          fc::uint128 total_reward_shares2; ///< the running total of REWARD^2
 
 
@@ -61,19 +60,6 @@ namespace contento { namespace chain {
        {
            return price( asset( 1, COC_SYMBOL), asset( 1, VESTS_SYMBOL ));
        }
-
-//         price get_reward_vesting_share_price() const
-//         {
-//            return price( total_vesting_shares + pending_rewarded_vesting_shares,
-//               total_vesting_fund_coc + pending_rewarded_vesting_steem );
-//         }
-
-         /**
-          *  This property defines the interest rate that SBD deposits receive.
-          */
-//         uint16_t sbd_interest_rate = 0;
-//
-//         uint16_t sbd_print_rate = CONTENTO_100_PERCENT;
 
          /**
           *  Maximum block size is decided by the set of active witnesses which change every round.
@@ -106,6 +92,11 @@ namespace contento { namespace chain {
           * their votes reduced.
           */
          uint32_t vote_power_reserve_rate = 10;
+       
+       /**
+        * transactions per second based on latest blocks.
+        */
+       uint32_t tps = 0;
    };
 
    typedef multi_index_container<
@@ -127,24 +118,17 @@ FC_REFLECT( contento::chain::dynamic_global_property_object,
              (current_witness)
              (total_pow)
              (num_pow_witnesses)
-             (virtual_supply)
+//             (virtual_supply)
              (current_supply)
-//             (confidential_supply)
-//             (current_sbd_supply)
-//             (confidential_sbd_supply)
-             (total_vesting_fund_coc)
+             (total_coc)
              (total_vesting_shares)
-             (total_reward_fund_steem)
              (total_reward_shares2)
-//             (pending_rewarded_vesting_shares)
-//             (pending_rewarded_vesting_steem)
-//             (sbd_interest_rate)
-//             (sbd_print_rate)
              (maximum_block_size)
              (current_aslot)
              (recent_slots_filled)
              (participation_count)
              (last_irreversible_block_num)
              (vote_power_reserve_rate)
+             (tps)
           )
 CHAINBASE_SET_INDEX_TYPE( contento::chain::dynamic_global_property_object, contento::chain::dynamic_global_property_index )

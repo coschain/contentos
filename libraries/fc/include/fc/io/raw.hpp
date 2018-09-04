@@ -565,6 +565,8 @@ namespace fc {
       }
       return vec;
     }
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wsometimes-uninitialized"
 
     template<typename T, typename... Next>
     inline std::vector<char> pack(  const T& v, Next... next ) {
@@ -621,6 +623,8 @@ namespace fc {
       datastream<const char*>  ds( d, s );
       unpack(ds,v);
     } FC_RETHROW_EXCEPTIONS( warn, "error unpacking ${type}", ("type",fc::get_typename<T>::name() ) ) }
+
+#pragma clang diagnostic pop
 
    template<typename Stream>
    struct pack_static_variant

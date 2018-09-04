@@ -6,6 +6,23 @@
 #include <numeric>
 
 namespace contento { namespace protocol {
+   struct signature_with_trx_hash {
+      signature_with_trx_hash(digest_type d, signature_type sig) : _d(d), _sig(sig) {}
+
+      friend bool operator < ( const signature_with_trx_hash& a, const signature_with_trx_hash& b ) {
+        if ( a._d < b._d)
+            return true;
+        else if ( a._d > b._d )
+            return false;
+        else
+            return a._sig < b._sig;
+      }
+
+      digest_type     _d;
+      signature_type _sig;
+   };
+
+   extern flat_map<signature_with_trx_hash ,public_key_type> sig_to_key;
 
    struct transaction
    {
@@ -113,7 +130,9 @@ namespace contento { namespace protocol {
 
    struct transaction_invoice {
          uint32_t status = 200;
-         uint32_t gas_usage = 0;
+         bool     vm_error = false;
+         uint32_t vm_error_code = 0;
+         uint64_t gas_usage = 0;
    };
 
    struct transaction_wrapper {
@@ -158,5 +177,5 @@ FC_REFLECT_DERIVED( contento::protocol::signed_transaction, (contento::protocol:
 
 FC_REFLECT( contento::protocol::annotated_signed_transaction, (sig_trx)(invoice)(transaction_id)(block_num)(transaction_num) );
 
-FC_REFLECT( contento::protocol::transaction_invoice, (status)(gas_usage) );
+FC_REFLECT( contento::protocol::transaction_invoice, (status)(vm_error)(vm_error_code)(gas_usage) );
 FC_REFLECT( contento::protocol::transaction_wrapper, (sig_trx)(invoice) );

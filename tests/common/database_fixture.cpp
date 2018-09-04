@@ -64,6 +64,7 @@ clean_database_fixture::clean_database_fixture()
    // Fill up the rest of the required miners
    for( int i = CONTENTO_NUM_INIT_MINERS; i < 5; i++ )
    {
+       const account_object& acct = db.get_account( CONTENTO_INIT_MINER_NAME );
       account_create( CONTENTO_INIT_MINER_NAME + fc::to_string( i ), init_account_pub_key );
       fund( CONTENTO_INIT_MINER_NAME + fc::to_string( i ), CONTENTO_MIN_PRODUCER_REWARD.amount.value );
       witness_create( CONTENTO_INIT_MINER_NAME + fc::to_string( i ), init_account_priv_key, "foo.bar", init_account_pub_key, CONTENTO_MIN_PRODUCER_REWARD.amount );
@@ -189,7 +190,7 @@ void database_fixture::open_database()
    if( !data_dir ) {
       data_dir = fc::temp_directory( graphene::utilities::temp_directory_path() );
       db._log_hardforks = false;
-      db.open( data_dir->path(), data_dir->path(), INITIAL_TEST_SUPPLY, 1024 * 1024 * 8, chainbase::database::read_write ); // 8 MB file for testing
+      db.open( data_dir->path(), data_dir->path(), INITIAL_TEST_SUPPLY, 1024 * 1024 * 128, chainbase::database::read_write ); // 8 MB file for testing
    }
 }
 
@@ -237,21 +238,6 @@ const account_object& database_fixture::account_create(
      op.json_metadata = json_metadata;
 
      trx.operations.push_back( op );
-//      }
-//      else
-//      {
-//         account_create_operation op;
-//         op.new_account_name = name;
-//         op.creator = creator;
-//         op.fee = asset( fee, STEEM_SYMBOL );
-//         op.owner = authority( 1, key, 1 );
-//         op.active = authority( 1, key, 1 );
-//         op.posting = authority( 1, post_key, 1 );
-//         op.memo_key = key;
-//         op.json_metadata = json_metadata;
-//
-//         trx.operations.push_back( op );
-//      }
 
       trx.set_expiration( db.head_block_time() + CONTENTO_MAX_TIME_UNTIL_EXPIRATION );
       trx.sign( creator_key, db.get_chain_id() );
@@ -348,32 +334,15 @@ void database_fixture::fund(
          {
             if( amount.symbol == COC_SYMBOL )
                a.balance += amount;
-            else if( amount.symbol == SBD_SYMBOL )
-            {
-            //    a.sbd_balance += amount;
-            //    a.sbd_seconds_last_update = db.head_block_time();
-            }
          });
 
          db.modify( db.get_dynamic_global_properties(), [&]( dynamic_global_property_object& gpo )
          {
-            // if( amount.symbol == COC_SYMBOL )
-            //    gpo.current_supply += amount;
-            // else if( amount.symbol == SBD_SYMBOL )
-            //    gpo.current_sbd_supply += amount;
+            if( amount.symbol == COC_SYMBOL )
+               gpo.current_supply += amount;
+               gpo.total_coc += amount;
+
          });
-
-         if( amount.symbol == SBD_SYMBOL )
-         {
-            const auto& median_feed = db.get_feed_history();
-            if( median_feed.current_median_history.is_null() )
-               db.modify( median_feed, [&]( feed_history_object& f )
-               {
-                  f.current_median_history = price( asset( 1, SBD_SYMBOL ), asset( 1, COC_SYMBOL ) );
-               });
-         }
-
-         db.update_virtual_supply();
       }, default_skip );
    }
    FC_CAPTURE_AND_RETHROW( (account_name)(amount) )
@@ -394,13 +363,6 @@ void database_fixture::convert(
          db.adjust_balance( account, db.to_sbd( amount ) );
          db.adjust_supply( -amount );
          db.adjust_supply( db.to_sbd( amount ) );
-      }
-      else if ( amount.symbol == SBD_SYMBOL )
-      {
-         db.adjust_balance( account, -amount );
-         db.adjust_balance( account, db.to_steem( amount ) );
-         db.adjust_supply( -amount );
-         db.adjust_supply( db.to_steem( amount ) );
       }
    } FC_CAPTURE_AND_RETHROW( (account_name)(amount) )
 }
@@ -491,9 +453,9 @@ void database_fixture::set_price_feed( const price& new_price )
 
    generate_blocks( CONTENTO_BLOCKS_PER_HOUR );
    BOOST_REQUIRE(
-#ifdef IS_TEST_NET
-      !db.skip_price_feed_limit_check ||
-#endif
+//#ifdef IS_TEST_NET
+//      !db.skip_price_feed_limit_check ||
+//#endif
       db.get(feed_history_id_type()).current_median_history == new_price
    );
 }

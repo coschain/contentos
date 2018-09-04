@@ -16,11 +16,14 @@
 #include <contento/chain/shared_db_merkle.hpp>
 #include <contento/chain/operation_notification.hpp>
 #include <contento/chain/witness_schedule.hpp>
+#include <contento/chain/contract_balance_object.hpp>
 
 #include <contento/chain/util/asset.hpp>
 #include <contento/chain/util/reward.hpp>
 #include <contento/chain/util/uint256.hpp>
 #include <contento/chain/util/reward.hpp>
+
+#include <contento/protocol/transaction.hpp>
 
 
 #include <fc/smart_ref_impl.hpp>
@@ -88,9 +91,130 @@ class database_impl
 database_impl::database_impl( database& self )
    : _self(self), _evaluator_registry(self) {}
 
+    
+    //
+    // TPS stats by counting trx# of latest blocks.
+    //
+    class tps_stats {
+    public:
+        tps_stats( database& self );
+        
+        // neccessary information out of a signed block
+        struct block_info {
+            uint32_t block_num;
+            fc::time_point_sec timestamp;
+            size_t trx_count;
+        };
+        
+        // update the stats.
+        void update(bool reset_before_update = false);
+        
+        // clear all cached data.
+        void reset();
+        
+        // get TPS.
+        uint32_t tps();
+        
+        database& _self;
+        std::map<uint32_t, block_info> _latest_blocks;
+        std::list<uint32_t> _latest_block_nums;
+        uint32_t trx_total = 0;
+    };
+    
+    tps_stats::tps_stats( database& self ): _self(self) {
+        
+    }
+    
+    uint32_t tps_stats::tps() {
+        uint32_t r = 0;
+        
+        // we need at least 2 blocks to calculate TPS.
+        if (_latest_blocks.size() > 1) {
+            block_info &info1 = _latest_blocks[_latest_block_nums.back()];
+            block_info &info0 = _latest_blocks[_latest_block_nums.front()];
+            uint32_t t1 = info1.timestamp.sec_since_epoch();
+            uint32_t t0 = info0.timestamp.sec_since_epoch();
+            if (t1 > t0) {
+                r = (trx_total - info0.trx_count)/ (t1 - t0);
+            }
+        }
+        return r;
+    }
+    
+    void tps_stats::reset() {
+        _latest_blocks.clear();
+        _latest_block_nums.clear();
+        trx_total = 0;
+    }
+    
+    void tps_stats::update(bool reset_before_update) {
+        if (reset_before_update) {
+            reset();
+        }
+        
+        const dynamic_global_property_object& dpo = _self.get_dynamic_global_properties();
+        uint32_t end = dpo.head_block_number;
+        if (end <= 0) {
+            // no block yet
+            return;
+        }
+        uint32_t cache_end = _latest_block_nums.size()? _latest_block_nums.back() : 0;
+        if (end == cache_end) {
+            // last block not changed
+            return;
+        }
+        
+        // when cache data seems wrong, clear it.
+        if (cache_end > 0 && end != cache_end + 1) {
+            reset();
+            cache_end = 0;
+        }
+        
+        // remove old cache items.
+        const uint32_t window_size = 100;
+        uint32_t exp_begin = end > window_size? end - window_size : 1;
+        uint32_t cache_begin = _latest_block_nums.size()? _latest_block_nums.front() : 0;
+        long remove_count = (long)exp_begin - (long)cache_begin;
+        long i;
+        if (cache_begin > 0 && remove_count > 0) {
+            for (i = 0; i < remove_count && _latest_block_nums.size(); i++) {
+                uint32_t block_num = _latest_block_nums.front();
+                trx_total -= _latest_blocks[block_num].trx_count;
+                _latest_blocks.erase(block_num);
+                _latest_block_nums.pop_front();
+            }
+        }
+        
+        // put missing block info into cache.
+        cache_end = _latest_block_nums.size()? _latest_block_nums.back() : 0;
+        for (i = (exp_begin <= cache_end? cache_end + 1 : exp_begin); i <= end; i++) {
+            if (_latest_blocks.find(i) == _latest_blocks.end()) {
+                auto block = _self.fetch_block_by_number(i);
+                block_info info;
+                info.block_num = i;
+                info.timestamp = block->timestamp;
+                info.trx_count = block->transactions.size();
+                _latest_blocks[i] = info;
+                _latest_block_nums.push_back(i);
+                trx_total += info.trx_count;
+            }
+        }
+        
+        // update db
+        uint32_t current_tps = tps();
+        if (current_tps != dpo.tps) {
+            _self.modify( dpo, [current_tps]( dynamic_global_property_object& _dpo )
+                         {
+                             _dpo.tps = current_tps;
+                         } );
+        }
+    }
+
+    
 database::database()
    : _my( new database_impl(*this) ),
-     ctrl(*this) {
+     ctrl(*this),
+    _tps_stats( new tps_stats(*this) ) {
         ctrl.set_op_excute_callback(this);
      }
 
@@ -389,6 +513,11 @@ const account_object& database::get_account( const account_name_type& name )cons
 { try {
    return get< account_object, by_name >( name );
 } FC_CAPTURE_AND_RETHROW( (name) ) }
+    
+const contract_balance_object& database::get_contract_account( const account_name_type& name )const
+{ try {
+    return get< contract_balance_object, by_name >( name );
+} FC_CAPTURE_AND_RETHROW( (name) ) }
 
 const account_object* database::find_account( const account_name_type& name )const
 {
@@ -561,6 +690,8 @@ bool database::push_block(const signed_block& new_block, uint32_t skip)
       });
    });
 
+   contento::protocol::sig_to_key.clear(); //clear verify auth cache
+
    //fc::time_point end_time = fc::time_point::now();
    //fc::microseconds dt = end_time - begin_time;
    //if( ( new_block.block_num() % 10000 ) == 0 )
@@ -654,9 +785,14 @@ bool database::_push_block(const signed_block& new_block)
 
    try
    {
-      auto session = start_undo_session( true );
-      apply_block(new_block, skip);
-      session.push();
+       if( !( skip & skip_apply_transaction ) )
+       {
+            auto session = start_undo_session( true );
+            apply_block(new_block, skip);
+            session.push();
+       } else {
+            apply_block(new_block, skip);
+       }
    }
    catch( const fc::exception& e )
    {
@@ -702,6 +838,44 @@ void database::push_transaction( const signed_transaction& trx, uint32_t skip )
       }
    }
    FC_CAPTURE_AND_RETHROW( (trx) )
+}
+    
+transaction_wrapper database::test_push_transaction( const signed_transaction& trx, uint32_t skip )
+{
+    transaction_wrapper trx_wrapper;
+    trx_wrapper.sig_trx = trx;
+    
+    try {
+        try {
+            FC_ASSERT( fc::raw::pack_size(trx) <= (get_dynamic_global_properties().maximum_block_size - 256) );
+            set_producing( true );
+            detail::with_skip_flags( *this, skip, [&]() {
+                with_write_lock( [&]() {
+                    auto session = start_undo_session( true );
+                    
+                    asset lots_of_money(1000000000);
+                    for (const operation& op: trx.operations) {
+                        if ( op.contains<vm_operation>() ) {
+                            const auto& caller = get_account(op.get<vm_operation>().caller);
+                            if (caller.balance < lots_of_money) {
+                                adjust_balance( caller, lots_of_money - caller.balance );
+                            }
+                        }
+                    }
+                    
+                    _apply_transaction( trx_wrapper );
+                });
+            });
+            set_producing( false );
+        }
+        catch( ... )
+        {
+            set_producing( false );
+            throw;
+        }
+        return trx_wrapper;
+        
+    } FC_CAPTURE_AND_RETHROW( (trx) )
 }
 
 void database::_push_transaction( const signed_transaction& trx )
@@ -774,6 +948,14 @@ signed_block database::_generate_block(
    size_t total_block_size = max_block_header_size;
 
    signed_block pending_block;
+   _current_trx_in_block = 0;
+
+   // i don't think _checkpoints should exists, so delete it
+   //uint32_t skip_new;
+   //pending_block.previous = head_block_id();
+   //if ( _checkpoints.size() && _checkpoints.rbegin()->second != block_id_type() ) {
+   //    skip_new = process_checkpoints( pending_block, skip );
+   //}
 
    with_write_lock( [&]()
    {
@@ -793,7 +975,7 @@ signed_block database::_generate_block(
 
       uint64_t postponed_tx_count = 0;
       // pop pending state (reset to head block state)
-      for( const transaction_wrapper& trx_wrapper : _pending_tx )
+      for(  transaction_wrapper& trx_wrapper : _pending_tx )
       {
          // Only include transactions that have not expired yet for currently generating block,
          // this should clear problem transactions and allow block production to continue
@@ -810,6 +992,28 @@ signed_block database::_generate_block(
             continue;
          }
 
+         try {
+             //_apply_transaction( trx_wrapper );
+            auto temp_session = start_undo_session( true );
+            detail::with_skip_flags( *this, skip, [&]()
+            {
+                _apply_transaction( trx_wrapper );
+            });
+            
+             temp_session.squash();
+
+             total_block_size += fc::raw::pack_size( trx_wrapper );
+             pending_block.transactions.push_back( trx_wrapper );
+             ++_current_trx_in_block;
+         }
+         catch ( const fc::exception& e )
+         {
+            // Do nothing, transaction will not be re-applied
+            //wlog( "Transaction was not processed while generating block due to ${e}", ("e", e) );
+            //wlog( "The transaction was ${t}", ("t", tx) );
+         }
+
+         /*
          try
          {
             auto temp_session = start_undo_session( true );
@@ -825,28 +1029,29 @@ signed_block database::_generate_block(
             //wlog( "Transaction was not processed while generating block due to ${e}", ("e", e) );
             //wlog( "The transaction was ${t}", ("t", tx) );
          }
+         */
       }
       if( postponed_tx_count > 0 )
       {
          wlog( "Postponed ${n} transactions due to block size limit", ("n", postponed_tx_count) );
       }
 
-      _pending_tx_session.reset();
+      //_pending_tx_session.reset();
        
-#ifdef IS_TEST_NET
-       if( BOOST_UNLIKELY( head_block_id() == block_id_type() && init_genesis_hardforks ) )
-       {
-           // For every existing before the head_block_time (genesis time), apply the hardfork
-           // This allows the test net to launch with past hardforks and apply the next harfork when running
-           auto now = when;
-           for( size_t i = 0;
-               i <= CONTENTO_NUM_HARDFORKS && _hardfork_times[i] <= now;
-               i++ )
-           {
-               set_hardfork( i, true );
-           }
-       }
-#endif
+// #ifdef IS_TEST_NET
+//        if( BOOST_UNLIKELY( head_block_id() == block_id_type() && init_genesis_hardforks ) )
+//        {
+//            // For every existing before the head_block_time (genesis time), apply the hardfork
+//            // This allows the test net to launch with past hardforks and apply the next harfork when running
+//            auto now = when;
+//            for( size_t i = 0;
+//                i <= CONTENTO_NUM_HARDFORKS && _hardfork_times[i] <= now;
+//                i++ )
+//            {
+//                set_hardfork( i, true );
+//            }
+//        }
+// #endif
 
    });
 
@@ -892,9 +1097,20 @@ signed_block database::_generate_block(
       FC_ASSERT( fc::raw::pack_size(pending_block) <= CONTENTO_MAX_BLOCK_SIZE );
    }
 
-   push_block( pending_block, skip );
+   //_pending_tx_session.push();
 
-   return pending_block;
+    
+    auto res = push_block( pending_block, skip | skip_apply_transaction );
+    if ( res ) {
+        std::cout << "in _generate_block function, BP node should never come here!" << std::endl;
+    } else {
+        if ( pending_block.block_num() == head_block_num() )
+        {
+            _pending_tx_session.push();
+        }
+    }
+
+    return pending_block;
 }
 
 /**
@@ -914,6 +1130,8 @@ void database::pop_block()
 
       _fork_db.pop_block();
       undo();
+       
+       _tps_stats->reset();
 
       _popped_tx.insert( _popped_tx.begin(), head_block->transactions.begin(), head_block->transactions.end() );
 
@@ -927,7 +1145,9 @@ void database::clear_pending()
    {
       assert( (_pending_tx.size() == 0) || _pending_tx_session.valid() );
       _pending_tx.clear();
-      _pending_tx_session.reset();
+      uint32_t skip = get_node_properties().skip_flags;
+      if( !( skip & skip_apply_transaction ) )
+            _pending_tx_session.reset();
    }
    FC_CAPTURE_AND_RETHROW()
 }
@@ -1031,43 +1251,20 @@ uint32_t database::get_slot_at_time(fc::time_point_sec when)const
  */
 asset database::create_vesting( const account_object& to_account, asset coc)
 {
+    FC_ASSERT( coc.symbol == COC_SYMBOL, "invalid symbol" );
    try
    {
-      const auto& cprops = get_dynamic_global_properties();
+       const auto& cprops = get_dynamic_global_properties();
 
-      /**
-       *  The ratio of total_vesting_shares / total_vesting_fund_coc should not
-       *  change as the result of the user adding funds
-       *
-       *  V / C  = (V+Vn) / (C+Cn)
-       *
-       *  Simplifies to Vn = (V * Cn ) / C
-       *
-       *  If Cn equals o.amount, then we must solve for Vn to know how many new vesting shares
-       *  the user should receive.
-       *
-       *  128 bit math is requred due to multiplying of 64 bit numbers. This is done in asset and price.
-       */
-//      asset new_vesting = steem * ( to_reward_balance ? cprops.get_reward_vesting_share_price() : cprops.get_vesting_share_price() );
-
-      asset new_vesting = coc * cprops.get_vesting_share_price();
-       modify( to_account, [&]( account_object& to )
-              {
-#ifdef CONTENTO_ASA
-                  //测试的时候，如果奖励是 cov，不好测
-                  to.balance += coc;
-#else
-                  to.vesting_shares += new_vesting;
-#endif
-              } );
+       asset new_vesting = coc * cprops.get_vesting_share_price();
+       modify( to_account, [&]( account_object& to ){
+           to.vesting_shares += new_vesting;
+       });
        
 
-       modify( cprops, [&]( dynamic_global_property_object& props )
-              {
-                  props.total_vesting_fund_coc += coc;
-                  props.total_vesting_shares += new_vesting;
-                  
-              } );
+       modify( cprops, [&]( dynamic_global_property_object& props ){
+           props.total_vesting_shares += new_vesting;
+       });
 
         return new_vesting;
    }
@@ -1246,7 +1443,7 @@ void database::clear_null_account_balance()
       modify( gpo, [&]( dynamic_global_property_object& g )
       {
          g.total_vesting_shares -= null_account.vesting_shares;
-         g.total_vesting_fund_coc -= converted_steem;
+         g.total_coc -= converted_steem;
       });
 
       modify( null_account, [&]( account_object& a )
@@ -1330,45 +1527,21 @@ void database::update_owner_authority( const account_object& account, const auth
    });
 }
 
-    
-// 这个函数我会改掉，原来可以允许一个账号 power down 到另一个账户，这个逻辑有点微妙。
-// 新的处理函数只允许到自己账户
 void database::process_vesting_withdrawals()
 {
     const auto& widx = get_index< account_index >().indices().get< by_next_vesting_withdrawal >();
-//    const auto& didx = get_index< withdraw_vesting_route_index >().indices().get< by_withdraw_route >();
    const auto& didx = get_index< withdraw_vesting_index>().indices().get<by_account>();
    auto current = widx.begin();
 
    const auto& cprops = get_dynamic_global_properties();
     
-#ifdef CONTENTO_ASA
-    while( current != widx.end())
-    {
-        std::cout << std::string(current-> name) << "\n";
-        std::cout << current -> id._id << "\n";
-        std::cout << current->next_vesting_withdrawal.sec_since_epoch() << "\n";
-        std::cout << head_block_time().sec_since_epoch() << "\n";
-        ++current;
-    }
-    
-    current = widx.begin();
-#endif
 
    while( current != widx.end() && current->next_vesting_withdrawal <= head_block_time() )
    {
       const auto& account = *current; ++current;
 
-      /**
-      *  Let T = total tokens in vesting fund
-      *  Let V = total vesting shares
-      *  Let v = total vesting shares being cashed out
-      *
-      *  The user may withdraw  vT / V tokens
-      */
       share_type withdraw_quota;
        
-       // vesting_withdraw_rate 在提交 withdraw 请求时被计算，为 总的 vesting_withdraw / interval
 
       if ( account.to_withdraw - account.withdrawn < account.vesting_withdraw_rate.amount )
          withdraw_quota = std::min( account.vesting_shares.amount, account.to_withdraw % account.vesting_withdraw_rate.amount ).value;
@@ -1379,8 +1552,6 @@ void database::process_vesting_withdrawals()
       asset total_coc_converted = asset( 0, COC_SYMBOL );
        
        
-       // 我考虑了一下，这里还是做成一个 for 循环，虽然实际上这里也只有一个 withdraw_vesting objet 而已
-       // 当然这里显然可以优化，后面我试试
        for (auto itr = didx.lower_bound(account.id); itr != didx.end() && itr -> account == account.id; ++itr )
        {
            if (withdraw_quota > 0) {
@@ -1412,7 +1583,6 @@ void database::process_vesting_withdrawals()
          }
       });
        
-        // 如果已经没有足够的 vesting_shares，删掉 vest 计划
        if( account.withdrawn >= account.to_withdraw || account.vesting_shares.amount == 0 ) {
            for (auto itr = didx.lower_bound(account.id); itr != didx.end() && itr -> account == account.id; ++itr )
            {
@@ -1422,7 +1592,7 @@ void database::process_vesting_withdrawals()
 
       modify( cprops, [&]( dynamic_global_property_object& o )
       {
-         o.total_vesting_fund_coc -= total_coc_converted;
+         o.total_coc += total_coc_converted;
          o.total_vesting_shares.amount -= vests_converted_as_coc;
       });
 
@@ -1579,46 +1749,25 @@ share_type database::cashout_comment_helper( util::comment_reward_context& ctx, 
 
 void database::process_comment_cashout()
 {
-    /// don't allow any content to get paid out until the website is ready to launch
-    /// and people have had a week to start posting.  The first cashout will be the biggest because it
-    /// will represent 2+ months of rewards.
-//    const auto& gpo = get_dynamic_global_properties();
     const auto& grpo = get_dynamic_global_reward_properties();
 
-    //   util::comment_reward_context ctx;
-    // 去掉 price feed 机制
-    // ctx.current_steem_price = get_feed_history().current_median_history;
     modify( grpo, [&]( dynamic_global_reward_property_object& dcpo )
-       {
-           fc::microseconds decay_rate;
-           decay_rate = CONTENTO_RECENT_RSHARES_DECAY_RATE_HF17;
-           dcpo.comment_recent_claims -= ( dcpo.comment_recent_claims * ( head_block_time() - dcpo.comment_last_update ).to_seconds() ) / decay_rate.to_seconds();
-           dcpo.comment_last_update = head_block_time();
-       });
+    {
+        fc::microseconds decay_rate;
+        decay_rate = CONTENTO_RECENT_RSHARES_DECAY_RATE_HF17;
+        dcpo.comment_recent_claims -= ( dcpo.comment_recent_claims * ( head_block_time() - dcpo.comment_last_update ).to_seconds() ) / decay_rate.to_seconds();
+        dcpo.comment_last_update = head_block_time();
+        dcpo.subject_recent_claims -= ( dcpo.subject_recent_claims * ( head_block_time() - dcpo.subject_last_update ).to_seconds() ) / decay_rate.to_seconds();
+        dcpo.subject_last_update = head_block_time();
+    });
     reward_fund_context subject_rf_ctx, comment_rf_ctx;
     subject_rf_ctx.recent_claims = grpo.subject_recent_claims;
     subject_rf_ctx.reward_balance = grpo.subject_reward_balance;
     comment_rf_ctx.recent_claims = grpo.comment_recent_claims;
     comment_rf_ctx.reward_balance = grpo.comment_reward_balance;
-    // The index is by ID, so the ID should be the current size of the vector (0, 1, 2, etc...)
-    // assert( funds.size() == size_t( itr->id._id ) );
     const auto& cidx        = get_index< comment_index >().indices().get< contento::chain::by_cashout_time >();
-    //const auto& com_by_root = get_index< comment_index >().indices().get< by_root >();
     auto current = cidx.begin();
     //  add all rshares about to be cashed out to the reward funds. This ensures equal satoshi per rshare payment
-    // 就只有 cashout 的时候会累加进 recent_claims
-//
-//#ifdef CONTENTO_ASA
-    while( current != cidx.end())
-    {
-        std::cout << current -> permlink << "\n";
-        std::cout << current -> parent_permlink << "\n";
-        std::cout << current->cashout_time.sec_since_epoch() << "\n";
-        std::cout << head_block_time().sec_since_epoch() << "\n";
-        ++current;
-    }
-    current = cidx.begin();
-//#endif
 
     while( current != cidx.end() && current->cashout_time <= head_block_time() )
     {
@@ -1682,8 +1831,7 @@ void database::process_comment_cashout()
  *  Overall the network has an inflation rate of 102% of virtual steem per year
  *  90% of inflation is directed to vesting shares
  *  10% of inflation is directed to subjective proof of work voting
- *  1% of inflation is directed to liquidity providers
- *  1% of inflation is directed to block producers
+
  *
  *  This method pays out vesting and reward shares every block, and liquidity shares once per day.
  *  This method does not pay out witnesses.
@@ -1694,7 +1842,7 @@ void database::process_funds()
     const auto& grprops = get_dynamic_global_reward_properties();
     const auto& wso = get_witness_schedule_object();
     
-    share_type new_coc = 10000;
+    share_type new_coc = PER_BLOCK_PRODUCT_COC;
     auto creator_reward = ( new_coc * CONTENTO_CREATOR_REWARD_PERCENT) / CONTENTO_100_PERCENT;
     auto commenter_reward = ( new_coc * CONTENTO_COMMENTER_REWARD_PERCENT ) / CONTENTO_100_PERCENT; /// 15% to commenter
     auto other_reward = (new_coc * CONTENTO_OTHER_REWARD_PERCENT ) / CONTENTO_100_PERCENT; // 5% 预留
@@ -1712,12 +1860,9 @@ void database::process_funds()
     witness_reward /= wso.witness_pay_normalization_factor;
     new_coc = creator_reward + commenter_reward + other_reward + witness_reward;
     modify( props, [&]( dynamic_global_property_object& p )
-           {
-               p.total_vesting_fund_coc += asset( new_coc - witness_reward, COC_SYMBOL);
-               // 其实因为奖励全是以 vesting 形式存在，所以 current_supply 其实没有意义
-               p.current_supply           += asset( new_coc, COC_SYMBOL );
-               p.virtual_supply           += asset( new_coc, COC_SYMBOL );
-           });
+   {
+       p.current_supply           += asset( new_coc, COC_SYMBOL );
+   });
     
     modify( grprops, [&]( dynamic_global_reward_property_object& r){
         r.subject_reward_balance += asset( creator_reward, COC_SYMBOL );
@@ -1732,7 +1877,6 @@ void database::process_other_cashout()
 {
     const auto& rpo = get_dynamic_global_reward_properties();
     if(rpo.tick % OTHER_REWARD_CASHOUT_INTERVAL == 0){
-        // 查举报
         const auto& report_idx = get_index< comment_report_index >().indices().get< by_cashout_time >();
         auto current = report_idx.begin();
         
@@ -1745,9 +1889,6 @@ void database::process_other_cashout()
             for(auto c = itr.begin();c != itr.end();++c){
                 reporters.push_back(c -> first);
             }
-//            modify( *current, [&]( comment_report_object& c ) {
-//                c.cashout_time = fc::time_point_sec::maximum();
-//            });
             remove( *current );
             ++current;
         }
@@ -1757,12 +1898,10 @@ void database::process_other_cashout()
         auto creator_reward = reward_balance.amount / 2;
         auto commenter_reward = reward_balance.amount - creator_reward;
         if(size > 0){
-            // 这里有个问题，size 如果太多，这个就会是 0 我在考虑要不要精确到两位小数
-            // 先这样吧
+
             auto amount = reward_balance.amount / size;
             auto total = amount * size;
             
-            // 有可能还有剩
             creator_reward = (reward_balance.amount - total) / 2;
             commenter_reward = reward_balance.amount - total - creator_reward;
             
@@ -1775,12 +1914,12 @@ void database::process_other_cashout()
         
         // accumulate new coc into reward balance
         modify( rpo, [&](dynamic_global_reward_property_object& r)
-               {
-                   r.subject_reward_balance += asset(creator_reward, COC_SYMBOL);
-                   r.comment_reward_balance += asset(commenter_reward, COC_SYMBOL);
-                   r.other_reward_balance = asset(0, COC_SYMBOL);
-                   r.tick = 1;
-               });
+        {
+            r.subject_reward_balance += asset(creator_reward, COC_SYMBOL);
+            r.comment_reward_balance += asset(commenter_reward, COC_SYMBOL);
+            r.other_reward_balance = asset(0, COC_SYMBOL);
+            r.tick = 1;
+        });
         
     }
     else{
@@ -1825,68 +1964,75 @@ asset database::get_liquidity_reward()const
 
 asset database::get_content_reward()const
 {
-   const auto& props = get_dynamic_global_properties();
-   static_assert( CONTENTO_BLOCK_INTERVAL == 3, "this code assumes a 3-second time interval" );
-   asset percent( protocol::calc_percent_reward_per_block< CONTENTO_CONTENT_APR_PERCENT >( props.virtual_supply.amount ), COC_SYMBOL );
-   return std::max( percent, CONTENTO_MIN_CONTENT_REWARD );
+//   const auto& props = get_dynamic_global_properties();
+//   static_assert( CONTENTO_BLOCK_INTERVAL == 3, "this code assumes a 3-second time interval" );
+//   asset percent( protocol::calc_percent_reward_per_block< CONTENTO_CONTENT_APR_PERCENT >( props.virtual_supply.amount ), COC_SYMBOL );
+//   return std::max( percent, CONTENTO_MIN_CONTENT_REWARD );
+    
+    return asset( 0, COC_SYMBOL );
 }
 
 asset database::get_curation_reward()const
 {
-   const auto& props = get_dynamic_global_properties();
-   static_assert( CONTENTO_BLOCK_INTERVAL == 3, "this code assumes a 3-second time interval" );
-   asset percent( protocol::calc_percent_reward_per_block< CONTENTO_CURATE_APR_PERCENT >( props.virtual_supply.amount ), COC_SYMBOL);
-   return std::max( percent, CONTENTO_MIN_CURATE_REWARD );
+//   const auto& props = get_dynamic_global_properties();
+//   static_assert( CONTENTO_BLOCK_INTERVAL == 3, "this code assumes a 3-second time interval" );
+//   asset percent( protocol::calc_percent_reward_per_block< CONTENTO_CURATE_APR_PERCENT >( props.virtual_supply.amount ), COC_SYMBOL);
+//   return std::max( percent, CONTENTO_MIN_CURATE_REWARD );
+    
+    return asset( 0, COC_SYMBOL );
 }
 
 asset database::get_producer_reward()
 {
    const auto& props = get_dynamic_global_properties();
-   static_assert( CONTENTO_BLOCK_INTERVAL == 3, "this code assumes a 3-second time interval" );
-   asset percent( protocol::calc_percent_reward_per_block< CONTENTO_PRODUCER_APR_PERCENT >( props.virtual_supply.amount ), COC_SYMBOL);
-   auto pay = std::max( percent, CONTENTO_MIN_PRODUCER_REWARD );
-   const auto& witness_account = get_account( props.current_witness );
-
-   /// pay witness in vesting shares
-   if( props.head_block_number >= CONTENTO_START_MINER_VOTING_BLOCK || (witness_account.vesting_shares.amount.value == 0) ) {
-      // const auto& witness_obj = get_witness( props.current_witness );
-      const auto& producer_reward = create_vesting( witness_account, pay );
-      push_virtual_operation( producer_reward_operation( witness_account.name, producer_reward ) );
-   }
-   else
-   {
-      modify( get_account( witness_account.name), [&]( account_object& a )
-      {
-         a.balance += pay;
-      } );
-   }
-
-   return pay;
+//   static_assert( CONTENTO_BLOCK_INTERVAL == 3, "this code assumes a 3-second time interval" );
+//   asset percent( protocol::calc_percent_reward_per_block< CONTENTO_PRODUCER_APR_PERCENT >( props.virtual_supply.amount ), COC_SYMBOL);
+//   auto pay = std::max( percent, CONTENTO_MIN_PRODUCER_REWARD );
+//   const auto& witness_account = get_account( props.current_witness );
+//
+//   /// pay witness in vesting shares
+//   if( props.head_block_number >= CONTENTO_START_MINER_VOTING_BLOCK || (witness_account.vesting_shares.amount.value == 0) ) {
+//      // const auto& witness_obj = get_witness( props.current_witness );
+//      const auto& producer_reward = create_vesting( witness_account, pay );
+//      push_virtual_operation( producer_reward_operation( witness_account.name, producer_reward ) );
+//   }
+//   else
+//   {
+//      modify( get_account( witness_account.name), [&]( account_object& a )
+//      {
+//         a.balance += pay;
+//      } );
+//   }
+//
+//   return pay;
+    
+    return asset( 0, COC_SYMBOL );
 }
 
 asset database::get_pow_reward()const
 {
-   const auto& props = get_dynamic_global_properties();
-
-#ifndef IS_TEST_NET
-   /// 0 block rewards until at least CONTENTO_MAX_WITNESSES have produced a POW
-   if( props.num_pow_witnesses < CONTENTO_MAX_WITNESSES && props.head_block_number < CONTENTO_START_VESTING_BLOCK )
-      return asset( 0, COC_SYMBOL );
-#endif
-
-   static_assert( CONTENTO_BLOCK_INTERVAL == 3, "this code assumes a 3-second time interval" );
-   static_assert( CONTENTO_MAX_WITNESSES == 21, "this code assumes 21 per round" );
-   asset percent( calc_percent_reward_per_round< CONTENTO_POW_APR_PERCENT >( props.virtual_supply.amount ), COC_SYMBOL);
-   return std::max( percent, CONTENTO_MIN_POW_REWARD );
+//   const auto& props = get_dynamic_global_properties();
+//
+//#ifndef IS_TEST_NET
+//   /// 0 block rewards until at least CONTENTO_MAX_WITNESSES have produced a POW
+//   if( props.num_pow_witnesses < CONTENTO_MAX_WITNESSES && props.head_block_number < CONTENTO_START_VESTING_BLOCK )
+//      return asset( 0, COC_SYMBOL );
+//#endif
+//
+//   static_assert( CONTENTO_BLOCK_INTERVAL == 3, "this code assumes a 3-second time interval" );
+//   static_assert( CONTENTO_MAX_WITNESSES == 21, "this code assumes 21 per round" );
+//   asset percent( calc_percent_reward_per_round< CONTENTO_POW_APR_PERCENT >( props.virtual_supply.amount ), COC_SYMBOL);
+//   return std::max( percent, CONTENTO_MIN_POW_REWARD );
+    return asset( 0, COC_SYMBOL );
 }
 
 
 void database::pay_liquidity_reward()
 {
-#ifdef IS_TEST_NET
-   if( !liquidity_rewards_enabled )
-      return;
-#endif
+//#ifdef IS_TEST_NET
+//   if( !liquidity_rewards_enabled )
+//      return;
+//#endif
 
    if( (head_block_num() % CONTENTO_LIQUIDITY_REWARD_BLOCKS) == 0 )
    {
@@ -2168,6 +2314,7 @@ void database::initialize_indexes()
    add_core_index< reward_fund_index                       >(*this);
    add_core_index< vesting_delegation_index                >(*this);
    add_core_index< vesting_delegation_expiration_index     >(*this);
+   add_core_index< contract_balance_index     >(*this);
 
    _plugin_index_signal();
 }
@@ -2322,7 +2469,7 @@ void database::init_genesis( uint64_t init_supply )
          p.recent_slots_filled = fc::uint128::max_value();
          p.participation_count = 128;
          p.current_supply = asset( init_supply, COC_SYMBOL );
-         p.virtual_supply = p.current_supply;
+         p.total_coc = p.current_supply;
          p.maximum_block_size = CONTENTO_MAX_BLOCK_SIZE;
       } );
        
@@ -2351,7 +2498,7 @@ void database::init_genesis( uint64_t init_supply )
 }
 
 
-void database::validate_transaction( const transaction_wrapper& trx_wrapper )
+void database::validate_transaction(  transaction_wrapper& trx_wrapper )
 {
    database::with_write_lock( [&]()
    {
@@ -2403,6 +2550,7 @@ void database::apply_block( const signed_block& next_block, uint32_t skip )
    //fc::time_point begin_time = fc::time_point::now();
 
    auto block_num = next_block.block_num();
+   /*
    if( _checkpoints.size() && _checkpoints.rbegin()->second != block_id_type() )
    {
       auto itr = _checkpoints.find( block_num );
@@ -2417,18 +2565,30 @@ void database::apply_block( const signed_block& next_block, uint32_t skip )
               | skip_block_size_check
               | skip_tapos_check
               | skip_authority_check
-              /* | skip_merkle_check While blockchain is being downloaded, txs need to be validated against block headers */
+              // | skip_merkle_check While blockchain is being downloaded, txs need to be validated against block headers 
               | skip_undo_history_check
               | skip_witness_schedule_check
               | skip_validate
               | skip_validate_invariants
               ;
    }
+   */
+   
+    //if ( _checkpoints.size() && _checkpoints.rbegin()->second != block_id_type() ) {
+    //   auto skip_tmp = process_checkpoints( next_block, skip );
+    //   if( skip & skip_apply_transaction ) {
+    //       skip = skip_tmp | skip_apply_transaction;
+    //   } else {
+    //       skip = skip_tmp;
+    //   }
+    //}
 
    detail::with_skip_flags( *this, skip, [&]()
    {
       _apply_block( next_block );
    } );
+    
+   _tps_stats->update();
 
    /*try
    {
@@ -2494,20 +2654,20 @@ void database::_apply_block( const signed_block& next_block )
    uint32_t next_block_num = next_block.block_num();
    //block_id_type next_block_id = next_block.id();
     
-#ifdef IS_TEST_NET
-    if( BOOST_UNLIKELY( next_block_num == 1 && init_genesis_hardforks ) )
-    {
-        // For every existing before the head_block_time (genesis time), apply the hardfork
-        // This allows the test net to launch with past hardforks and apply the next harfork when running
-        auto now = next_block.timestamp;
-        for( size_t i = 0;
-            i <= CONTENTO_NUM_HARDFORKS && _hardfork_times[i] <= now;
-            i++ )
-        {
-            set_hardfork( i, true );
-        }
-    }
-#endif
+// #ifdef IS_TEST_NET
+//     if( BOOST_UNLIKELY( next_block_num == 1 && init_genesis_hardforks ) )
+//     {
+//         // For every existing before the head_block_time (genesis time), apply the hardfork
+//         // This allows the test net to launch with past hardforks and apply the next harfork when running
+//         auto now = next_block.timestamp;
+//         for( size_t i = 0;
+//             i <= CONTENTO_NUM_HARDFORKS && _hardfork_times[i] <= now;
+//             i++ )
+//         {
+//             set_hardfork( i, true );
+//         }
+//     }
+// #endif
 
    uint32_t skip = get_node_properties().skip_flags;
 
@@ -2567,17 +2727,31 @@ void database::_apply_block( const signed_block& next_block )
       );
 //   }
 
-   for( const auto& trx_wrapper : next_block.transactions )
-   {
-      /* We do not need to push the undo state for each transaction
-       * because they either all apply and are valid or the
-       * entire block fails to apply.  We only need an "undo" state
-       * for transactions when validating broadcast transactions or
-       * when building a block.
-       */
-      apply_transaction( trx_wrapper, skip );
-      ++_current_trx_in_block;
-   }
+    transaction_wrapper tmp_wrapper;
+    
+    if( !( skip & skip_apply_transaction ) ){
+        for(  auto& trx_wrapper : next_block.transactions )
+        {
+            /* We do not need to push the undo state for each transaction
+            * because they either all apply and are valid or the
+            * entire block fails to apply.  We only need an "undo" state
+            * for transactions when validating broadcast transactions or
+            * when building a block.
+            */
+            tmp_wrapper = trx_wrapper;
+            tmp_wrapper.invoice.status = 200;
+            tmp_wrapper.invoice.gas_usage = 0;
+            tmp_wrapper.invoice.vm_error = false;
+            tmp_wrapper.invoice.vm_error_code = 0;
+            apply_transaction( tmp_wrapper, skip );
+            FC_ASSERT(tmp_wrapper.invoice.status == trx_wrapper.invoice.status
+                      && tmp_wrapper.invoice.gas_usage == trx_wrapper.invoice.gas_usage
+                      && tmp_wrapper.invoice.vm_error == trx_wrapper.invoice.vm_error
+                      && tmp_wrapper.invoice.vm_error_code == trx_wrapper.invoice.vm_error_code
+                      ,"mismatched invoice");
+            ++_current_trx_in_block;
+        }
+    }
 
    update_global_dynamic_data(next_block);
    update_signing_witness(signing_witness, next_block);
@@ -2591,7 +2765,7 @@ void database::_apply_block( const signed_block& next_block )
    update_witness_schedule(*this);
 
    update_median_feed();
-   update_virtual_supply();
+//   update_virtual_supply();
 
    clear_null_account_balance();
    process_funds();
@@ -2601,7 +2775,7 @@ void database::_apply_block( const signed_block& next_block )
    process_vesting_withdrawals();
    //process_savings_withdraws();
    // pay_liquidity_reward();
-   update_virtual_supply();
+//   update_virtual_supply();
 
    account_recovery_processing();
    // expire_escrow_ratification();
@@ -2613,6 +2787,7 @@ void database::_apply_block( const signed_block& next_block )
    notify_applied_block( next_block );
 
    notify_changed_objects();
+
 } //FC_CAPTURE_AND_RETHROW( (next_block.block_num()) )  }
 FC_CAPTURE_LOG_AND_RETHROW( (next_block.block_num()) )
 }
@@ -2719,23 +2894,23 @@ try {
             std::sort( copy.begin(), copy.end() ); /// TODO: use nth_item
             fho.current_median_history = copy[copy.size()/2];
 
-#ifdef IS_TEST_NET
-            if( skip_price_feed_limit_check )
-               return;
-#endif
+// #ifdef IS_TEST_NET
+//             if( skip_price_feed_limit_check )
+//                return;
+// #endif
          }
       });
    }
 } FC_CAPTURE_AND_RETHROW() }
 
-void database::apply_transaction(const transaction_wrapper& trx_wrapper, uint32_t skip)
+void database::apply_transaction( transaction_wrapper& trx_wrapper, uint32_t skip)
 {
    detail::with_skip_flags( *this, skip, [&]() { _apply_transaction(trx_wrapper); });
    notify_on_applied_transaction( trx_wrapper.sig_trx );
 }
 
 
-std::shared_ptr<transaction_context> database::_apply_transaction(const transaction_wrapper& trx_wrapper)
+std::shared_ptr<transaction_context> database::_apply_transaction( transaction_wrapper& trx_wrapper)
 { try {
    auto trx = trx_wrapper.sig_trx;
 
@@ -2802,20 +2977,37 @@ std::shared_ptr<transaction_context> database::_apply_transaction(const transact
          fc::raw::pack( transaction.packed_trx, trx );
       });
    }
-
    notify_on_pre_apply_transaction( trx );
 
    //Finally process the operations
    auto trx_ctx = std::make_shared<transaction_context>(ctrl, trx, trx_id);
    _current_op_in_trx = 0;
-   for( const auto& op : trx.operations )
-   { try {
-      apply_operation(op, trx_ctx);
-      ++_current_op_in_trx;
-     } FC_CAPTURE_AND_RETHROW( (op) );
-   }
-   _current_trx_id = transaction_id_type();
+    
+    try {
+    
+       for( const auto& op : trx.operations )
+       {
+           try {
+               apply_operation(op, trx_ctx);
+               ++_current_op_in_trx;
+           } FC_CAPTURE_AND_RETHROW( (op) );
+       }
+        
+    } catch(...) {
+        trx_wrapper.invoice.status = 500;
+        trx_wrapper.invoice.gas_usage = trx_ctx->gas_paid();
+        trx_wrapper.invoice.vm_error = true;
+        trx_wrapper.invoice.vm_error_code = 0;
+        throw;
+    }
 
+   _current_trx_id = transaction_id_type();
+    
+    trx_wrapper.invoice.status = 200;
+    trx_wrapper.invoice.gas_usage = trx_ctx->gas_paid();
+    trx_wrapper.invoice.vm_error = trx_ctx->has_vm_error();
+    trx_wrapper.invoice.vm_error_code = trx_ctx->vm_error().code();
+    
    return trx_ctx;
 } FC_CAPTURE_AND_RETHROW( (trx_wrapper) ) }
 
@@ -2983,7 +3175,7 @@ void database::update_signing_witness(const witness_object& signing_witness, con
 void database::update_last_irreversible_block()
 { try {
    const dynamic_global_property_object& dpo = get_dynamic_global_properties();
-
+    
    /**
     * Prior to voting taking over, we must be more conservative...
     *
@@ -3056,6 +3248,7 @@ void database::update_last_irreversible_block()
    }
 
    _fork_db.set_max_size( dpo.head_block_number - dpo.last_irreversible_block_num + 1 );
+
 } FC_CAPTURE_AND_RETHROW() }
 
 
@@ -3272,19 +3465,30 @@ void database::clear_expired_delegations()
 
 void database::adjust_balance( const account_object& a, const asset& delta )
 {
-   modify( a, [&]( account_object& acnt )
-   {
-      switch( delta.symbol )
-      {
-         case COC_SYMBOL:
-            acnt.balance += delta;
-            break;
-         default:
-            FC_ASSERT( false, "invalid symbol" );
-      }
-   } );
+    FC_ASSERT( delta.symbol == COC_SYMBOL, "invalid symbol" );
+    const auto& cprops = get_dynamic_global_properties();
+    modify( a, [&]( account_object& acnt ){
+        acnt.balance += delta;
+    });
+    modify(cprops, [&](dynamic_global_property_object& gpo){
+        gpo.total_coc += delta;
+    });
 }
 
+void database::adjust_contract_balance( const contract_balance_object& a, const asset& delta )
+{
+    modify( a, [&]( contract_balance_object& cbo )
+           {
+               switch( delta.symbol )
+               {
+                   case COC_SYMBOL:
+                       cbo.coc_balance += delta;
+                       break;
+                   default:
+                       FC_ASSERT( false, "invalid symbol" );
+               }
+           } );
+}
 
 void database::adjust_savings_balance( const account_object& a, const asset& delta )
 {
@@ -3331,10 +3535,9 @@ void database::adjust_supply( const asset& delta, bool adjust_vesting )
       {
          case COC_SYMBOL:
          {
-            asset new_vesting( (adjust_vesting && delta.amount > 0) ? delta.amount * 9 : 0, COC_SYMBOL );
-            props.current_supply += delta + new_vesting;
-            props.virtual_supply += delta + new_vesting;
-            props.total_vesting_fund_coc += new_vesting;
+            asset new_coc( delta.amount, COC_SYMBOL );
+            props.current_supply += delta + new_coc;
+            props.total_coc += new_coc;
             assert( props.current_supply.amount.value >= 0 );
             break;
          }
@@ -3780,18 +3983,13 @@ void database::retally_liquidity_weight() {
 /**
  * Verifies all supply invariantes check out
  */
-// 这就是之前改变量名的好处了，那个其实绕过了这个检查
 void database::validate_invariants()const
 {
    try
    {
       const auto& account_idx = get_index<account_index>().indices().get<by_name>();
       asset total_coc = asset( 0, COC_SYMBOL );
-//      asset total_sbd = asset( 0, SBD_SYMBOL );
       asset total_vesting = asset( 0, VESTS_SYMBOL );
-      // asset pending_vesting_steem = asset( 0, COC_SYMBOL );
-      // share_type total_vsf_votes = share_type( 0 );
-
       auto gpo = get_dynamic_global_properties();
       auto grpo = get_dynamic_global_reward_properties();
 
@@ -3803,129 +4001,24 @@ void database::validate_invariants()const
       for( auto itr = account_idx.begin(); itr != account_idx.end(); ++itr )
       {
          total_coc += itr->balance;
-//         total_supply += itr->savings_balance;
-//         total_supply += itr->reward_steem_balance;
-//         total_sbd += itr->sbd_balance;
-//         total_sbd += itr->savings_sbd_balance;
-//         total_sbd += itr->reward_sbd_balance;
          total_vesting += itr->vesting_shares;
-//         total_vesting += itr->reward_vesting_balance;
-//         pending_vesting_steem += itr->reward_vesting_steem;
-//         total_vsf_votes += ( itr->proxy == CONTENTO_PROXY_TO_SELF_ACCOUNT ?
-//                                 itr->witness_vote_weight() :
-//                                 ( CONTENTO_MAX_PROXY_RECURSION_DEPTH > 0 ?
-//                                      itr->proxied_vsf_votes[CONTENTO_MAX_PROXY_RECURSION_DEPTH - 1] :
-//                                      itr->vesting_shares.amount ) );
       }
 
 
-//      const auto& convert_request_idx = get_index< convert_request_index >().indices();
-//
-//      for( auto itr = convert_request_idx.begin(); itr != convert_request_idx.end(); ++itr )
-//      {
-//         if( itr->amount.symbol == COC_SYMBOL )
-//            total_supply += itr->amount;
-//         else if( itr->amount.symbol == SBD_SYMBOL )
-//            total_sbd += itr->amount;
-//         else
-//            FC_ASSERT( false, "Encountered illegal symbol in convert_request_object" );
-//      }
-
-//      const auto& limit_order_idx = get_index< limit_order_index >().indices();
-//
-//      for( auto itr = limit_order_idx.begin(); itr != limit_order_idx.end(); ++itr )
-//      {
-//         if( itr->sell_price.base.symbol == COC_SYMBOL )
-//         {
-//            total_supply += asset( itr->for_sale, COC_SYMBOL );
-//         }
-//         else if ( itr->sell_price.base.symbol == SBD_SYMBOL )
-//         {
-//            total_sbd += asset( itr->for_sale, SBD_SYMBOL );
-//         }
-//      }
-
-//      const auto& escrow_idx = get_index< escrow_index >().indices().get< by_id >();
-//
-//      for( auto itr = escrow_idx.begin(); itr != escrow_idx.end(); ++itr )
-//      {
-//         total_supply += itr->steem_balance;
-//         total_sbd += itr->sbd_balance;
-//
-//         if( itr->pending_fee.symbol == COC_SYMBOL )
-//            total_supply += itr->pending_fee;
-//         else if( itr->pending_fee.symbol == SBD_SYMBOL )
-//            total_sbd += itr->pending_fee;
-//         else
-//            FC_ASSERT( false, "found escrow pending fee that is not SBD or STEEM" );
-//      }
-
-//      const auto& savings_withdraw_idx = get_index< savings_withdraw_index >().indices().get< by_id >();
-//
-//      for( auto itr = savings_withdraw_idx.begin(); itr != savings_withdraw_idx.end(); ++itr )
-//      {
-//         if( itr->amount.symbol == COC_SYMBOL )
-//            total_supply += itr->amount;
-//         else if( itr->amount.symbol == SBD_SYMBOL )
-//            total_sbd += itr->amount;
-//         else
-//            FC_ASSERT( false, "found savings withdraw that is not SBD or STEEM" );
-//      }
-//      fc::uint128_t total_rshares2;
-//
-//      const auto& comment_idx = get_index< comment_index >().indices();
-//
-//      for( auto itr = comment_idx.begin(); itr != comment_idx.end(); ++itr )
-//      {
-//         if( itr->net_rshares.value > 0 )
-//         {
-//            auto delta = util::evaluate_reward_curve( itr->net_rshares.value );
-//            total_rshares2 += delta;
-//         }
-//      }
-
-//      const auto& reward_idx = get_index< reward_fund_index, by_id >();
-//
-//      for( auto itr = reward_idx.begin(); itr != reward_idx.end(); ++itr )
-//      {
-//         total_supply += itr->reward_balance;
-//      }
-
-//      total_supply += gpo.total_vesting_fund_coc + gpo.total_reward_fund_steem + gpo.pending_rewarded_vesting_steem;
-       
-//       total_supply += gpo.total_vesting_fund_coc;
-       
-// 测试环境下，这个算法是不对的。我的测试环境所有的币都是入 balance，所以 total_vesting_fund_coc 这个变量不能代表 vesting_fund 的折算，这是个问题
-#ifdef CONTENTO_ASA
-       total_coc += grpo.subject_reward_balance + grpo.comment_reward_balance + grpo.other_reward_balance;
-
-
-      FC_ASSERT( gpo.current_supply == total_supply, "", ("gpo.current_supply",gpo.current_supply)("total_supply",total_supply) );
-//      FC_ASSERT( gpo.current_sbd_supply == total_sbd, "", ("gpo.current_sbd_supply",gpo.current_sbd_supply)("total_sbd",total_sbd) );
-//      FC_ASSERT( gpo.total_vesting_shares + gpo.pending_rewarded_vesting_shares == total_vesting, "", ("gpo.total_vesting_shares",gpo.total_vesting_shares)("total_vesting",total_vesting) );
-//      FC_ASSERT( gpo.total_vesting_shares.amount == total_vsf_votes, "", ("total_vesting_shares",gpo.total_vesting_shares)("total_vsf_votes",total_vsf_votes) );
-//      FC_ASSERT( gpo.pending_rewarded_vesting_steem == pending_vesting_steem, "", ("pending_rewarded_vesting_steem",gpo.pending_rewarded_vesting_steem)("pending_vesting_steem", pending_vesting_steem));
-
-      FC_ASSERT( gpo.virtual_supply >= gpo.current_supply );
-//      if ( !get_feed_history().current_median_history.is_null() )
-//      {
-//         FC_ASSERT( gpo.current_sbd_supply * get_feed_history().current_median_history + gpo.current_supply
-//            == gpo.virtual_supply, "", ("gpo.current_sbd_supply",gpo.current_sbd_supply)("get_feed_history().current_median_history",get_feed_history().current_median_history)("gpo.current_supply",gpo.current_supply)("gpo.virtual_supply",gpo.virtual_supply) );
-//      }
-       
-#else
-    //total_supply += grpo.subject_reward_balance + grpo.comment_reward_balance + grpo.other_reward_balance;
-    //FC_ASSERT( gpo.current_supply == total_supply, "", ("gpo.current_supply",gpo.current_supply)("total_supply",total_supply) );
-    //total_supply += gpo.total_vesting_fund_coc;
+    auto  account_coc = total_coc;
     total_coc += grpo.subject_reward_balance + grpo.comment_reward_balance + grpo.other_reward_balance;
     FC_ASSERT(gpo.total_vesting_shares == total_vesting , "",
               ("gpo.total_vesting_shares", gpo.total_vesting_shares)
               ("total_vesting", total_vesting));
+    FC_ASSERT(gpo.total_coc == account_coc , "",
+             ("gpo.total_coc", gpo.total_coc)
+             ("account_coc", account_coc));
     FC_ASSERT(gpo.current_supply == total_coc + total_vesting * gpo.get_vesting_share_price(), "",
-              ("gpo.total_vesting_fund_coc", gpo.total_vesting_fund_coc)
-              ("total_coc", total_coc + total_vesting * gpo.get_vesting_share_price()));
-//    FC_ASSERT(gpo.virtual_supply ==  , "", ("gpo.virtual_supply", gpo.virtual_supply)("total_supply", total_supply));
-#endif
+              ("gpo.current_supply", gpo.current_supply)
+              ("gpo.total_vesting_shares", gpo.total_vesting_shares)
+              ("total_vesting", total_vesting)
+              ("gpo.total_coc", gpo.total_coc)
+              ("total_coc", total_coc ));
    }
    FC_CAPTURE_LOG_AND_RETHROW( (head_block_num()) );
 }
@@ -4081,5 +4174,48 @@ void database::retally_witness_vote_counts( bool force )
       }
    }
 }
+
+
+uint32_t database::process_checkpoints( const signed_block& next_block, uint32_t skip_old ) {
+      auto block_num = next_block.block_num();
+      auto itr = _checkpoints.find( block_num );
+      if( itr != _checkpoints.end() )
+         FC_ASSERT( next_block.id() == itr->second, "Block did not match checkpoint", ("checkpoint",*itr)("block_id",next_block.id()) );
+      uint32_t skip = skip_old;
+
+      if( _checkpoints.rbegin()->first >= block_num )
+         skip = skip_witness_signature
+              | skip_transaction_signatures
+              | skip_transaction_dupe_check
+              | skip_fork_db
+              | skip_block_size_check
+              | skip_tapos_check
+              | skip_authority_check
+              /* | skip_merkle_check While blockchain is being downloaded, txs need to be validated against block headers */
+              | skip_undo_history_check
+              | skip_witness_schedule_check
+              | skip_validate
+              | skip_validate_invariants
+              ;
+       return skip;
+}
+
+// just for link error
+/*
+asset database::to_sbd( const asset& steem )const
+{
+    return asset(0);
+}
+
+// just for link error
+asset database::to_steem( const asset& sbd )const
+{
+    return asset(0);
+}
+*/
+    
+    uint32_t database::tps() {
+        return get_dynamic_global_properties().tps;
+    }
 
 } } //contento::chain

@@ -3,7 +3,9 @@
 #include <graphene/utilities/words.hpp>
 
 #include <contento/app/api.hpp>
+//#include <contento/app/contract_storage.hpp>
 #include <contento/chain/abi_serializer.hpp>
+#include <contento/chain/config.hpp>
 #include <contento/protocol/base.hpp>
 #include <contento/protocol/types.hpp>
 #include <contento/protocol/config.hpp>
@@ -59,6 +61,9 @@
 
 #include <contento/chain/wast_to_wasm.hpp>
 #include <contento/chain/contract_types.hpp>
+#include <contento/chain/exceptions.hpp>
+
+#include <contento/gas_estimate/contento_gas_estimate.hpp>
 
 #ifndef WIN32
 # include <sys/types.h>
@@ -366,6 +371,14 @@ public:
       return account;
    }
 
+   table_rows_api_obj get_table_rows(string code, string scope, string table,
+                              string lower_bound, string upper_bound, int limit,
+                              string key_type, string index_pos, string encode_type) const 
+   {
+      return _remote_db->get_table_rows(code, scope, table, lower_bound, upper_bound, 
+                                        limit, key_type, index_pos, encode_type);
+   }
+
    string get_wallet_filename() const { return _wallet_filename; }
 
    optional<fc::ecc::private_key>  try_get_private_key(const public_key_type& id)const
@@ -560,7 +573,7 @@ public:
       _tx_expiration_seconds = tx_expiration_seconds;
    }
 
-   annotated_signed_transaction sign_transaction(signed_transaction tx, bool broadcast = false)
+   signed_transaction _sign_transaction(signed_transaction tx)
    {
       flat_set< account_name_type >   req_active_approvals;
       flat_set< account_name_type >   req_owner_approvals;
@@ -705,25 +718,43 @@ public:
          tx.sign( it->second, CONTENTO_CHAIN_ID );
       }
 
-      if( broadcast ) {
-         try {
-            auto result = _remote_net_broadcast->broadcast_transaction_synchronous( tx );
-            annotated_signed_transaction rtrx(tx);
-            rtrx.transaction_id = tx.id();
-            rtrx.block_num = result.get_object()["block_num"].as_uint64();
-            rtrx.transaction_num = result.get_object()["trx_num"].as_uint64();
-            rtrx.invoice.status = result.get_object()["status"].as_uint64();
-            rtrx.invoice.gas_usage = result.get_object()["gas_usage"].as_uint64();
-            return rtrx;
-         }
-         catch (const fc::exception& e)
-         {
-            elog("Caught exception while broadcasting tx ${id}:  ${e}", ("id", tx.id().str())("e", e.to_detail_string()) );
-            throw;
-         }
-      }
       return tx;
    }
+    
+    annotated_signed_transaction sign_transaction(signed_transaction trx_to_sign, bool broadcast = false) {
+        signed_transaction tx = _sign_transaction(trx_to_sign);
+        if( broadcast ) {
+            try {
+                auto result = _remote_net_broadcast->broadcast_transaction_synchronous( tx );
+                annotated_signed_transaction rtrx(tx);
+                rtrx.transaction_id = tx.id();
+                rtrx.block_num = result.get_object()["block_num"].as_uint64();
+                rtrx.transaction_num = result.get_object()["trx_num"].as_uint64();
+                rtrx.invoice.status = result.get_object()["status"].as_uint64();
+                rtrx.invoice.gas_usage = result.get_object()["gas_usage"].as_uint64();
+                rtrx.invoice.vm_error = result.get_object()["vm_error"].as_bool();
+                rtrx.invoice.vm_error_code = result.get_object()["vm_error_code"].as_uint64();
+                return rtrx;
+            }
+            catch (const fc::exception& e)
+            {
+                elog("Caught exception while broadcasting tx ${id}:  ${e}", ("id", tx.id().str())("e", e.to_detail_string()) );
+                throw;
+            }
+        }
+        return tx;
+    }
+    
+    asset estimate_gas(signed_transaction tx) {
+        try {
+            
+            return (*_remote_gas_estimate)->estimated_gas_fee( _sign_transaction(tx) );
+            
+        } catch (const fc::exception& e) {
+            elog("Caught exception while estimating gas fee of tx ${id}:  ${e}", ("id", tx.id().str())("e", e.to_detail_string()) );
+            throw;
+        }
+    }
 
    std::map<string,std::function<string(fc::variant,const fc::variants&)>> get_result_formatters() const
    {
@@ -916,6 +947,15 @@ public:
       try { _remote_follow_api = _remote_api->get_api_by_name("follow_api")->as< follow::follow_api >(); }
       catch( const fc::exception& e ) { elog( "Couldn't get follow API" ); throw(e); }
    }
+    
+    void use_gas_estimate_api()
+    {
+        if( _remote_gas_estimate.valid() )
+            return;
+        
+        try { _remote_gas_estimate = _remote_api->get_api_by_name("contento_gas_estimate_api")->as< gas_estimate::contento_gas_estimate_api >(); }
+        catch( const fc::exception& e ) { elog( "Couldn't get gas_estimate API" ); throw(e); }
+    }
 
    void use_remote_account_by_key_api()
    {
@@ -970,6 +1010,8 @@ public:
    optional< fc::api<account_by_key::account_by_key_api> > _remote_account_by_key_api;
    optional< fc::api<private_message_api> > _remote_message_api;
    optional< fc::api<follow::follow_api> >  _remote_follow_api;
+   optional< fc::api<gas_estimate::contento_gas_estimate_api> > _remote_gas_estimate;
+   
    uint32_t                                _tx_expiration_seconds = 30;
 
    flat_map<string, operation>             _prototype_ops;
@@ -1106,6 +1148,30 @@ account_api_obj wallet_api::get_account( string account_name ) const
 account_code_api_obj wallet_api::get_account_code( string account_name ) const
 {
    return my->get_account_code( account_name );
+}
+
+wallet_table_rows wallet_api::get_table_rows(string code, string scope, string table,
+                                  string lower_bound, string upper_bound, int limit,
+                                  string key_type, string index_pos, string encode_type) const
+{
+   auto obj = my->get_table_rows(code, scope, table, lower_bound, upper_bound, 
+                                        limit, key_type, index_pos, encode_type);
+
+   auto contract = get_account_code(code);
+   abi_def abi;
+   abi_serializer::to_abi(contract.abi, abi);
+   
+   abi_serializer abis;
+   abis.set_abi(abi);
+
+   wallet_table_rows result;
+   for(auto ele : obj.raw_data_rows) {
+      result.rows.emplace_back(abis.binary_to_variant(abis.get_table_type(table), ele));
+   }
+   result.more = obj.more;
+   //auto mvo_result = fc::mutable_variant_object("rows", fc::variant(result.rows))("more", result.more)
+   //return fc::json::to_pretty_string(fc::variant(mvo_result));
+   return result;
 }
 
 bool wallet_api::import_key(string wif_key)
@@ -2577,6 +2643,24 @@ annotated_signed_transaction wallet_api::push_action(string caller, string contr
    return my->sign_transaction( tx, broadcast );
 }
 
+asset wallet_api::estimate_gas(string caller, string contract_name, string action_name, string action_data) {
+    try
+    {
+        my->use_gas_estimate_api();
+    }
+    catch( fc::exception& e )
+    {
+        elog( "Connected node needs to enable contento_gas_estimate_api" );
+        return asset(0);
+    }
+    bytes bin = param_to_bin(*this, contract_name, action_name, action_data);
+    signed_transaction tx;
+    tx.operations.push_back( vm_operation(caller, contract_name, action_name, bin) );
+    tx.validate();
+    
+    return my->estimate_gas(tx);
+}
+    
 annotated_signed_transaction wallet_api::set_contract(string accountname, string contract_dir, string contract_name, bool broadcast ) {
       signed_transaction tx;
 

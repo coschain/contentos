@@ -67,6 +67,11 @@ struct wallet_data
    string                    ws_password;
 };
 
+struct wallet_table_rows {
+   fc::variants rows;
+   bool more = false;
+};
+
 enum authority_type
 {
    owner,
@@ -188,6 +193,10 @@ class wallet_api
        */
       account_api_obj                     get_account( string account_name ) const;
       account_code_api_obj                get_account_code( string account_name ) const;
+
+      wallet_table_rows                get_table_rows(string code, string scope, string table,
+                                                string lower_bound, string upper_bound, int limit,
+                                                string key_type, string index_pos, string encode_type) const;
 
       /** Returns the current wallet filename.
        *
@@ -979,6 +988,16 @@ class wallet_api
        * @param broadcast true if you wish to broadcast the transaction
        */
       annotated_signed_transaction push_action(string caller, string contract_name, string action_name, string action_data, bool broadcast);
+    
+      /**
+       *
+       * @param caller The account who want to exec the action
+       * @param contract_name name of the contract
+       * @param action_name name of the contract action
+       * @param action_data the parameter of the action, can either be a
+       *        json string or a file contains a json string
+      */
+      asset estimate_gas(string caller, string contract_name, string action_name, string action_data);
 
       /**
        *  Account operations have sequence numbers from 0 to N where N is the most recent operation. This method
@@ -1042,14 +1061,17 @@ FC_REFLECT( contento::wallet::wallet_data,
             (ws_password)
           )
 
+FC_REFLECT( contento::wallet::wallet_table_rows,
+            (rows)
+            (more)
+          )          
+
 FC_REFLECT( contento::wallet::brain_key_info, (brain_priv_key)(wif_priv_key) (pub_key))
 
 FC_REFLECT( contento::wallet::plain_keys, (checksum)(keys) )
 
 FC_REFLECT_ENUM( contento::wallet::authority_type, (owner)(active)(posting) )
 
-// 不需要注释函数，注释掉这个 API 声明即可屏蔽调用
-// 相对来说，这样更加干净文明
 FC_API( contento::wallet::wallet_api,
         /// wallet api
         (help)(gethelp)
@@ -1072,6 +1094,7 @@ FC_API( contento::wallet::wallet_api,
         (get_witness)
         (get_account)
         (get_account_code)
+        (get_table_rows)
         (get_block)
         (get_ops_in_block)
 //        (get_feed_history)
@@ -1154,6 +1177,7 @@ FC_API( contento::wallet::wallet_api,
         (set_code)
         (set_abi)
         (push_action)
+        (estimate_gas)
       )
 
 FC_REFLECT( contento::wallet::memo_data, (from)(to)(nonce)(check)(encrypted) )

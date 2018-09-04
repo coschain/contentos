@@ -131,14 +131,15 @@ BOOST_AUTO_TEST_CASE( valid_name_test )
 BOOST_AUTO_TEST_CASE( merkle_root )
 {
    signed_block block;
-   vector<signed_transaction> tx;
+   //vector<signed_transaction> tx;
+   vector<transaction_wrapper> tx;
    vector<digest_type> t;
    const uint32_t num_tx = 10;
 
    for( uint32_t i=0; i<num_tx; i++ )
    {
       tx.emplace_back();
-      tx.back().ref_block_prefix = i;
+      tx.back().sig_trx.ref_block_prefix = i;
       t.push_back( tx.back().merkle_digest() );
    }
 
@@ -151,7 +152,7 @@ BOOST_AUTO_TEST_CASE( merkle_root )
    BOOST_CHECK( block.calculate_merkle_root() == checksum_type() );
 
    transaction_wrapper tw;
-   tw.sig_trx = tx[0];
+   tw.sig_trx = tx[0].sig_trx;
    block.transactions.push_back( tw );
    BOOST_CHECK( block.calculate_merkle_root() ==
       c(t[0])
@@ -169,7 +170,7 @@ BOOST_AUTO_TEST_CASE( merkle_root )
 
    dA = d(t[0], t[1]);
 
-   tw.sig_trx = tx[1];
+   tw.sig_trx = tx[1].sig_trx;
    block.transactions.push_back( tw );
    BOOST_CHECK( block.calculate_merkle_root() == c(dA) );
 
@@ -186,7 +187,7 @@ BOOST_AUTO_TEST_CASE( merkle_root )
    dB = t[2];
    dI = d(dA, dB);
 
-   tw.sig_trx = tx[2];
+   tw.sig_trx = tx[2].sig_trx;
    block.transactions.push_back( tw );
    BOOST_CHECK( block.calculate_merkle_root() == c(dI) );
 
@@ -204,7 +205,7 @@ BOOST_AUTO_TEST_CASE( merkle_root )
    dB = d(t[2], t[3]);
    dI = d(dA, dB);
 
-   tw.sig_trx = tx[3];
+   tw.sig_trx = tx[3].sig_trx;
    block.transactions.push_back( tw );
    BOOST_CHECK( block.calculate_merkle_root() == c(dI) );
 
@@ -224,7 +225,7 @@ BOOST_AUTO_TEST_CASE( merkle_root )
    dJ = dC;
    dM = d(dI, dJ);
 
-   tw.sig_trx = tx[4];
+   tw.sig_trx = tx[4].sig_trx;
    block.transactions.push_back( tw );
    BOOST_CHECK( block.calculate_merkle_root() == c(dM) );
 
@@ -244,7 +245,7 @@ BOOST_AUTO_TEST_CASE( merkle_root )
    dJ = dC;
    dM = d(dI, dJ);
 
-   tw.sig_trx = tx[5];
+   tw.sig_trx = tx[5].sig_trx;
    block.transactions.push_back( tw );
    BOOST_CHECK( block.calculate_merkle_root() == c(dM) );
 
@@ -264,7 +265,7 @@ BOOST_AUTO_TEST_CASE( merkle_root )
    dJ = d(dC, dD);
    dM = d(dI, dJ);
 
-   tw.sig_trx = tx[6];
+   tw.sig_trx = tx[6].sig_trx;
    block.transactions.push_back( tw );
    BOOST_CHECK( block.calculate_merkle_root() == c(dM) );
 
@@ -284,7 +285,7 @@ BOOST_AUTO_TEST_CASE( merkle_root )
    dJ = d(dC, dD);
    dM = d(dI, dJ);
 
-   tw.sig_trx = tx[7];
+   tw.sig_trx = tx[7].sig_trx;
    block.transactions.push_back( tw );
    BOOST_CHECK( block.calculate_merkle_root() == c(dM) );
 
@@ -307,7 +308,7 @@ BOOST_AUTO_TEST_CASE( merkle_root )
    dN = dK;
    dO = d(dM, dN);
 
-   tw.sig_trx = tx[8];
+   tw.sig_trx = tx[8].sig_trx;
    block.transactions.push_back( tw );
    BOOST_CHECK( block.calculate_merkle_root() == c(dO) );
 
@@ -330,7 +331,7 @@ BOOST_AUTO_TEST_CASE( merkle_root )
    dN = dK;
    dO = d(dM, dN);
 
-   tw.sig_trx = tx[9];
+   tw.sig_trx = tx[9].sig_trx;
    block.transactions.push_back( tw );
    BOOST_CHECK( block.calculate_merkle_root() == c(dO) );
 }

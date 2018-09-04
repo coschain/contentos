@@ -21,6 +21,9 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+
+#define USE_BIN_API
+
 #include <contento/app/api.hpp>
 #include <contento/app/api_access.hpp>
 #include <contento/app/application.hpp>
@@ -30,6 +33,7 @@
 #include <contento/chain/contento_object_types.hpp>
 #include <contento/chain/database_exceptions.hpp>
 #include <contento/vmapi/contento_vm_api.hpp>
+#include <contento/gas_estimate/contento_gas_estimate.hpp>
 
 #include <fc/time.hpp>
 
@@ -347,6 +351,7 @@ namespace detail {
          _self->register_api_factory< contento::vmi::contento_vm_api >( "contento_vm_api" );
          _self->register_api_factory< network_node_api >( "network_node_api" );
          _self->register_api_factory< network_broadcast_api >( "network_broadcast_api" );
+         _self->register_api_factory< contento::gas_estimate::contento_gas_estimate_api >( "contento_gas_estimate_api" );
       }
 
       void startup()
@@ -605,6 +610,7 @@ namespace detail {
                // you can help the network code out by throwing a block_older_than_undo_history exception.
                // when the net code sees that, it will stop trying to push blocks from that chain, but
                // leave that peer connected so that they can get sync blocks from us
+
                bool result = _chain_db->push_block(blk_msg.block, (_is_block_producer | _force_validate) ? database::skip_nothing : database::skip_transaction_signatures);
 
                if( !sync_mode )

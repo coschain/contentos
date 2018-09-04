@@ -89,8 +89,10 @@ namespace fc {
 
             virtual api_id_type register_api( api_connection& conn )const override
             {  FC_ASSERT( false ); return api_id_type(); }
+            #ifdef USE_BIN_API
             virtual api_id_type register_api2( bapi::binary_api_connection& conn )const override
             {  FC_ASSERT( false ); return api_id_type(); }
+            #endif
 
             api_id_type                         _api_id;
             std::weak_ptr<fc::api_connection>   _api_connection;

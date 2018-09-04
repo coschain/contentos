@@ -3,18 +3,16 @@
  *  @copyright defined in eos/LICENSE.txt
  */
 #include <contento/chain/contento_contract.hpp>
-#include <contento/chain/contract_table_objects.hpp>
 
-#include <contento/chain/controller.hpp>
-//#include <contento/chain/transaction_context.hpp>
 #include <contento/chain/apply_context.hpp>
-#include <contento/chain/exceptions.hpp>
+#include <contento/chain/transaction_context.hpp>
 
 #include <contento/chain/account_object.hpp>
 #include <contento/chain/contract_types.hpp>
 
 #include <contento/chain/wasm_interface.hpp>
-#include <contento/chain/abi_serializer.hpp>
+
+#include <contento/chain/contract_balance_object.hpp>
 
 
 namespace contento { namespace chain {
@@ -60,10 +58,10 @@ void apply_contento_setcode(apply_context& context) {
       aso.code_sequence += 1;
    });*/
 
-    /* TODOO:
+
     if (new_size != old_size) {
       context.trx_context.add_ram_usage( act.account, new_size - old_size );
-   }*/
+   }
 }
 
 void apply_contento_setabi(apply_context& context) {
@@ -84,16 +82,26 @@ void apply_contento_setabi(apply_context& context) {
       if( abi_size > 0 )
          memcpy( (void*)a.abi.data(), act.abi.data(), abi_size );
    });
+    
+     const auto& by_bank_name_idx = db.get_index< contract_balance_index >().indices().get< by_name >();
+    auto bank_itr = by_bank_name_idx.find( context.op.caller );
+    if(bank_itr == by_bank_name_idx.end()){
+        db.create< contract_balance_object > ([&]( auto& cbo ) {
+            // here is system contract, contract_name is system pre-defined, actual target contract name is in the caller
+            cbo.contract_name = context.op.caller;
+        } );
+    }
+   
     /* TODOO:
    const auto& account_sequence = db.get<account_sequence_object, by_name>(act.account);
    db.modify( account_sequence, [&]( auto& aso ) {
       aso.abi_sequence += 1;
    });
      */
-    /* TODOO:
+
    if (new_size != old_size) {
       context.trx_context.add_ram_usage( act.account, new_size - old_size );
-   }*/
+   }
 }
 
 } } // namespace contento::chain

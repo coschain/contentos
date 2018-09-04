@@ -668,7 +668,7 @@ class producer_api : public context_aware_api {
       using context_aware_api::context_aware_api;
 
       int get_active_producers(array_ptr<chain::account_name> producers, size_t buffer_size) {
-         return 0;////Y
+         return 3;////Y
 //         auto active_producers = context.get_active_producers();
 //
 //         size_t len = active_producers.size();
@@ -679,6 +679,31 @@ class producer_api : public context_aware_api {
 //         memcpy( producers, active_producers.data(), copy_size );
 //
 //         return copy_size;
+      }
+};
+
+class contract_bank_api : public context_aware_api {
+   public:
+      using context_aware_api::context_aware_api;
+
+      void get_contract_balance(asset& ast) {
+          // todo get contract balance form db
+          ast = context.get_contract_balance();
+      }
+
+      void transfer(account_name account, const asset& value) {
+          // todo transfer COC to name from contract_bank
+          context.transfer(account,value);
+      }
+
+      int64_t get_value() {
+          // todo get name's vm_op's value
+          return context.get_value();
+      }
+    
+      void pay_prohibited() {
+          int64_t value = context.get_value();
+          FC_ASSERT( value == 0, "no payable function" );
       }
 };
 
@@ -1737,6 +1762,13 @@ REGISTER_INJECTED_INTRINSICS_WITH_PRICE(transaction_context,
 
 REGISTER_INTRINSICS_WITH_PRICE(producer_api,
    WITH_PRICE (get_active_producers,      int(int, int) )
+);
+
+REGISTER_INTRINSICS_WITH_PRICE(contract_bank_api,
+   WITH_PRICE (get_contract_balance,      void(int))
+   WITH_PRICE (transfer,      void(int64_t,int) )
+   WITH_PRICE (get_value,      int64_t() )
+   WITH_PRICE (pay_prohibited, void())
 );
 
 #define DB_SECONDARY_INDEX_METHODS_SIMPLE(IDX) \

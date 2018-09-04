@@ -1,6 +1,7 @@
 #include <contento/app/api_context.hpp>
 #include <contento/app/application.hpp>
 #include <contento/app/database_api.hpp>
+#include <contento/app/contract_storage.hpp>
 
 #include <contento/protocol/get_config.hpp>
 
@@ -55,6 +56,11 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
       uint64_t get_account_count()const;
       account_code_api_obj get_account_code(string name ) const;
 
+      // Contract Tables
+      table_rows_api_obj get_table_rows(string code, string scope, string table,
+                              string lower_bound, string upper_bound, int limit,
+                              string key_type, string index_pos, string encode_type) const;
+
       // Witnesses
       vector<optional<witness_api_obj>> get_witnesses(const vector<witness_id_type>& witness_ids)const;
       fc::optional<witness_api_obj> get_witness_by_account( string account_name )const;
@@ -78,6 +84,7 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
       std::function<void(const fc::variant&)> _block_applied_callback;
 
       contento::chain::database&                _db;
+      contract_storage                          _cs;
       std::shared_ptr< contento::follow::follow_api > _follow_api;
 
       boost::signals2::scoped_connection       _block_applied_connection;
@@ -142,13 +149,15 @@ void database_api_impl::set_block_applied_callback( std::function<void(const var
 //////////////////////////////////////////////////////////////////////
 
 database_api::database_api( const contento::app::api_context& ctx )
-   : my( new database_api_impl( ctx ) ), _db_for_lock( *ctx.app.chain_database() ), call_from_vm(ctx.session.lock()->from_vm) {
-}
+   : my( new database_api_impl( ctx ) )
+   ,_db_for_lock( *ctx.app.chain_database() )
+   ,call_from_vm(ctx.session.lock()->from_vm) {}
 
 database_api::~database_api() {}
 
 database_api_impl::database_api_impl( const contento::app::api_context& ctx )
    : _db( *ctx.app.chain_database() )
+   , _cs(_db)
 {
    wlog("creating database api ${x}", ("x",int64_t(this)) );
 
@@ -414,6 +423,26 @@ account_code_api_obj database_api_impl::get_account_code(string name)const
       return account_code_api_obj( *itr );
    }
    FC_ASSERT( FALSE, "no account found");
+}
+
+table_rows_api_obj database_api::get_table_rows(string code, string scope, string table,
+                              string lower_bound, string upper_bound, int limit,
+                              string key_type, string index_pos, string encode_type) const
+{
+   return determine_read_lock( [&]()
+                              {
+                                 return my->get_table_rows(code, scope, table, lower_bound, upper_bound, 
+                                        limit, key_type, index_pos, encode_type);
+                              });
+}
+
+table_rows_api_obj database_api_impl::get_table_rows(string code, string scope, string table,
+                              string lower_bound, string upper_bound, int limit,
+                              string key_type, string index_pos, string encode_type) const
+{
+   get_table_rows_params p(code, scope, table, lower_bound, upper_bound, 
+                             limit, key_type, index_pos, encode_type);
+   return _cs.get_table_rows(p);
 }
 
 vector<account_id_type> database_api::get_account_references( account_id_type account_id )const
@@ -2286,6 +2315,9 @@ annotated_signed_transaction database_api::get_transaction( transaction_id_type 
          result.transaction_num   = itr->trx_in_block;
          result.invoice.status    = blk->transactions[itr->trx_in_block].invoice.status;
          result.invoice.gas_usage = blk->transactions[itr->trx_in_block].invoice.gas_usage;
+         result.invoice.vm_error      = blk->transactions[itr->trx_in_block].invoice.vm_error;
+         result.invoice.vm_error_code = blk->transactions[itr->trx_in_block].invoice.vm_error_code;
+          
          return result;
       }
       FC_ASSERT( false, "Unknown Transaction ${t}", ("t",id));

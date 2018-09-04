@@ -3,6 +3,7 @@
  */
 #pragma once
 #include <contento/chain/global_property_object.hpp>
+#include <contento/chain/global_reward_property_object.hpp>
 #include <contento/chain/transaction_context.hpp>
 #include <contento/chain/hardfork.hpp>
 #include <contento/chain/node_property_object.hpp>
@@ -36,6 +37,8 @@ namespace contento { namespace chain {
    namespace util {
       struct comment_reward_context;
    }
+    
+    class tps_stats;
 
    /**
     *   @class database
@@ -69,7 +72,8 @@ namespace contento { namespace chain {
             skip_validate               = 1 << 10, ///< used prior to checkpoint, skips validate() call on transaction
             skip_validate_invariants    = 1 << 11, ///< used to skip database invariant check on block application
             skip_undo_block             = 1 << 12, ///< used to skip undo db on reindex
-            skip_block_log              = 1 << 13  ///< used to skip block logging on reindex
+            skip_block_log              = 1 << 13,  ///< used to skip block logging on reindex
+            skip_apply_transaction      = 1 << 14
          };
 
          /**
@@ -131,6 +135,7 @@ namespace contento { namespace chain {
          const witness_object*  find_witness( const account_name_type& name )const;
 
          const account_object&  get_account(  const account_name_type& name )const;
+         const contract_balance_object& get_contract_account( const account_name_type& name )const;
          const account_object*  find_account( const account_name_type& name )const;
 
          const admin_object&  get_admin(  const account_name_type& name )const;
@@ -180,6 +185,7 @@ namespace contento { namespace chain {
 
          bool push_block( const signed_block& b, uint32_t skip = skip_nothing );
          void push_transaction( const signed_transaction& trx, uint32_t skip = skip_nothing );
+         transaction_wrapper test_push_transaction( const signed_transaction& trx, uint32_t skip = skip_nothing );
          void _maybe_warn_multiple_production( uint32_t height )const;
          bool _push_block( const signed_block& b );
          void _push_transaction( const signed_transaction& trx );
@@ -303,6 +309,7 @@ namespace contento { namespace chain {
 
          // void        adjust_liquidity_reward( const account_object& owner, const asset& volume, bool is_bid );
          void        adjust_balance( const account_object& a, const asset& delta );
+         void        adjust_contract_balance( const contract_balance_object& a, const asset& delta );
          void        adjust_savings_balance( const account_object& a, const asset& delta );
          void        adjust_reward_balance( const account_object& a, const asset& delta );
          void        adjust_supply( const asset& delta, bool adjust_vesting = false );
@@ -386,7 +393,7 @@ namespace contento { namespace chain {
           *  This method validates transactions without adding it to the pending state.
           *  @throw if an error occurs
           */
-         void validate_transaction( const transaction_wrapper& trx );
+         void validate_transaction(  transaction_wrapper& trx );
 
          /** when popping a block, the transactions that were removed get cached here so they
           * can be reapplied at the proper time */
@@ -425,14 +432,17 @@ namespace contento { namespace chain {
             return &ctrl;
          }
 
-#ifdef IS_TEST_NET
-         bool liquidity_rewards_enabled = true;
-         bool skip_price_feed_limit_check = true;
-         bool skip_transaction_delta_check = true;
-         bool init_genesis_hardforks = true;
-#endif
+// #ifdef IS_TEST_NET
+//          bool liquidity_rewards_enabled = true;
+//          bool skip_price_feed_limit_check = true;
+//          bool skip_transaction_delta_check = true;
+//          bool init_genesis_hardforks = true;
+// #endif
 
          bool execute_operation(const transaction_context& trx_context, const operation& op );
+       
+       uint32_t tps();
+       
    protected:
          //Mark pop_undo() as protected -- we do not want outside calling pop_undo(); it should call pop_block() instead
          //void pop_undo() { object_database::pop_undo(); }
@@ -442,14 +452,15 @@ namespace contento { namespace chain {
          optional< chainbase::database::session > _pending_tx_session;
 
          void apply_block( const signed_block& next_block, uint32_t skip = skip_nothing );
-         void apply_transaction( const transaction_wrapper& trx_wrapper, uint32_t skip = skip_nothing );
+         void apply_transaction(  transaction_wrapper& trx_wrapper, uint32_t skip = skip_nothing );
          void _apply_block( const signed_block& next_block );
 
-         std::shared_ptr<transaction_context> _apply_transaction( const transaction_wrapper& trx_wrapper );
+         std::shared_ptr<transaction_context> _apply_transaction(  transaction_wrapper& trx_wrapper );
          void apply_operation( const operation& op, std::shared_ptr<transaction_context> ctx );
 
          ///Steps involved in applying a new block
          ///@{
+         uint32_t process_checkpoints( const signed_block& next_block , uint32_t skip_old );
 
          const witness_object& validate_block_header( uint32_t skip, const signed_block& next_block )const;
          void create_block_summary(const signed_block& next_block);
@@ -504,6 +515,7 @@ namespace contento { namespace chain {
          std::string                       _json_schema;
 
          contento::chain::controller ctrl;
+         std::unique_ptr< tps_stats > _tps_stats;
    };
 
 } }
