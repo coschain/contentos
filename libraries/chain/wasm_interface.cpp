@@ -971,11 +971,11 @@ class action_api : public context_aware_api {
 //         return context.receiver;
 //      }
 
-      void current_caller(namex& caller) {
+      void current_caller(account_name& caller) {
          caller = context.receiver;
       }
 
-      void current_coder(namex& coder) {
+      void current_coder(scope_name& coder) {
          coder = context.op.caller;
       }
 };
@@ -1110,28 +1110,28 @@ class console_api : public context_aware_api {
 };
 
 #define DB_API_METHOD_WRAPPERS_SIMPLE_SECONDARY(IDX, TYPE)\
-      int db_##IDX##_store( uint64_t scope, uint64_t table, namex& payer, uint64_t id, const TYPE& secondary ) {\
+      int db_##IDX##_store( scope_name& scope, uint64_t table, account_name& payer, uint64_t id, const TYPE& secondary ) {\
          return context.IDX.store( scope, table, payer, id, secondary );\
       }\
-      void db_##IDX##_update( int iterator, namex& payer, const TYPE& secondary ) {\
+      void db_##IDX##_update( int iterator, account_name& payer, const TYPE& secondary ) {\
          return context.IDX.update( iterator, payer, secondary );\
       }\
       void db_##IDX##_remove( int iterator ) {\
          return context.IDX.remove( iterator );\
       }\
-      int db_##IDX##_find_secondary( namex& code, uint64_t scope, uint64_t table, const TYPE& secondary, uint64_t& primary ) {\
+      int db_##IDX##_find_secondary( account_name& code, scope_name& scope, uint64_t table, const TYPE& secondary, uint64_t& primary ) {\
          return context.IDX.find_secondary(code, scope, table, secondary, primary);\
       }\
-      int db_##IDX##_find_primary( namex& code, uint64_t scope, uint64_t table, TYPE& secondary, uint64_t primary ) {\
+      int db_##IDX##_find_primary( account_name& code, scope_name& scope, uint64_t table, TYPE& secondary, uint64_t primary ) {\
          return context.IDX.find_primary(code, scope, table, secondary, primary);\
       }\
-      int db_##IDX##_lowerbound( namex& code, uint64_t scope, uint64_t table,  TYPE& secondary, uint64_t& primary ) {\
+      int db_##IDX##_lowerbound( account_name& code, scope_name& scope, uint64_t table,  TYPE& secondary, uint64_t& primary ) {\
          return context.IDX.lowerbound_secondary(code, scope, table, secondary, primary);\
       }\
-      int db_##IDX##_upperbound( namex& code, uint64_t scope, uint64_t table,  TYPE& secondary, uint64_t& primary ) {\
+      int db_##IDX##_upperbound( account_name& code, scope_name& scope, uint64_t table,  TYPE& secondary, uint64_t& primary ) {\
          return context.IDX.upperbound_secondary(code, scope, table, secondary, primary);\
       }\
-      int db_##IDX##_end( namex& code, uint64_t scope, uint64_t table ) {\
+      int db_##IDX##_end( account_name& code, scope_name& scope, uint64_t table ) {\
          return context.IDX.end_secondary(code, scope, table);\
       }\
       int db_##IDX##_next( int iterator, uint64_t& primary  ) {\
@@ -1142,13 +1142,13 @@ class console_api : public context_aware_api {
       }
 
 #define DB_API_METHOD_WRAPPERS_ARRAY_SECONDARY(IDX, ARR_SIZE, ARR_ELEMENT_TYPE)\
-      int db_##IDX##_store( uint64_t scope, uint64_t table, namex& payer, uint64_t id, array_ptr<const ARR_ELEMENT_TYPE> data, size_t data_len) {\
+      int db_##IDX##_store( scope_name& scope, uint64_t table, account_name& payer, uint64_t id, array_ptr<const ARR_ELEMENT_TYPE> data, size_t data_len) {\
          FC_ASSERT( data_len == ARR_SIZE,\
                     "invalid size of secondary key array for " #IDX ": given ${given} bytes but expected ${expected} bytes",\
                     ("given",data_len)("expected",ARR_SIZE) );\
          return context.IDX.store(scope, table, payer, id, data.value);\
       }\
-      void db_##IDX##_update( int iterator, namex& payer, array_ptr<const ARR_ELEMENT_TYPE> data, size_t data_len ) {\
+      void db_##IDX##_update( int iterator, account_name& payer, array_ptr<const ARR_ELEMENT_TYPE> data, size_t data_len ) {\
          FC_ASSERT( data_len == ARR_SIZE,\
                     "invalid size of secondary key array for " #IDX ": given ${given} bytes but expected ${expected} bytes",\
                     ("given",data_len)("expected",ARR_SIZE) );\
@@ -1157,31 +1157,31 @@ class console_api : public context_aware_api {
       void db_##IDX##_remove( int iterator ) {\
          return context.IDX.remove(iterator);\
       }\
-      int db_##IDX##_find_secondary( namex& code, uint64_t scope, uint64_t table, array_ptr<const ARR_ELEMENT_TYPE> data, size_t data_len, uint64_t& primary ) {\
+      int db_##IDX##_find_secondary( account_name& code, scope_name& scope, uint64_t table, array_ptr<const ARR_ELEMENT_TYPE> data, size_t data_len, uint64_t& primary ) {\
          FC_ASSERT( data_len == ARR_SIZE,\
                     "invalid size of secondary key array for " #IDX ": given ${given} bytes but expected ${expected} bytes",\
                     ("given",data_len)("expected",ARR_SIZE) );\
          return context.IDX.find_secondary(code, scope, table, data, primary);\
       }\
-      int db_##IDX##_find_primary( namex& code, uint64_t scope, uint64_t table, array_ptr<ARR_ELEMENT_TYPE> data, size_t data_len, uint64_t primary ) {\
+      int db_##IDX##_find_primary( account_name& code, scope_name& scope, uint64_t table, array_ptr<ARR_ELEMENT_TYPE> data, size_t data_len, uint64_t primary ) {\
          FC_ASSERT( data_len == ARR_SIZE,\
                     "invalid size of secondary key array for " #IDX ": given ${given} bytes but expected ${expected} bytes",\
                     ("given",data_len)("expected",ARR_SIZE) );\
          return context.IDX.find_primary(code, scope, table, data.value, primary);\
       }\
-      int db_##IDX##_lowerbound( namex& code, uint64_t scope, uint64_t table, array_ptr<ARR_ELEMENT_TYPE> data, size_t data_len, uint64_t& primary ) {\
+      int db_##IDX##_lowerbound( account_name& code, scope_name& scope, uint64_t table, array_ptr<ARR_ELEMENT_TYPE> data, size_t data_len, uint64_t& primary ) {\
          FC_ASSERT( data_len == ARR_SIZE,\
                     "invalid size of secondary key array for " #IDX ": given ${given} bytes but expected ${expected} bytes",\
                     ("given",data_len)("expected",ARR_SIZE) );\
          return context.IDX.lowerbound_secondary(code, scope, table, data.value, primary);\
       }\
-      int db_##IDX##_upperbound( namex& code, uint64_t scope, uint64_t table, array_ptr<ARR_ELEMENT_TYPE> data, size_t data_len, uint64_t& primary ) {\
+      int db_##IDX##_upperbound( account_name& code, scope_name& scope, uint64_t table, array_ptr<ARR_ELEMENT_TYPE> data, size_t data_len, uint64_t& primary ) {\
          FC_ASSERT( data_len == ARR_SIZE,\
                     "invalid size of secondary key array for " #IDX ": given ${given} bytes but expected ${expected} bytes",\
                     ("given",data_len)("expected",ARR_SIZE) );\
          return context.IDX.upperbound_secondary(code, scope, table, data.value, primary);\
       }\
-      int db_##IDX##_end( namex& code, uint64_t scope, uint64_t table ) {\
+      int db_##IDX##_end( account_name& code, scope_name& scope, uint64_t table ) {\
          return context.IDX.end_secondary(code, scope, table);\
       }\
       int db_##IDX##_next( int iterator, uint64_t& primary  ) {\
@@ -1192,33 +1192,33 @@ class console_api : public context_aware_api {
       }
 
 #define DB_API_METHOD_WRAPPERS_FLOAT_SECONDARY(IDX, TYPE)\
-      int db_##IDX##_store( uint64_t scope, uint64_t table, namex& payer, uint64_t id, const TYPE& secondary ) {\
+      int db_##IDX##_store( scope_name& scope, uint64_t table, account_name& payer, uint64_t id, const TYPE& secondary ) {\
          EOS_ASSERT( !softfloat_api::is_nan( secondary ), transaction_exception, "NaN is not an allowed value for a secondary key" );\
          return context.IDX.store( scope, table, payer, id, secondary );\
       }\
-      void db_##IDX##_update( int iterator, namex& payer, const TYPE& secondary ) {\
+      void db_##IDX##_update( int iterator, account_name& payer, const TYPE& secondary ) {\
          EOS_ASSERT( !softfloat_api::is_nan( secondary ), transaction_exception, "NaN is not an allowed value for a secondary key" );\
          return context.IDX.update( iterator, payer, secondary );\
       }\
       void db_##IDX##_remove( int iterator ) {\
          return context.IDX.remove( iterator );\
       }\
-      int db_##IDX##_find_secondary( namex& code, uint64_t scope, uint64_t table, const TYPE& secondary, uint64_t& primary ) {\
+      int db_##IDX##_find_secondary( account_name& code, scope_name& scope, uint64_t table, const TYPE& secondary, uint64_t& primary ) {\
          EOS_ASSERT( !softfloat_api::is_nan( secondary ), transaction_exception, "NaN is not an allowed value for a secondary key" );\
          return context.IDX.find_secondary(code, scope, table, secondary, primary);\
       }\
-      int db_##IDX##_find_primary( namex& code, uint64_t scope, uint64_t table, TYPE& secondary, uint64_t primary ) {\
+      int db_##IDX##_find_primary( account_name& code, scope_name& scope, uint64_t table, TYPE& secondary, uint64_t primary ) {\
          return context.IDX.find_primary(code, scope, table, secondary, primary);\
       }\
-      int db_##IDX##_lowerbound( namex& code, uint64_t scope, uint64_t table,  TYPE& secondary, uint64_t& primary ) {\
+      int db_##IDX##_lowerbound( account_name& code, scope_name& scope, uint64_t table,  TYPE& secondary, uint64_t& primary ) {\
          EOS_ASSERT( !softfloat_api::is_nan( secondary ), transaction_exception, "NaN is not an allowed value for a secondary key" );\
          return context.IDX.lowerbound_secondary(code, scope, table, secondary, primary);\
       }\
-      int db_##IDX##_upperbound( namex& code, uint64_t scope, uint64_t table,  TYPE& secondary, uint64_t& primary ) {\
+      int db_##IDX##_upperbound( account_name& code, scope_name& scope, uint64_t table,  TYPE& secondary, uint64_t& primary ) {\
          EOS_ASSERT( !softfloat_api::is_nan( secondary ), transaction_exception, "NaN is not an allowed value for a secondary key" );\
          return context.IDX.upperbound_secondary(code, scope, table, secondary, primary);\
       }\
-      int db_##IDX##_end( namex& code, uint64_t scope, uint64_t table ) {\
+      int db_##IDX##_end( account_name& code, scope_name& scope, uint64_t table ) {\
          return context.IDX.end_secondary(code, scope, table);\
       }\
       int db_##IDX##_next( int iterator, uint64_t& primary  ) {\
@@ -1232,10 +1232,10 @@ class database_api : public context_aware_api {
    public:
       using context_aware_api::context_aware_api;
 
-      int db_store_i64( uint64_t scope, uint64_t table, namex& payer, uint64_t id, array_ptr<const char> buffer, size_t buffer_size ) {
+      int db_store_i64( scope_name& scope, uint64_t table, account_name& payer, uint64_t id, array_ptr<const char> buffer, size_t buffer_size ) {
          return context.db_store_i64( scope, table, payer, id, buffer, buffer_size );
       }
-      void db_update_i64( int itr, namex& payer, array_ptr<const char> buffer, size_t buffer_size ) {
+      void db_update_i64( int itr, account_name& payer, array_ptr<const char> buffer, size_t buffer_size ) {
          context.db_update_i64( itr, payer, buffer, buffer_size );
       }
       void db_remove_i64( int itr ) {
@@ -1250,16 +1250,16 @@ class database_api : public context_aware_api {
       int db_previous_i64( int itr, uint64_t& primary ) {
          return context.db_previous_i64(itr, primary);
       }
-      int db_find_i64( namex& code, uint64_t scope, uint64_t table, uint64_t id ) {
+      int db_find_i64( account_name& code, scope_name& scope, uint64_t table, uint64_t id ) {
          return context.db_find_i64( code, scope, table, id );
       }
-      int db_lowerbound_i64( namex& code, uint64_t scope, uint64_t table, uint64_t id ) {
+      int db_lowerbound_i64( account_name& code, scope_name& scope, uint64_t table, uint64_t id ) {
          return context.db_lowerbound_i64( code, scope, table, id );
       }
-      int db_upperbound_i64( namex& code, uint64_t scope, uint64_t table, uint64_t id ) {
+      int db_upperbound_i64( account_name& code, scope_name& scope, uint64_t table, uint64_t id ) {
          return context.db_upperbound_i64( code, scope, table, id );
       }
-      int db_end_i64( namex& code, uint64_t scope, uint64_t table ) {
+      int db_end_i64( account_name& code, scope_name& scope, uint64_t table ) {
          return context.db_end_i64( code, scope, table );
       }
 
@@ -1740,40 +1740,40 @@ REGISTER_INTRINSICS_WITH_PRICE(producer_api,
 );
 
 #define DB_SECONDARY_INDEX_METHODS_SIMPLE(IDX) \
-   WITH_PRICE (db_##IDX##_store,          int(int64_t,int64_t,int,int64_t,int))\
+   WITH_PRICE (db_##IDX##_store,          int(int,int64_t,int,int64_t,int))\
    WITH_PRICE (db_##IDX##_remove,         void(int))\
    WITH_PRICE (db_##IDX##_update,         void(int,int,int))\
-   WITH_PRICE (db_##IDX##_find_primary,   int(int,int64_t,int64_t,int,int64_t))\
-   WITH_PRICE (db_##IDX##_find_secondary, int(int,int64_t,int64_t,int,int))\
-   WITH_PRICE (db_##IDX##_lowerbound,     int(int,int64_t,int64_t,int,int))\
-   WITH_PRICE (db_##IDX##_upperbound,     int(int,int64_t,int64_t,int,int))\
-   WITH_PRICE (db_##IDX##_end,            int(int,int64_t,int64_t))\
+   WITH_PRICE (db_##IDX##_find_primary,   int(int,int,int64_t,int,int64_t))\
+   WITH_PRICE (db_##IDX##_find_secondary, int(int,int,int64_t,int,int))\
+   WITH_PRICE (db_##IDX##_lowerbound,     int(int,int,int64_t,int,int))\
+   WITH_PRICE (db_##IDX##_upperbound,     int(int,int,int64_t,int,int))\
+   WITH_PRICE (db_##IDX##_end,            int(int,int,int64_t))\
    WITH_PRICE (db_##IDX##_next,           int(int, int))\
    WITH_PRICE (db_##IDX##_previous,       int(int, int))
 
 #define DB_SECONDARY_INDEX_METHODS_ARRAY(IDX) \
-      WITH_PRICE (db_##IDX##_store,          int(int64_t,int64_t,int,int64_t,int, int))\
+      WITH_PRICE (db_##IDX##_store,          int(int,int64_t,int,int64_t,int, int))\
       WITH_PRICE (db_##IDX##_remove,         void(int))\
       WITH_PRICE (db_##IDX##_update,         void(int,int,int,int))\
-      WITH_PRICE (db_##IDX##_find_primary,   int(int,int64_t,int64_t,int,int,int64_t))\
-      WITH_PRICE (db_##IDX##_find_secondary, int(int,int64_t,int64_t,int,int,int))\
-      WITH_PRICE (db_##IDX##_lowerbound,     int(int,int64_t,int64_t,int,int,int))\
-      WITH_PRICE (db_##IDX##_upperbound,     int(int,int64_t,int64_t,int,int,int))\
-      WITH_PRICE (db_##IDX##_end,            int(int,int64_t,int64_t))\
+      WITH_PRICE (db_##IDX##_find_primary,   int(int,int,int64_t,int,int,int64_t))\
+      WITH_PRICE (db_##IDX##_find_secondary, int(int,int,int64_t,int,int,int))\
+      WITH_PRICE (db_##IDX##_lowerbound,     int(int,int,int64_t,int,int,int))\
+      WITH_PRICE (db_##IDX##_upperbound,     int(int,int,int64_t,int,int,int))\
+      WITH_PRICE (db_##IDX##_end,            int(int,int,int64_t))\
       WITH_PRICE (db_##IDX##_next,           int(int, int))\
       WITH_PRICE (db_##IDX##_previous,       int(int, int))
 
 REGISTER_INTRINSICS_WITH_PRICE( database_api,
-   WITH_PRICE (db_store_i64,        int(int64_t,int64_t,int,int64_t,int,int))
+   WITH_PRICE (db_store_i64,        int(int,int64_t,int,int64_t,int,int))
    WITH_PRICE (db_update_i64,       void(int,int,int,int))
    WITH_PRICE (db_remove_i64,       void(int))
    WITH_PRICE (db_get_i64,          int(int, int, int))
    WITH_PRICE (db_next_i64,         int(int, int))
    WITH_PRICE (db_previous_i64,     int(int, int))
-   WITH_PRICE (db_find_i64,         int(int,int64_t,int64_t,int64_t))
-   WITH_PRICE (db_lowerbound_i64,   int(int,int64_t,int64_t,int64_t))
-   WITH_PRICE (db_upperbound_i64,   int(int,int64_t,int64_t,int64_t))
-   WITH_PRICE (db_end_i64,          int(int,int64_t,int64_t))
+   WITH_PRICE (db_find_i64,         int(int,int,int64_t,int64_t))
+   WITH_PRICE (db_lowerbound_i64,   int(int,int,int64_t,int64_t))
+   WITH_PRICE (db_upperbound_i64,   int(int,int,int64_t,int64_t))
+   WITH_PRICE (db_end_i64,          int(int,int,int64_t))
 
    DB_SECONDARY_INDEX_METHODS_SIMPLE(idx64)
    DB_SECONDARY_INDEX_METHODS_SIMPLE(idx128)

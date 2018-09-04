@@ -29,8 +29,8 @@ const static namex producers_account_name = N16(contento.prods);
 const static namex majority_producers_permission_name = N16(prod.major); // greater than 1/2 of producers needed to authorize
 const static namex minority_producers_permission_name = N16(prod.minor); // greater than 1/3 of producers needed to authorize0
 
-const static uint64_t contento_auth_scope       = N(contento.auth);
-const static uint64_t contento_all_scope        = N(contento.all);
+const static namex contento_auth_scope       = N16(contento.auth);
+const static namex contento_all_scope        = N16(contento.all);
 
 const static namex active_name = N16(active);
 const static namex owner_name  = N16(owner);

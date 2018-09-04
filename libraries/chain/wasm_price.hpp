@@ -93,41 +93,41 @@ namespace contento { namespace chain { namespace wasm_price {
                         );
     
 #define DECL_DB_SECONDARY_INDEX_METHODS_SIMPLE(IDX) \
-    (db_##IDX##_store,          (int, int64_t,int64_t,int,int64_t,int))\
+    (db_##IDX##_store,          (int, int,int64_t,int,int64_t,int))\
     (db_##IDX##_remove,         (void*, int))\
     (db_##IDX##_update,         (void*, int,int,int))\
-    (db_##IDX##_find_primary,   (int, int,int64_t,int64_t,int,int64_t))\
-    (db_##IDX##_find_secondary, (int, int,int64_t,int64_t,int,int))\
-    (db_##IDX##_lowerbound,     (int, int,int64_t,int64_t,int,int))\
-    (db_##IDX##_upperbound,     (int, int,int64_t,int64_t,int,int))\
-    (db_##IDX##_end,            (int, int,int64_t,int64_t))\
+    (db_##IDX##_find_primary,   (int, int,int,int64_t,int,int64_t))\
+    (db_##IDX##_find_secondary, (int, int,int,int64_t,int,int))\
+    (db_##IDX##_lowerbound,     (int, int,int,int64_t,int,int))\
+    (db_##IDX##_upperbound,     (int, int,int,int64_t,int,int))\
+    (db_##IDX##_end,            (int, int,int,int64_t))\
     (db_##IDX##_next,           (int, int, int))\
     (db_##IDX##_previous,       (int, int, int))
     
 #define DECL_DB_SECONDARY_INDEX_METHODS_ARRAY(IDX) \
-    (db_##IDX##_store,          (int, int64_t,int64_t,int,int64_t,int,int))\
+    (db_##IDX##_store,          (int, int,int64_t,int,int64_t,int,int))\
     (db_##IDX##_remove,         (void*, int))\
     (db_##IDX##_update,         (void*, int,int,int,int))\
-    (db_##IDX##_find_primary,   (int, int,int64_t,int64_t,int,int,int64_t))\
-    (db_##IDX##_find_secondary, (int, int,int64_t,int64_t,int,int,int))\
-    (db_##IDX##_lowerbound,     (int, int,int64_t,int64_t,int,int,int))\
-    (db_##IDX##_upperbound,     (int, int,int64_t,int64_t,int,int,int))\
-    (db_##IDX##_end,            (int, int,int64_t,int64_t))\
+    (db_##IDX##_find_primary,   (int, int,int,int64_t,int,int,int64_t))\
+    (db_##IDX##_find_secondary, (int, int,int,int64_t,int,int,int))\
+    (db_##IDX##_lowerbound,     (int, int,int,int64_t,int,int,int))\
+    (db_##IDX##_upperbound,     (int, int,int,int64_t,int,int,int))\
+    (db_##IDX##_end,            (int, int,int,int64_t))\
     (db_##IDX##_next,           (int, int, int))\
     (db_##IDX##_previous,       (int, int, int))
     
     // database_api
     WASM_PRICE_FN_DECLS(
-                        (db_store_i64,        (int, int64_t,int64_t,int,int64_t,int,int))
+                        (db_store_i64,        (int, int,int64_t,int,int64_t,int,int))
                         (db_update_i64,       (void*, int,int,int,int))
                         (db_remove_i64,       (void*, int))
                         (db_get_i64,          (int, int, int, int))
                         (db_next_i64,         (int, int, int))
                         (db_previous_i64,     (int, int, int))
-                        (db_find_i64,         (int, int,int64_t,int64_t,int64_t))
-                        (db_lowerbound_i64,   (int, int,int64_t,int64_t,int64_t))
-                        (db_upperbound_i64,   (int, int,int64_t,int64_t,int64_t))
-                        (db_end_i64,          (int, int,int64_t,int64_t))
+                        (db_find_i64,         (int, int,int,int64_t,int64_t))
+                        (db_lowerbound_i64,   (int, int,int,int64_t,int64_t))
+                        (db_upperbound_i64,   (int, int,int,int64_t,int64_t))
+                        (db_end_i64,          (int, int,int,int64_t))
                         
                         DECL_DB_SECONDARY_INDEX_METHODS_SIMPLE(idx64)
                         DECL_DB_SECONDARY_INDEX_METHODS_SIMPLE(idx128)

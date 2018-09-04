@@ -100,7 +100,7 @@ namespace contento { namespace chain {
    using name             = protocol::name;
    using namex            = protocol::namex;
    using action_name      = protocol::name;
-   using scope_name       = protocol::name;
+   using scope_name       = protocol::namex;
    using account_name     = protocol::namex;
    using table_name       = protocol::name;
 

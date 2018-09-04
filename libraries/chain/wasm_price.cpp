@@ -322,7 +322,7 @@ namespace contento { namespace chain { namespace wasm_price {
         // larger the value, higher the price.
         return 128 + (len >> 5);
     }
-    uint64_t db_store_i64(apply_context*, int, int64_t, int64_t, int, int64_t, int, int len) {
+    uint64_t db_store_i64(apply_context*, int, int, int64_t, int, int64_t, int, int len) {
         // larger the value, higher the price.
         return 1280 + len / 3;
     }
@@ -519,10 +519,10 @@ namespace contento { namespace chain { namespace wasm_price {
 //                         (db_get_i64,          (int, int, int, int))
                          (db_next_i64,         (int, int, int))
                          (db_previous_i64,     (int, int, int))
-                         (db_find_i64,         (int, int,int64_t,int64_t,int64_t))
-                         (db_lowerbound_i64,   (int, int,int64_t,int64_t,int64_t))
-                         (db_upperbound_i64,   (int, int,int64_t,int64_t,int64_t))
-                         (db_end_i64,          (int, int,int64_t,int64_t))
+                         (db_find_i64,         (int, int,int,int64_t,int64_t))
+                         (db_lowerbound_i64,   (int, int,int,int64_t,int64_t))
+                         (db_upperbound_i64,   (int, int,int,int64_t,int64_t))
+                         (db_end_i64,          (int, int,int,int64_t))
                          
                          DECL_DB_SECONDARY_INDEX_METHODS_SIMPLE(idx64)
                          DECL_DB_SECONDARY_INDEX_METHODS_SIMPLE(idx128)
