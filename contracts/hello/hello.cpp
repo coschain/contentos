@@ -1,4 +1,5 @@
 #include <cosiolib/contract_bank.h>
+#include <cosiolib/contract_bank.hpp>
 #include <cosiolib/chain.h>
 #include <cosiolib/cosio.hpp>
 #include <cosiolib/asset.hpp>
@@ -17,7 +18,8 @@ class hello : public cosio::contract {
     
     //@abi action
     void save(){
-        
+        asset a = get_value();
+        print( "\n user save value is: ",a.amount );
     }
     
     //@abi action
@@ -25,15 +27,13 @@ class hello : public cosio::contract {
         
         pay_prohibited();
        
-        asset cb;
-        get_contract_balance(cb);
+        asset cb = get_contract_balance();
         print("\n before withdraw  contract balance is : ",cb.amount);
 
         // transfer contract balance to user's account
         transfer(&account,value);
         
-        asset cb2;
-        get_contract_balance(cb2);
+        asset cb2 = get_contract_balance();
         print("\n after withdraw  contract balance is : ",cb2.amount);
     }
 };

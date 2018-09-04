@@ -686,7 +686,7 @@ class contract_bank_api : public context_aware_api {
    public:
       using context_aware_api::context_aware_api;
 
-      void get_contract_balance(asset& ast) {
+      void get_contract_balance_internal(asset& ast) {
           // todo get contract balance form db
           ast = context.get_contract_balance();
       }
@@ -696,7 +696,7 @@ class contract_bank_api : public context_aware_api {
           context.transfer(account,value);
       }
 
-      int64_t get_value() {
+      int64_t get_value_internal() {
           // todo get name's vm_op's value
           return context.get_value();
       }
@@ -1765,9 +1765,9 @@ REGISTER_INTRINSICS_WITH_PRICE(producer_api,
 );
 
 REGISTER_INTRINSICS_WITH_PRICE(contract_bank_api,
-   WITH_PRICE (get_contract_balance,      void(int))
+   WITH_PRICE (get_contract_balance_internal,      void(int))
    WITH_PRICE (transfer,      void(int,int) )
-   WITH_PRICE (get_value,      int64_t() )
+   WITH_PRICE (get_value_internal,      int64_t() )
    WITH_PRICE (pay_prohibited, void())
 );
 

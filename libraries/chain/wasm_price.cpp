@@ -80,9 +80,9 @@
 #define WASM_PRICE_FN_get_active_producers                                   40
 
 //contract_bank_api
-#define WASM_PRICE_FN_get_contract_balance                                   400
+#define WASM_PRICE_FN_get_contract_balance_internal                                   400
 #define WASM_PRICE_FN_transfer                                               1000
-#define WASM_PRICE_FN_get_value                                              100
+#define WASM_PRICE_FN_get_value_internal                                              100
 #define WASM_PRICE_FN_pay_prohibited                                         150
 
 // database_api
@@ -519,9 +519,9 @@ namespace contento { namespace chain { namespace wasm_price {
     
     // contract_balance_api
     WASM_PRICE_FN_CONSTS(
-                         (get_contract_balance,      (void*, int) )
+                         (get_contract_balance_internal,      (void*, int) )
                          (transfer,                  (void*,int, int))
-                         (get_value,                 (int64_t))
+                         (get_value_internal,                 (int64_t))
                          (pay_prohibited,            (void*))
                          );
     
