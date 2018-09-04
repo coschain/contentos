@@ -22,7 +22,7 @@ extern "C" {
 
     /**
      * transfer contract's balance to name's account
-     * @param name : balance receiver
+     * @param account : balance receiver
      * @param value : amount to transfer
      */
     void transfer( account_name* account, const cosio::asset& value);
