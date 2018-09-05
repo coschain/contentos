@@ -2,7 +2,7 @@
 
 
 # macos手动步骤操作：
-# 1. brew 安装cmake ，确保版本号 > 3.12 ，brew 安装ninja
+# 1. brew 安装cmake ，确保版本号 >= 3.12 ，brew 安装ninja
 # 2. brew 安装distcc，将编译服务器的路径和job number写入配置, 参考如下：
 #       echo '\n10.60.80.93/16\n' >> $(brew --prefix distcc)/etc/distcc/hosts
 # 3. 写入quickcc脚本
@@ -12,7 +12,7 @@
 
 cmake_path=`which cmake`
 if [ ! -f "$cmake_path" ]; then
-  echo "please install cmake > 3.12 "
+  echo "please install cmake >= 3.12 "
   exit -1
 fi
 
@@ -20,6 +20,7 @@ fi
 ninja_path=`which ninja`
 if [ ! -f "$ninja_path" ]; then
   brew install ninja
+  ninja_path=`which ninja`
   if [ ! -f "$ninja_path" ]; then
     echo "install ninja error"
     exit -1
