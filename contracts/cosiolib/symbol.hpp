@@ -28,7 +28,7 @@ namespace cosio {
    #define S(P,X) ::cosio::string_to_symbol(P,#X)
 
    typedef uint64_t symbol_name;
-  
+
    static constexpr bool is_valid_symbol( symbol_name sym ) {
       sym >>= 8;
       for( int i = 0; i < 7; ++i ) {
@@ -90,16 +90,14 @@ namespace cosio {
 
    struct extended_symbol : public symbol_type
    {
-      typedef namex account_name;
-
-      extended_symbol( symbol_name s = 0, account_name c = "" ):symbol_type{s},contract(c){}
+      extended_symbol( symbol_name s = 0, account_name c = 0 ):symbol_type{s},contract(c){}
 
       account_name contract;
 
       void print()const {
          symbol_type::print();
          prints("@");
-         cosio::print( contract );
+         printn( contract );
       }
 
       friend bool operator == ( const extended_symbol& a, const extended_symbol& b ) {
