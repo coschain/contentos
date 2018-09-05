@@ -115,7 +115,6 @@ namespace contento { namespace protocol {
       uint64_t value = 0;
    };
 
-
    inline std::vector<name> sort_names( std::vector<name>&& names ) {
       fc::deduplicate(names);
       return names;
