@@ -19,7 +19,7 @@ extern "C" {
      * @param account : balance receiver
      * @param value : amount to transfer
      */
-    void take_out( account_name* account, const cosio::asset& value);
+    void transfer( account_name* account, const cosio::asset& value);
 
     /**
      * get caller's value that want to give to contract
@@ -28,9 +28,9 @@ extern "C" {
    int64_t get_value_internal();
  
     /**
-     * check if caller bring value, it's will cause a assert fall if caller bring value
+     * contract api can accept COC when use this function
      */
-    void pay_prohibited();
+    void payable();
 
    ///@ } chaincapi
 }

@@ -701,9 +701,8 @@ class contract_bank_api : public context_aware_api {
           return context.get_value();
       }
     
-      void pay_prohibited() {
-          int64_t value = context.get_value();
-          FC_ASSERT( value == 0, "no payable function" );
+      void payable() {
+          context.set_payable_flag();
       }
 };
 
@@ -1768,7 +1767,7 @@ REGISTER_INTRINSICS_WITH_PRICE(contract_bank_api,
    WITH_PRICE (get_contract_balance_internal,      void(int))
    WITH_PRICE (transfer,      void(int,int) )
    WITH_PRICE (get_value_internal,      int64_t() )
-   WITH_PRICE (pay_prohibited, void())
+   WITH_PRICE (payable, void())
 );
 
 #define DB_SECONDARY_INDEX_METHODS_SIMPLE(IDX) \

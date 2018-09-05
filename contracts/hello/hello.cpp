@@ -18,14 +18,13 @@ class hello : public cosio::contract {
     
     //@abi action
     void save(){
+        payable();
         asset a = get_value();
         print( "\n user save value is: ",a.amount );
     }
     
     //@abi action
     void withdraw(account_name account, const asset& value){
-        
-        pay_prohibited();
        
         asset cb = get_contract_balance();
         print("\n before withdraw  contract balance is : ",cb.amount);

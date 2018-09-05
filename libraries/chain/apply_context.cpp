@@ -572,6 +572,10 @@ asset apply_context::get_contract_balance()  {
     return account.coc_balance;
 }
     
+void apply_context::set_payable_flag() {
+    trx_context.set_payable_flag();
+}
+    
 void apply_context::transfer( account_name name, const asset& value)  {
     
     const auto& to_account = control.get_account(name);
