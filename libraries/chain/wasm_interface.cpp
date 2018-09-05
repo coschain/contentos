@@ -701,7 +701,7 @@ class contract_bank_api : public context_aware_api {
           return context.get_value();
       }
     
-      void payable() {
+      void accept_pay() {
           context.set_payable_flag();
       }
 };
@@ -1767,7 +1767,7 @@ REGISTER_INTRINSICS_WITH_PRICE(contract_bank_api,
    WITH_PRICE (get_contract_balance_internal,      void(int))
    WITH_PRICE (transfer,      void(int,int) )
    WITH_PRICE (get_value_internal,      int64_t() )
-   WITH_PRICE (payable, void())
+   WITH_PRICE (accept_pay, void())
 );
 
 #define DB_SECONDARY_INDEX_METHODS_SIMPLE(IDX) \

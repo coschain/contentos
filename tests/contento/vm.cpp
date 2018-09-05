@@ -153,8 +153,8 @@ BOOST_AUTO_TEST_CASE( hello )
     set_abi(db, hello_private_key, N16(hello), "../../contracts/hello/hello.abi");
 
     asset v;
-    push_action(db, buttnaked_private_key, N16(buttnaked), N16(hello), N(hi), "[\"buttnaked\"]",v);
-    push_action(db, hello_private_key, N16(hello), N16(hello), N(hi), "[\"buttnaked\"]",v);
+    push_action(db, buttnaked_private_key, N16(buttnaked), N16(hello), N(hi), "[\"test1\"]",v);
+    //push_action(db, hello_private_key, N16(hello), N16(hello), N(hi), "[\"test2\"]",v);
 
     //set_code(db, buttnaked_private_key, N(buttnaked), "../../tests/contento/contracts/table.wast");
     //set_abi(db, buttnaked_private_key, N(buttnaked), "../../tests/contento/contracts/table.abi");
@@ -165,7 +165,7 @@ BOOST_AUTO_TEST_CASE( hello )
     //BOOST_TEST_REQUIRE( comment_exists(db, "alice", "a001") );
     
 }
-    
+    /*
     BOOST_AUTO_TEST_CASE( contract_bank_correct )
     {
         ACTORS((contento)(user1)(user2));
@@ -314,7 +314,7 @@ BOOST_AUTO_TEST_CASE( storage )
     push_action(db, hello_private_key, N16(hello), N16(storage), N(placeoffer), 
                 "[ \"hello\", \"3.0000 COC\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]",v);
     
-}
+}*/
 
 BOOST_AUTO_TEST_SUITE_END()
 

@@ -96,7 +96,7 @@ namespace contento { namespace chain { namespace wasm_price {
                          (get_contract_balance_internal,      (void*, int) )
                          (transfer,                  (void*, int, int))
                          (get_value_internal,                 (int64_t))
-                         (payable,            (void*))
+                         (accept_pay,            (void*))
                          );
     
 #define DECL_DB_SECONDARY_INDEX_METHODS_SIMPLE(IDX) \

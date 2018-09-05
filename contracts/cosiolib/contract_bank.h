@@ -30,7 +30,7 @@ extern "C" {
     /**
      * contract api can accept COC when use this function
      */
-    void payable();
+    void accept_pay();
 
    ///@ } chaincapi
 }
