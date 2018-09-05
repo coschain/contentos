@@ -1,6 +1,13 @@
 #!/bin/sh
 
-# 安装最新的cmake和distcc
+
+# macos手动步骤操作：
+# 1. brew 安装cmake ，确保版本号 > 3.12 ，brew 安装ninja
+# 2. brew 安装distcc，将编译服务器的路径和job number写入配置, 参考如下：
+#       echo '\n10.60.80.93/16\n' >> $(brew --prefix distcc)/etc/distcc/hosts
+# 3. 写入quickcc脚本
+# 4. 将vscode的工程配置复制到文件中
+# 5. 使用cmake生成ninja编译环境
 
 
 cmake_path=`which cmake`
@@ -9,6 +16,15 @@ if [ ! -f "$cmake_path" ]; then
   exit -1
 fi
 
+
+ninja_path=`which ninja`
+if [ ! -f "$ninja_path" ]; then
+  brew install ninja
+  if [ ! -f "$ninja_path" ]; then
+    echo "install ninja error"
+    exit -1
+  fi
+fi
 
 distcc_path=`brew --prefix distcc`
 if [ ! -d "$distcc_path" ]; then
