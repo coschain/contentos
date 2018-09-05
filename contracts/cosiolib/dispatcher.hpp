@@ -77,8 +77,8 @@ namespace cosio {
 extern "C" { \
    void apply( uint64_t receiver, uint64_t code, uint64_t action ) { \
       auto self = receiver; \
-      auto caller = get_current_caller();\
-      auto coder = get_current_coder();\
+      auto caller = ::cosio::get_current_caller();\
+      auto coder = ::cosio::get_current_coder();\
       if( action == N(onerror)) { \
          /* onerror is only valid if it is for the "eosio" code account and authorized by "eosio"'s "active permission */ \
          contento_assert(coder == N16(eosio), "onerror action's are only valid from the \"eosio\" system account"); \
