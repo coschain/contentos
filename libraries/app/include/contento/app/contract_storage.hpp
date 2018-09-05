@@ -66,16 +66,16 @@ namespace contract_storage_def {
  };
 
 struct get_table_rows_params {
-      account_name   code;
-      scope_name     scope;
-      name           table;
-      string         table_key;
-      string         lower_bound;
-      string         upper_bound;
-      uint32_t       limit = 10;
-      string         key_type;  // type of key specified by index_position
-      string         index_position; // 1 - primary (first), 2 - secondary index (in order defined by multi_index), 3 - third index, etc
-      string         encode_type{"dec"}; //dec, hex , default=dec
+      name        code;
+      string      scope;
+      name        table;
+      string      table_key;
+      string      lower_bound;
+      string      upper_bound;
+      uint32_t    limit = 10;
+      string      key_type;  // type of key specified by index_position
+      string      index_position; // 1 - primary (first), 2 - secondary index (in order defined by multi_index), 3 - third index, etc
+      string      encode_type{"dec"}; //dec, hex , default=dec
 
       get_table_rows_params(string code, string scope, string table,
                            string lower_bound, string upper_bound, int limit,
