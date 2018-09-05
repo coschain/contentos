@@ -20,7 +20,7 @@ namespace contento { namespace chain {
    class account_object : public object< account_object_type, account_object >
    {
       account_object() = delete;
-
+//      typedef namex account_name_type;
       public:
          template<typename Constructor, typename Allocator>
          account_object( Constructor&& c, allocator< Allocator > a )

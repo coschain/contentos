@@ -21,22 +21,22 @@ const static auto forkdb_filename            = "forkdb.dat";
 const static auto default_state_size            = 1*1024*1024*1024ll;
 
 
-const static uint64_t system_account_name    = N(contento);
-const static uint64_t null_account_name      = N(contento.null);
-const static uint64_t producers_account_name = N(contento.prods);
-const static uint64_t gas_fee_account_name   = N(contento);
+const static namex system_account_name    = N16(contento);
+const static namex null_account_name      = N16(contento.null);
+const static namex producers_account_name = N16(contento.prods);
+const static namex gas_fee_account_name   = N16(contento);
 
 // Active permission of producers account requires greater than 2/3 of the producers to authorize
-const static uint64_t majority_producers_permission_name = N(prod.major); // greater than 1/2 of producers needed to authorize
-const static uint64_t minority_producers_permission_name = N(prod.minor); // greater than 1/3 of producers needed to authorize0
+const static namex majority_producers_permission_name = N16(prod.major); // greater than 1/2 of producers needed to authorize
+const static namex minority_producers_permission_name = N16(prod.minor); // greater than 1/3 of producers needed to authorize0
 
-const static uint64_t contento_auth_scope       = N(contento.auth);
-const static uint64_t contento_all_scope        = N(contento.all);
+const static namex contento_auth_scope       = N16(contento.auth);
+const static namex contento_all_scope        = N16(contento.all);
 
-const static uint64_t active_name = N(active);
-const static uint64_t owner_name  = N(owner);
-const static uint64_t contento_any_name = N(contento.any);
-const static uint64_t contento_code_name = N(contento.code);
+const static namex active_name = N16(active);
+const static namex owner_name  = N16(owner);
+const static namex contento_any_name = N16(contento.any);
+const static namex contento_code_name = N16(contento.code);
 
 const static int      block_interval_ms = 500;
 const static int      block_interval_us = block_interval_ms*1000;

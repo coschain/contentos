@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
+/*
 #ifdef IS_TEST_NET
 #include <boost/test/unit_test.hpp>
 
@@ -41,7 +42,7 @@ using namespace contento::protocol;
 
 BOOST_FIXTURE_TEST_SUITE( serialization_tests, clean_database_fixture )
 
-   /*
+
 BOOST_AUTO_TEST_CASE( account_name_type_test )
 {
 
@@ -65,7 +66,7 @@ BOOST_AUTO_TEST_CASE( account_name_type_test )
    auto unpacked = fc::raw::unpack<fixed_string<>>( packed_long_string );
    idump( (unpacked) );
 }
-*/
+
 
 BOOST_AUTO_TEST_CASE( serialization_raw_test )
 {
@@ -335,3 +336,4 @@ BOOST_AUTO_TEST_CASE( min_block_size )
 
 BOOST_AUTO_TEST_SUITE_END()
 #endif
+*/

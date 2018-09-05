@@ -12,7 +12,7 @@ class hello : public cosio::contract {
 
       //@abi action
       void hi( account_name user ) {
-         print( "\n Hello, ", name{user} );
+         print( "\n Hello, ", namex{user} );
       }
     
     //@abi action
@@ -30,7 +30,7 @@ class hello : public cosio::contract {
         print("\n before withdraw  contract balance is : ",cb.amount);
 
         // transfer contract balance to user's account
-        transfer(account,value);
+        transfer(&account,value);
         
         asset cb2;
         get_contract_balance(cb2);
