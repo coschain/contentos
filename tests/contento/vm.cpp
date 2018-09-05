@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE( contract_bank_correct )
 
         // check send result
         const account_object& acct3 = db.get_account( "user2" );
-        BOOST_REQUIRE( acct3.balance.amount.value == 9986 ); // self keep 10000 + withdraw 10000 - some gas
+        BOOST_REQUIRE( acct3.balance.amount.value == 9993 ); // self keep 10000 + withdraw 10000 - some gas
         const contract_balance_object& cbo1 = db.get_contract_account( "user1" );// user1 is contract name
         BOOST_REQUIRE( cbo1.coc_balance.amount.value == 39997 );
 
