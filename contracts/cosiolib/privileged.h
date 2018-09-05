@@ -29,9 +29,9 @@ extern "C" {
     */
    int64_t set_proposed_producers( char *producer_data, uint32_t producer_data_size );
 
-   bool is_privileged( account_name* account );
+   bool is_privileged( account_name account );
 
-   void set_privileged( account_name* account, bool is_priv );
+   void set_privileged( account_name account, bool is_priv );
 
    void set_blockchain_parameters_packed(char* data, uint32_t datalen);
 

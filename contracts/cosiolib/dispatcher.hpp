@@ -7,8 +7,6 @@
 
 #include <boost/mp11/tuple.hpp>
 #define N(X) ::cosio::string_to_name(#X)
-#define N16(X) ::cosio::string_to_namex(#X)
-
 namespace cosio {
    template<typename Contract, typename FirstAction>
    bool dispatch( uint64_t code, uint64_t act ) {
@@ -77,14 +75,12 @@ namespace cosio {
 extern "C" { \
    void apply( uint64_t receiver, uint64_t code, uint64_t action ) { \
       auto self = receiver; \
-      auto caller = get_current_caller();\
-      auto coder = get_current_coder();\
       if( action == N(onerror)) { \
          /* onerror is only valid if it is for the "eosio" code account and authorized by "eosio"'s "active permission */ \
-         contento_assert(coder == N16(eosio), "onerror action's are only valid from the \"eosio\" system account"); \
+         contento_assert(code == N(eosio), "onerror action's are only valid from the \"eosio\" system account"); \
       } \
-      if( coder == caller || action == N(onerror) ) { \
-         TYPE thiscontract( caller ); \
+      if( code == self || action == N(onerror) ) { \
+         TYPE thiscontract( self ); \
          switch( action ) { \
             COSIO_API( TYPE, MEMBERS ) \
          } \

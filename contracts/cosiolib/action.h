@@ -148,10 +148,6 @@ extern "C" {
     *  @brief Get the current receiver of the action
     *  @return the account which specifies the current receiver of the action
     */
-//    account_name current_receiver();
-   
-   void current_caller(account_name* caller);
-
-   void current_coder(scope_name* coder);
+   account_name current_receiver();
    ///@ } actioncapi
 }

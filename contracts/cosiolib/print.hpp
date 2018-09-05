@@ -1,4 +1,4 @@
-	/**
+/**
  *  @file
  *  @copyright defined in contentos/LICENSE.txt
  */
@@ -152,17 +152,8 @@ namespace cosio {
     * @brief Prints a 64 bit names as base32 encoded string
     * @param name 64 bit name to be printed
     */
-  //  inline void print( name name ) {
-  //     printn(name.value);
-  //  }
-
-   inline void print( namex name ) {
-      std::string s = name.to_string();
-      prints_l( s.c_str(), s.size() );
-   }
-
-   inline void print( namex_ name ) {
-      print(namex(name));
+   inline void print( name name ) {
+      printn(name.value);
    }
 
    inline void print( bool val ) {

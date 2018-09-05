@@ -23,7 +23,7 @@ using namespace contento::chain;
 using namespace contento::protocol;
 using namespace contento::test;
 
-vm_operation create_setcode(const namex& contract_name, const bytes& code) {
+vm_operation create_setcode(const name& contract_name, const bytes& code) {
     return vm_operation {
         contract_name,
         setcode{
@@ -34,7 +34,7 @@ vm_operation create_setcode(const namex& contract_name, const bytes& code) {
         }
     };
 }
-vm_operation create_setabi(const namex& contract_name, const abi_def& abi) {
+vm_operation create_setabi(const name& contract_name, const abi_def& abi) {
     return vm_operation {
         contract_name,
         setabi{
@@ -51,7 +51,7 @@ bytes get_code(const std::string& wast_path) {
     return bytes(wasm.begin(), wasm.end());
 }
 
-static void set_code(database &db, fc::ecc::private_key key, const namex& contract_name, const std::string& wast_path) {
+static void set_code(database &db, fc::ecc::private_key key, const name& contract_name, const std::string& wast_path) {
     signed_transaction tx;
     vm_operation vop = create_setcode(contract_name, get_code(wast_path));
 
@@ -61,7 +61,7 @@ static void set_code(database &db, fc::ecc::private_key key, const namex& contra
     PUSH_TX( db, tx );
 }
 
-static void set_abi(database &db, fc::ecc::private_key key, const namex& contract_name, const std::string& abi_path) {
+static void set_abi(database &db, fc::ecc::private_key key, const name& contract_name, const std::string& abi_path) {
    signed_transaction tx;
    vm_operation vop = create_setabi(contract_name, fc::json::from_file(abi_path).as<abi_def>());
     
@@ -81,7 +81,7 @@ fc::variant json_from_file_or_string(const string& file_or_str, fc::json::parse_
    }
 }
 
-bytes param_to_bin(database &db, namex contract_name, name action_name, std::string param) {
+bytes param_to_bin(database &db, name contract_name, name action_name, std::string param) {
    fc::variant action_args_var;
    if( !param.empty() ) {
       try {
@@ -126,7 +126,7 @@ bytes param_to_bin(database &db, namex contract_name, name action_name, std::str
 }
 
 static void push_action(database &db, fc::ecc::private_key key, 
-                        const namex& caller, const namex& contract_name, 
+                        const name& caller, const name& contract_name, 
                         const name& action_name, const std::string& action_param, const asset& v) {
    bytes bin = param_to_bin(db, contract_name, action_name, action_param);
    signed_transaction tx;
@@ -143,16 +143,15 @@ BOOST_FIXTURE_TEST_SUITE( vm, clean_database_fixture )
 
 BOOST_AUTO_TEST_CASE( hello )
 {
-    try {
-        ACTORS((contento)(hello)(buttnaked));
-        
-        //fund("hello", 100);
-        
-        fund("hello", 5000);
-        fund("buttnaked", 5000);
-        
-        set_code(db, hello_private_key, N16(hello), "../../contracts/hello/hello.wast");
-        set_abi(db, hello_private_key, N16(hello), "../../contracts/hello/hello.abi");
+    ACTORS((contento)(hello)(buttnaked));
+    
+    //fund("hello", 100);
+    
+    fund("hello", 5000);
+    fund("buttnaked", 5000);
+    
+    set_code(db, hello_private_key, N(hello), "../../contracts/hello/hello.wast");
+    set_abi(db, hello_private_key, N(hello), "../../contracts/hello/hello.abi");
 
     asset v;
     push_action(db, buttnaked_private_key, N16(buttnaked), N16(hello), N(hi), "[\"test1\"]",v);

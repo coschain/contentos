@@ -58,7 +58,7 @@ extern "C" {
     *
     * @{
     */
-   void send_deferred(const uint128_t& sender_id, account_name* payer, const char *serialized_transaction, size_t size, uint32_t replace_existing = 0);
+   void send_deferred(const uint128_t& sender_id, account_name payer, const char *serialized_transaction, size_t size, uint32_t replace_existing = 0);
 
    /**
     * cancel deferred transaction
