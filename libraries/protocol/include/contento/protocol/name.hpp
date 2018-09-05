@@ -52,7 +52,7 @@ namespace contento { namespace protocol {
          for( uint i = 0; i < len; ++i) {
             name.lo |= (uint64_t(str[i]) << (8 * i));
          }
-      } else if ( len <= 16 ) {
+      } else if ( len > 8 && len <= 16 ) {
          for( uint i = 0; i < 8; ++i) {
             name.lo |= (uint64_t(str[i]) << (8 * i));
          }
