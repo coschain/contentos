@@ -95,7 +95,7 @@ extern "C" {
     *  @brief Verify specified account exists in the set of provided auths
     *  @param name - name of the account to be verified
     */
-   //void require_auth( account_name name );
+   void require_auth();
    //bool has_auth( account_name name );
 
    /**

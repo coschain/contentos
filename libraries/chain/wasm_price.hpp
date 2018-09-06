@@ -190,7 +190,7 @@ namespace contento { namespace chain { namespace wasm_price {
     // authorization_api
     WASM_PRICE_FN_DECLS(
                         (require_recipient,     (void*, int64_t)          )
-                        (require_auth,          (void*, int64_t)          )
+                        (require_auth,          (void*)          )
                         (require_auth2,         (void*, int64_t, int64_t) )
                         (has_auth,              (int, int64_t)           )
                         (is_account,            (int, int64_t)           )
