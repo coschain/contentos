@@ -27,7 +27,7 @@ struct controller_impl {
     *  can query this list when scheduling new transactions into blocks.
     */
 
-   void set_apply_handler( account_name receiver, account_name contract, action_name action, apply_handler v ) {
+   void set_apply_handler( account_name receiver, scope_name contract, action_name action, apply_handler v ) {
       apply_handlers[receiver][make_pair(contract,action)] = v;
    }
 
@@ -149,7 +149,7 @@ chainbase::database& controller::db()const { return my->db; }
 
 
 
-const apply_handler* controller::find_apply_handler( account_name receiver, account_name scope, action_name act ) const
+const apply_handler* controller::find_apply_handler( account_name receiver, scope_name scope, action_name act ) const
 {
    auto native_handler_scope = my->apply_handlers.find( receiver );
    if( native_handler_scope != my->apply_handlers.end() ) {

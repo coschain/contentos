@@ -65,9 +65,9 @@
 // only privileged accounts can access these functions. set prices to a minimal 1.
 #define WASM_PRICE_FN_is_feature_active                                      1
 #define WASM_PRICE_FN_activate_feature                                       1
-#define WASM_PRICE_FN_get_resource_limits                                    1
-#define WASM_PRICE_FN_set_resource_limits                                    1
-#define WASM_PRICE_FN_set_proposed_producers                                 1
+// #define WASM_PRICE_FN_get_resource_limits                                    1
+// #define WASM_PRICE_FN_set_resource_limits                                    1
+// #define WASM_PRICE_FN_set_proposed_producers                                 1
 #define WASM_PRICE_FN_get_blockchain_parameters_packed                       1
 #define WASM_PRICE_FN_set_blockchain_parameters_packed                       1
 #define WASM_PRICE_FN_is_privileged                                          1
@@ -184,7 +184,9 @@
 // action_api
 //#define WASM_PRICE_FN_read_action_data                                       0      // varied
 #define WASM_PRICE_FN_action_data_size                                       31
-#define WASM_PRICE_FN_current_receiver                                       13
+// #define WASM_PRICE_FN_current_receiver                                       13
+#define WASM_PRICE_FN_current_caller                                         13
+#define WASM_PRICE_FN_current_coder                                          13
 
 // authorization_api
 #define WASM_PRICE_FN_require_recipient                                      60
@@ -322,11 +324,11 @@ namespace contento { namespace chain { namespace wasm_price {
         // larger the value, higher the price.
         return 24 + (len >> 8);
     }
-    uint64_t db_update_i64(apply_context*, void*, int, int64_t, int, int len) {
+    uint64_t db_update_i64(apply_context*, void*, int, int, int, int len) {
         // larger the value, higher the price.
         return 128 + (len >> 5);
     }
-    uint64_t db_store_i64(apply_context*, int, int64_t, int64_t, int64_t, int64_t, int, int len) {
+    uint64_t db_store_i64(apply_context*, int, int, int64_t, int, int64_t, int, int len) {
         // larger the value, higher the price.
         return 1280 + len / 3;
     }
@@ -385,6 +387,7 @@ namespace contento { namespace chain { namespace wasm_price {
         // larger the data, higher the price.
         return 62 + (len >> 4);
     }
+
     uint64_t printhex(apply_context*, void*, int, int len) {
         // larger the data, higher the price.
         return 62 + (len << 2);
@@ -495,13 +498,13 @@ namespace contento { namespace chain { namespace wasm_price {
     WASM_PRICE_FN_CONSTS(
                          (is_feature_active,                (int, int64_t)                          )
                          (activate_feature,                 (void*, int64_t)                         )
-                         (get_resource_limits,              (void*, int64_t,int,int,int)             )
-                         (set_resource_limits,              (void*, int64_t,int64_t,int64_t,int64_t) )
-                         (set_proposed_producers,           (int64_t, int,int)                      )
+                        //  (get_resource_limits,              (void*, int64_t,int,int,int)             )
+                        //  (set_resource_limits,              (void*, int,int64_t,int64_t,int64_t) )
+                        //  (set_proposed_producers,           (int64_t, int,int)                      )
                          (get_blockchain_parameters_packed, (int, int, int)                         )
                          (set_blockchain_parameters_packed, (void*, int,int)                         )
-                         (is_privileged,                    (int, int64_t)                          )
-                         (set_privileged,                   (void*, int64_t, int)                    )
+                         (is_privileged,                    (int, int)                          )
+                         (set_privileged,                   (void*, int, int)                    )
                          );
     
     // transaction_context
@@ -530,10 +533,10 @@ namespace contento { namespace chain { namespace wasm_price {
 //                         (db_get_i64,          (int, int, int, int))
                          (db_next_i64,         (int, int, int))
                          (db_previous_i64,     (int, int, int))
-                         (db_find_i64,         (int, int64_t,int64_t,int64_t,int64_t))
-                         (db_lowerbound_i64,   (int, int64_t,int64_t,int64_t,int64_t))
-                         (db_upperbound_i64,   (int, int64_t,int64_t,int64_t,int64_t))
-                         (db_end_i64,          (int, int64_t,int64_t,int64_t))
+                         (db_find_i64,         (int, int,int,int64_t,int64_t))
+                         (db_lowerbound_i64,   (int, int,int,int64_t,int64_t))
+                         (db_upperbound_i64,   (int, int,int,int64_t,int64_t))
+                         (db_end_i64,          (int, int,int,int64_t))
                          
                          DECL_DB_SECONDARY_INDEX_METHODS_SIMPLE(idx64)
                          DECL_DB_SECONDARY_INDEX_METHODS_SIMPLE(idx128)
@@ -582,8 +585,10 @@ namespace contento { namespace chain { namespace wasm_price {
     // action_api
     WASM_PRICE_FN_CONSTS(
 //                         (read_action_data,       (int, int, int)  )
-                         (action_data_size,       (int)          )
-                         (current_receiver,   (int64_t)          )
+                         (action_data_size,       (int)              )
+                        //  (current_receiver,       (int)          )
+                         (current_caller,           (void*, int)  )
+                         (current_coder,            (void*, int)  )
                          );
     
     // authorization_api
@@ -624,7 +629,7 @@ namespace contento { namespace chain { namespace wasm_price {
     WASM_PRICE_FN_CONSTS(
                          (send_inline,               (void*, int, int)               )
                          (send_context_free_inline,  (void*, int, int)               )
-                         (send_deferred,             (void*, int, int64_t, int, int, int32_t) )
+                         (send_deferred,             (void*, int, int, int, int, int32_t) )
                          (cancel_deferred,           (int, int)                     )
                          );
     

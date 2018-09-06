@@ -54,7 +54,7 @@ bytes get_code(const std::string& wast_path) {
     return bytes(wasm.begin(), wasm.end());
 }
 
-static void set_code(database &db, fc::ecc::private_key key, const name& contract_name, const std::string& wast_path) {
+static void set_code(database &db, fc::ecc::private_key key, const namex& contract_name, const std::string& wast_path) {
     signed_transaction tx;
 
     auto wasm = get_code(wast_path);
@@ -110,7 +110,7 @@ fc::variant json_from_file_or_string(const string& file_or_str, fc::json::parse_
    }
 }
 
-bytes param_to_bin(database &db, name contract_name, name action_name, std::string param) {
+bytes param_to_bin(database &db, namex contract_name, name action_name, std::string param) {
    fc::variant action_args_var;
    if( !param.empty() ) {
       try {
@@ -155,7 +155,7 @@ bytes param_to_bin(database &db, name contract_name, name action_name, std::stri
 }
 
 static void push_action(database &db, fc::ecc::private_key key, 
-                        const name& caller, const name& contract_name, 
+                        const namex& caller, const namex& contract_name, 
                         const name& action_name, const std::string& action_param, const asset& v) {
    bytes bin = param_to_bin(db, contract_name, action_name, action_param);
    signed_transaction tx;

@@ -93,6 +93,18 @@ namespace cosio {
       // require_auth2( level.actor, level.permission );
    }
 
+   namex get_current_caller() {
+     namex_ caller;
+     current_caller(&caller);
+     return caller;
+   }
+
+   namex get_current_coder() {
+     namex_ coder;
+     current_coder(&coder);
+     return coder;
+   }
+
    /**
     * This is the packed representation of an action along with
     * meta-data about the authorization levels.
