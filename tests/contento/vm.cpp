@@ -54,7 +54,7 @@ bytes get_code(const std::string& wast_path) {
     return bytes(wasm.begin(), wasm.end());
 }
 
-static void set_code(database &db, fc::ecc::private_key key, const name& contract_name, const std::string& wast_path) {
+static transaction_invoice set_code(database &db, fc::ecc::private_key key, const name& contract_name, const std::string& wast_path) {
     signed_transaction tx;
 
     auto wasm = get_code(wast_path);
@@ -76,10 +76,10 @@ static void set_code(database &db, fc::ecc::private_key key, const name& contrac
     tx.operations.push_back(vop);
     tx.set_expiration( db.head_block_time() + 30 );
     tx.sign(key, db.get_chain_id());
-    PUSH_TX( db, tx );
+    return PUSH_TX( db, tx );
 }
 
-static void set_abi(database &db, fc::ecc::private_key key, const name& contract_name, const std::string& abi_path) {
+static transaction_invoice set_abi(database &db, fc::ecc::private_key key, const name& contract_name, const std::string& abi_path) {
     signed_transaction tx;
 
     auto abi = fc::raw::pack(fc::json::from_file(abi_path).as<abi_def>());
@@ -97,7 +97,7 @@ static void set_abi(database &db, fc::ecc::private_key key, const name& contract
     tx.operations.push_back(vop);
     tx.set_expiration( db.head_block_time() + 30 );
     tx.sign(key, db.get_chain_id());
-    PUSH_TX( db, tx );
+    return PUSH_TX( db, tx );
 }
 
 fc::variant json_from_file_or_string(const string& file_or_str, fc::json::parse_type ptype = fc::json::legacy_parser)
@@ -154,7 +154,7 @@ bytes param_to_bin(database &db, name contract_name, name action_name, std::stri
    return result;                        
 }
 
-static void push_action(database &db, fc::ecc::private_key key, 
+static transaction_invoice push_action_no_throw(database &db, fc::ecc::private_key key, 
                         const name& caller, const name& contract_name, 
                         const name& action_name, const std::string& action_param, const asset& v) {
    bytes bin = param_to_bin(db, contract_name, action_name, action_param);
@@ -165,7 +165,17 @@ static void push_action(database &db, fc::ecc::private_key key,
     tx.operations.push_back(vop);
     tx.set_expiration( db.head_block_time() + 30 );
     tx.sign(key, db.get_chain_id());
-    PUSH_TX( db, tx );
+    return PUSH_TX( db, tx );
+}
+
+static transaction_invoice push_action(database &db, fc::ecc::private_key key, 
+                        const name& caller, const name& contract_name, 
+                        const name& action_name, const std::string& action_param, const asset& v) {
+    transaction_invoice invoice = push_action_no_throw(db, key, caller, contract_name, action_name, action_param, v);
+    if (invoice.vm_error) {
+        throw fc::exception(invoice.vm_error_code, "vm_operation_exception");
+    }
+    return invoice;
 }
 
 BOOST_FIXTURE_TEST_SUITE( vm, clean_database_fixture )
