@@ -1,4 +1,4 @@
-#ifdef IS_TEST_NET2
+#ifdef IS_TEST_NET
 #include <boost/test/unit_test.hpp>
 
 #include <contento/protocol/exceptions.hpp>
