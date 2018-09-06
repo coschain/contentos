@@ -2663,6 +2663,10 @@ asset wallet_api::estimate_gas(string caller, string contract_name, string actio
     return my->estimate_gas(tx);
 }
     
+    asset wallet_api::get_contract_balance(string name) {
+        return my->_remote_db->get_contract_balance(name);
+    }
+    
 annotated_signed_transaction wallet_api::set_contract(string accountname, string contract_dir, string contract_name, bool broadcast ) {
       signed_transaction tx;
 
@@ -2820,7 +2824,7 @@ void wallet_api::set_abi_callback( string accountname, string contract_dir, stri
 
       uint8_t compression = 0;
 
-   if(wasm.size() > MAX_UNCOMPRESSION_SIZE){
+   if(abi.size() > MAX_UNCOMPRESSION_SIZE){
       std::string uncompressed(abi.begin(), abi.end());
       std::string compressed = fc::zlib_compress(uncompressed);
       compression = 1;
@@ -2832,7 +2836,6 @@ void wallet_api::set_abi_callback( string accountname, string contract_dir, stri
                                                      setabi { contract_name, 
                                                               compression,
                                                               abi
-                                                               ) 
                                                             } 
                                                    ) 
                                     );

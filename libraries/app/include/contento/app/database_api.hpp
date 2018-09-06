@@ -188,6 +188,12 @@ class database_api
       vector<set<string>> get_key_references( vector<public_key_type> key )const;
 
       //////////////
+      // Contract //
+      //////////////
+    
+      asset get_contract_balance(string name) const;
+    
+      //////////////
       // Accounts //
       //////////////
 
@@ -509,6 +515,9 @@ FC_API(contento::app::database_api,
 
    // Keys
    (get_key_references)
+       
+   // Contract
+    (get_contract_balance)
 
    // Accounts
    (get_accounts)
