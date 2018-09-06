@@ -1,0 +1,35 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+
+        {
+            "name": "debug_cosd",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/../bninja/programs/contentosd/contentosd",
+            "args": [],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}/../bninja/programs/contentosd/",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "preLaunchTask": "pre_debug_cosd"
+        },
+        {
+            "name": "debug_cos_test",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/../bninja/tests/contento_test",
+            "args": [],
+            "stopAtEntry": true,
+            "cwd": "${workspaceFolder}/../bninja/",
+            "environment": [],
+            "externalConsole": false,
+            "MIMode": "lldb",
+            "preLaunchTask": "make_contento_test"
+        }
+    ]
+}
