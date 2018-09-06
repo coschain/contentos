@@ -94,7 +94,7 @@ namespace contento { namespace chain { namespace wasm_price {
 
     WASM_PRICE_FN_DECLS(
                          (get_contract_balance_internal,      (void*, int) )
-                         (transfer,                  (void*, int64_t, int))
+                         (transfer,                  (void*, int, int))
                          (get_value_internal,                 (int64_t))
                          (accept_pay,            (void*))
                          );
