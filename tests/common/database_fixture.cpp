@@ -501,9 +501,9 @@ bool _push_block( database& db, const signed_block& b, uint32_t skip_flags /* = 
    return db.push_block( b, skip_flags);
 }
 
-void _push_transaction( database& db, const signed_transaction& tx, uint32_t skip_flags /* = 0 */ )
+transaction_invoice _push_transaction( database& db, const signed_transaction& tx, uint32_t skip_flags /* = 0 */ )
 { try {
-   db.push_transaction( tx, skip_flags );
+   return db.push_transaction( tx, skip_flags );
 } FC_CAPTURE_AND_RETHROW((tx)) }
 
 } // contento::chain::test

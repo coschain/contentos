@@ -813,8 +813,9 @@ bool database::_push_block(const signed_block& new_block)
  * queues full as well, it will be kept in the queue to be propagated later when a new block flushes out the pending
  * queues.
  */
-void database::push_transaction( const signed_transaction& trx, uint32_t skip )
+transaction_invoice database::push_transaction( const signed_transaction& trx, uint32_t skip )
 {
+   transaction_invoice invoice;
    try
    {
       try
@@ -826,7 +827,7 @@ void database::push_transaction( const signed_transaction& trx, uint32_t skip )
             {
                with_write_lock( [&]()
                {
-                  _push_transaction( trx );
+                  invoice = _push_transaction( trx );
                });
             });
          set_producing( false );
@@ -836,6 +837,7 @@ void database::push_transaction( const signed_transaction& trx, uint32_t skip )
          set_producing( false );
          throw;
       }
+      return invoice;
    }
    FC_CAPTURE_AND_RETHROW( (trx) )
 }
@@ -878,7 +880,7 @@ transaction_wrapper database::test_push_transaction( const signed_transaction& t
     } FC_CAPTURE_AND_RETHROW( (trx) )
 }
 
-void database::_push_transaction( const signed_transaction& trx )
+transaction_invoice database::_push_transaction( const signed_transaction& trx )
 {
    // If this is the first transaction pushed after applying a block, start a new undo session.
    // This allows us to quickly rewind to the clean state of the head block, in case a new block arrives.
@@ -904,6 +906,8 @@ void database::_push_transaction( const signed_transaction& trx )
 
    // notify anyone listening to pending transactions
    notify_on_pending_transaction( trx );
+
+   return trx_wrapper.invoice;
 }
 
 signed_block database::generate_block(
