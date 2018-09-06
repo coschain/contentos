@@ -45,6 +45,14 @@ namespace contento { namespace chain {
          inline void apply( const vm_operation& op, bool context_free = false ) {
             apply(op, op.contract_name, context_free);
          };
+       
+       inline void set_payable_flag(){
+           accept_pay = true;
+       };
+       
+       inline bool get_payable_flag(){
+           return accept_pay;
+       }
       private:
 
          friend struct controller_impl;
@@ -80,6 +88,7 @@ namespace contento { namespace chain {
        fc::exception                  vm_exc;
 
          fc::time_point                _deadline;
+       bool                             accept_pay = false;
    };
 
 } }

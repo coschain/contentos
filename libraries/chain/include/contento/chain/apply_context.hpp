@@ -555,6 +555,7 @@ class apply_context {
       asset get_contract_balance();
       void transfer( account_name name, const asset& value);
       int64_t get_value();
+      void set_payable_flag();
 
    private:
 

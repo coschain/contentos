@@ -11,6 +11,7 @@ struct setcode {
    account_name                     account;
    uint8_t                          vmtype = 0;
    uint8_t                          vmversion = 0;
+   uint8_t                          compression=0;
    bytes                            code;
 
    static account_name get_account() {
@@ -24,6 +25,7 @@ struct setcode {
 
 struct setabi {
    account_name                     account;
+   uint8_t                          compression=0;
    bytes                            abi;
 
    static account_name get_account() {
@@ -54,6 +56,6 @@ struct onerror {
 
 } } /// namespace contento::chain
 
-FC_REFLECT( contento::chain::setcode                          , (account)(vmtype)(vmversion)(code) )
-FC_REFLECT( contento::chain::setabi                           , (account)(abi) )
+FC_REFLECT( contento::chain::setcode                          , (account)(vmtype)(vmversion)(compression)(code) )
+FC_REFLECT( contento::chain::setabi                           , (account)(compression)(abi) )
 FC_REFLECT( contento::chain::onerror                          , (sender_id)(sent_trx) )

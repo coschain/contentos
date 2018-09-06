@@ -65,6 +65,8 @@
 
 #include <contento/gas_estimate/contento_gas_estimate.hpp>
 
+#include <fc/compress/zlib.hpp>
+
 #ifndef WIN32
 # include <sys/types.h>
 # include <sys/stat.h>
@@ -2780,12 +2782,26 @@ void wallet_api::set_code_callback( string accountname, string contract_dir, str
             std::cout << "Assembling WASM..." << std::endl;
             wasm = wast_to_wasm(wast);
       }
+
+      bytes bytes_wasm;
+      uint8_t compression = 0;
+
+      if(wasm.size() > MAX_UNCOMPRESSION_SIZE){
+        std::string uncompressed(wasm.begin(), wasm.end());
+        std::string compressed = fc::zlib_compress(uncompressed);
+        compression = 1;
+        bytes_wasm = bytes(compressed.begin(), compressed.end());
+    }
+    else {
+         bytes_wasm = bytes( wasm.begin(), wasm.end());
+    }
       
       tx.operations.push_back ( vm_operation ( accountname, 
                                                setcode { contract_name, 
                                                          0, 
                                                          0, 
-                                                         bytes( wasm.begin(), wasm.end() ) 
+                                                         compression,
+                                                         bytes_wasm
                                                        } 
                                              ) 
                               );
@@ -2800,10 +2816,23 @@ void wallet_api::set_abi_callback( string accountname, string contract_dir, stri
 
       FC_ASSERT( fc::exists( abiPath ), "no abi file found ${f}", ("f", abiPath)  );
 
+      auto abi = fc::raw::pack ( fc::json::from_file(abiPath).as<abi_def>();
+
+      uint8_t compression = 0;
+
+      if(wasm.size() > MAX_UNCOMPRESSION_SIZE){
+          std::string uncompressed(abi.begin(), abi.end());
+          std::string compressed = fc::zlib_compress(uncompressed);
+          compression = 1;
+          abi = bytes(compressed.begin(), compressed.end());
+      }
+
       try {
             tx.operations.push_back ( vm_operation ( accountname, 
                                                      setabi { contract_name, 
-                                                              fc::raw::pack ( fc::json::from_file(abiPath).as<abi_def>() ) 
+                                                              compression,
+                                                              abi
+                                                               ) 
                                                             } 
                                                    ) 
                                     );

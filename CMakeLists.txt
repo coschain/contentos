@@ -1,6 +1,6 @@
 # Defines Contentos library target.
 project( Contentos )
-cmake_minimum_required( VERSION 3.2 )
+cmake_minimum_required( VERSION 3.12 )
 
 include( GNUInstallDirs )
 set( BLOCKCHAIN_NAME "Contentos" )
@@ -19,6 +19,7 @@ elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
         message(FATAL_ERROR "Clang version must be at least 3.3!")
     endif()
 endif()
+
 
 list( APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules" )
 

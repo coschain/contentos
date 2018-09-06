@@ -1,27 +1,21 @@
 /**
  *  @file
- *  @copyright defined in eos/LICENSE.txt
+ *  @copyright defined in contentos/LICENSE.txt
  */
 #pragma once
 
 #include <cosiolib/types.h>
 #include <cosiolib/asset.hpp>
 
-/**
- *  @defgroup chainapi Chain API
- *  @brief Define API for querying internal chain state
- *  @ingroup contractdev
- */
-
 extern "C" {
    /**
     * return contract's balance
     * @return contract's balance
     */
-   void get_contract_balance(const cosio::asset& ast);
+   void get_contract_balance_internal(const cosio::asset& ast);
 
     /**
-     * transfer contract's balance to name's account
+     * transfer contract's balance to account
      * @param account : balance receiver
      * @param value : amount to transfer
      */
@@ -31,12 +25,12 @@ extern "C" {
      * get caller's value that want to give to contract
      * @return caller's value
      */
-   int64_t get_value();
+   int64_t get_value_internal();
  
     /**
-     * check if caller bring value, it's will cause a assert fall if caller bring value
+     * contract api can accept COC when use this function
      */
-    void pay_prohibited();
+    void accept_pay();
 
    ///@ } chaincapi
 }

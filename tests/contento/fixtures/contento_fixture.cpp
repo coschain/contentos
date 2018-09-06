@@ -25,7 +25,6 @@ namespace contento { namespace test {
     
     contento_fixture::~contento_fixture()
     {
-        
     }
     
     void contento_fixture::init_apis()
@@ -51,10 +50,9 @@ namespace contento { namespace test {
             {
                 api_context ctx( app, name, session );
                 fc::api_ptr api = app.create_api_by_name( ctx );
-                if (api) {
-                    session->api_map[name] = api;
-                    api->register_api( *session->wsc );
-                }
+                if( !api )continue;
+                session->api_map[name] = api;
+                api->register_api( *session->wsc );
             }
             c->set_session_data( session );
         } );

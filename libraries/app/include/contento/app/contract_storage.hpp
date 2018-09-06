@@ -103,7 +103,7 @@ Type convert_to_type(const string& str, const string& desc) {
 template<>
 uint64_t convert_to_type(const string& str, const string& desc);
 
-static void copy_inline_row(const chain::key_value_object& obj, vector<char>& data) {
+static inline void copy_inline_row(const chain::key_value_object& obj, vector<char>& data) {
    data.resize( obj.value.size() );
    memcpy( data.data(), obj.value.data(), obj.value.size() );
 }

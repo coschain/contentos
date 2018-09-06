@@ -2427,6 +2427,10 @@ void vm_evaluator::do_apply( const vm_operation& o )  {
                        );
         ctx->apply(o);
         
+        // payable check, payable flag setted up in ctx->apply(o)
+        if(!ctx->get_payable_flag()){
+            FC_ASSERT(o.value.amount == 0, "api can not accept money.");
+        }
     } catch (fc::exception& e) {
         error = true;
         exc = e;
