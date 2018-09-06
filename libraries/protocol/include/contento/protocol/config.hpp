@@ -46,6 +46,8 @@
 
 #define CONTENTO_VESTING_WITHDRAW_INTERVAL_SECONDS (60 ) /// 1 min per interval
 
+#define MAX_UNCOMPRESSION_SIZE                   0
+
 #else // IS LIVE STEEM NETWORK
 
 #define CONTENTO_ONLINE_INIT_PRIVATE_KEY                (fc::ecc::private_key::regenerate(fc::sha256::hash(std::string("contento"))))
@@ -84,6 +86,8 @@
 #define CONTENTO_INIT_SUPPLY                     int64_t(1000000)
 
 #define CONTENTO_VESTING_WITHDRAW_INTERVAL_SECONDS (60*60*24*7) /// 1 week per interval
+
+#define MAX_UNCOMPRESSION_SIZE                   1024
 
 #endif
 
