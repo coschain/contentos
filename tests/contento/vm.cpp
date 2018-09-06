@@ -15,6 +15,7 @@
 
 #include <fc/io/fstream.hpp>
 #include <fc/io/json.hpp>
+#include <fc/compress/zlib.hpp>
 
 #include "fixtures/contento_fixture.hpp"
 #include <contento/chain/contract_balance_object.hpp>
@@ -23,23 +24,25 @@ using namespace contento::chain;
 using namespace contento::protocol;
 using namespace contento::test;
 
-vm_operation create_setcode(const name& contract_name, const bytes& code) {
+vm_operation create_setcode(const name& contract_name, const uint8_t compression, const bytes& code) {
     return vm_operation {
         contract_name,
         setcode{
             .account    = contract_name,
             .vmtype     = 0,
             .vmversion  = 0,
+            .compression = compression,
             .code       = code
         }
     };
 }
-vm_operation create_setabi(const name& contract_name, const abi_def& abi) {
+vm_operation create_setabi(const name& contract_name, const uint8_t compression, const bytes& abi) {
     return vm_operation {
         contract_name,
         setabi{
             .account    = contract_name,
-            .abi        = fc::raw::pack(abi)
+            .compression = compression,
+            .abi        = abi
         }
     };
 }
@@ -53,7 +56,22 @@ bytes get_code(const std::string& wast_path) {
 
 static void set_code(database &db, fc::ecc::private_key key, const name& contract_name, const std::string& wast_path) {
     signed_transaction tx;
-    vm_operation vop = create_setcode(contract_name, get_code(wast_path));
+
+    auto wasm = get_code(wast_path);
+    uint8_t compression = 0;
+    
+    bytes bytes_wasm;
+
+    if(wasm.size() > MAX_UNCOMPRESSION_SIZE){
+        std::string uncompressed(wasm.begin(), wasm.end());
+        std::string compressed = fc::zlib_compress(uncompressed);
+        compression = 1;
+        bytes_wasm = bytes(compressed.begin(), compressed.end());
+    }
+    else {
+         bytes_wasm = bytes( wasm.begin(), wasm.end());
+    }
+    vm_operation vop = create_setcode(contract_name, compression, bytes_wasm);
 
     tx.operations.push_back(vop);
     tx.set_expiration( db.head_block_time() + 30 );
@@ -62,8 +80,19 @@ static void set_code(database &db, fc::ecc::private_key key, const name& contrac
 }
 
 static void set_abi(database &db, fc::ecc::private_key key, const name& contract_name, const std::string& abi_path) {
-   signed_transaction tx;
-   vm_operation vop = create_setabi(contract_name, fc::json::from_file(abi_path).as<abi_def>());
+    signed_transaction tx;
+
+    auto abi = fc::raw::pack(fc::json::from_file(abi_path).as<abi_def>());
+    uint8_t compression = 0;
+
+    if(abi.size() > MAX_UNCOMPRESSION_SIZE){
+        std::string uncompressed(abi.begin(), abi.end());
+        std::string compressed = fc::zlib_compress(uncompressed);
+        compression = 1;
+        abi = bytes(compressed.begin(), compressed.end());
+    }
+
+    vm_operation vop = create_setabi(contract_name, compression, abi);
     
     tx.operations.push_back(vop);
     tx.set_expiration( db.head_block_time() + 30 );
@@ -297,35 +326,35 @@ BOOST_AUTO_TEST_CASE( contract_bank_robust )
     FC_LOG_AND_RETHROW()
 }
 
-BOOST_AUTO_TEST_CASE( storage )
-{
-    try {
-    ACTORS((contento)(hello)(buttnaked)(storage));
-    //fund("hello", 100);
-
-    fund("hello", 5000);
-    fund("buttnaked", 5000);
-    fund("storage", 5000);
-
-    set_code(db, storage_private_key, N(storage), "../../../tests/contento/contracts/storage/storage.wast");
-    set_abi(db, storage_private_key, N(storage), "../../../tests/contento/contracts/storage/storage.abi");
-    
-    asset v;
-    push_action(db, storage_private_key, N(storage), N(storage), N(placeoffer),
-         "[ \"storage\", \"3.0000 COC\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]",v);
-    BOOST_REQUIRE_THROW(
-       push_action(db, hello_private_key, N(hello), N(storage), N(placeoffer),
-                  "[ \"storage\", \"3.0000 COC\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]",v), 
-       fc::exception
-    );
-    push_action(db, storage_private_key, N(storage), N(storage), N(canceloffer), 
-         "[\"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\"]",v);
-    push_action(db, hello_private_key, N(hello), N(storage), N(placeoffer), 
-                "[ \"hello\", \"3.0000 COC\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]",v);
-
-    }
-    FC_LOG_AND_RETHROW()
-}
+//BOOST_AUTO_TEST_CASE( storage )
+//{
+//    try {
+//    ACTORS((contento)(hello)(buttnaked)(storage));
+//    //fund("hello", 100);
+//
+//    fund("hello", 5000);
+//    fund("buttnaked", 5000);
+//    fund("storage", 5000);
+//
+//    set_code(db, storage_private_key, N(storage), "../../../tests/contento/contracts/storage/storage.wast");
+//    set_abi(db, storage_private_key, N(storage), "../../../tests/contento/contracts/storage/storage.abi");
+//    
+//    asset v;
+//    push_action(db, storage_private_key, N(storage), N(storage), N(placeoffer),
+//         "[ \"storage\", \"3.0000 COC\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]",v);
+//    BOOST_REQUIRE_THROW(
+//       push_action(db, hello_private_key, N(hello), N(storage), N(placeoffer),
+//                  "[ \"storage\", \"3.0000 COC\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]",v), 
+//       fc::exception
+//    );
+//    push_action(db, storage_private_key, N(storage), N(storage), N(canceloffer), 
+//         "[\"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\"]",v);
+//    push_action(db, hello_private_key, N(hello), N(storage), N(placeoffer), 
+//                "[ \"hello\", \"3.0000 COC\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]",v);
+//
+//    }
+//    FC_LOG_AND_RETHROW()
+//}
 
 BOOST_AUTO_TEST_SUITE_END()
 

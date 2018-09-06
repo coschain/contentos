@@ -149,6 +149,7 @@ abi_def contento_contract_abi(const abi_def& contento_system_abi)
       "setcode", "", {
          {"account", "account_name"},
          {"vmtype", "uint8"},
+         {"compression", "uint8"},
          {"vmversion", "uint8"},
          {"code", "bytes"}
       }
@@ -157,6 +158,7 @@ abi_def contento_contract_abi(const abi_def& contento_system_abi)
    eos_abi.structs.emplace_back( struct_def {
       "setabi", "", {
          {"account", "account_name"},
+         {"compression", "uint8"},
          {"abi",     "bytes"}
       }
    });

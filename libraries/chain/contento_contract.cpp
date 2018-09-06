@@ -12,6 +12,8 @@
 
 #include <contento/chain/wasm_interface.hpp>
 
+#include <fc/compress/zlib.hpp>
+
 #include <contento/chain/contract_balance_object.hpp>
 
 
@@ -25,6 +27,13 @@ void apply_contento_setcode(apply_context& context) {
 
    FC_ASSERT( act.vmtype == 0 );
    FC_ASSERT( act.vmversion == 0 );
+
+   if(act.compression != 0){
+       std::string compressed(act.code.begin(), act.code.end());
+       std::string uncompressed = fc::zlib_decompress( compressed );
+       auto code = bytes(uncompressed.begin(), uncompressed.end());
+       act.code = code;
+   }
 
    fc::sha256 code_id; /// default ID == 0
 
@@ -71,6 +80,13 @@ void apply_contento_setabi(apply_context& context) {
    // TODOO: context.require_authorization(act.account);
 
    const auto& account = db.get<account_object,by_name>(act.account);
+
+    if(act.compression != 0){
+        std::string compressed(act.abi.begin(), act.abi.end());
+        std::string uncompressed = fc::zlib_decompress( compressed );
+        auto code = bytes(uncompressed.begin(), uncompressed.end());
+        act.abi = code;
+    }
 
    int64_t abi_size = act.abi.size();
 
