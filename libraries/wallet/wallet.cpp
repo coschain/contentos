@@ -2816,16 +2816,16 @@ void wallet_api::set_abi_callback( string accountname, string contract_dir, stri
 
       FC_ASSERT( fc::exists( abiPath ), "no abi file found ${f}", ("f", abiPath)  );
 
-      auto abi = fc::raw::pack ( fc::json::from_file(abiPath).as<abi_def>();
+      auto abi = fc::raw::pack ( fc::json::from_file(abiPath).as<abi_def>() );
 
       uint8_t compression = 0;
 
-      if(wasm.size() > MAX_UNCOMPRESSION_SIZE){
-          std::string uncompressed(abi.begin(), abi.end());
-          std::string compressed = fc::zlib_compress(uncompressed);
-          compression = 1;
-          abi = bytes(compressed.begin(), compressed.end());
-      }
+   if(wasm.size() > MAX_UNCOMPRESSION_SIZE){
+      std::string uncompressed(abi.begin(), abi.end());
+      std::string compressed = fc::zlib_compress(uncompressed);
+      compression = 1;
+      abi = bytes(compressed.begin(), compressed.end());
+   }
 
       try {
             tx.operations.push_back ( vm_operation ( accountname, 
