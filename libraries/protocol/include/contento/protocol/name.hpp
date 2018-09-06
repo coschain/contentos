@@ -37,8 +37,7 @@ namespace contento { namespace protocol {
           name |= char_to_symbol(str[12]) & 0x0F;
       return name;
    }
-  
-   
+
 #define N(X) contento::protocol::string_to_name(#X)
 
    struct name {
