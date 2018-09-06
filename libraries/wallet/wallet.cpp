@@ -2820,7 +2820,7 @@ void wallet_api::set_abi_callback( string accountname, string contract_dir, stri
 
       uint8_t compression = 0;
 
-      if(wasm.size() > MAX_UNCOMPRESSION_SIZE){
+      if(abi.size() > MAX_UNCOMPRESSION_SIZE){
           std::string uncompressed(abi.begin(), abi.end());
           std::string compressed = fc::zlib_compress(uncompressed);
           compression = 1;
