@@ -19,13 +19,28 @@ namespace contento { namespace gas_estimate {
         contento_gas_estimate_api_impl( const api_context& ctx ): _db(ctx.app.chain_database()) { }
         ~contento_gas_estimate_api_impl() { }
 
-        asset estimated_gas_fee( const signed_transaction& trx ) {
+        void set_current_working_thread() {
+            _thread = &fc::thread::current();
+        }
+
+        asset _estimated_gas_fee( const signed_transaction& trx ) {
+            FC_ASSERT(_thread && _thread->is_current(), "incorrect thread invoking.");
             transaction_wrapper trx_wrapper = _db->test_push_transaction(trx);
             return asset(trx_wrapper.invoice.gas_usage / config::gas_per_coc);
+        }
+
+        asset estimated_gas_fee( const signed_transaction& trx ) {
+            FC_ASSERT(_thread, "contento_gas_estimate_api not initialized properly.");
+            if (_thread->is_current()) {
+                return _estimated_gas_fee(trx);
+            } else {
+                return _thread->async([&](){ return _estimated_gas_fee(trx); }, "thread invoking _estimated_gas_fee").wait();
+            }
         }
         
     private:
         std::shared_ptr<database> _db;
+        fc::thread *_thread;
     };
     
     /////////////////////////
@@ -41,7 +56,9 @@ namespace contento { namespace gas_estimate {
         wlog("freeing gas_estimate_api ${x}", ("x", int64_t(this)) );
     }
 
-    void contento_gas_estimate_api::on_api_startup() { }
+    void contento_gas_estimate_api::on_api_startup() { 
+        my->set_current_working_thread();
+    }
     
     asset contento_gas_estimate_api::estimated_gas_fee(const signed_transaction &trx)
     {

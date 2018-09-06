@@ -3,6 +3,7 @@
 #include <cosiolib/chain.h>
 #include <cosiolib/cosio.hpp>
 #include <cosiolib/asset.hpp>
+#include <cosiolib/action.h>
 using cosio::asset;
 
 using namespace cosio;
@@ -15,6 +16,10 @@ class hello : public cosio::contract {
       void hi( account_name user ) {
          print( "\n Hello, ", namex{user} );
       }
+    
+    void test_auth() {
+        require_auth();
+    }
     
     //@abi action
     void save(){
@@ -37,4 +42,4 @@ class hello : public cosio::contract {
     }
 };
 
-COSIO_ABI( hello, (hi)(save)(withdraw))
+COSIO_ABI( hello, (hi)(save)(withdraw)(test_auth))

@@ -1,4 +1,4 @@
-#ifdef IS_TEST_NET_2
+#ifdef IS_TEST_NET
 
 #include <boost/test/unit_test.hpp>
 #include "fixtures/contento_fixture.hpp"

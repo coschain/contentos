@@ -1,3 +1,4 @@
+#ifdef IS_TEST_NET
 #include <boost/test/unit_test.hpp>
 
 #include <fstream>
@@ -134,3 +135,4 @@ BOOST_AUTO_TEST_CASE(zlib_test)
 }
 
 BOOST_AUTO_TEST_SUITE_END()
+#endif

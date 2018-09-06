@@ -2824,12 +2824,12 @@ void wallet_api::set_abi_callback( string accountname, string contract_dir, stri
 
       uint8_t compression = 0;
 
-   if(abi.size() > MAX_UNCOMPRESSION_SIZE){
-      std::string uncompressed(abi.begin(), abi.end());
-      std::string compressed = fc::zlib_compress(uncompressed);
-      compression = 1;
-      abi = bytes(compressed.begin(), compressed.end());
-   }
+      if(abi.size() > MAX_UNCOMPRESSION_SIZE){
+          std::string uncompressed(abi.begin(), abi.end());
+          std::string compressed = fc::zlib_compress(uncompressed);
+          compression = 1;
+          abi = bytes(compressed.begin(), compressed.end());
+      }
 
       try {
             tx.operations.push_back ( vm_operation ( accountname, 
