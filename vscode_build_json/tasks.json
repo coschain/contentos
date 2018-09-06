@@ -14,6 +14,11 @@
             "command": "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/ && cd ${workspaceRoot}/../bninja/ && time ninja -j 12  contento_test"
         },
         {
+            "label": "make_hello",
+            "type": "shell",
+            "command": "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/ && cd ${workspaceRoot}/../bninja/ && time ninja -j 12  contracts/hello/install"
+        },
+        {
             "label": "make_all",
             "type": "shell",
             "command": "export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/ && cd ${workspaceRoot}/../bninja/ && time ninja -j 12",
