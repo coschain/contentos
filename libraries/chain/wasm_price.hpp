@@ -185,8 +185,8 @@ namespace contento { namespace chain { namespace wasm_price {
                         (read_action_data,       (int, int, int)  )
                         (action_data_size,       (int)            )
                         // (current_receiver,       (int)        )
-                        (current_caller,           (void*, int))
-                        (current_coder,            (void*, int))
+                        (current_receiver,           (void*, int))
+                        (current_contract_name,            (void*, int))
                         );
     
     // authorization_api

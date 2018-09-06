@@ -185,8 +185,8 @@
 //#define WASM_PRICE_FN_read_action_data                                       0      // varied
 #define WASM_PRICE_FN_action_data_size                                       31
 // #define WASM_PRICE_FN_current_receiver                                       13
-#define WASM_PRICE_FN_current_caller                                         13
-#define WASM_PRICE_FN_current_coder                                          13
+#define WASM_PRICE_FN_current_receiver                                         13
+#define WASM_PRICE_FN_current_contract_name                                          13
 
 // authorization_api
 #define WASM_PRICE_FN_require_recipient                                      60
@@ -587,8 +587,8 @@ namespace contento { namespace chain { namespace wasm_price {
 //                         (read_action_data,       (int, int, int)  )
                          (action_data_size,       (int)              )
                         //  (current_receiver,       (int)          )
-                         (current_caller,           (void*, int)  )
-                         (current_coder,            (void*, int)  )
+                         (current_receiver,           (void*, int)  )
+                         (current_contract_name,            (void*, int)  )
                          );
     
     // authorization_api

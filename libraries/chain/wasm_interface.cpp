@@ -996,12 +996,12 @@ class action_api : public context_aware_api {
 //         return context.receiver;
 //      }
 
-      void current_caller(account_name& caller) {
-         caller = context.receiver;
+      void current_receiver(account_name& receiver) {
+         receiver = context.receiver;
       }
 
-      void current_coder(scope_name& coder) {
-         coder = context.op.caller;
+      void current_contract_name(scope_name& contract_name) {
+         contract_name = context.op.contract_name;
       }
 };
    
@@ -1853,8 +1853,8 @@ REGISTER_INTRINSICS_WITH_PRICE(action_api,
    WITH_PRICE (read_action_data,       int(int, int)  )
    WITH_PRICE (action_data_size,       int()          )
 //    WITH_PRICE (current_receiver,       int()      )
-   WITH_PRICE (current_caller,           void(int) )
-   WITH_PRICE (current_coder,            void(int) )
+   WITH_PRICE (current_receiver,           void(int) )
+   WITH_PRICE (current_contract_name,            void(int) )
 );
 
 /*

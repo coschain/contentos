@@ -34,24 +34,24 @@ struct secondary_index_db_functions<TYPE> {\
    static int32_t db_idx_next( int32_t iterator, uint64_t* primary )          { return db_##IDX##_next( iterator, primary ); }\
    static int32_t db_idx_previous( int32_t iterator, uint64_t* primary )      { return db_##IDX##_previous( iterator, primary ); }\
    static void    db_idx_remove( int32_t iterator  )                          { db_##IDX##_remove( iterator ); }\
-   static int32_t db_idx_end( account_name* code, scope_name* scope, uint64_t table ) { return db_##IDX##_end( code, scope, table ); }\
-   static int32_t db_idx_store( scope_name* scope, uint64_t table, account_name* payer, uint64_t id, const TYPE& secondary ) {\
-      return db_##IDX##_store( scope, table, payer, id, &secondary );\
+   static int32_t db_idx_end( account_name code, scope_name scope, uint64_t table ) { return db_##IDX##_end( &code, &scope, table ); }\
+   static int32_t db_idx_store( scope_name scope, uint64_t table, account_name payer, uint64_t id, const TYPE& secondary ) {\
+      return db_##IDX##_store( &scope, table, &payer, id, &secondary );\
    }\
-   static void    db_idx_update( int32_t iterator, account_name* payer, const TYPE& secondary ) {\
-      db_##IDX##_update( iterator, payer, &secondary );\
+   static void    db_idx_update( int32_t iterator, account_name payer, const TYPE& secondary ) {\
+      db_##IDX##_update( iterator, &payer, &secondary );\
    }\
-   static int32_t db_idx_find_primary( account_name* code, scope_name* scope, uint64_t table, uint64_t primary, TYPE& secondary ) {\
-      return db_##IDX##_find_primary( code, scope, table, &secondary, primary );\
+   static int32_t db_idx_find_primary( account_name code, scope_name scope, uint64_t table, uint64_t primary, TYPE& secondary ) {\
+      return db_##IDX##_find_primary( &code, &scope, table, &secondary, primary );\
    }\
-   static int32_t db_idx_find_secondary( account_name* code, scope_name* scope, uint64_t table, const TYPE& secondary, uint64_t& primary ) {\
-      return db_##IDX##_find_secondary( code, scope, table, &secondary, &primary );\
+   static int32_t db_idx_find_secondary( account_name code, scope_name scope, uint64_t table, const TYPE& secondary, uint64_t& primary ) {\
+      return db_##IDX##_find_secondary( &code, &scope, table, &secondary, &primary );\
    }\
-   static int32_t db_idx_lowerbound( account_name* code, scope_name* scope, uint64_t table, TYPE& secondary, uint64_t& primary ) {\
-      return db_##IDX##_lowerbound( code, scope, table, &secondary, &primary );\
+   static int32_t db_idx_lowerbound( account_name code, scope_name scope, uint64_t table, TYPE& secondary, uint64_t& primary ) {\
+      return db_##IDX##_lowerbound( &code, &scope, table, &secondary, &primary );\
    }\
-   static int32_t db_idx_upperbound( account_name* code, scope_name* scope, uint64_t table, TYPE& secondary, uint64_t& primary ) {\
-      return db_##IDX##_upperbound( code, scope, table, &secondary, &primary );\
+   static int32_t db_idx_upperbound( account_name code, scope_name scope, uint64_t table, TYPE& secondary, uint64_t& primary ) {\
+      return db_##IDX##_upperbound( &code, &scope, table, &secondary, &primary );\
    }\
 };
 
@@ -61,24 +61,24 @@ struct secondary_index_db_functions<TYPE> {\
    static int32_t db_idx_next( int32_t iterator, uint64_t* primary )          { return db_##IDX##_next( iterator, primary ); }\
    static int32_t db_idx_previous( int32_t iterator, uint64_t* primary )      { return db_##IDX##_previous( iterator, primary ); }\
    static void    db_idx_remove( int32_t iterator )                           { db_##IDX##_remove( iterator ); }\
-   static int32_t db_idx_end( account_name* code, scope_name* scope, uint64_t table ) { return db_##IDX##_end( code, scope, table ); }\
-   static int32_t db_idx_store( scope_name* scope, uint64_t table, account_name* payer, uint64_t id, const TYPE& secondary ) {\
-      return db_##IDX##_store( scope, table, payer, id, secondary.data(), TYPE::num_words() );\
+   static int32_t db_idx_end( account_name code, scope_name scope, uint64_t table ) { return db_##IDX##_end( &code, &scope, table ); }\
+   static int32_t db_idx_store( scope_name scope, uint64_t table, account_name payer, uint64_t id, const TYPE& secondary ) {\
+      return db_##IDX##_store( &scope, table, &payer, id, secondary.data(), TYPE::num_words() );\
    }\
-   static void    db_idx_update( int32_t iterator, account_name* payer, const TYPE& secondary ) {\
-      db_##IDX##_update( iterator, payer, secondary.data(), TYPE::num_words() );\
+   static void    db_idx_update( int32_t iterator, account_name payer, const TYPE& secondary ) {\
+      db_##IDX##_update( iterator, &payer, secondary.data(), TYPE::num_words() );\
    }\
-   static int32_t db_idx_find_primary( account_name* code, scope_name* scope, uint64_t table, uint64_t primary, TYPE& secondary ) {\
-      return db_##IDX##_find_primary( code, scope, table, secondary.data(), TYPE::num_words(), primary );\
+   static int32_t db_idx_find_primary( account_name code, scope_name scope, uint64_t table, uint64_t primary, TYPE& secondary ) {\
+      return db_##IDX##_find_primary( &code, &scope, table, secondary.data(), TYPE::num_words(), primary );\
    }\
-   static int32_t db_idx_find_secondary( account_name* code, scope_name* scope, uint64_t table, const TYPE& secondary, uint64_t& primary ) {\
-      return db_##IDX##_find_secondary( code, scope, table, secondary.data(), TYPE::num_words(), &primary );\
+   static int32_t db_idx_find_secondary( account_name code, scope_name scope, uint64_t table, const TYPE& secondary, uint64_t& primary ) {\
+      return db_##IDX##_find_secondary( &code, &scope, table, secondary.data(), TYPE::num_words(), &primary );\
    }\
-   static int32_t db_idx_lowerbound( account_name* code, scope_name* scope, uint64_t table, TYPE& secondary, uint64_t& primary ) {\
-      return db_##IDX##_lowerbound( code, scope, table, secondary.data(), TYPE::num_words(), &primary );\
+   static int32_t db_idx_lowerbound( account_name code, scope_name scope, uint64_t table, TYPE& secondary, uint64_t& primary ) {\
+      return db_##IDX##_lowerbound( &code, &scope, table, secondary.data(), TYPE::num_words(), &primary );\
    }\
-   static int32_t db_idx_upperbound( account_name* code, scope_name* scope, uint64_t table, TYPE& secondary, uint64_t& primary ) {\
-      return db_##IDX##_upperbound( code, scope, table, secondary.data(), TYPE::num_words(), &primary );\
+   static int32_t db_idx_upperbound( account_name code, scope_name scope, uint64_t table, TYPE& secondary, uint64_t& primary ) {\
+      return db_##IDX##_upperbound( &code, &scope, table, secondary.data(), TYPE::num_words(), &primary );\
    }\
 };
 
@@ -140,8 +140,8 @@ class multi_index
 
       static_assert( validate_table_name(TableName), "multi_index does not support table names with a length greater than 12");
 
-      namex _code;
-      namex _scope;
+      namex_ _code;
+      namex_ _scope;
 
       mutable uint64_t _next_primary_key;
 
@@ -338,7 +338,11 @@ class multi_index
 
                uint64_t primary = 0;
                secondary_key_type secondary_copy(secondary);
-               auto itr = secondary_index_db_functions<secondary_key_type>::db_idx_lowerbound( get_code(), get_scope(), name(), secondary_copy, primary );
+               
+               auto& __code = const_cast<namex_&>( static_cast<const namex_&>(get_code()));
+               auto& __scope = const_cast<namex_&>( static_cast<const namex_&>(get_scope()));
+
+               auto itr = secondary_index_db_functions<secondary_key_type>::db_idx_lowerbound( __code, __scope, name(), secondary_copy, primary );
                if( itr < 0 ) return cend();
 
                const T& obj = *_multidx->find( primary );
@@ -383,7 +387,7 @@ class multi_index
             }
 
             template<typename Lambda>
-            void modify( const_iterator itr, account_name* payer, Lambda&& updater ) {
+            void modify( const_iterator itr, account_name payer, Lambda&& updater ) {
                contento_assert( itr != cend(), "cannot pass end iterator to modify" );
 
                _multidx->modify( *itr, payer, std::forward<Lambda&&>(updater) );
@@ -400,8 +404,8 @@ class multi_index
                return itr;
             }
 
-            namex get_code()const  { return _multidx->get_code(); }
-            namex get_scope()const { return _multidx->get_scope(); }
+            namex_ get_code()const  { return _multidx->get_code(); }
+            namex_ get_scope()const { return _multidx->get_scope(); }
 
             static auto extract_secondary_key(const T& obj) { return secondary_extractor_type()(obj); }
 
@@ -493,8 +497,8 @@ class multi_index
       :_code(code),_scope(scope),_next_primary_key(unset_next_primary_key)
       {}
 
-      namex get_code()const  { return _code; }
-      namex get_scope()const { return _scope; }
+      namex_ get_code()const  { return _code; }
+      namex_ get_scope()const { return _scope; }
 
       struct const_iterator : public std::iterator<std::bidirectional_iterator_tag, const T> {
          friend bool operator == ( const const_iterator& a, const const_iterator& b ) {
@@ -535,7 +539,9 @@ class multi_index
             int32_t  prev_itr = -1;
 
             if( !_item ) {
-               auto ei = db_end_i64(_multidx->get_code(), _multidx->get_scope(), TableName);
+               auto __code = _multidx->get_code();
+               auto __scope = _multidx->get_scope();
+               auto ei = db_end_i64(&(__code), &(__scope), TableName);
                contento_assert( ei != -1, "cannot decrement end iterator when the table is empty" );
                prev_itr = db_previous_i64( ei , &prev_pk );
                contento_assert( prev_itr >= 0, "cannot decrement end iterator when the table is empty" );
@@ -574,14 +580,17 @@ class multi_index
       const_reverse_iterator rend()const    { return crend(); }
 
       const_iterator lower_bound( uint64_t primary )const {
-         auto itr = db_lowerbound_i64( _code, _scope, TableName, primary );
+
+         auto& __code = const_cast<namex_&>( static_cast<const namex_&>(_code));
+         auto& __scope = const_cast<namex_&>( static_cast<const namex_&>(_scope));
+         auto itr = db_lowerbound_i64( &__code, &__scope, TableName, primary );
          if( itr < 0 ) return end();
          const auto& obj = load_object_by_primary_iterator( itr );
          return {this, &obj};
       }
 
       const_iterator upper_bound( uint64_t primary )const {
-         auto itr = db_upperbound_i64( _code, _scope, TableName, primary );
+         auto itr = db_upperbound_i64( &_code, &_scope, TableName, primary );
          if( itr < 0 ) return end();
          const auto& obj = load_object_by_primary_iterator( itr );
          return {this, &obj};
@@ -644,10 +653,10 @@ class multi_index
       }
 
       template<typename Lambda>
-      const_iterator emplace( account_name* payer, Lambda&& constructor ) {
+      const_iterator emplace( account_name payer, Lambda&& constructor ) {
          using namespace _multi_index_detail;
 
-         contento_assert( _code == get_current_caller(), "cannot create objects in table of another contract" ); // Quick fix for mutating db using multi_index that shouldn't allow mutation. Real fix can come in RC2.
+         contento_assert( _code == get_current_receiver(), "cannot create objects in table of another contract" ); // Quick fix for mutating db using multi_index that shouldn't allow mutation. Real fix can come in RC2.
 
          auto itm = std::make_unique<item>( this, [&]( auto& i ){
             T& obj = static_cast<T&>(i);
@@ -663,7 +672,7 @@ class multi_index
 
             auto pk = obj.primary_key();
 
-            i.__primary_itr = db_store_i64( _scope, TableName, payer, pk, buffer, size );
+            i.__primary_itr = db_store_i64( &_scope, TableName, &payer, pk, buffer, size );
 
             if ( max_stack_buffer_size < size ) {
                free(buffer);
@@ -689,20 +698,20 @@ class multi_index
       }
 
       template<typename Lambda>
-      void modify( const_iterator itr, account_name* payer, Lambda&& updater ) {
+      void modify( const_iterator itr, account_name payer, Lambda&& updater ) {
          contento_assert( itr != end(), "cannot pass end iterator to modify" );
 
          modify( *itr, payer, std::forward<Lambda&&>(updater) );
       }
 
       template<typename Lambda>
-      void modify( const T& obj, account_name* payer, Lambda&& updater ) {
+      void modify( const T& obj, account_name payer, Lambda&& updater ) {
          using namespace _multi_index_detail;
 
          const auto& objitem = static_cast<const item&>(obj);
          contento_assert( objitem.__idx == this, "object passed to modify is not in multi_index" );
          auto& mutableitem = const_cast<item&>(objitem);
-         contento_assert( _code == get_current_caller(), "cannot modify objects in table of another contract" ); // Quick fix for mutating db using multi_index that shouldn't allow mutation. Real fix can come in RC2.
+         contento_assert( _code == get_current_receiver(), "cannot modify objects in table of another contract" ); // Quick fix for mutating db using multi_index that shouldn't allow mutation. Real fix can come in RC2.
 
          auto secondary_keys = hana::transform( _indices, [&]( auto&& idx ) {
             typedef typename decltype(+hana::at_c<0>(idx))::type index_type;
@@ -764,7 +773,9 @@ class multi_index
          if( itr2 != _items_vector.rend() )
             return iterator_to(*(itr2->_item));
 
-         auto itr = db_find_i64( _code, _scope, TableName, primary );
+         auto& __code = const_cast<namex_&>( static_cast<const namex_&>(_code));
+         auto& __scope = const_cast<namex_&>( static_cast<const namex_&>(_scope));
+         auto itr = db_find_i64( &__code, &__scope, TableName, primary );
          if( itr < 0 ) return end();
 
          const item& i = load_object_by_primary_iterator( itr );
@@ -787,7 +798,7 @@ class multi_index
 
          const auto& objitem = static_cast<const item&>(obj);
          contento_assert( objitem.__idx == this, "object passed to erase is not in multi_index" );
-         contento_assert( _code == get_current_caller(), "cannot erase objects in table of another contract" ); // Quick fix for mutating db using multi_index that shouldn't allow mutation. Real fix can come in RC2.
+         contento_assert( _code == get_current_receiver(), "cannot erase objects in table of another contract" ); // Quick fix for mutating db using multi_index that shouldn't allow mutation. Real fix can come in RC2.
 
          auto pk = objitem.primary_key();
          auto itr2 = std::find_if(_items_vector.rbegin(), _items_vector.rend(), [&](const item_ptr& ptr) {

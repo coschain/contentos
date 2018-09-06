@@ -390,6 +390,9 @@ namespace cosio {
       friend bool operator == ( const std::string& a, const namex& b ) {
          return a == std::string(b);
       }
+      friend bool operator == ( const namex_& a, const namex& b ) {
+         return convert_name_u128(a) == b.value;
+      }
       
       friend bool operator != ( const namex& a, const std::string& b ) {
          return std::string(a) != b;

@@ -150,8 +150,8 @@ extern "C" {
     */
 //    account_name current_receiver();
    
-   void current_caller(account_name* caller);
+   void current_receiver(account_name* recevier);
 
-   void current_coder(scope_name* coder);
+   void current_contract_name(scope_name* contract_name);
    ///@ } actioncapi
 }
