@@ -2,6 +2,7 @@
 #include <contento/app/application.hpp>
 #include <contento/app/database_api.hpp>
 #include <contento/app/contract_storage.hpp>
+#include <contento/chain/contract_balance_object.hpp>
 
 #include <contento/protocol/get_config.hpp>
 
@@ -47,6 +48,9 @@ class database_api_impl : public std::enable_shared_from_this<database_api_impl>
 
       // Keys
       vector<set<string>> get_key_references( vector<public_key_type> key )const;
+    
+      // Contract
+      asset get_contract_balance(string name) const;
 
       // Accounts
       vector< extended_account > get_accounts( vector< string > names )const;
@@ -360,6 +364,29 @@ vector<set<string>> database_api_impl::get_key_references( vector<public_key_typ
    FC_ASSERT( false, "database_api::get_key_references has been deprecated. Please use account_by_key_api::get_key_references instead." );
    vector< set<string> > final_result;
    return final_result;
+}
+    
+//////////////////////////////////////////////////////////////////////
+//                                                                  //
+// Contract                                                         //
+//                                                                  //
+//////////////////////////////////////////////////////////////////////
+asset database_api::get_contract_balance(string name) const {
+    return determine_read_lock( [&]()
+    {
+        return my->get_contract_balance( name );
+    });
+}
+    
+asset database_api_impl::get_contract_balance(string name) const {
+    const auto& idx  = _db.get_index< contract_balance_index >().indices().get< by_name >();
+    auto itr = idx.find( name );
+    if(itr != idx.end()){
+        const auto& account = _db.get<contract_balance_object, by_name >( name );
+        return account.coc_balance;
+    } else {
+        return asset(0);
+    }
 }
 
 //////////////////////////////////////////////////////////////////////

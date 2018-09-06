@@ -998,6 +998,11 @@ class wallet_api
        *        json string or a file contains a json string
       */
       asset estimate_gas(string caller, string contract_name, string action_name, string action_data);
+    
+      /**
+       * @param name The contract name
+      */
+      asset get_contract_balance(string name);
 
       /**
        *  Account operations have sequence numbers from 0 to N where N is the most recent operation. This method
@@ -1178,6 +1183,7 @@ FC_API( contento::wallet::wallet_api,
         (set_abi)
         (push_action)
         (estimate_gas)
+        (get_contract_balance)
       )
 
 FC_REFLECT( contento::wallet::memo_data, (from)(to)(nonce)(check)(encrypted) )
