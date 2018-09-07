@@ -344,8 +344,8 @@ BOOST_AUTO_TEST_CASE( contract_require_auth )
         const account_object& acct1 = db.get_account( "hello" );
         BOOST_REQUIRE( acct1.balance.amount.value == 50000 );
         
-        set_code(db, hello_private_key, N(hello), "../../contracts/hello/hello.wast");
-        set_abi(db, hello_private_key, N(hello), "../../contracts/hello/hello.abi");
+        set_code(db, hello_private_key, N(hello), "./contracts/hello/hello.wast");
+        set_abi(db, hello_private_key, N(hello), "./contracts/hello/hello.abi");
         
         asset v;
         push_action(db, hello_private_key, N(hello), N(hello), N(test_auth), "",v);
