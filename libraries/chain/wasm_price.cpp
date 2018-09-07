@@ -187,13 +187,14 @@
 // #define WASM_PRICE_FN_current_receiver                                       13
 #define WASM_PRICE_FN_current_receiver                                         13
 #define WASM_PRICE_FN_current_contract_name                                          13
+#define WASM_PRICE_FN_current_caller                                          13
 
 // authorization_api
-#define WASM_PRICE_FN_require_recipient                                      60
+// #define WASM_PRICE_FN_require_recipient                                      60
 #define WASM_PRICE_FN_require_auth                                           125
-#define WASM_PRICE_FN_require_auth2                                          150
-#define WASM_PRICE_FN_has_auth                                               125
-#define WASM_PRICE_FN_is_account                                             140
+// #define WASM_PRICE_FN_require_auth2                                          150
+// #define WASM_PRICE_FN_has_auth                                               125
+// #define WASM_PRICE_FN_is_account                                             140
 
 // console_api
 #define WASM_PRICE_FN_prints                                                 68      // fixed price of printing 128 chars.
@@ -588,16 +589,17 @@ namespace contento { namespace chain { namespace wasm_price {
                          (action_data_size,       (int)              )
                         //  (current_receiver,       (int)          )
                          (current_receiver,           (void*, int)  )
-                         (current_contract_name,            (void*, int)  )
+                         (current_contract_name,      (void*, int)  )
+                         (current_caller,             (void*, int)  )
                          );
     
     // authorization_api
     WASM_PRICE_FN_CONSTS(
-                         (require_recipient,     (void*, int64_t)          )
-                         (require_auth,          (void*, int64_t)          )
-                         (require_auth2,         (void*, int64_t, int64_t) )
-                         (has_auth,              (int, int64_t)           )
-                         (is_account,            (int, int64_t)           )
+                        //  (require_recipient,     (void*, int64_t)          )
+                         (require_auth,          (void*, int)          )
+                        //  (require_auth2,         (void*, int64_t, int64_t) )
+                        //  (has_auth,              (int, int64_t)           )
+                        //  (is_account,            (int, int64_t)           )
                          );
     
     // console_api

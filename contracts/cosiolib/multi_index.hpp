@@ -656,7 +656,7 @@ class multi_index
       const_iterator emplace( account_name payer, Lambda&& constructor ) {
          using namespace _multi_index_detail;
 
-         contento_assert( _code == get_current_receiver(), "cannot create objects in table of another contract" ); // Quick fix for mutating db using multi_index that shouldn't allow mutation. Real fix can come in RC2.
+         contento_assert( _code == current_receiver(), "cannot create objects in table of another contract" ); // Quick fix for mutating db using multi_index that shouldn't allow mutation. Real fix can come in RC2.
 
          auto itm = std::make_unique<item>( this, [&]( auto& i ){
             T& obj = static_cast<T&>(i);
@@ -711,7 +711,7 @@ class multi_index
          const auto& objitem = static_cast<const item&>(obj);
          contento_assert( objitem.__idx == this, "object passed to modify is not in multi_index" );
          auto& mutableitem = const_cast<item&>(objitem);
-         contento_assert( _code == get_current_receiver(), "cannot modify objects in table of another contract" ); // Quick fix for mutating db using multi_index that shouldn't allow mutation. Real fix can come in RC2.
+         contento_assert( _code == current_receiver(), "cannot modify objects in table of another contract" ); // Quick fix for mutating db using multi_index that shouldn't allow mutation. Real fix can come in RC2.
 
          auto secondary_keys = hana::transform( _indices, [&]( auto&& idx ) {
             typedef typename decltype(+hana::at_c<0>(idx))::type index_type;
@@ -798,7 +798,7 @@ class multi_index
 
          const auto& objitem = static_cast<const item&>(obj);
          contento_assert( objitem.__idx == this, "object passed to erase is not in multi_index" );
-         contento_assert( _code == get_current_receiver(), "cannot erase objects in table of another contract" ); // Quick fix for mutating db using multi_index that shouldn't allow mutation. Real fix can come in RC2.
+         contento_assert( _code == current_receiver(), "cannot erase objects in table of another contract" ); // Quick fix for mutating db using multi_index that shouldn't allow mutation. Real fix can come in RC2.
 
          auto pk = objitem.primary_key();
          auto itr2 = std::find_if(_items_vector.rbegin(), _items_vector.rend(), [&](const item_ptr& ptr) {

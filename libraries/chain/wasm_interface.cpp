@@ -1010,8 +1010,8 @@ class action_api : public context_aware_api {
          contract_name = context.op.contract_name;
       }
 
-      name current_caller() {
-         return context.op.caller;
+      void current_caller(account_name& caller) {
+         caller = context.op.caller;
       }
 };
    
@@ -1864,7 +1864,8 @@ REGISTER_INTRINSICS_WITH_PRICE(action_api,
    WITH_PRICE (action_data_size,       int()          )
 //    WITH_PRICE (current_receiver,       int()      )
    WITH_PRICE (current_receiver,           void(int) )
-   WITH_PRICE (current_contract_name,            void(int) )
+   WITH_PRICE (current_contract_name,      void(int) )
+   WITH_PRICE (current_caller,             void(int) )
 );
 
 /*
@@ -1877,7 +1878,7 @@ REGISTER_INTRINSICS_WITH_PRICE(authorization_api,
 ); */ 
     
 REGISTER_INTRINSICS_WITH_PRICE(authorization_api,
-   ((require_authorization, void(int64_t), "require_auth", void(authorization_api::*)(const account_name&) ), ::contento::chain::wasm_price::require_auth )
+   ((require_authorization, void(int), "require_auth", void(authorization_api::*)(const account_name&) ), ::contento::chain::wasm_price::require_auth )
 );
 
 REGISTER_INTRINSICS_WITH_PRICE(console_api,

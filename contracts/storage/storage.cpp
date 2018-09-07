@@ -18,6 +18,7 @@ using cosio::asset;
 using cosio::action;
 using cosio::print;
 using cosio::name;
+using cosio::namex;
 
 class storage : public cosio::contract {
    public:
@@ -45,7 +46,7 @@ class storage : public cosio::contract {
             offer.commitment = commitment;
             offer.gameid     = 0;
          });
-         print( "[storage]-> ", name{owner}, " placed 1 record in table \"offer\"");
+         print( "[storage]-> ", namex{owner}, " placed 1 record in table \"offer\"");
       }
 
       //@abi action
@@ -58,19 +59,19 @@ class storage : public cosio::contract {
          contento_assert( offer_itr->gameid == 0, "unable to cancel offer" );
          //require_auth( offer_itr->owner );
          idx.erase(offer_itr);
-         print( "[storage]-> ", name{offer_itr->owner}, " removed 1 record in table \"offer\"");
+         print( "[storage]-> ", namex{offer_itr->owner}, " removed 1 record in table \"offer\"");
       }
 
       //@abi action
-      void callhello() {
-         auto caller = current_caller();
-         action(
-            caller,
-            N(hello),
-            N(hi),
-            N(contento)
-         ).send();
-      }
+      // void callhello() {
+      //    auto caller = current_caller();
+      //    action(
+      //       caller,
+      //       N(hello),
+      //       N(hi),
+      //       N(contento)
+      //    ).send();
+      // }
 
    
 
