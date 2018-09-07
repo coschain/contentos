@@ -912,7 +912,7 @@ namespace contento { namespace protocol {
 
    struct vm_operation : public base_operation {
       account_name_type          caller;
-      account_name_type          contract_name;
+      scope_name_type            contract_name;
       name                       action_name;
       bytes                      data;
       asset                      value;

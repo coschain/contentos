@@ -75,6 +75,19 @@ namespace cosio {
       // require_recipient( remaining_accounts... );
    }
 
+
+   namex get_current_receiver() {
+     namex_ receiver;
+     current_receiver(&receiver);
+     return receiver;
+   }
+
+   namex get_current_contract_name() {
+     namex_ contract_name;
+     current_contract_name(&contract_name);
+     return contract_name;
+   }
+
    /**
     * This is the packed representation of an action along with
     * meta-data about the authorization levels.
