@@ -17,6 +17,7 @@ class hello : public cosio::contract {
          print( "\n Hello, ", namex{user} );
       }
     
+    //@abi action
     void test_auth(account_name user) {
         require_auth(&user);
     }
