@@ -135,7 +135,7 @@ void apply_context::require_authorization( const account_name& account ) {
 }
 */
 
-void apply_context::require_authorization( const account_name& account ) {
+void apply_context::require_authorization() {
     auto get_active  = [&]( const string& name ) { return contento::protocol::authority( db.get< contento::chain::account_authority_object, contento::chain::by_account >( name ).active ); };
     auto get_owner   = [&]( const string& name ) { return contento::protocol::authority( db.get< contento::chain::account_authority_object, contento::chain::by_account >( name ).owner );  };
     auto get_posting = [&]( const string& name ) { return contento::protocol::authority( db.get< contento::chain::account_authority_object, contento::chain::by_account >( name ).posting );  };

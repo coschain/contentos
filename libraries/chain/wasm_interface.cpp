@@ -915,6 +915,13 @@ class authorization_api : public context_aware_api {
 
 };
 */
+    class authorization_api : public context_aware_api {
+    public:
+        using context_aware_api::context_aware_api;
+        void require_authorization() {
+            context.require_authorization();
+        }
+    };
 
 class system_api : public context_aware_api {
    public:
@@ -1852,6 +1859,10 @@ REGISTER_INTRINSICS_WITH_PRICE(authorization_api,
    ((has_authorization,     int(int64_t), "has_auth", bool(authorization_api::*)(const account_name&)const ), ::contento::chain::wasm_price::has_auth )
    WITH_PRICE (is_account,            int(int64_t)           )
 ); */
+    
+REGISTER_INTRINSICS_WITH_PRICE(authorization_api,
+   ((require_authorization, void(), "require_auth", void(authorization_api::*)() ), ::contento::chain::wasm_price::require_auth )
+);
 
 REGISTER_INTRINSICS_WITH_PRICE(console_api,
    WITH_PRICE (prints,                void(int)      )
