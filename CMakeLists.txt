@@ -225,7 +225,7 @@ endif()
 
 message( STATUS "Using '${CORE_SYMBOL_NAME}' as CORE symbol name" )
 
-set( ENABLE_MAC_SHARED_LIB TRUE )
+# set( ENABLE_MAC_SHARED_LIB TRUE )
 
 add_subdirectory( externals )
 

@@ -102,5 +102,5 @@ mkdir bninja
 cd bninja
 
 export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/
-cmake -G Ninja -DBOOST_ROOT="/usr/local/Cellar/boost/1.67.0_1" -DCMAKE_BUILD_TYPE=Debug -DBUILD_CONTENTOS_TESTNET=ON -DCMAKE_CXX_COMPILER="$quickcc_dir/quickcc.sh" -DCMAKE_C_COMPILER="$quickcc_dir/quickc.sh"  ../contentos/
+cmake -G Ninja -DBOOST_ROOT="/usr/local/Cellar/boost/1.67.0_1" -DCMAKE_BUILD_TYPE=Debug -DENABLE_MAC_SHARED_LIB=1 -DBUILD_CONTENTOS_TESTNET=ON -DCMAKE_CXX_COMPILER="$quickcc_dir/quickcc.sh" -DCMAKE_C_COMPILER="$quickcc_dir/quickc.sh"  ../contentos/
 cd ../contentos/
