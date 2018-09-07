@@ -18,6 +18,7 @@ class hello : public cosio::contract {
       }
     
     void test_auth(account_name user) {
+        
         require_auth(user);
     }
     

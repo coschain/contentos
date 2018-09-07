@@ -190,7 +190,7 @@ void apply_context::execute_inline( vm_operation&& op ) {
    EOS_ASSERT( code != nullptr, action_validate_exception,
                "inline vm_operation's code account ${account} does not exist", ("account", op.contract_name) );
 
-   require_authorization();
+   //require_authorization();
 
    _inline_ops.emplace_back( move(op) );
 }

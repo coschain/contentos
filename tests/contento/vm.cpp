@@ -344,15 +344,19 @@ BOOST_AUTO_TEST_CASE( contract_require_auth )
         const account_object& acct1 = db.get_account( "hello" );
         BOOST_REQUIRE( acct1.balance.amount.value == 50000 );
         
-        set_code(db, hello_private_key, N(hello), "./contracts/hello/hello.wast");
-        set_abi(db, hello_private_key, N(hello), "./contracts/hello/hello.abi");
+        set_code(db, hello_private_key, N(hello), "../../contracts/hello/hello.wast");
+        set_abi(db, hello_private_key, N(hello), "../../contracts/hello/hello.abi");
         
+        string param = "[\"hello\"]";
         asset v;
-        push_action(db, hello_private_key, N(hello), N(hello), N(test_auth), "hello",v);
+        BOOST_REQUIRE_NO_THROW(push_action(db, hello_private_key, N(hello), N(hello), N(test_auth), param,v));
+        
+        param = "[\"hello2\"]";
+        BOOST_REQUIRE_THROW(push_action(db, hello_private_key, N(hello), N(hello), N(test_auth), "hello2",v),fc::exception);
     }
     FC_LOG_AND_RETHROW()
 }
-
+/*
 BOOST_AUTO_TEST_CASE( storage )
 {
    try {
@@ -381,7 +385,7 @@ BOOST_AUTO_TEST_CASE( storage )
 
    }
    FC_LOG_AND_RETHROW()
-}
+}*/
 
 BOOST_AUTO_TEST_SUITE_END()
 
