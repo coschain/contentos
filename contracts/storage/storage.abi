@@ -10,7 +10,7 @@
           "type": "uint64"
         },{
           "name": "owner",
-          "type": "name"
+          "type": "namex"
         },{
           "name": "bet",
           "type": "asset"
@@ -27,7 +27,7 @@
       "base": "",
       "fields": [{
           "name": "owner",
-          "type": "name"
+          "type": "namex"
         },{
           "name": "bet",
           "type": "asset"

@@ -28,7 +28,7 @@ class storage : public cosio::contract {
       :cosio::contract(self),
        offers(_self, _self)
       {}
-
+      
       //@abi action
       void placeoffer(const account_name owner, const asset& bet, const checksum256& commitment) {
 
