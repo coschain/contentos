@@ -15,7 +15,7 @@
       "base": "",
       "fields": [{
           "name": "user",
-          "type": "name"
+          "type": "namex"
         }
       ]
     },{
