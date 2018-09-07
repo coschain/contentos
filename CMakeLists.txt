@@ -39,6 +39,7 @@ include( GetGitRevisionDescription )
 
 include( InstallDirectoryPermissions )
 include( wasm )
+include( maybe_shared_lib )
 
 get_git_head_revision( GIT_REFSPEC GIT_SHA2 )
 
@@ -223,6 +224,8 @@ if (CORE_SYMBOL_NAME_LENGTH GREATER 7)
 endif()
 
 message( STATUS "Using '${CORE_SYMBOL_NAME}' as CORE symbol name" )
+
+set( ENABLE_MAC_SHARED_LIB TRUE )
 
 add_subdirectory( externals )
 

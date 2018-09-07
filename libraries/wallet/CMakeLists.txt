@@ -23,7 +23,7 @@ else()
                       DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/api_documentation_standin.cpp )
 endif()
 
-add_library( contento_wallet wallet.cpp ${CMAKE_CURRENT_BINARY_DIR}/api_documentation.cpp ${HEADERS} )
+add_library2( contento_wallet wallet.cpp ${CMAKE_CURRENT_BINARY_DIR}/api_documentation.cpp ${HEADERS} )
 # I don't know why contento_app is required twice in the following line, I just know the linker breaks if it isn't.
 target_link_libraries( contento_wallet PRIVATE contento_app graphene_net contento_chain contento_protocol graphene_utilities fc contento_private_message contento_app contento_follow contento_account_by_key ${CMAKE_DL_LIBS} ${PLATFORM_SPECIFIC_LIBS} )
 target_include_directories( contento_wallet PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include" )

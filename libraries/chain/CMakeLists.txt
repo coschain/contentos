@@ -20,8 +20,7 @@ endif( MSVC )
 set_source_files_properties( "${CMAKE_CURRENT_BINARY_DIR}/include/contento/chain/hardfork.hpp" PROPERTIES GENERATED TRUE )
 
 ## SORT .cpp by most likely to change / break compile
-add_library( contento_chain
-
+add_library2( contento_chain
              # As database takes the longest to compile, start it first
              database.cpp
              controller.cpp

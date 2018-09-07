@@ -1,8 +1,7 @@
 file(GLOB HEADERS "include/contento/protocol/*.hpp")
 
 ## SORT .cpp by most likely to change / break compile
-add_library( contento_protocol
-
+add_library2( contento_protocol
              types.cpp
              authority.cpp
              chain_id_type.cpp
