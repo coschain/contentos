@@ -154,7 +154,11 @@ namespace cosio {
       COSLIB_SERIALIZE( asset, (amount)(symbol) )
    };
 
+  
+
    struct extended_asset : public asset {
+      typedef namex account_name;
+
       account_name contract;
 
       extended_symbol get_extended_symbol()const { return extended_symbol( symbol, contract ); }
@@ -165,7 +169,7 @@ namespace cosio {
       void print()const {
          asset::print();
          prints("@");
-         printn(contract);
+         cosio::print(contract);
       }
       extended_asset operator-()const {
          asset r = this->asset::operator-();

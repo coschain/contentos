@@ -190,7 +190,7 @@ void apply_context::execute_inline( vm_operation&& op ) {
    EOS_ASSERT( code != nullptr, action_validate_exception,
                "inline vm_operation's code account ${account} does not exist", ("account", op.contract_name) );
 
-   //require_authorization();
+   require_authorization(op.contract_name);
 
    _inline_ops.emplace_back( move(op) );
 }
@@ -207,11 +207,11 @@ void apply_context::execute_inline( vm_operation&& op ) {
 //    _cfa_inline_actions.emplace_back( move(a) );
 // }
 
-const table_id_object* apply_context::find_table( name code, name scope, name table ) {
+const table_id_object* apply_context::find_table( account_name code, scope_name scope, name table ) {
    return db.find<table_id_object, by_code_scope_table>(boost::make_tuple(code, scope, table));
 }
 
-const table_id_object& apply_context::find_or_create_table( name code, name scope, name table, const account_name &payer ) {
+const table_id_object& apply_context::find_or_create_table( account_name code, scope_name scope, name table, const account_name &payer ) {
    const auto* existing_tid =  db.find<table_id_object, by_code_scope_table>(boost::make_tuple(code, scope, table));
    if (existing_tid != nullptr) {
       return *existing_tid;
@@ -309,11 +309,11 @@ int apply_context::get_context_free_data( uint32_t index, char* buffer, size_t b
 }
      */
 
-int apply_context::db_store_i64( uint64_t scope, uint64_t table, const account_name& payer, uint64_t id, const char* buffer, size_t buffer_size ) {
-   return db_store_i64( receiver.to_uint64_t(), scope, table, payer, id, buffer, buffer_size);
+int apply_context::db_store_i64( scope_name scope, uint64_t table, const account_name& payer, uint64_t id, const char* buffer, size_t buffer_size ) {
+   return db_store_i64( receiver, scope, table, payer, id, buffer, buffer_size);
 }
 
-int apply_context::db_store_i64( uint64_t code, uint64_t scope, uint64_t table, const account_name& payer, uint64_t id, const char* buffer, size_t buffer_size ) {
+int apply_context::db_store_i64( account_name code, scope_name scope, uint64_t table, const account_name& payer, uint64_t id, const char* buffer, size_t buffer_size ) {
 //   require_write_lock( scope );
    const auto& tab = find_or_create_table( code, scope, table, payer );
    auto tableid = tab.id;
@@ -451,7 +451,7 @@ int apply_context::db_previous_i64( int iterator, uint64_t& primary ) {
    return keyval_cache.add(*itr);
 }
 
-int apply_context::db_find_i64( uint64_t code, uint64_t scope, uint64_t table, uint64_t id ) {
+int apply_context::db_find_i64( account_name code, scope_name scope, uint64_t table, uint64_t id ) {
    //require_read_lock( code, scope ); // redundant?
 
    const auto* tab = find_table( code, scope, table );
@@ -465,7 +465,7 @@ int apply_context::db_find_i64( uint64_t code, uint64_t scope, uint64_t table, u
    return keyval_cache.add( *obj );
 }
 
-int apply_context::db_lowerbound_i64( uint64_t code, uint64_t scope, uint64_t table, uint64_t id ) {
+int apply_context::db_lowerbound_i64( account_name code, scope_name scope, uint64_t table, uint64_t id ) {
    //require_read_lock( code, scope ); // redundant?
 
    const auto* tab = find_table( code, scope, table );
@@ -481,7 +481,7 @@ int apply_context::db_lowerbound_i64( uint64_t code, uint64_t scope, uint64_t ta
    return keyval_cache.add( *itr );
 }
 
-int apply_context::db_upperbound_i64( uint64_t code, uint64_t scope, uint64_t table, uint64_t id ) {
+int apply_context::db_upperbound_i64( account_name code, scope_name scope, uint64_t table, uint64_t id ) {
    //require_read_lock( code, scope ); // redundant?
 
    const auto* tab = find_table( code, scope, table );
@@ -497,7 +497,7 @@ int apply_context::db_upperbound_i64( uint64_t code, uint64_t scope, uint64_t ta
    return keyval_cache.add( *itr );
 }
 
-int apply_context::db_end_i64( uint64_t code, uint64_t scope, uint64_t table ) {
+int apply_context::db_end_i64( account_name code, scope_name scope, uint64_t table ) {
    //require_read_lock( code, scope ); // redundant?
 
    const auto* tab = find_table( code, scope, table );
