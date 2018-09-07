@@ -3,7 +3,6 @@
 
 #include <fstream>
 #include <iostream>
-#include <fc/compress/smaz.hpp>
 #include <fc/compress/zlib.hpp>
 #include <fc/exception/exception.hpp>
 
@@ -132,6 +131,30 @@ BOOST_AUTO_TEST_CASE(zlib_test)
     std::string compressed = fc::zlib_compress( line );
     std::string decomp = fc::zlib_decompress( compressed );
     BOOST_CHECK_EQUAL( decomp, line );
+}
+
+BOOST_AUTO_TEST_CASE(zlib_decomp_exception_data_test)
+{
+    std::string compressed{"000000000000000"};
+    std::string decomp = fc::zlib_decompress( compressed );
+    BOOST_CHECK_EQUAL( decomp, "" ); 
+}
+
+BOOST_AUTO_TEST_CASE(zlib_decomp_zero_data_test)
+{
+    std::string compressed{"\0\0\0\0"};
+    std::string decomp = fc::zlib_decompress( compressed );
+    BOOST_CHECK_EQUAL( decomp, "" ); 
+}
+
+BOOST_AUTO_TEST_CASE(zlib_modity_compressed_result_test)
+{
+    std::string uncompressed{"# System Requirements"};
+    std::string compressed = fc::zlib_compress( uncompressed ); 
+    compressed += "0123123123";
+    std::string decomp = fc::zlib_decompress( compressed );
+    std::cout << decomp << std::endl;
+    BOOST_CHECK_EQUAL( decomp, uncompressed ); 
 }
 
 BOOST_AUTO_TEST_SUITE_END()
