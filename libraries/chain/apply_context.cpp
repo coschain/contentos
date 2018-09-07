@@ -192,32 +192,7 @@ void apply_context::execute_inline( vm_operation&& op ) {
    EOS_ASSERT( code != nullptr, action_validate_exception,
                "inline vm_operation's code account ${account} does not exist", ("account", op.contract_name) );
 
-    /*
-   for( const auto& auth : a.authorization ) {
-      auto* actor = control.db().find<account_object, by_name>(auth.actor);
-
-      EOS_ASSERT( actor != nullptr, action_validate_exception,
-                  "inline vm_operation's authorizing actor ${account} does not exist", ("account", auth.actor) );
-   }*/
-
-   // No need to check authorization if: replaying irreversible blocks; contract is privileged; or, contract is calling itself.
-    /* TODO: check auth
-     
-   if( !control.skip_auth_check() && !privileged && a.account != receiver ) {
-      control.get_authorization_manager()
-             .check_authorization( {a},
-                                   flat_set<public_key_type>(),
-                                   {{receiver, config::contento_code_name}},
-                                   control.pending_block_time() - trx_context.published,
-                                   std::bind(&transaction_context::checktime, &this->trx_context),
-                                   false
-                                 );
-     
-
-      //QUESTION: Is it smart to allow a deferred transaction that has been delayed for some time to get away
-      //          with sending an inline vm_operation that requires a delay even though the decision to send that inline
-      //          vm_operation was made at the moment the deferred transaction was executed with potentially no forewarning?
-   }*/
+   require_authorization();
 
    _inline_ops.emplace_back( move(op) );
 }
