@@ -348,7 +348,7 @@ BOOST_AUTO_TEST_CASE( contract_require_auth )
         set_abi(db, hello_private_key, N(hello), "./contracts/hello/hello.abi");
         
         asset v;
-        push_action(db, hello_private_key, N(hello), N(hello), N(test_auth), "",v);
+        push_action(db, hello_private_key, N(hello), N(hello), N(test_auth), "hello",v);
     }
     FC_LOG_AND_RETHROW()
 }

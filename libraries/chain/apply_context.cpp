@@ -135,14 +135,12 @@ void apply_context::require_authorization( const account_name& account ) {
 }
 */
 
-void apply_context::require_authorization() {
+void apply_context::require_authorization(const account_name& account) {
     auto get_active  = [&]( const string& name ) { return contento::protocol::authority( db.get< contento::chain::account_authority_object, contento::chain::by_account >( name ).active ); };
-    auto get_owner   = [&]( const string& name ) { return contento::protocol::authority( db.get< contento::chain::account_authority_object, contento::chain::by_account >( name ).owner );  };
-    auto get_posting = [&]( const string& name ) { return contento::protocol::authority( db.get< contento::chain::account_authority_object, contento::chain::by_account >( name ).posting );  };
 
     const contento::protocol::chain_id_type& chain_id = CONTENTO_CHAIN_ID;
     try {
-        trx_context.trx.verify_authority( chain_id, get_active, get_owner, get_posting, 0 );
+        trx_context.trx.verify_authority_for_contract( account, chain_id, get_active, CONTENTO_MAX_SIG_CHECK_DEPTH );
     }
     catch( protocol::tx_missing_active_auth& e )
     {

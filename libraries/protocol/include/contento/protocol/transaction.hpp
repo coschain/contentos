@@ -109,6 +109,12 @@ namespace contento { namespace protocol {
                             const authority_getter& get_owner,
                             const authority_getter& get_posting,
                             uint32_t max_recursion = CONTENTO_MAX_SIG_CHECK_DEPTH )const;
+      
+      void verify_authority_for_contract(
+                             const account_name_type& caller,
+                             const chain_id_type& chain_id,
+                             const authority_getter& get_active,
+                             uint32_t max_recursion )const;
 
       set<public_key_type> minimize_required_signatures(
          const chain_id_type& chain_id,
@@ -152,6 +158,10 @@ namespace contento { namespace protocol {
                           const flat_set< account_name_type >& owner_aprovals = flat_set< account_name_type >(),
                           const flat_set< account_name_type >& posting_approvals = flat_set< account_name_type >());
 
+      void verify_authority_for_contract( const account_name_type& caller, const flat_set<public_key_type>& sigs,
+                        const authority_getter& get_active,
+                        uint32_t max_recursion = CONTENTO_MAX_SIG_CHECK_DEPTH,
+                        const flat_set< account_name_type >& active_aprovals = flat_set< account_name_type >());
 
    struct annotated_signed_transaction {
       annotated_signed_transaction(){}

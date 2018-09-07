@@ -82,6 +82,36 @@ void transaction::get_required_authorities( flat_set< account_name_type >& activ
       operation_get_required_authorities( op, active, owner, posting, other );
 }
 
+void verify_authority_for_contract( const account_name_type& caller, const flat_set<public_key_type>& sigs,
+                        const authority_getter& get_active,
+                        uint32_t max_recursion_depth,
+                        const flat_set< account_name_type >& active_aprovals )
+                        { try {
+   flat_set< account_name_type > required_active;
+   required_active.insert(caller);
+
+   flat_set< public_key_type > avail;
+   sign_state s(sigs,get_active,avail);
+   s.max_recursion = max_recursion_depth;
+   for( auto& id : active_aprovals )
+      s.approved_by.insert( id );
+
+   // fetch all of the top level authorities
+   for( auto id : required_active )
+   {
+      CONTENTO_ASSERT( s.check_authority(id),
+                       tx_missing_active_auth, "Missing Active Authority ${id}", ("id",id)("auth",get_active(id)) );
+   }
+
+   CONTENTO_ASSERT(
+      !s.remove_unused_signatures(),
+      tx_irrelevant_sig,
+      "Unnecessary signature(s) detected"
+      );
+} FC_CAPTURE_AND_RETHROW( (caller)(sigs) ) }
+
+                        
+
 void verify_authority( const vector<operation>& ops, const flat_set<public_key_type>& sigs,
                        const authority_getter& get_active,
                        const authority_getter& get_owner,
@@ -313,6 +343,15 @@ void signed_transaction::verify_authority(
                              uint32_t max_recursion )const
 { try {
    contento::protocol::verify_authority( ops, get_signature_keys( chain_id ), get_active, get_owner, get_posting, max_recursion );
+} FC_CAPTURE_AND_RETHROW( (*this) ) }
+
+   void signed_transaction::verify_authority_for_contract(
+                             const account_name_type& caller,
+                             const chain_id_type& chain_id,
+                             const authority_getter& get_active,
+                             uint32_t max_recursion )const
+{ try {
+   contento::protocol::verify_authority_for_contract( caller, get_signature_keys( chain_id ), get_active, max_recursion );
 } FC_CAPTURE_AND_RETHROW( (*this) ) }
 
 digest_type transaction_wrapper::merkle_digest()const
