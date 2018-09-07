@@ -347,8 +347,14 @@ BOOST_AUTO_TEST_CASE( contract_require_auth )
         set_code(db, hello_private_key, N16(hello), "../../contracts/hello/hello.wast");
         set_abi(db, hello_private_key, N16(hello), "../../contracts/hello/hello.abi");
         
+        string param = "[\"hello\"]";
         asset v;
-        push_action(db, hello_private_key, N16(hello), N16(hello), N(test_auth), "hello",v);
+
+        BOOST_REQUIRE_NO_THROW(push_action(db, hello_private_key, N16(hello), N16(hello), N(test_auth), param,v));
+        
+        param = "[\"hello2\"]";
+        BOOST_REQUIRE_THROW(push_action(db, hello_private_key, N16(hello), N16(hello), N(test_auth), param,v),fc::exception);
+
     }
     FC_LOG_AND_RETHROW()
 }

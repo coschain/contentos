@@ -114,7 +114,7 @@ namespace contento { namespace protocol {
                              const account_name_type& caller,
                              const chain_id_type& chain_id,
                              const authority_getter& get_active,
-                             uint32_t max_recursion )const;
+                             uint32_t max_recursion = CONTENTO_MAX_SIG_CHECK_DEPTH )const;
 
       set<public_key_type> minimize_required_signatures(
          const chain_id_type& chain_id,
