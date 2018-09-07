@@ -93,7 +93,6 @@ extern "C" {
    /**
     *  Verifies that @ref name exists in the set of provided auths on a action. Throws if not found
     *  @brief Verify specified account exists in the set of provided auths
-    *  @param name - name of the account to be verified
     */
    void require_auth();
    //bool has_auth( account_name name );
@@ -149,5 +148,12 @@ extern "C" {
     *  @return the account which specifies the current receiver of the action
     */
    account_name current_receiver();
+
+   /**
+    *  Get the current caller of the action
+    *  @brief Get the current caller of the action
+    *  @return the account which specifies the current caller of the action
+    */
+   account_name current_caller();
    ///@ } actioncapi
 }

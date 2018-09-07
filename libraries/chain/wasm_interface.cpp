@@ -1001,6 +1001,10 @@ class action_api : public context_aware_api {
       name current_receiver() {
          return context.receiver;
       }
+
+      name current_caller() {
+         return context.op.caller;
+      }
 };
 
 class console_api : public context_aware_api {

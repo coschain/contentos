@@ -15,7 +15,6 @@ using cosio::key256;
 using cosio::indexed_by;
 using cosio::const_mem_fun;
 using cosio::asset;
-using cosio::permission_level;
 using cosio::action;
 using cosio::print;
 using cosio::name;
@@ -39,7 +38,7 @@ class storage : public cosio::contract {
          contento_assert( !has_offer( commitment ), "offer with this commitment already exist" );
 
          // Store new offer
-         auto new_offer_itr = offers.emplace(_self, [&](auto& offer){
+         offers.emplace(_self, [&](auto& offer){
             offer.id         = offers.available_primary_key();
             offer.bet        = bet;
             offer.owner      = owner;
@@ -60,6 +59,17 @@ class storage : public cosio::contract {
          //require_auth( offer_itr->owner );
          idx.erase(offer_itr);
          print( "[storage]-> ", name{offer_itr->owner}, " removed 1 record in table \"offer\"");
+      }
+
+      //@abi action
+      void callhello() {
+         auto caller = current_caller();
+         action(
+            caller,
+            N(hello),
+            N(hi),
+            N(contento)
+         ).send();
       }
 
    
