@@ -254,8 +254,12 @@ list(APPEND sources ${fc_headers})
 add_subdirectory( vendor/websocketpp )
 add_subdirectory( vendor/equihash )
 
-setup_library( fc SOURCES ${sources} LIBRARY_TYPE SHARED DONT_INSTALL_LIBRARY )
-#setup_library( fc SOURCES ${sources} LIBRARY_TYPE STATIC DONT_INSTALL_LIBRARY )
+if ( ENABLE_MAC_SHARED_LIB )
+  # add_library2( fc ${sources} )
+  setup_library( fc SOURCES ${sources} LIBRARY_TYPE SHARED DONT_INSTALL_LIBRARY )
+else ( ENABLE_MAC_SHARED_LIB )
+  setup_library( fc SOURCES ${sources} LIBRARY_TYPE STATIC DONT_INSTALL_LIBRARY )
+endif ( ENABLE_MAC_SHARED_LIB )
 
 # begin readline stuff
 find_package(Curses)
