@@ -6,6 +6,7 @@
 #include <cosiolib/action.h>
 #include <cosiolib/datastream.hpp>
 #include <cosiolib/serialize.hpp>
+#include <cosiolib/asset.hpp>
 
 #include <boost/preprocessor/variadic/size.hpp>
 #include <boost/preprocessor/variadic/to_tuple.hpp>
@@ -103,6 +104,7 @@ namespace cosio {
       account_name               contract_name;
       action_name                name;
       bytes                      data;
+      asset                      deposit;
 
       action() = default;
 
@@ -129,7 +131,7 @@ namespace cosio {
       action( const account_name &c, account_name a, action_name n, T&& value )
       :caller(c), contract_name(a), name(n), data(pack(std::forward<T>(value))) {}
 
-      COSLIB_SERIALIZE( action, (caller)(contract_name)(name)(data) )
+      COSLIB_SERIALIZE( action, (caller)(contract_name)(name)(data)(deposit) )
 
       void send() const {
          auto serialize = pack(*this);

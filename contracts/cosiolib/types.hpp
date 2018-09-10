@@ -101,6 +101,13 @@ namespace cosio {
       uint64_t low_bits()const  { return lo; }
       uint64_t high_bits()const { return hi; }
 
+      operator account_name() const {
+         //return convert_u128_name(*this);
+         account_name name;
+         memcpy(&name, this, sizeof(account_name));
+         return name;
+      }
+
       static uint128_x max_value() {
           const uint64_t max64 = std::numeric_limits<uint64_t>::max();
           return uint128_x( max64, max64 );

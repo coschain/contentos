@@ -1862,7 +1862,6 @@ REGISTER_INTRINSICS_WITH_PRICE(context_free_system_api,
 REGISTER_INTRINSICS_WITH_PRICE(action_api,
    WITH_PRICE (read_action_data,       int(int, int)  )
    WITH_PRICE (action_data_size,       int()          )
-//    WITH_PRICE (current_receiver,       int()      )
    WITH_PRICE (current_receiver,           void(int) )
    WITH_PRICE (current_contract_name,      void(int) )
    WITH_PRICE (current_caller,             void(int) )

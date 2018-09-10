@@ -369,10 +369,13 @@ BOOST_AUTO_TEST_CASE( storage )
    fund("buttnaked", 5000);
    fund("storage", 5000);
 
+   set_code(db, hello_private_key, N16(hello), "../../contracts/hello/hello.wast");
+   set_abi(db, hello_private_key, N16(hello), "../../contracts/hello/hello.abi");
    set_code(db, storage_private_key, N16(storage), "../../contracts/storage/storage.wast");
    set_abi(db, storage_private_key, N16(storage), "../../contracts/storage/storage.abi");
    
    asset v;
+
    push_action(db, storage_private_key, N16(storage), N16(storage), N(placeoffer),
         "[ \"storage\", \"3.000 COC\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]",v);
    BOOST_REQUIRE_THROW(
@@ -385,6 +388,7 @@ BOOST_AUTO_TEST_CASE( storage )
    push_action(db, hello_private_key, N16(hello), N16(storage), N(placeoffer), 
                "[ \"hello\", \"3.000 COC\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]",v);
 
+   push_action(db, storage_private_key, N16(storage), N16(storage), N(callhello), "[]", v);
    }
    FC_LOG_AND_RETHROW()
 }

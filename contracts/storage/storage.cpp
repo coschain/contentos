@@ -63,17 +63,17 @@ class storage : public cosio::contract {
       }
 
       //@abi action
-      // void callhello() {
-      //    auto caller = current_caller();
-      //    action(
-      //       caller,
-      //       N(hello),
-      //       N(hi),
-      //       N(contento)
-      //    ).send();
-      // }
+      void callhello() {
+         auto caller = cosio::current_caller();
+         print("[storage]-> inline action callhello called by ", namex{caller});
 
-   
+         action(
+            caller,
+            N16(hello),
+            N(hi),
+            N16(storage)//"[\"contento\"]"
+         ).send();
+      }
 
    private:
       //@abi table offer i64
@@ -121,5 +121,5 @@ class storage : public cosio::contract {
       }
 };
 
-COSIO_ABI( storage, (placeoffer)(canceloffer) )
+COSIO_ABI( storage, (placeoffer)(canceloffer)(callhello) )
 

@@ -51,8 +51,7 @@ void apply_context::exec_one()
       const auto &a = control.get_account(receiver);
       privileged = a.privileged;
       auto native = control.find_apply_handler(receiver, op.contract_name, op.action_name);
-       std::cout << "contract_name = " << std::string(op.contract_name) << " action name = " <<
-        std::string(op.action_name) << std::endl;
+
       if( native ) {
          (*native)(*this);
          return;
@@ -76,7 +75,6 @@ void apply_context::exec_one()
 void apply_context::exec()
 {
    _notified.push_back(receiver);
-    std::cout << std::string(receiver) << std::endl;
    exec_one();
    for( uint32_t i = 1; i < _notified.size(); ++i ) {
       receiver = _notified[i];
@@ -190,7 +188,7 @@ void apply_context::execute_inline( vm_operation&& op ) {
    EOS_ASSERT( code != nullptr, action_validate_exception,
                "inline vm_operation's code account ${account} does not exist", ("account", op.contract_name) );
 
-   require_authorization(op.contract_name);
+   require_authorization(op.caller);
 
    _inline_ops.emplace_back( move(op) );
 }
