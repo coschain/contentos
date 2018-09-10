@@ -1,4 +1,3 @@
-#pragma once
 #include <contento/app/contract_storage.hpp>
 #include <contento/chain/abi_serializer.hpp>
 #include <contento/chain/exceptions.hpp>

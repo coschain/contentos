@@ -16,7 +16,9 @@ namespace contento { namespace protocol {
          return (c - '1') + 1;
       return 0;
    }
-   
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
+
    // Each char of the string is encoded into 5-bit chunk and left-shifted
    // to its 5-bit slot starting with the highest slot for the first char.
    // The 13th char, if str is long enough, is encoded into 4-bit chunk
@@ -63,7 +65,9 @@ namespace contento { namespace protocol {
       
       return name;
    }
-   
+
+#pragma clang diagnostic pop
+
 #define N(X) contento::protocol::string_to_name(#X)
    
    struct name {

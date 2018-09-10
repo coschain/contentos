@@ -266,7 +266,7 @@ namespace detail {
          c->set_session_data( session );
       }
 
-      std::vector<char> on_vm_request( const std::vector<char>& req_body )
+      std::vector<char> on_vm_request( const std::vector<char>& req_body ) override
       {
          std::shared_ptr< api_session_data > session = std::make_shared<api_session_data>();
          session->wsc = nullptr;
