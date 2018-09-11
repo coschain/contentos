@@ -146,20 +146,33 @@ It gives the public and private key of `initminer`, which is the very first and 
 
 `contentosd` creates a fresh new `config.ini` in the `./witness_node_data_dir/` directory by default.
 
-`config.ini` is important because it controls  `contentosd`'s behaviors . Different `config.ini` contents result in different types of nodes in Contentos network. For witness node in a private net, make changes below,
+`config.ini` is important because it controls  `contentosd`'s behaviors . Different `config.ini` contents result in different types of nodes in Contentos network. For witness node in a private net, make changes below, or you can simply replace it with content of [example_config_private_net.ini](./example_config_private_net.ini).
 
+    ...
+    # p2p-endpoint =
     p2p-endpoint = 127.0.0.1:8888
+    ...
+    # rpc-endpoint =
     rpc-endpoint = 127.0.0.1:8090
+    ...
+    # enable-stale-production =
     enable-stale-production = true
+    ...
+    # required-participation =
     required-participation = 0
+    ...
+    # witness = 
     witness = "initminer"
+    ...
+    # private-key =
     private-key = 5HvTVEQCYAhVTCV347DEb3tgsCV7o4Xg6wwcJ6zqBdNRU6TEueN
-    
+    ...
     [logger.default]
     level=debug
-    
+    ...
     [logger.p2p]
     level=debug
+    ...
 
 Run `contentosd` again, and you will see welcome message and block producing information, which means the block chain has been successfully launched.
 
