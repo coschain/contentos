@@ -244,6 +244,13 @@ To create accounts `alice` and `bob` ,
     bob       0.000 COC       0.030 VESTS
     -------------------------------------------------
     TOTAL     0.000 COC       0.060 VESTS
+    
+    unlocked >>> get_account alice
+    {
+      "id": 4,
+      "name": "alice",
+      ...
+    }
 
 ### Transfer COC
 
