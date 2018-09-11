@@ -93,6 +93,11 @@ Install Homebrew by following the instructions here: http://brew.sh/
 
 Contentos uses WASM as the underlying platform for smart contracts. Contract codes compiling requires LLVM with WASM support. `install_llvm_darwin.sh` will download, build and install LLVM WASM compiler in one go.
 
+### Clone the Repository
+
+    git clone --recurse-submodules https://github.com/coschain/contentos.git
+    cd contentos
+
 ### Compile
 
     export OPENSSL_ROOT_DIR=$(brew --prefix)/Cellar/openssl/1.0.2h_1/
@@ -108,6 +113,12 @@ Also, some useful build targets for `make` are:
     contentosd
     chain_test
     cli_wallet
+
+e.g.:
+
+    make -j$(sysctl -n hw.logicalcpu) contentosd
+
+This will only build `contentosd`.
 
 ## Building on Ubuntu
 
