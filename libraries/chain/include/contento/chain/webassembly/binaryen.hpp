@@ -52,25 +52,21 @@ struct intrinsic_price_registrator {
     }
     
     static auto& get_basic_map() {
-        static map<wasm::Expression::Id, uint64_t> _map;
+        static vector<uint64_t> _map( (size_t)wasm::Expression::NumExpressionIds, 0 );
         return _map;
     }
     
     intrinsic_price_registrator(int expr_id, uint64_t price)
     {
         if (expr_id >= wasm::Expression::InvalidId && expr_id < wasm::Expression::NumExpressionIds) {
-            get_basic_map()[(wasm::Expression::Id)expr_id] = price;
+            get_basic_map()[expr_id] = price;
         }
     }
     
     static uint64_t get_basic_price(int expr_id) {
         uint64_t price = 0;
         if (expr_id >= wasm::Expression::InvalidId && expr_id < wasm::Expression::NumExpressionIds) {
-            auto m = get_basic_map();
-            auto it = m.find((wasm::Expression::Id)expr_id);
-            if (it != m.end()) {
-                price = it->second;
-            }
+            price = get_basic_map()[expr_id];
         }
         
         return price;
