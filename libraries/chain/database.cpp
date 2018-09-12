@@ -2747,6 +2747,7 @@ void database::_apply_block( const signed_block& next_block )
             tmp_wrapper.invoice.gas_usage = 0;
             tmp_wrapper.invoice.vm_error = false;
             tmp_wrapper.invoice.vm_error_code = 0;
+            tmp_wrapper.invoice.vm_console.clear();
             apply_transaction( tmp_wrapper, skip );
             FC_ASSERT(tmp_wrapper.invoice.status == trx_wrapper.invoice.status
                       && tmp_wrapper.invoice.gas_usage == trx_wrapper.invoice.gas_usage
@@ -3011,6 +3012,7 @@ std::shared_ptr<transaction_context> database::_apply_transaction( transaction_w
     trx_wrapper.invoice.gas_usage = trx_ctx->gas_paid();
     trx_wrapper.invoice.vm_error = trx_ctx->has_vm_error();
     trx_wrapper.invoice.vm_error_code = trx_ctx->vm_error().code();
+    trx_wrapper.invoice.vm_console = trx_ctx->get_vm_console();
     
    return trx_ctx;
 } FC_CAPTURE_AND_RETHROW( (trx_wrapper) ) }

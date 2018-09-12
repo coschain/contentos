@@ -94,6 +94,14 @@ namespace contento { namespace chain {
         vm_exc = e;
     }
 
+    void transaction_context::set_vm_console(const std::string& s) {
+        vm_console = s;
+    }
+
+    const std::string& transaction_context::get_vm_console() const {
+        return vm_console;
+    }
+
    void transaction_context::apply( const vm_operation& op, account_name receiver, bool context_free, uint32_t recurse_depth ) {
       apply_context  acontext( control, *this, op, recurse_depth );
       acontext.context_free = context_free;

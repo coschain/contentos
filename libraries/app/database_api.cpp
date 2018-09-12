@@ -2344,6 +2344,7 @@ annotated_signed_transaction database_api::get_transaction( transaction_id_type 
          result.invoice.gas_usage = blk->transactions[itr->trx_in_block].invoice.gas_usage;
          result.invoice.vm_error      = blk->transactions[itr->trx_in_block].invoice.vm_error;
          result.invoice.vm_error_code = blk->transactions[itr->trx_in_block].invoice.vm_error_code;
+         result.invoice.vm_console = blk->transactions[itr->trx_in_block].invoice.vm_console;
           
          return result;
       }

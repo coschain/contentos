@@ -68,7 +68,9 @@ void apply_context::exec_one()
    } FC_CAPTURE_AND_RETHROW((_pending_console_output.str()));
 
    //std::cout << "***************\nVM EXCUTE:\n" << _pending_console_output.str() << "\n*************\n" << std::endl;
-   print_debug(receiver, _pending_console_output.str(), op);
+   std::string console_output = _pending_console_output.str();
+   print_debug(receiver, console_output, op);
+   trx_context.set_vm_console(console_output);
    reset_console();
 }
 

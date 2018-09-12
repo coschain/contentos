@@ -172,12 +172,13 @@ namespace contento { namespace app {
                 auto gas_usage = trx_wrapper.invoice.gas_usage;
                 auto vm_error = trx_wrapper.invoice.vm_error;
                 auto vm_error_code = trx_wrapper.invoice.vm_error_code;
+                auto vm_console = trx_wrapper.invoice.vm_console;
                 auto id = trx_wrapper.sig_trx.id();
                 auto itr = _callbacks.find(id);
                 if( itr == _callbacks.end() ) continue;
                 confirmation_callback callback = itr->second;
                 itr->second = [](variant){};
-                callback( fc::variant(transaction_confirmation( id, block_num, int32_t(trx_num), false, status, gas_usage, vm_error, vm_error_code )) );
+                callback( fc::variant(transaction_confirmation( id, block_num, int32_t(trx_num), false, status, gas_usage, vm_error, vm_error_code, vm_console )) );
              }
           }
 
@@ -198,7 +199,7 @@ namespace contento { namespace app {
 
                 confirmation_callback callback = cb_it->second;
                 transaction_id_type txid_byval = txid;    // can't pass in by reference as it's going to be deleted
-                callback( fc::variant(transaction_confirmation{ txid_byval, block_num, -1, true, 500, 0, false, 0}) );//expiration default status code 500
+                callback( fc::variant(transaction_confirmation{ txid_byval, block_num, -1, true, 500, 0, false, 0, ""}) );//expiration default status code 500
 
                 _callbacks.erase( cb_it );
              }

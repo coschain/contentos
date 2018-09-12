@@ -59,8 +59,8 @@ namespace contento { namespace app {
 
          struct transaction_confirmation
          {
-            transaction_confirmation( transaction_id_type txid, int32_t bn, int32_t tn, bool ex , int32_t p_status, uint64_t p_gas_usage, bool vm_error, uint32_t vm_error_code)
-            : id(txid), block_num(bn), trx_num(tn), expired(ex), status(p_status), gas_usage(p_gas_usage), vm_error(vm_error), vm_error_code(vm_error_code) {}
+            transaction_confirmation( transaction_id_type txid, int32_t bn, int32_t tn, bool ex , int32_t p_status, uint64_t p_gas_usage, bool vm_error, uint32_t vm_error_code, const std::string& vm_console)
+            : id(txid), block_num(bn), trx_num(tn), expired(ex), status(p_status), gas_usage(p_gas_usage), vm_error(vm_error), vm_error_code(vm_error_code), vm_console(vm_console) {}
 
             transaction_id_type   id;
             int32_t               block_num = 0;
@@ -70,6 +70,7 @@ namespace contento { namespace app {
             uint64_t              gas_usage;
              bool                  vm_error = false;
              uint32_t              vm_error_code = 0;
+             std::string           vm_console;
          };
 
          typedef std::function<void(variant/*transaction_confirmation*/)> confirmation_callback;
@@ -221,7 +222,7 @@ namespace contento { namespace app {
 }}  // contento::app
 
 FC_REFLECT( contento::app::network_broadcast_api::transaction_confirmation,
-        (id)(block_num)(trx_num)(expired)(status)(gas_usage)(vm_error)(vm_error_code) )
+        (id)(block_num)(trx_num)(expired)(status)(gas_usage)(vm_error)(vm_error_code)(vm_console) )
 FC_REFLECT( contento::app::contento_version_info, (blockchain_version)(steem_revision)(fc_revision) )
 //FC_REFLECT_TYPENAME( fc::ecc::compact_signature );
 //FC_REFLECT_TYPENAME( fc::ecc::commitment_type );

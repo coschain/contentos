@@ -736,6 +736,7 @@ public:
                 rtrx.invoice.gas_usage = result.get_object()["gas_usage"].as_uint64();
                 rtrx.invoice.vm_error = result.get_object()["vm_error"].as_bool();
                 rtrx.invoice.vm_error_code = result.get_object()["vm_error_code"].as_uint64();
+                rtrx.invoice.vm_console = result.get_object()["vm_console"].as_string();
                 return rtrx;
             }
             catch (const fc::exception& e)
