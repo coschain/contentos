@@ -47,6 +47,8 @@ static inline void print_debug(account_name receiver, const std::string& log, co
 void apply_context::exec_one()
 {
    //const auto& cfg = control.get_global_properties().configuration;
+   auto start = fc::time_point::now();
+   fc::time_point exec_start;
    try {
       const auto &a = control.get_account(receiver);
       privileged = a.privileged;
@@ -60,22 +62,31 @@ void apply_context::exec_one()
       if( a.code.size() > 0
           && !(op.contract_name == config::system_account_name && op.action_name == N(setcode) && receiver == config::system_account_name) )
       {
+         exec_start = fc::time_point::now();
          try {
             control.get_wasm_interface().apply(a.code_version, a.code, *this);
          } catch ( const wasm_exit& ){}
       }
 
    } FC_CAPTURE_AND_RETHROW((_pending_console_output.str()));
+   fc::microseconds t = fc::time_point::now() - start;
+   fc::microseconds exec_time = fc::time_point::now() - exec_start;
 
    //std::cout << "***************\nVM EXCUTE:\n" << _pending_console_output.str() << "\n*************\n" << std::endl;
    print_debug(receiver, _pending_console_output.str(), op);
+   char str[32];
+   std::sprintf(str, "\n---------%lld---------%lld---------\n", t.count(), exec_time.count());
+   print_debug(receiver, str, op);
    reset_console();
 }
 
 void apply_context::exec()
 {
    _notified.push_back(receiver);
-   exec_one();
+   for( uint32_t i = 1; i < 320; ++i ) {
+       exec_one();
+   }
+   
    for( uint32_t i = 1; i < _notified.size(); ++i ) {
       receiver = _notified[i];
       exec_one();

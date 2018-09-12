@@ -272,7 +272,7 @@ namespace cosio {
          for( int i = 0; i < len; ++i) {
             name.lo |= (uint64_t(str[i]) << (8 * i));
          }
-      } else if ( len <= 16 ) {
+      } else if ( len > 8 && len <= 16 ) {
          for( int i = 0; i < 8; ++i) {
             name.lo |= (uint64_t(str[i]) << (8 * i));
          }
@@ -356,7 +356,7 @@ namespace cosio {
             const auto len = strnlen(str, 17);
             contento_assert(len <= 16, "Name is longer than 16 characters (${name}) ");
             value = string_to_namex(str);
-      };
+      }
       
       namex& operator=( uint128_x v ) {
          value = v;
