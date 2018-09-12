@@ -57,7 +57,7 @@ namespace contento { namespace rpc_api {
       built_in_types.emplace("variant_object",                 1);
       built_in_types.emplace("id_type",                 1);
       built_in_types.emplace("string16",                 1);
-      built_in_types.emplace("string8",                 1);
+      built_in_types.emplace("namex",                 1);
       built_in_types.emplace("shuffled_witness_array_type",  1);
 
 

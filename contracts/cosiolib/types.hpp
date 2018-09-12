@@ -310,7 +310,7 @@ namespace cosio {
       
       operator std::string()const{
             return to_string();
-      };
+      }
 
       operator namex_()const{
             return convert_u128_name(value);
@@ -356,7 +356,7 @@ namespace cosio {
             const auto len = strnlen(str, 17);
             contento_assert(len <= 16, "Name is longer than 16 characters (${name}) ");
             value = string_to_namex(str);
-      };
+      }
       
       namex& operator=( uint128_x v ) {
          value = v;

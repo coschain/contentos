@@ -8,15 +8,13 @@ namespace contento {
    vector<type_def> common_type_defs() {
       vector<type_def> types;
 
-      types.push_back( type_def{"account_name", "string8"} );
-      types.push_back( type_def{"permission_name", "name"} );
+      types.push_back( type_def{"account_name", "namex"} );
       types.push_back( type_def{"action_name", "name"} );
-      types.push_back( type_def{"table_name", "name"} );
       types.push_back( type_def{"transaction_id_type", "checksum160"} );
       types.push_back( type_def{"block_id_type", "checksum160"} );
       types.push_back( type_def{"weight_type", "uint16"} );
 
-      types.push_back( type_def{"account_name_type", "string8"} );
+      types.push_back( type_def{"account_name_type", "namex"} );
       types.push_back( type_def{"share_type", "int64"} );
       types.push_back( type_def{"id_type", "int64"} );
       types.push_back( type_def{"digest_type", "checksum256"} );

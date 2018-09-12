@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import json
+import sys
 
 api_array = {}
 
@@ -39,13 +40,13 @@ def print_structs( structs_info ):
         if info['isunion'] == False:
             if info['base'] != '':
                 result = 'struct {0} : public {1} {{\n'.format(info['name'],info['base'])
-                serial = '\n\tEOSLIB_SERIALIZE_DERIVED( {0}, {1},'.format(info['name'], info['base'] )
+                serial = '\n\tCOSLIB_SERIALIZE_DERIVED( {0}, {1},'.format(info['name'], info['base'] )
             else:
                 result = 'struct {0} {{\n'.format(info['name'] )
-                serial = '\n\tEOSLIB_SERIALIZE( {0}, '.format(info['name'])
+                serial = '\n\tCOSLIB_SERIALIZE( {0}, '.format(info['name'])
 
 
-            serial += print_struct_serial(info['fields']) + ' );'
+            serial += print_struct_serial(info['fields']) + ' )'
             result = '{0}{1} \n {2} \n}};\n'.format(result, print_struct_fields(info['fields']),  serial )
             result2 += result + '\n'
         else:
@@ -144,7 +145,7 @@ def check_typedef_is_struct( old_type ):
     return False
 
 if __name__ == "__main__":
-    f = open('/Users/yykingking/apixx.abi')
+    f = open(sys.argv[1])
     contents = f.read()
     f.close()
 
@@ -156,12 +157,12 @@ if __name__ == "__main__":
     result += '#include <iostream>\n'
     result += '#include <map>\n'
     result += '#include <vector>\n'
-    result += '#include <eosiolib/eosio.hpp>\n'
-    result += '#include <eosiolib/static_variant.hpp>\n'
-    result += '#include <eosiolib/content_util.hpp>\n'
+    result += '#include <cosiolib/cosio.hpp>\n'
+    result += '#include <cosiolib/static_variant.hpp>\n'
+    result += '#include <cosiolib/content_util.hpp>\n'
 
     result += '\n\n'
-    result += 'namespace eosio { \n\n'
+    result += 'namespace cosio { \n\n'
     result += 'using std::vector;\nusing std::string;\nusing std::map;\n\n\n'
 
     result += print_typedef(api_array['types']) + '\n'
@@ -169,5 +170,10 @@ if __name__ == "__main__":
     result += print_classes(api_array['classes']) + '\n'
 
     result += '}\n\n'
-    print result
+    #print result
+
+    fo = open(sys.argv[2], "w")
+    fo.write( result )
+    fo.close()
+
     #print(api_array['types'])

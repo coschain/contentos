@@ -23,12 +23,10 @@ using std::string;
 using cosio::asset;
 using share_type = int64_t;
 using account_id_type = int64_t;
-using account_name_type = std::string;
 using public_key_type = cosio::public_key_2;
 using string16 = std::string;
-using string8 = cosio::name;
 
-using shuffled_witness_array_type = std::array<cosio::name, 21>;
+using shuffled_witness_array_type = std::array<namex, 21>;
 
 using uint32 = uint32_t;
 using uint64 = uint64_t;
@@ -64,10 +62,10 @@ struct cls_ret_type<R (Cls::*)(Args...)>{
         datastream<const char*> ds(vec_in.data(), vec_in.size()); \
         ds << api_name() << string( __FUNCTION__ ) params; \
         std::vector<char>  vec_out(DEFAULT_OUT_BUFFER_LENGTH);  \
-        int ret_length = on_content_call( vec_in.data(), vec_in.size(), vec_out.data(), DEFAULT_OUT_BUFFER_LENGTH); \
+        size_t ret_length = (size_t)on_content_call( vec_in.data(), vec_in.size(), vec_out.data(), DEFAULT_OUT_BUFFER_LENGTH); \
         if ( ret_length > DEFAULT_OUT_BUFFER_LENGTH ){  \
             vec_out.resize(ret_length); \
-            ret_length = on_content_call( vec_in.data(), vec_in.size(), vec_out.data(), ret_length);  \
+            ret_length = (size_t)on_content_call( vec_in.data(), vec_in.size(), vec_out.data(), ret_length);  \
         } \
         return unpack<RetType>(vec_out.data(), ret_length);  \
 
