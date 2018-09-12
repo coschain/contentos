@@ -1,50 +1,8 @@
-# Introducing Contentos (beta)
+# Introducing Contentos
 
-Contentos is a Delegated Proof of Stake blockchain that uses a "Proof of Brain" social consnensus algorithm for token allocation.
-
-  - Currency symbol COC.
-  - 10% APR inflation narrowing to 1% APR over 20 years.
-  - 75% of inflation to "Proof of Brain" social consensus algorithm.
-  - 15% of inflation to stake holders.
-  - 10% of inflation to block producers.
-
-# No Support & No Warranty
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
-IN THE SOFTWARE.
-
-# Whitepaper
-
-You can read the Contentos Whitepaper at [https://www.contentos.io/subject/home/generic/web/viewer.html?file=wp1_en.pdf).
+You can read the Contentos Whitepaper at https://www.contentos.io/subject/home/generic/web/viewer.html?file=wp1_en.pdf
 
 # Building
-
-## Compile-Time Options (cmake)
-
-### CMAKE_BUILD_TYPE=[Release/Debug]
-
-Specifies whether to build with or without optimization and without or with the symbol table for debugging. Unless you are specifically debugging or running tests, it is recommended to build as release.
-
-### LOW_MEMORY_NODE=[OFF/ON]
-
-Builds contentosd to be a consensus-only low memory node. Data and fields not needed for consensus are not stored in the object database.  This option is recommended for witnesses and seed-nodes.
-
-### CLEAR_VOTES=[ON/OFF]
-
-Clears old votes from memory that are no longer required for consensus.
-
-### BUILD_CONTENTOS_TESTNET=[OFF/ON]
-
-Builds contentos for use in a private testnet. Also required for building unit tests.
-
-### SKIP_BY_TX_ID=[OFF/ON]
-
-By default this is off. Enabling will prevent the account history plugin querying transactions by id, but saving around 65% of CPU time when reindexing. Enabling this option is a huge gain if you do not need this functionality.
 
 ## Building on macOS X
 
@@ -100,7 +58,7 @@ Contentos uses WASM as the underlying platform for smart contracts. Contract cod
 
 ### Compile
 
-    export OPENSSL_ROOT_DIR=$(brew --prefix)/Cellar/openssl/1.0.2h_1/
+    export OPENSSL_ROOT_DIR=/usr/local/opt/openssl
     export BOOST_ROOT=$(brew --prefix)/Cellar/boost@1.67/1.67.0/
     mkdir build && cd build
     cmake -DBOOST_ROOT="$BOOST_ROOT" -DCMAKE_BUILD_TYPE=Release -DBUILD_CONTENTOS_TESTNET=ON ..
@@ -134,6 +92,7 @@ Once `contentosd` and `cli_wallet` were successfully built, you can try performi
 
 ## contentosd
 
+    cd build/programs/contentosd
     ./contentosd
 
  `contentosd` will output something like the following when it's launched for the first time, 
@@ -217,6 +176,7 @@ For detailed command line options, run `./contentosd --help`.
 
 `cli_wallet` is a utility to manage your account keys and also an RPC client for sending requests to remote  `contentosd` node.
 
+    cd build/programs/cli_wallet
     ./cli_wallet
     Please use the set_password method to initialize a new wallet before continuing
     new >>> set_password 123
