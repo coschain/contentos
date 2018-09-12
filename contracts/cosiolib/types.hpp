@@ -19,14 +19,14 @@ namespace cosio {
   {
       public:
       uint128_x():hi(0),lo(0){}
-      uint128_x( uint32_t l ):hi(0),lo(l){}
-      uint128_x( int32_t l ):hi( -(l<0) ),lo(l){}
-      uint128_x( int64_t l ):hi( -(l<0) ),lo(l){}
-      uint128_x( uint64_t l ):hi(0),lo(l){}
+      uint128_x( uint32_t l ):hi(0),lo(uint64_t(l)){}
+      uint128_x( int32_t l ):hi( -(l<0) ),lo(uint64_t(l)){}
+      uint128_x( int64_t l ):hi( -(l<0) ),lo(uint64_t(l)){}
+      uint128_x( uint64_t l ):hi(0),lo(uint64_t(l)){}
       uint128_x( const std::string& s );
       uint128_x( uint64_t _h, uint64_t _l )
       :hi(_h),lo(_l){}
-      explicit uint128_x( unsigned __int128 i ):hi( i >> 64 ), lo(i){ }
+      explicit uint128_x( unsigned __int128 i ):hi( i >> 64 ), lo(uint64_t(i)){ }
 
       operator std::string()const;
 
@@ -324,18 +324,18 @@ namespace cosio {
          uint128_x tmp = value;
          if(tmp.hi > 0 && tmp.lo > 0) {
             while(tmp.lo > 0) {
-               char c = tmp.lo & 0xFF;
+               char c = char(tmp.lo & 0xFF);
                str += c;
                tmp.lo >>= 8;
             }
             while(tmp.hi > 0) {
-               char c = tmp.hi & 0xFF;
+               char c = char(tmp.hi & 0xFF);
                str += c;
                tmp.hi >>= 8;
             }
          } else if(tmp.hi == 0 && tmp.lo > 0) {
             while(tmp.lo > 0) {
-               char c = tmp.lo & 0xFF;
+               char c = char(tmp.lo & 0xFF);
                str += c;
                tmp.lo >>= 8;
             }
