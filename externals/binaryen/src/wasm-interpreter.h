@@ -753,6 +753,8 @@ public:
 
       Flow last_call;
       LiteralList last_call_args;
+      CallImport *last_import_query_key = nullptr;
+      Import *last_import_query_value = nullptr;
       
       Flow generateArguments(const ExpressionList& operands, LiteralList& arguments) {
         NOTE_ENTER_("generateArguments");
@@ -798,7 +800,11 @@ public:
               last_call_args = arguments;
               return flow;
           }
-        Flow ret = instance.externalInterface->callImport(instance.wasm.getImport(curr->target), arguments);
+          if (curr != last_import_query_key) {
+            last_import_query_key = curr;
+            last_import_query_value = instance.wasm.getImport(curr->target);
+          }
+        Flow ret = instance.externalInterface->callImport(last_import_query_value, arguments);
           last_call_args = arguments;
           return ret;
       }
@@ -948,7 +954,11 @@ public:
             
             if ( curr->is<CallImport>() ) {
                 CallImport *import = static_cast<CallImport *>(curr);
-                REPORT_EXTERNAL3( instance.wasm.getImport(import->target), &(last_call.value), &last_call_args );
+                if (import != last_import_query_key) {
+                  last_import_query_key = import;
+                  last_import_query_value = instance.wasm.getImport(import->target);
+                }
+                REPORT_EXTERNAL3( last_import_query_value, &(last_call.value), &last_call_args );
             } else {
                 REPORT_EXTERNAL();
             }
