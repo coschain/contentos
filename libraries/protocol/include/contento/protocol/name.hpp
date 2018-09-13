@@ -191,11 +191,11 @@ namespace contento { namespace protocol {
       }
       
       uint32_t size() const {
-         return value == 0 ? 0 : 16;
+         return value == fc::uint128_t(0) ? 0 : 16;
       }
       
       uint32_t length() const {
-         return value == 0 ? 0 : 16;
+         return value == fc::uint128_t(0) ? 0 : 16;
       }
       
       void set( const char* str );
