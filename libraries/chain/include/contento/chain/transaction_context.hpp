@@ -38,8 +38,8 @@ namespace contento { namespace chain {
          uint64_t gas() const;
          uint64_t gas_paid() const;
          bool has_vm_error() const;
-         const fc::exception& vm_error() const;
-         void set_vm_error(const fc::exception& e );
+         const fc::exception_ptr vm_error() const;
+         void set_vm_error(fc::exception_ptr e );
 
          void set_vm_console(const std::string& s);
          const std::string& get_vm_console() const;
@@ -88,7 +88,7 @@ namespace contento { namespace chain {
        uint64_t                       wasm_to_gas = 1;
        uint64_t                       paid_gas = 0;
        bool                           vm_error_occurred = false;
-       fc::exception                  vm_exc;
+       fc::exception_ptr              vm_exc;
        std::string                    vm_console;
 
          fc::time_point                _deadline;

@@ -2388,7 +2388,7 @@ void vm_evaluator::do_apply( const vm_operation& o )  {
     
     uint64_t gas = 0;
     bool error = false;
-    fc::exception exc;
+    fc::exception_ptr exc_ptr;
     
     const auto& caller = _db.get_account(o.caller);
 
@@ -2433,9 +2433,10 @@ void vm_evaluator::do_apply( const vm_operation& o )  {
         }
     } catch (fc::exception& e) {
         error = true;
-        exc = e;
+        exc_ptr = e.dynamic_copy_exception();
     } catch (...) {
         error = true;
+        exc_ptr = std::make_shared<fc::exception>();
     }
     
     // prepare to pay the gas fee
@@ -2448,7 +2449,8 @@ void vm_evaluator::do_apply( const vm_operation& o )  {
         coc_cost = caller_coc;
         if (!error) {
             error = true;
-            exc = fc::exception(unspecified_exception_code, "exception", "Not enough balance for gas fee.");
+            exc_ptr = std::make_shared<fc::exception>(unspecified_exception_code, 
+                "exception", "Not enough balance for gas fee.");
         }
     }
     // before paying gas fee, rollback any changes if any error occurred.
@@ -2471,15 +2473,16 @@ void vm_evaluator::do_apply( const vm_operation& o )  {
         } catch(fc::exception& e) {
             if (!error) {
                 error = true;
-                exc = e;
+                exc_ptr = e.dynamic_copy_exception();
             }
         } catch(...) {
             error = true;
+            exc_ptr = std::make_shared<fc::exception>();
         }
     }
     
     if (error) {
-        ctx->set_vm_error(exc);
+        ctx->set_vm_error(exc_ptr);
     } else {
         // everything is ok, commit all changes.
         session.squash();

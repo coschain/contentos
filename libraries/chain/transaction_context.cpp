@@ -85,11 +85,11 @@ namespace contento { namespace chain {
         return vm_error_occurred;
     }
 
-    const fc::exception& transaction_context::vm_error() const {
+    const fc::exception_ptr transaction_context::vm_error() const {
         return vm_exc;
     }
     
-    void transaction_context::set_vm_error(const fc::exception& e ) {
+    void transaction_context::set_vm_error(fc::exception_ptr e ) {
         vm_error_occurred = true;
         vm_exc = e;
     }

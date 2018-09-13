@@ -138,6 +138,7 @@ namespace contento { namespace protocol {
          uint32_t status = 200;
          bool     vm_error = false;
          uint32_t vm_error_code = 0;
+         std::string vm_error_msg;
          uint64_t gas_usage = 0;
          std::string vm_console;
    };
@@ -188,5 +189,5 @@ FC_REFLECT_DERIVED( contento::protocol::signed_transaction, (contento::protocol:
 
 FC_REFLECT( contento::protocol::annotated_signed_transaction, (sig_trx)(invoice)(transaction_id)(block_num)(transaction_num) );
 
-FC_REFLECT( contento::protocol::transaction_invoice, (status)(vm_error)(vm_error_code)(gas_usage)(vm_console) );
+FC_REFLECT( contento::protocol::transaction_invoice, (status)(vm_error)(vm_error_code)(gas_usage)(vm_console)(vm_error_msg) );
 FC_REFLECT( contento::protocol::transaction_wrapper, (sig_trx)(invoice) );
