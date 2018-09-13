@@ -29,7 +29,6 @@
 
 #include "wasm.h"
 #include "support/threads.h"
-#include "support/scope_exit.h"
 
 namespace wasm {
 
@@ -69,6 +68,31 @@ struct Visitor {
   ReturnType visitMemory(Memory* curr) {}
   ReturnType visitModule(Module* curr) {}
 
+  // called after the expression had been visited
+  void reportVisit(Expression* curr) {}
+
+  struct report_on_exit {
+    using visitor_ptr_type = Visitor<SubType, ReturnType>*;
+
+    report_on_exit(visitor_ptr_type visitor_ptr, Expression *expr)
+      : _visitor(visitor_ptr), _expr(expr), _enabled(true) {}
+
+    ~report_on_exit() {
+      if (_enabled) {
+        static_cast<SubType*>(_visitor)->reportVisit(_expr);
+      }
+    }
+    void enable(bool b) {
+      _enabled = b;
+    }
+    report_on_exit(const report_on_exit&) = delete;
+    report_on_exit& operator=(const report_on_exit&) = delete;
+    
+    visitor_ptr_type  _visitor;
+    Expression *_expr;
+    bool _enabled;
+  };
+
   ReturnType visit(Expression* curr) {
     ASSERT_THROW(curr);
 
@@ -76,9 +100,7 @@ struct Visitor {
       return static_cast<SubType*>(this)-> \
           visit##CLASS_TO_VISIT(static_cast<CLASS_TO_VISIT*>(curr))
 
-      scope_exit report_on_exit([this,curr](){
-          static_cast<SubType*>(this)->reportVisit(curr);
-      });
+      report_on_exit r(this, curr);
 
       try {
         switch (curr->_id) {
@@ -109,15 +131,12 @@ struct Visitor {
           default: WASM_UNREACHABLE();
         }
       } catch(...) {
-          report_on_exit.enable(false);
+          r.enable(false);
           throw;
       }
 
     #undef DELEGATE
   }
-
-  // called after the expression had been visited
-  void reportVisit(Expression* curr) {}
 };
 
 // Visit with a single unified visitor, called on every node, instead of
