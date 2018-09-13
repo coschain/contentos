@@ -915,6 +915,27 @@ public:
 
          return ss.str();
       };
+      m["push_action"] = []( variant result, const fc::variants& a )
+      {
+         std::string json_str = fc::json::to_pretty_string( result );
+
+         try {
+            auto invoice = result.get_object()["invoice"].get_object();
+            auto console = invoice["vm_console"].as_string();
+            if ( console.size() ) {
+               std::stringstream ss;
+               ss << "\n==== VM Console Begin ====\n" << console << "\n==== VM Console End ====";
+               dlog( ss.str() );
+            }
+            if ( invoice["vm_error"].as_bool() ) {
+               std::stringstream ss;
+               ss << "\n==== VM Error Begin ====\n" << invoice["vm_error_msg"].as_string() << "\n==== VM Error End ====";
+               wlog( ss.str() );
+            }
+         } catch(...) {}
+      
+         return json_str;
+      };
 
       return m;
    }
