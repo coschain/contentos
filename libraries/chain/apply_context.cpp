@@ -62,15 +62,19 @@ void apply_context::exec_one()
       {
          try {
             control.get_wasm_interface().apply(a.code_version, a.code, *this);
-         } catch ( const wasm_exit& ){}
+            trx_context.set_vm_console(_pending_console_output.str());
+         } catch ( const wasm_exit& ){
+            trx_context.set_vm_console(_pending_console_output.str());
+         } catch (...) {
+            trx_context.set_vm_console(_pending_console_output.str());
+            throw;
+         }
       }
 
    } FC_CAPTURE_AND_RETHROW((_pending_console_output.str()));
 
    //std::cout << "***************\nVM EXCUTE:\n" << _pending_console_output.str() << "\n*************\n" << std::endl;
-   std::string console_output = _pending_console_output.str();
-   print_debug(receiver, console_output, op);
-   trx_context.set_vm_console(console_output);
+   print_debug(receiver, trx_context.get_vm_console(), op);
    reset_console();
 }
 
