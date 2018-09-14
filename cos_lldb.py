@@ -188,7 +188,6 @@ class contento__protocol__operation:
 class contento__protocol__asset:
 	@classmethod
 	def apply(clz, debugger, target_class_name):
-		# debugger.HandleCommand("type synthetic add %s --python-class %s.%s" % (target_class_name, clz.__module__, clz.__name__))
 		debugger.HandleCommand('type summary add --python-function %s.%s.asset_summary %s' % (clz.__module__, clz.__name__, target_class_name))
 
 	@staticmethod
@@ -207,6 +206,47 @@ class contento__protocol__asset:
 			r = fmts % (amount / divider, amount % divider)
 		return r
 
+
+class contento__protocol__name:
+	@classmethod
+	def apply(clz, debugger, target_class_name):
+		debugger.HandleCommand('type summary add --python-function %s.%s.asset_summary %s' % (clz.__module__, clz.__name__, target_class_name))
+
+	@staticmethod
+	def asset_summary(valobj, internal_dict):
+		charmap = ".12345abcdefghijklmnopqrstuvwxyz"
+		r = ["."] * 13
+		if valobj.IsValid() and valobj.size > 0:
+			value = valobj.GetChildMemberWithName("value").data.uint64s[0]
+			for i in xrange(13):
+				r[12 - i] = charmap[value & (0x0f if i == 0 else 0x1f)]
+				value >>= 4 if i == 0 else 5
+		return '"%s"' % "".join(r).rstrip(".")
+
+
+class contento__protocol__namex:
+	@classmethod
+	def apply(clz, debugger, target_class_name):
+		debugger.HandleCommand('type summary add --python-function %s.%s.asset_summary %s' % (clz.__module__, clz.__name__, target_class_name))
+
+	@staticmethod
+	def uint64_to_string(ui64):
+		r = list()
+		while ui64 > 0:
+			r.append(chr(ui64 & 0xff))
+			ui64 >>= 8
+		return "".join(r)
+
+	@staticmethod
+	def asset_summary(valobj, internal_dict):
+		r = ""
+		if valobj.IsValid() and valobj.size > 0:
+			lo = valobj.GetChildMemberWithName("value").GetChildMemberWithName("lo").data.uint64s[0]
+			hi = valobj.GetChildMemberWithName("value").GetChildMemberWithName("hi").data.uint64s[0]
+			if lo > 0:
+				r += contento__protocol__namex.uint64_to_string(lo) + contento__protocol__namex.uint64_to_string(hi)
+		return '"%s"' % r
+
 ######## module entry point ########
 
 def __lldb_init_module(debugger, dictionary):
@@ -215,6 +255,8 @@ def __lldb_init_module(debugger, dictionary):
 	Helper.add_handler("fc::variant_object::entry", fc__variant_object__entry)
 	Helper.add_handler("contento::protocol::operation", contento__protocol__operation)
 	Helper.add_handler("contento::protocol::asset", contento__protocol__asset)
+	Helper.add_handler("contento::protocol::name", contento__protocol__name)
+	Helper.add_handler("contento::protocol::namex", contento__protocol__namex)
 	Helper.apply(debugger)
 
 
