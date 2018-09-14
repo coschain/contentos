@@ -533,7 +533,7 @@ std::vector<char> apply_context::on_vm_request( const std::vector<char>& req_bod
    return control.get_vm_interface()->on_vm_request(req_body);
 }
 
-bool apply_context::excute_operation( const std::vector<char>& op_buff ){
+bool apply_context::execute_operation( const std::vector<char>& op_buff ){
 
    fc::datastream<char*> ds( (char*)op_buff.data(), op_buff.size());
    contento::protocol::operation op;
