@@ -31,7 +31,7 @@
         {
             "label": "pkill_cosd",
             "type": "shell",
-            "command": "pkill contentosd"
+            "command": "pkill contentosd & echo"
         },
         {
             "label": "make_cli_wallet",
