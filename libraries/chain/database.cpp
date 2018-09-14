@@ -13,7 +13,6 @@
 #include <contento/chain/contento_evaluator.hpp>
 #include <contento/chain/contento_objects.hpp>
 #include <contento/chain/transaction_object.hpp>
-#include <contento/chain/shared_db_merkle.hpp>
 #include <contento/chain/operation_notification.hpp>
 #include <contento/chain/witness_schedule.hpp>
 #include <contento/chain/contract_balance_object.hpp>
@@ -2678,19 +2677,7 @@ void database::_apply_block( const signed_block& next_block )
    if( !( skip & skip_merkle_check ) )
    {
       auto merkle_root = next_block.calculate_merkle_root();
-
-      try
-      {
-         FC_ASSERT( next_block.transaction_merkle_root == merkle_root, "Merkle check failed", ("next_block.transaction_merkle_root",next_block.transaction_merkle_root)("calc",merkle_root)("next_block",next_block)("id",next_block.id()) );
-      }
-      catch( fc::assert_exception& e )
-      {
-         const auto& merkle_map = get_shared_db_merkle();
-         auto itr = merkle_map.find( next_block_num );
-
-         if( itr == merkle_map.end() || itr->second != merkle_root )
-            throw e;
-      }
+      FC_ASSERT( next_block.transaction_merkle_root == merkle_root, "Merkle check failed", ("next_block.transaction_merkle_root",next_block.transaction_merkle_root)("calc",merkle_root)("next_block",next_block)("id",next_block.id()) );
    }
 
    const witness_object& signing_witness = validate_block_header(skip, next_block);
