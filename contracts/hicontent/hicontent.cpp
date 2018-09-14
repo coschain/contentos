@@ -39,7 +39,7 @@ class hicontent : public contract
                 print("initminer last post time: ", aobj.last_root_post.utc_seconds, "\n");
             }
         }
-
+        if (false)
         {
             print("******** start query get_state ******** \n ");
             state st = database_api().get_state("/title1/@initminer/perm3");
@@ -89,7 +89,8 @@ class hicontent : public contract
                 }
             }
         }
-
+        
+        if (false)
         {
             vector<follow_api_obj> fobjs = follow_api().get_followers(".initminer", "", 1, 10);
             print("get_followers size: ", fobjs.size(), "\n");
@@ -98,7 +99,7 @@ class hicontent : public contract
                 print("follower: ", fobj.follower, "\t following: ", fobj.following, "\t what:", fobj.what[0], "\n");
             }
         }
-
+        
         {
             transfer_operation op;
             op.from = "initminer";

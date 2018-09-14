@@ -21,7 +21,7 @@ namespace cosio {
         datastream<const char*> ds(vec_in.data(), vec_in.size());
         ds << optype;
 
-		return excute_operation( vec_in.data(), vec_in.size() );
+		return execute_operation( vec_in.data(), vec_in.size() );
 	}
 
 }

@@ -193,7 +193,15 @@ void cli::getline( const fc::string& prompt, fc::string& line)
 #endif
    {
       rl_attempted_completion_function = cli_completion;
+      //rl_readline_name = "FileMan";
 
+#ifdef DEBUG
+      static bool inited_hisfile = false;
+      if (!inited_hisfile){
+            read_history(0);
+            inited_hisfile = true;
+      }
+#endif
       static fc::thread getline_thread("getline");
       getline_thread.async( [&](){
          char* line_read = nullptr;
@@ -202,8 +210,13 @@ void cli::getline( const fc::string& prompt, fc::string& line)
          if( line_read == nullptr )
             FC_THROW_EXCEPTION( fc::eof_exception, "" );
          rl_bind_key( '\t', rl_complete );
-         if( *line_read )
+         if( *line_read ){
             add_history(line_read);
+            #ifdef DEBUG
+            write_history(0);
+            #endif
+
+         }     
          line = line_read;
          free(line_read);
       }).wait();

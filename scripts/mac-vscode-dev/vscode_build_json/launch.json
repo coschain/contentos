@@ -8,7 +8,7 @@
             "name": "Attach",
             "type": "cppdbg",
             "request": "attach",
-            "program": "contentosd",
+            "program": "/bin/echo",
             "processId": "${command:pickProcess}",
             "MIMode": "lldb"
         },

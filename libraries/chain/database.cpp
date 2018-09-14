@@ -13,7 +13,6 @@
 #include <contento/chain/contento_evaluator.hpp>
 #include <contento/chain/contento_objects.hpp>
 #include <contento/chain/transaction_object.hpp>
-#include <contento/chain/shared_db_merkle.hpp>
 #include <contento/chain/operation_notification.hpp>
 #include <contento/chain/witness_schedule.hpp>
 #include <contento/chain/contract_balance_object.hpp>
@@ -2678,19 +2677,7 @@ void database::_apply_block( const signed_block& next_block )
    if( !( skip & skip_merkle_check ) )
    {
       auto merkle_root = next_block.calculate_merkle_root();
-
-      try
-      {
-         FC_ASSERT( next_block.transaction_merkle_root == merkle_root, "Merkle check failed", ("next_block.transaction_merkle_root",next_block.transaction_merkle_root)("calc",merkle_root)("next_block",next_block)("id",next_block.id()) );
-      }
-      catch( fc::assert_exception& e )
-      {
-         const auto& merkle_map = get_shared_db_merkle();
-         auto itr = merkle_map.find( next_block_num );
-
-         if( itr == merkle_map.end() || itr->second != merkle_root )
-            throw e;
-      }
+      FC_ASSERT( next_block.transaction_merkle_root == merkle_root, "Merkle check failed", ("next_block.transaction_merkle_root",next_block.transaction_merkle_root)("calc",merkle_root)("next_block",next_block)("id",next_block.id()) );
    }
 
    const witness_object& signing_witness = validate_block_header(skip, next_block);
@@ -2700,10 +2687,7 @@ void database::_apply_block( const signed_block& next_block )
 
    const auto& gprops = get_dynamic_global_properties();
    auto block_size = fc::raw::pack_size( next_block );
-//    if( has_hardfork( CONTENTO_HARDFORK_0_12 ) )
-//    {
-      FC_ASSERT( block_size <= gprops.maximum_block_size, "Block Size is too Big", ("next_block_num",next_block_num)("block_size", block_size)("max",gprops.maximum_block_size) );
-//    }
+   FC_ASSERT( block_size <= gprops.maximum_block_size, "Block Size is too Big", ("next_block_num",next_block_num)("block_size", block_size)("max",gprops.maximum_block_size) );
 
    if( block_size < CONTENTO_MIN_BLOCK_SIZE )
    {
@@ -2721,15 +2705,12 @@ void database::_apply_block( const signed_block& next_block )
    /// parse witness version reporting
    process_header_extensions( next_block );
 
-//    if( has_hardfork( CONTENTO_HARDFORK_0_5__54 ) ) // Cannot remove after hardfork
-//    {
-      const auto& witness = get_witness( next_block.witness );
-      const auto& hardfork_state = get_hardfork_property_object();
-      FC_ASSERT( witness.running_version >= hardfork_state.current_hardfork_version,
-         "Block produced by witness that is not running current hardfork",
-         ("witness",witness)("next_block.witness",next_block.witness)("hardfork_state", hardfork_state)
-      );
-//   }
+   const auto& witness = get_witness( next_block.witness );
+   const auto& hardfork_state = get_hardfork_property_object();
+   FC_ASSERT( witness.running_version >= hardfork_state.current_hardfork_version,
+      "Block produced by witness that is not running current hardfork",
+      ("witness",witness)("next_block.witness",next_block.witness)("hardfork_state", hardfork_state)
+   );
 
     transaction_wrapper tmp_wrapper;
     
@@ -2940,16 +2921,8 @@ std::shared_ptr<transaction_context> database::_apply_transaction( transaction_w
       auto get_owner   = [&]( const string& name ) { return authority( get< account_authority_object, by_account >( name ).owner );  };
       auto get_posting = [&]( const string& name ) { return authority( get< account_authority_object, by_account >( name ).posting );  };
 
-      try
-      {
-         trx.verify_authority( chain_id, get_active, get_owner, get_posting, CONTENTO_MAX_SIG_CHECK_DEPTH );
-         check_admin(trx.extract_admin_ops());
-      }
-      catch( protocol::tx_missing_active_auth& e )
-      {
-         if( get_shared_db_merkle().find( head_block_num() + 1 ) == get_shared_db_merkle().end() )
-            throw e;
-      }
+      trx.verify_authority( chain_id, get_active, get_owner, get_posting, CONTENTO_MAX_SIG_CHECK_DEPTH );
+      check_admin(trx.extract_admin_ops());
    }
 
    //Skip all manner of expiration and TaPoS checking if we're on block 1; It's impossible that the transaction is
@@ -2969,8 +2942,8 @@ std::shared_ptr<transaction_context> database::_apply_transaction( transaction_w
 
       CONTENTO_ASSERT( trx.expiration <= now + fc::seconds(CONTENTO_MAX_TIME_UNTIL_EXPIRATION), transaction_expiration_exception,
                   "", ("trx.expiration",trx.expiration)("now",now)("max_til_exp",CONTENTO_MAX_TIME_UNTIL_EXPIRATION));
-    //   if( has_hardfork( CONTENTO_HARDFORK_0_9 ) ) // Simple solution to pending trx bug when now == trx.expiration
-         CONTENTO_ASSERT( now < trx.expiration, transaction_expiration_exception, "", ("now",now)("trx.exp",trx.expiration) );
+      // Simple solution to pending trx bug when now == trx.expiration
+      CONTENTO_ASSERT( now < trx.expiration, transaction_expiration_exception, "", ("now",now)("trx.exp",trx.expiration) );
       CONTENTO_ASSERT( now <= trx.expiration, transaction_expiration_exception, "", ("now",now)("trx.exp",trx.expiration) );
    }
 
