@@ -26,6 +26,15 @@
             "preLaunchTask": "pre_debug_cosd"
         },
         {
+            "name": "lldb_cosd",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/../bninja/programs/contentosd/contentosd",
+            "args": [],
+            "cwd": "${workspaceFolder}/../bninja/programs/contentosd/",
+            "preLaunchTask": "pre_debug_cosd"
+        },
+        {
             "name": "debug_cos_test",
             "type": "cppdbg",
             "request": "launch",
