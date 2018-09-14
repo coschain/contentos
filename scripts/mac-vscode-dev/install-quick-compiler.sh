@@ -1,23 +1,6 @@
 #!/bin/sh
 
 
-# macos手动步骤操作：
-# 1. brew 安装cmake ，确保版本号 >= 3.12 ，brew 安装ninja
-# 2. brew 安装ccache，设置ccache的run_second_cpp=false配置
-# 3. brew 安装distcc，将编译服务器的路径和job number写入配置, 参考如下：
-#       echo '\n10.60.80.93/16\n' >> $(brew --prefix distcc)/etc/distcc/hosts
-# 4. 写入quickcc脚本
-# 5. 将vscode的工程配置复制到文件中
-# 6. 使用cmake生成ninja编译环境
-
-
-cmake_path=`which cmake`
-if [ ! -f "$cmake_path" ]; then
-  echo "please install cmake >= 3.12 "
-  exit -1
-fi
-
-
 ninja_path=`which ninja`
 if [ ! -f "$ninja_path" ]; then
   brew install ninja
@@ -49,6 +32,8 @@ if [ ! -d "$distcc_path" ]; then
         echo 'error when install distcc'
         exit -1
     fi
+    rm -rf $distcc_path/sbin/*
+    rm $distcc_path/etc/distcc/hosts
     echo '\n10.60.80.93/16\n' >> $distcc_path/etc/distcc/hosts
 
     # distcc会破坏环境，安装后需要重新安装jinja2
@@ -87,20 +72,3 @@ if [ ! -d $quickcc_dir ]; then
     chmod +x $quickcc_dir/quickcc.sh
 fi
 
-
-# copy vscode 的配置文件方便debug和build
-mkdir .vscode
-cp -f ./vscode_build_json/c_cpp_properties.json .vscode/
-cp -f ./vscode_build_json/launch.json .vscode/
-cp -f ./vscode_build_json/settings.json .vscode/
-cp -f ./vscode_build_json/tasks.json .vscode/
-
-
-# 生成build目录，最好是不要和代码放在一个目录，全局查找代码的时候会有问题
-cd ..
-mkdir bninja
-cd bninja
-
-export OPENSSL_ROOT_DIR=/usr/local/opt/openssl/
-cmake -G Ninja -DBOOST_ROOT="/usr/local/Cellar/boost/1.67.0_1" -DCMAKE_BUILD_TYPE=Debug -DENABLE_MAC_SHARED_LIB=1 -DBUILD_CONTENTOS_TESTNET=ON -DCMAKE_CXX_COMPILER="$quickcc_dir/quickcc.sh" -DCMAKE_C_COMPILER="$quickcc_dir/quickc.sh"  ../contentos/
-cd ../contentos/
