@@ -137,7 +137,7 @@ class fc__variant_object__entry:
 		debugger.HandleCommand('type summary add --inline-children %s' % target_class_name)
 
 
-class steemit__protocol__operation:
+class contento__protocol__operation:
 	@classmethod
 	def apply(clz, debugger, target_class_name):
 		debugger.HandleCommand("type synthetic add %s --python-class %s.%s" % (target_class_name, clz.__module__, clz.__name__))
@@ -185,13 +185,36 @@ class steemit__protocol__operation:
 			self.parse()
 
 
+class contento__protocol__asset:
+	@classmethod
+	def apply(clz, debugger, target_class_name):
+		# debugger.HandleCommand("type synthetic add %s --python-class %s.%s" % (target_class_name, clz.__module__, clz.__name__))
+		debugger.HandleCommand('type summary add --python-function %s.%s.asset_summary %s' % (clz.__module__, clz.__name__, target_class_name))
+
+	@staticmethod
+	def asset_summary(valobj, internal_dict):
+		r = ""
+		if valobj.IsValid() and valobj.size > 0:
+			amount = valobj.GetChildMemberWithName("amount").GetChildMemberWithName("value").data.sint64s[0]
+			symbol = valobj.GetChildMemberWithName("symbol").data.uint64s[0]
+			symbol_name, digits = "", symbol & 0xff
+			divider = 10 ** digits
+			symbol >>= 8
+			while symbol != 0:
+				symbol_name += chr(symbol & 0xff)
+				symbol >>= 8
+			fmts = "%%d.%%0%dd %s" % (digits, symbol_name)
+			r = fmts % (amount / divider, amount % divider)
+		return r
+
 ######## module entry point ########
 
 def __lldb_init_module(debugger, dictionary):
 	Helper.add_handler("fc::variant", fc__variant)
 	Helper.add_handler("fc::variant_object", fc__variant_object)
 	Helper.add_handler("fc::variant_object::entry", fc__variant_object__entry)
-	Helper.add_handler("contento::protocol::operation", steemit__protocol__operation)
+	Helper.add_handler("contento::protocol::operation", contento__protocol__operation)
+	Helper.add_handler("contento::protocol::asset", contento__protocol__asset)
 	Helper.apply(debugger)
 
 
