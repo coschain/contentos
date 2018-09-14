@@ -202,7 +202,7 @@ if __name__ == "__main__":
 	import sys
 
 	lldbinit = path.expanduser("~/.lldbinit")
-	me = path.abspath(__file__)
+	me = "command script import %s\n" % path.abspath(__file__)
 	lines = []
 	try:
 		f = open(lldbinit)
@@ -210,14 +210,22 @@ if __name__ == "__main__":
 		f.close()
 	except:
 		pass
-	lines = filter(lambda x: me not in x, lines)
-
-	if "uninstall" not in sys.argv[1:]:
-		lines.append("command script import %s" % me)
-
-	try:
-		f = open(lldbinit, "w")
-		f.write("\n".join(lines))
-		f.close()
-	except:
+	if me in lines:
+		print "already installed."
 		pass
+	else:
+		if len(lines) > 0:
+			try:
+				f = open(lldbinit + ".bak", "w")
+				f.write("".join(lines))
+				f.close()
+				print "old .lldbinit backed up as %s" % (lldbinit + ".bak")
+			except:
+				pass
+		try:
+			f = open(lldbinit, "w")
+			f.write(me)
+			f.close()
+			print "installed to %s" % lldbinit
+		except:
+			pass
