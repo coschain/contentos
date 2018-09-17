@@ -130,11 +130,6 @@ class wallet_api
        */
       vector<applied_operation>           get_ops_in_block( uint32_t block_num, bool only_virtual = true );
 
-      /** Return the current price feed history
-       *
-       * @returns Price feed history data on the blockchain
-       */
-      feed_history_api_obj                 get_feed_history()const;
 
       /**
        * Returns the list of witnesses producing blocks in the current round (21 Blocks)
@@ -150,14 +145,6 @@ class wallet_api
        * Returns the state info associated with the URL
        */
       app::state                          get_state( string url );
-
-      /**
-       * Returns vesting withdraw routes for an account.
-       *
-       * @param account Account to query routes
-       * @param type Withdraw type type [incoming, outgoing, all]
-       */
-      vector< withdraw_route >            get_withdraw_routes( string account, withdraw_route_type type = all )const;
 
       /**
        *  Gets the account information for all accounts for which this wallet has a private key
@@ -559,15 +546,6 @@ class wallet_api
        */
       optional< witness_api_obj > get_witness(string owner_account);
 
-      /** Returns conversion requests by an account
-       *
-       * @param owner Account name of the account owning the requests
-       *
-       * @returns All pending conversion requests by account
-       */
-      vector<convert_request_api_obj> get_conversion_requests( string owner );
-
-
       /**
        * Update a witness object owned by the given account.
        *
@@ -754,16 +732,6 @@ class wallet_api
 
 
       /**
-       * Set up a vesting withdraw request. The request is fulfilled once a week over the next two year (104 weeks).
-       *
-       * @param from The account the VESTS are withdrawn from
-       * @param vesting_shares The amount of VESTS to withdraw over the next two years. Each week (amount/104) shares are
-       *    withdrawn and deposited back as STEEM. i.e. "10.000000 VESTS"
-       * @param broadcast true if you wish to broadcast the transaction
-       */
-      annotated_signed_transaction withdraw_vesting( string from, asset vesting_shares, bool broadcast = false );
-    
-      /**
        * Transfer STEEM into a vesting fund represented by vesting shares (VESTS). VESTS are required to vesting
        * for a minimum of one coin year and can be withdrawn once a week over a two year withdraw period.
        * VESTS are protected against dilution up until 90% of STEEM is vesting.
@@ -776,30 +744,7 @@ class wallet_api
     
        annotated_signed_transaction convert_from_vesting(string account, asset vesting_shares, bool broadcast = false);
 
-      /**
-       * Set up a vesting withdraw route. When vesting shares are withdrawn, they will be routed to these accounts
-       * based on the specified weights.
-       *
-       * @param from The account the VESTS are withdrawn from.
-       * @param to   The account receiving either VESTS or STEEM.
-       * @param percent The percent of the withdraw to go to the 'to' account. This is denoted in hundreths of a percent.
-       *    i.e. 100 is 1% and 10000 is 100%. This value must be between 1 and 100000
-       * @param auto_vest Set to true if the from account should receive the VESTS as VESTS, or false if it should receive
-       *    them as STEEM.
-       * @param broadcast true if you wish to broadcast the transaction.
-       */
-      annotated_signed_transaction set_withdraw_vesting_route( string from, string to, uint16_t percent, bool auto_vest, bool broadcast = false );
-
-      /**
-       *  This method will convert SBD to STEEM at the current_median_history price one
-       *  week from the time it is executed. This method depends upon there being a valid price feed.
-       *
-       *  @param from The account requesting conversion of its SBD i.e. "1.000 SBD"
-       *  @param amount The amount of SBD to convert
-       *  @param broadcast true if you wish to broadcast the transaction
-       */
-      annotated_signed_transaction convert_sbd( string from, asset amount, bool broadcast = false );
-
+     
       /**
        * A witness can public a price feed for the STEEM:SBD market. The median price feed is used
        * to process conversion requests from SBD to STEEM.
@@ -903,21 +848,6 @@ class wallet_api
       annotated_signed_transaction vote( string voter, string author, string permlink, int16_t weight, bool broadcast );
 
       /**
-       * Sets the amount of time in the future until a transaction expires.
-       */
-      void set_transaction_expiration(uint32_t seconds);
-
-      /**
-       * Challenge a user's authority. The challenger pays a fee to the challenged which is depositted as
-       * Steem Power. Until the challenged proves their active key, all posting rights are revoked.
-       *
-       * @param challenger The account issuing the challenge
-       * @param challenged The account being challenged
-       * @param broadcast true if you wish to broadcast the transaction
-       */
-      annotated_signed_transaction challenge( string challenger, string challenged, bool broadcast );
-
-      /**
        * Create an account recovery request as a recover account. The syntax for this command contains a serialized authority object
        * so there is an example below on how to pass in the authority.
        *
@@ -953,15 +883,6 @@ class wallet_api
       annotated_signed_transaction change_recovery_account( string owner, string new_recovery_account, bool broadcast );
 
       vector< owner_authority_history_api_obj > get_owner_history( string account )const;
-
-      /**
-       * Prove an account's active authority, fulfilling a challenge, restoring posting rights, and making
-       * the account immune to challenge for 24 hours.
-       *
-       * @param challenged The account that was challenged and is proving its authority.
-       * @param broadcast true if you wish to broadcast the transaction
-       */
-      annotated_signed_transaction prove( string challenged, bool broadcast );
 
       /**
        * set_contract, set_code and set_abi have the same input parameters
@@ -1102,11 +1023,8 @@ FC_API( contento::wallet::wallet_api,
         (get_table_rows)
         (get_block)
         (get_ops_in_block)
-//        (get_feed_history)
-//        (get_conversion_requests)
         (get_account_history)
         (get_state)
-//        (get_withdraw_routes)
 
         /// transaction api
         (create_account)
@@ -1128,15 +1046,8 @@ FC_API( contento::wallet::wallet_api,
 //        (vote_for_witness)
         (follow)
         (transfer)
-//        (escrow_transfer)
-//        (escrow_approve)
-//        (escrow_dispute)
-//        (escrow_release)
         (transfer_to_vesting)
         (convert_from_vesting)
-//        (withdraw_vesting)
-//        (set_withdraw_vesting_route)
-//        (convert_sbd)
 //        (publish_feed)
 //        (get_order_book)
 //        (get_open_orders)
@@ -1145,9 +1056,6 @@ FC_API( contento::wallet::wallet_api,
         (post_comment)
         (post_subject)
         (vote)
-//        (set_transaction_expiration)
-//        (challenge)
-//        (prove)
 //        (request_account_recovery)
 //        (recover_account)
 //        (change_recovery_account)
