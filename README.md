@@ -1,6 +1,13 @@
 # Introducing Contentos
 
-You can read the Contentos Whitepaper at https://www.contentos.io/subject/home/generic/web/viewer.html?file=wp1_en.pdf
+Contentos Website: https://www.contentos.io
+
+Contentos White Paper: https://www.contentos.io/subject/home/pdfs/white_paper_en.pdf
+
+
+Follow us on https://twitter.com/contentosio
+
+Join discussion at https://t.me/ContentoOfficialGroup
 
 # Building
 
