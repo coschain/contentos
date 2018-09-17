@@ -5,6 +5,7 @@
 # Install it by running it. ~/.lldbinit will be modified so that lldb loads formatters when launching.
 
 import re
+import hashlib
 
 ######## helper ########
 
@@ -22,6 +23,24 @@ class Helper(object):
 			except:
 				pass
 		return r
+	
+	b58_alphabet = "123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz"
+
+	@staticmethod
+	def b58encode(data):
+		num = reduce(lambda s, c: (s << 8) + (ord(c) & 0xff), data, 0)
+		base_count = len(Helper.b58_alphabet)
+		r = []
+		while num > 0:
+			r.append(Helper.b58_alphabet[num % base_count])
+			num /= base_count
+		return "".join([c for c in reversed(r)])
+
+	@staticmethod
+	def key_to_wif(sha256_checksum):
+		data_to_hash = "\x80" + sha256_checksum[:32]
+		check = hashlib.sha256(hashlib.sha256(data_to_hash).digest()).digest()[:4]
+		return Helper.b58encode(data_to_hash + check)
 
 
 ######## formatter bases ########
@@ -88,7 +107,6 @@ class baseSyntheticFormatter(baseFormatter):
 
 	def update(self):
 		need_parse = self.valobj.changed or not self.ever_parsed
-		print "update called.", need_parse
 		if need_parse:
 			self.children = dict()
 			if self.is_valid():
@@ -266,6 +284,44 @@ class contento__protocol__namex(baseSummaryFormatter):
 		return 'name "%s"' % r
 
 
+class fc__ecc__private_key(baseSummaryFormatter):
+	@staticmethod
+	def summary(valobj, internal_dict):
+		r = "[invalid]"
+		try:
+			s = "".join(map(chr, valobj.data.uint8s))
+			r = Helper.key_to_wif(s)
+		except:
+			pass
+		return r
+
+
+class fc__ecc__public_key(baseSummaryFormatter):
+	@staticmethod
+	def summary(valobj, internal_dict):
+		r = "[invalid]"
+		try:
+			data = "".join(map(chr, valobj.data.uint8s))[:33]
+			r = Helper.b58encode(data + hashlib.sha256(data).digest()[:4])
+		except:
+			pass
+		return r
+
+
+class contento__protocol__public_key_type(baseSummaryFormatter):
+	@staticmethod
+	def summary(valobj, internal_dict):
+		r = "[invalid]"
+		try:
+			data = "".join(map(chr, valobj.data.uint8s))[:33]
+			h = hashlib.new("ripemd160")
+			h.update(data)
+			r = "COS" + Helper.b58encode(data + h.digest()[:4])
+		except:
+			pass
+		return r
+
+
 ######## module entry point ########
 
 def __lldb_init_module(debugger, dictionary):
@@ -278,7 +334,11 @@ def __lldb_init_module(debugger, dictionary):
 	handlers["contento::protocol::asset"] = contento__protocol__asset
 	handlers["contento::protocol::name"] = contento__protocol__name
 	handlers["contento::protocol::namex"] = contento__protocol__namex
-	
+	handlers["fc::ecc::private_key"] = fc__ecc__private_key
+	handlers["fc::ecc::public_key"] = fc__ecc__public_key
+	handlers["contento::protocol::public_key_type"] = contento__protocol__public_key_type
+	handlers["contento::protocol::private_key_type"] = fc__ecc__private_key
+
 	for clazz_name, clazz in handlers.iteritems():
 		clazz.apply(debugger, clazz_name)
 
