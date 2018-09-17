@@ -692,7 +692,7 @@ class contract_bank_api : public context_aware_api {
       }
 
       void transfer(account_name& account, const asset& value) {
-          // todo transfer COC to name from contract_bank
+          // todo transfer COS to name from contract_bank
           context.transfer(account,value);
       }
 

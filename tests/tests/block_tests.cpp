@@ -312,7 +312,7 @@ BOOST_AUTO_TEST_CASE( duplicate_transactions )
       transfer_operation t;
       t.from = CONTENTO_INIT_MINER_NAME;
       t.to = "alice";
-      t.amount = asset(500,COC_SYMBOL);
+      t.amount = asset(500,COS_SYMBOL);
       trx.operations.push_back(t);
       trx.set_expiration( db1.head_block_time() + CONTENTO_MAX_TIME_UNTIL_EXPIRATION );
       trx.sign( init_account_priv_key, db1.get_chain_id() );
@@ -325,8 +325,8 @@ BOOST_AUTO_TEST_CASE( duplicate_transactions )
 
       CONTENTO_CHECK_THROW(PUSH_TX( db1, trx, skip_sigs ), fc::exception);
       CONTENTO_CHECK_THROW(PUSH_TX( db2, trx, skip_sigs ), fc::exception);
-      BOOST_CHECK_EQUAL(db1.get_balance( "alice", COC_SYMBOL ).amount.value, 500);
-      BOOST_CHECK_EQUAL(db2.get_balance( "alice", COC_SYMBOL ).amount.value, 500);
+      BOOST_CHECK_EQUAL(db1.get_balance( "alice", COS_SYMBOL ).amount.value, 500);
+      BOOST_CHECK_EQUAL(db2.get_balance( "alice", COS_SYMBOL ).amount.value, 500);
    } catch (fc::exception& e) {
       edump((e.to_detail_string()));
       throw;
@@ -371,7 +371,7 @@ BOOST_AUTO_TEST_CASE( tapos )
       transfer_operation t;
       t.from = CONTENTO_INIT_MINER_NAME;
       t.to = "alice";
-      t.amount = asset(50,COC_SYMBOL);
+      t.amount = asset(50,COS_SYMBOL);
       trx.operations.push_back(t);
       trx.set_expiration( db1.head_block_time() + fc::seconds(2) );
       trx.sign( init_account_priv_key, db1.get_chain_id() );
@@ -403,7 +403,7 @@ BOOST_FIXTURE_TEST_CASE( optional_tapos, clean_database_fixture )
       transfer_operation op;
       op.from = "alice";
       op.to = "bob";
-      op.amount = asset(1000,COC_SYMBOL);
+      op.amount = asset(1000,COS_SYMBOL);
       signed_transaction tx;
       tx.operations.push_back( op );
 
@@ -466,7 +466,7 @@ BOOST_FIXTURE_TEST_CASE( double_sign_check, clean_database_fixture )
    transfer_operation t;
    t.from = CONTENTO_INIT_MINER_NAME;
    t.to = "bob";
-   t.amount = asset(amount,COC_SYMBOL);
+   t.amount = asset(amount,COS_SYMBOL);
    trx.operations.push_back(t);
    trx.set_expiration( db.head_block_time() + CONTENTO_MAX_TIME_UNTIL_EXPIRATION );
    trx.validate();
@@ -476,7 +476,7 @@ BOOST_FIXTURE_TEST_CASE( double_sign_check, clean_database_fixture )
    trx.operations.clear();
    t.from = "bob";
    t.to = CONTENTO_INIT_MINER_NAME;
-   t.amount = asset(amount,COC_SYMBOL);
+   t.amount = asset(amount,COS_SYMBOL);
    trx.operations.push_back(t);
    trx.validate();
 

@@ -74,7 +74,7 @@ using boost::container::flat_set;
 struct reward_fund_context
 {
     uint128_t   recent_claims = 0;
-    asset       reward_balance = asset( 0, COC_SYMBOL );
+    asset       reward_balance = asset( 0, COS_SYMBOL );
     share_type  coc_awarded = 0;
 };
 
@@ -1254,7 +1254,7 @@ uint32_t database::get_slot_at_time(fc::time_point_sec when)const
  */
 asset database::create_vesting( const account_object& to_account, asset coc)
 {
-    FC_ASSERT( coc.symbol == COC_SYMBOL, "invalid symbol" );
+    FC_ASSERT( coc.symbol == COS_SYMBOL, "invalid symbol" );
    try
    {
        const auto& cprops = get_dynamic_global_properties();
@@ -1412,7 +1412,7 @@ void database::clear_null_account_balance()
 //    if( !has_hardfork( CONTENTO_HARDFORK_0_14__327 ) ) return;
 
    const auto& null_account = get_account( CONTENTO_NULL_ACCOUNT );
-   asset total_steem( 0, COC_SYMBOL );
+   asset total_steem( 0, COS_SYMBOL );
 
    if( null_account.balance.amount > 0 )
    {
@@ -1552,7 +1552,7 @@ void database::process_vesting_withdrawals()
          withdraw_quota = std::min( account.vesting_shares.amount, account.vesting_withdraw_rate.amount ).value;
        
       share_type vests_converted_as_coc = 0;
-      asset total_coc_converted = asset( 0, COC_SYMBOL );
+      asset total_coc_converted = asset( 0, COS_SYMBOL );
        
        
        for (auto itr = didx.lower_bound(account.id); itr != didx.end() && itr -> account == account.id; ++itr )
@@ -1646,8 +1646,8 @@ share_type database::pay_curators( const comment_object& c, share_type& max_rewa
             {
                unclaimed_rewards -= claim;
                const auto& voter = get(itr->voter);
-//               auto reward = create_vesting( voter, asset( claim, COC_SYMBOL ), has_hardfork( CONTENTO_HARDFORK_0_17__659 ) );
-              auto reward = create_vesting( voter, asset( claim, COC_SYMBOL ));
+//               auto reward = create_vesting( voter, asset( claim, COS_SYMBOL ), has_hardfork( CONTENTO_HARDFORK_0_17__659 ) );
+              auto reward = create_vesting( voter, asset( claim, COS_SYMBOL ));
 
                push_virtual_operation( curation_reward_operation( voter.name, reward, c.author, to_string( c.permlink ) ) );
 
@@ -1845,7 +1845,7 @@ void database::process_funds()
     const auto& grprops = get_dynamic_global_reward_properties();
     const auto& wso = get_witness_schedule_object();
     
-    share_type new_coc = PER_BLOCK_PRODUCT_COC;
+    share_type new_coc = PER_BLOCK_PRODUCT_COS;
     auto creator_reward = ( new_coc * CONTENTO_CREATOR_REWARD_PERCENT) / CONTENTO_100_PERCENT;
     auto commenter_reward = ( new_coc * CONTENTO_COMMENTER_REWARD_PERCENT ) / CONTENTO_100_PERCENT; /// 15% to commenter
     auto other_reward = (new_coc * CONTENTO_OTHER_REWARD_PERCENT ) / CONTENTO_100_PERCENT; // 5% 预留
@@ -1864,15 +1864,15 @@ void database::process_funds()
     new_coc = creator_reward + commenter_reward + other_reward + witness_reward;
     modify( props, [&]( dynamic_global_property_object& p )
    {
-       p.current_supply           += asset( new_coc, COC_SYMBOL );
+       p.current_supply           += asset( new_coc, COS_SYMBOL );
    });
     
     modify( grprops, [&]( dynamic_global_reward_property_object& r){
-        r.subject_reward_balance += asset( creator_reward, COC_SYMBOL );
-        r.comment_reward_balance += asset( commenter_reward, COC_SYMBOL);
-        r.other_reward_balance += asset(other_reward, COC_SYMBOL);
+        r.subject_reward_balance += asset( creator_reward, COS_SYMBOL );
+        r.comment_reward_balance += asset( commenter_reward, COS_SYMBOL);
+        r.other_reward_balance += asset(other_reward, COS_SYMBOL);
     });
-    const auto& producer_reward = create_vesting( get_account( cwit.owner ), asset( witness_reward, COC_SYMBOL ) );
+    const auto& producer_reward = create_vesting( get_account( cwit.owner ), asset( witness_reward, COS_SYMBOL ) );
     push_virtual_operation( producer_reward_operation( cwit.owner, producer_reward ) );
 }
     
@@ -1910,7 +1910,7 @@ void database::process_other_cashout()
             
             for(auto iter=reporters.begin(); iter != reporters.end();++iter){
                 const auto& account = get_account(*iter);
-                create_vesting(account, asset(amount, COC_SYMBOL));
+                create_vesting(account, asset(amount, COS_SYMBOL));
             }
         }
         
@@ -1918,9 +1918,9 @@ void database::process_other_cashout()
         // accumulate new coc into reward balance
         modify( rpo, [&](dynamic_global_reward_property_object& r)
         {
-            r.subject_reward_balance += asset(creator_reward, COC_SYMBOL);
-            r.comment_reward_balance += asset(commenter_reward, COC_SYMBOL);
-            r.other_reward_balance = asset(0, COC_SYMBOL);
+            r.subject_reward_balance += asset(creator_reward, COS_SYMBOL);
+            r.comment_reward_balance += asset(commenter_reward, COS_SYMBOL);
+            r.other_reward_balance = asset(0, COS_SYMBOL);
             r.tick = 1;
         });
         
@@ -1957,11 +1957,11 @@ void database::process_savings_withdraws()
 asset database::get_liquidity_reward()const
 {
 //    if( has_hardfork( CONTENTO_HARDFORK_0_12__178 ) )
-      return asset( 0, COC_SYMBOL );
+      return asset( 0, COS_SYMBOL );
 
 //    const auto& props = get_dynamic_global_properties();
 //    static_assert( CONTENTO_LIQUIDITY_REWARD_PERIOD_SEC == 60*60, "this code assumes a 1 hour time interval" );
-//    asset percent( protocol::calc_percent_reward_per_hour< CONTENTO_LIQUIDITY_APR_PERCENT >( props.virtual_supply.amount ), COC_SYMBOL );
+//    asset percent( protocol::calc_percent_reward_per_hour< CONTENTO_LIQUIDITY_APR_PERCENT >( props.virtual_supply.amount ), COS_SYMBOL );
 //    return std::max( percent, CONTENTO_MIN_LIQUIDITY_REWARD );
 }
 
@@ -1969,27 +1969,27 @@ asset database::get_content_reward()const
 {
 //   const auto& props = get_dynamic_global_properties();
 //   static_assert( CONTENTO_BLOCK_INTERVAL == 3, "this code assumes a 3-second time interval" );
-//   asset percent( protocol::calc_percent_reward_per_block< CONTENTO_CONTENT_APR_PERCENT >( props.virtual_supply.amount ), COC_SYMBOL );
+//   asset percent( protocol::calc_percent_reward_per_block< CONTENTO_CONTENT_APR_PERCENT >( props.virtual_supply.amount ), COS_SYMBOL );
 //   return std::max( percent, CONTENTO_MIN_CONTENT_REWARD );
     
-    return asset( 0, COC_SYMBOL );
+    return asset( 0, COS_SYMBOL );
 }
 
 asset database::get_curation_reward()const
 {
 //   const auto& props = get_dynamic_global_properties();
 //   static_assert( CONTENTO_BLOCK_INTERVAL == 3, "this code assumes a 3-second time interval" );
-//   asset percent( protocol::calc_percent_reward_per_block< CONTENTO_CURATE_APR_PERCENT >( props.virtual_supply.amount ), COC_SYMBOL);
+//   asset percent( protocol::calc_percent_reward_per_block< CONTENTO_CURATE_APR_PERCENT >( props.virtual_supply.amount ), COS_SYMBOL);
 //   return std::max( percent, CONTENTO_MIN_CURATE_REWARD );
     
-    return asset( 0, COC_SYMBOL );
+    return asset( 0, COS_SYMBOL );
 }
 
 asset database::get_producer_reward()
 {
    const auto& props = get_dynamic_global_properties();
 //   static_assert( CONTENTO_BLOCK_INTERVAL == 3, "this code assumes a 3-second time interval" );
-//   asset percent( protocol::calc_percent_reward_per_block< CONTENTO_PRODUCER_APR_PERCENT >( props.virtual_supply.amount ), COC_SYMBOL);
+//   asset percent( protocol::calc_percent_reward_per_block< CONTENTO_PRODUCER_APR_PERCENT >( props.virtual_supply.amount ), COS_SYMBOL);
 //   auto pay = std::max( percent, CONTENTO_MIN_PRODUCER_REWARD );
 //   const auto& witness_account = get_account( props.current_witness );
 //
@@ -2009,7 +2009,7 @@ asset database::get_producer_reward()
 //
 //   return pay;
     
-    return asset( 0, COC_SYMBOL );
+    return asset( 0, COS_SYMBOL );
 }
 
 asset database::get_pow_reward()const
@@ -2019,14 +2019,14 @@ asset database::get_pow_reward()const
 //#ifndef IS_TEST_NET
 //   /// 0 block rewards until at least CONTENTO_MAX_WITNESSES have produced a POW
 //   if( props.num_pow_witnesses < CONTENTO_MAX_WITNESSES && props.head_block_number < CONTENTO_START_VESTING_BLOCK )
-//      return asset( 0, COC_SYMBOL );
+//      return asset( 0, COS_SYMBOL );
 //#endif
 //
 //   static_assert( CONTENTO_BLOCK_INTERVAL == 3, "this code assumes a 3-second time interval" );
 //   static_assert( CONTENTO_MAX_WITNESSES == 21, "this code assumes 21 per round" );
-//   asset percent( calc_percent_reward_per_round< CONTENTO_POW_APR_PERCENT >( props.virtual_supply.amount ), COC_SYMBOL);
+//   asset percent( calc_percent_reward_per_round< CONTENTO_POW_APR_PERCENT >( props.virtual_supply.amount ), COS_SYMBOL);
 //   return std::max( percent, CONTENTO_MIN_POW_REWARD );
-    return asset( 0, COC_SYMBOL );
+    return asset( 0, COS_SYMBOL );
 }
 
 
@@ -2085,7 +2085,7 @@ share_type database::pay_reward_funds( share_type reward )
 
       modify( *itr, [&]( reward_fund_object& rfo )
       {
-         rfo.reward_balance += asset( r, COC_SYMBOL );
+         rfo.reward_balance += asset( r, COS_SYMBOL );
       });
 
       used_rewards += r;
@@ -2445,7 +2445,7 @@ void database::init_genesis( uint64_t init_supply )
          {
             a.name = CONTENTO_INIT_MINER_NAME + ( i ? fc::to_string( i ) : std::string() );
             a.memo_key = init_public_key;
-            a.balance  = asset( i ? 0 : init_supply, COC_SYMBOL );
+            a.balance  = asset( i ? 0 : init_supply, COS_SYMBOL );
          } );
 
          create< account_authority_object >( [&]( account_authority_object& auth )
@@ -2471,7 +2471,7 @@ void database::init_genesis( uint64_t init_supply )
          p.time = CONTENTO_GENESIS_TIME;
          p.recent_slots_filled = fc::uint128::max_value();
          p.participation_count = 128;
-         p.current_supply = asset( init_supply, COC_SYMBOL );
+         p.current_supply = asset( init_supply, COS_SYMBOL );
          p.total_coc = p.current_supply;
          p.maximum_block_size = CONTENTO_MAX_BLOCK_SIZE;
       } );
@@ -3120,7 +3120,7 @@ void database::update_virtual_supply()
 //   modify( get_dynamic_global_properties(), [&]( dynamic_global_property_object& dgp )
 //   {
 //      dgp.virtual_supply = dgp.current_supply
-//         + ( get_feed_history().current_median_history.is_null() ? asset( 0, COC_SYMBOL ) : dgp.current_sbd_supply * get_feed_history().current_median_history );
+//         + ( get_feed_history().current_median_history.is_null() ? asset( 0, COS_SYMBOL ) : dgp.current_sbd_supply * get_feed_history().current_median_history );
 //
 //      auto median_price = get_feed_history().current_median_history;
 //
@@ -3294,7 +3294,7 @@ void database::update_last_irreversible_block()
 //       ( (age >= CONTENTO_MIN_LIQUIDITY_REWARD_PERIOD_SEC && !has_hardfork( CONTENTO_HARDFORK_0_10__149)) ||
 //       (age >= CONTENTO_MIN_LIQUIDITY_REWARD_PERIOD_SEC_HF10 && has_hardfork( CONTENTO_HARDFORK_0_10__149) ) ) )
 //   {
-//      if( old_order_receives.symbol == COC_SYMBOL )
+//      if( old_order_receives.symbol == COS_SYMBOL )
 //      {
 //         adjust_liquidity_reward( get_account( old_order.seller ), old_order_receives, false );
 //         adjust_liquidity_reward( get_account( new_order.seller ), -old_order_receives, false );
@@ -3446,7 +3446,7 @@ void database::clear_expired_delegations()
 
 void database::adjust_balance( const account_object& a, const asset& delta )
 {
-    FC_ASSERT( delta.symbol == COC_SYMBOL, "invalid symbol" );
+    FC_ASSERT( delta.symbol == COS_SYMBOL, "invalid symbol" );
     const auto& cprops = get_dynamic_global_properties();
     modify( a, [&]( account_object& acnt ){
         acnt.balance += delta;
@@ -3462,7 +3462,7 @@ void database::adjust_contract_balance( const contract_balance_object& a, const 
            {
                switch( delta.symbol )
                {
-                   case COC_SYMBOL:
+                   case COS_SYMBOL:
                        cbo.coc_balance += delta;
                        break;
                    default:
@@ -3477,7 +3477,7 @@ void database::adjust_savings_balance( const account_object& a, const asset& del
    {
       switch( delta.symbol )
       {
-         case COC_SYMBOL:
+         case COS_SYMBOL:
             acnt.savings_balance += delta;
             break;
          default:
@@ -3493,7 +3493,7 @@ void database::adjust_reward_balance( const account_object& a, const asset& delt
    {
       switch( delta.symbol )
       {
-         case COC_SYMBOL:
+         case COS_SYMBOL:
             acnt.reward_steem_balance += delta;
             break;
          default:
@@ -3514,9 +3514,9 @@ void database::adjust_supply( const asset& delta, bool adjust_vesting )
    {
       switch( delta.symbol )
       {
-         case COC_SYMBOL:
+         case COS_SYMBOL:
          {
-            asset new_coc( delta.amount, COC_SYMBOL );
+            asset new_coc( delta.amount, COS_SYMBOL );
             props.current_supply += delta + new_coc;
             props.total_coc += new_coc;
             assert( props.current_supply.amount.value >= 0 );
@@ -3533,7 +3533,7 @@ asset database::get_balance( const account_object& a, asset_symbol_type symbol )
 {
    switch( symbol )
    {
-      case COC_SYMBOL:
+      case COS_SYMBOL:
          return a.balance;
       default:
          FC_ASSERT( false, "invalid symbol" );
@@ -3544,7 +3544,7 @@ asset database::get_savings_balance( const account_object& a, asset_symbol_type 
 {
    switch( symbol )
    {
-      case COC_SYMBOL:
+      case COS_SYMBOL:
          return a.savings_balance;
       default:
          FC_ASSERT( !"invalid symbol" );
@@ -3848,7 +3848,7 @@ void database::apply_hardfork( uint32_t hardfork )
 // //
 // //            modify( gpo, [&]( dynamic_global_property_object& g )
 // //            {
-// //               g.total_reward_fund_steem = asset( 0, COC_SYMBOL );
+// //               g.total_reward_fund_steem = asset( 0, COS_SYMBOL );
 // //               g.total_reward_shares2 = 0;
 // //            });
 // //
@@ -3969,7 +3969,7 @@ void database::validate_invariants()const
    try
    {
       const auto& account_idx = get_index<account_index>().indices().get<by_name>();
-      asset total_coc = asset( 0, COC_SYMBOL );
+      asset total_coc = asset( 0, COS_SYMBOL );
       asset total_vesting = asset( 0, VESTS_SYMBOL );
       auto gpo = get_dynamic_global_properties();
       auto grpo = get_dynamic_global_reward_properties();

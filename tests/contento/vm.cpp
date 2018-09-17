@@ -121,7 +121,7 @@ bytes param_to_bin(database &db, namex contract_name, name action_name, std::str
       }
    }
     //
-    if(param == "[\"hello\",\"50 COC\"]"){
+    if(param == "[\"hello\",\"50 COS\"]"){
         asset s;
         fc::from_variant( action_args_var[1], s );
         
@@ -224,7 +224,7 @@ BOOST_AUTO_TEST_CASE( hello )
         set_abi(db, user1_private_key, N16(user1), "../../contracts/hello/hello.abi");
         
         // user2 send coc to contract
-        asset v1 = asset::from_string( "39.997 COC" ); // save function consume 0.003 coc, send value consume 0.01 COC, self keep 10000, send to contract 39997
+        asset v1 = asset::from_string( "39.997 COS" ); // save function consume 0.003 coc, send value consume 0.01 COS, self keep 10000, send to contract 39997
         BOOST_REQUIRE_NO_THROW(push_action(db, user2_private_key, N16(user2), N16(user1), N(save), "", v1));
         
         // check send result
@@ -234,7 +234,7 @@ BOOST_AUTO_TEST_CASE( hello )
         BOOST_REQUIRE( cbo1.coc_balance.amount.value == 39997 );
 
         // user2 withdraw 10 coc back
-        string a = "[\"user2\",\"10.000 COC\"]";
+        string a = "[\"user2\",\"10.000 COS\"]";
         asset v2;
         BOOST_REQUIRE_NO_THROW(push_action(db, user2_private_key, N16(user2), N16(user1), N(withdraw), a,v2));
         
@@ -248,7 +248,7 @@ BOOST_AUTO_TEST_CASE( hello )
         auto origin_user = acct4.balance.amount.value;
         auto origin_contract = cbo2.coc_balance.amount.value;
 
-        asset v3 = asset::from_string( "2000.000 COC" );
+        asset v3 = asset::from_string( "2000.000 COS" );
             BOOST_REQUIRE_THROW(push_action(db, user2_private_key, N16(user2), N16(user1), N(save), "", v3),fc::exception);
         const account_object& acct5 = db.get_account( "user2" );
         BOOST_REQUIRE( acct5.balance.amount.value < origin_user );// consume gas
@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_CASE( hello )
 
 
         // user2 withdraw invalid coc from contract, should failed and exception
-        a = "[\"user2\",\"2000.000 COC\"]";
+        a = "[\"user2\",\"2000.000 COS\"]";
         asset v4;
         origin_user = acct5.balance.amount.value;
         BOOST_REQUIRE_THROW(push_action(db, user2_private_key, N16(user2), N16(user1), N(withdraw), a, v4),fc::exception);
@@ -267,8 +267,8 @@ BOOST_AUTO_TEST_CASE( hello )
         BOOST_REQUIRE( cbo4.coc_balance.amount.value == origin_contract );
 
         // user2 send coc to contract by a payprohibited api, should failed and exception
-        a = "[\"user2\",\"5.000 COC\"]";
-        asset v5 = asset::from_string( "5.000 COC" );
+        a = "[\"user2\",\"5.000 COS\"]";
+        asset v5 = asset::from_string( "5.000 COS" );
         origin_user = acct6.balance.amount.value;
             BOOST_REQUIRE_THROW(push_action(db, user2_private_key, N16(user2), N16(user1), N(withdraw), a, v5),fc::exception);
         const account_object& acct7 = db.get_account( "user2" );
@@ -277,8 +277,8 @@ BOOST_AUTO_TEST_CASE( hello )
         BOOST_REQUIRE( cbo5.coc_balance.amount.value == origin_contract );
 
         // user2 send 0 coc to contract by a payprohibited api, it's ok, and withdraw should success
-        a = "[\"user2\",\"5.000 COC\"]";
-        asset v6 = asset::from_string( "0.000 COC" );
+        a = "[\"user2\",\"5.000 COS\"]";
+        asset v6 = asset::from_string( "0.000 COS" );
         BOOST_REQUIRE_NO_THROW(push_action(db, user2_private_key, N16(user2), N16(user1), N(withdraw), a, v6));
         const account_object& acct8 = db.get_account( "user2" );
         BOOST_REQUIRE( acct8.balance.amount.value < 25000 );  // ??? how much gas?
@@ -286,7 +286,7 @@ BOOST_AUTO_TEST_CASE( hello )
         BOOST_REQUIRE( cbo6.coc_balance.amount.value == origin_contract - 5000 );
 
         // user withdraw coc to a no exist user, should failed and exception
-         a = "[\"user12345\",\"10.000 COC\"]";
+         a = "[\"user12345\",\"10.000 COS\"]";
         asset v7;
         origin_user = acct8.balance.amount.value;
             BOOST_REQUIRE_THROW(push_action(db, user2_private_key, N16(user2), N16(user1), N(withdraw), a,v7),fc::exception);
@@ -310,26 +310,26 @@ BOOST_AUTO_TEST_CASE( contract_bank_robust )
         set_abi(db, user1_private_key, N16(user1), "../../contracts/hello/hello.abi");
         
         // user1 send coc to no exist contract, its throw exception at param_to_bin before vm excute
-        asset v1 = asset::from_string( "10.000 COC" );
+        asset v1 = asset::from_string( "10.000 COS" );
         BOOST_REQUIRE_THROW(push_action(db, user1_private_key, N16(user1), N16(somecontract), N(save), "", v1),fc::exception);
         
         //  user1 withdraw coc from no exist contract, its throw exception at param_to_bin before vm excute
-        string a = "[\"user1\",\"10.000 COC\"]";
+        string a = "[\"user1\",\"10.000 COS\"]";
         asset v2;
         BOOST_REQUIRE_THROW(push_action(db, user1_private_key, N16(user1), N16(somecontract), N(withdraw), a, v2),fc::exception);
         
         // pre send coc to contract
-        asset v3 = asset::from_string( "40.000 COC" );
+        asset v3 = asset::from_string( "40.000 COS" );
         BOOST_REQUIRE_NO_THROW(push_action(db, user1_private_key, N16(user1), N16(user1), N(save), "", v3));
         const contract_balance_object& cbo3 = db.get_contract_account( "user1" );// user1 is contract name
         BOOST_REQUIRE( cbo3.coc_balance.amount.value == 40000 );
 
         // no exist user send coc to contract, it's throw exception at verify_authority, before vm excute
-        asset v4 = asset::from_string( "10.000 COC" );
+        asset v4 = asset::from_string( "10.000 COS" );
         BOOST_REQUIRE_THROW(push_action(db, user1_private_key, N16(someuser), N16(user1), N(save), "", v4),fc::exception);
         
         // no exist user withdraw coc from contract, it's throw exception at verify_authority, before vm excute
-        a = "[\"user1\",\"50.000 COC\"]";
+        a = "[\"user1\",\"50.000 COS\"]";
         asset v5;
         BOOST_REQUIRE_THROW(push_action(db, user1_private_key, N16(someuser), N16(user1), N(withdraw), a, v5),fc::exception);
     }
@@ -377,16 +377,16 @@ BOOST_AUTO_TEST_CASE( storage )
    asset v;
 
    push_action(db, storage_private_key, N16(storage), N16(storage), N(placeoffer),
-        "[ \"storage\", \"3.000 COC\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]",v);
+        "[ \"storage\", \"3.000 COS\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]",v);
    BOOST_REQUIRE_THROW(
       push_action(db, hello_private_key, N16(hello), N16(storage), N(placeoffer),
-                 "[ \"storage\", \"3.000 COC\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]",v), 
+                 "[ \"storage\", \"3.000 COS\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]",v), 
       fc::exception
    );
    push_action(db, storage_private_key, N16(storage), N16(storage), N(canceloffer), 
         "[\"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\"]",v);
    push_action(db, hello_private_key, N16(hello), N16(storage), N(placeoffer), 
-               "[ \"hello\", \"3.000 COC\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]",v);
+               "[ \"hello\", \"3.000 COS\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]",v);
 
    push_action(db, storage_private_key, N16(storage), N16(storage), N(callhello), "[]", v);
    }

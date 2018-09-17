@@ -118,7 +118,7 @@ void controller::adjust_balance( const account_object& a, const asset& delta )
            {
                switch( delta.symbol )
                {
-                   case COC_SYMBOL:
+                   case COS_SYMBOL:
                        acnt.balance += delta;
                        break;
                    default:
@@ -133,7 +133,7 @@ void controller::adjust_contract_balance( const contract_balance_object& a, cons
            {
                switch( delta.symbol )
                {
-                   case COC_SYMBOL:
+                   case COS_SYMBOL:
                        cbo.coc_balance += delta;
                        break;
                    default:

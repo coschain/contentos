@@ -40,7 +40,7 @@ uint128_t evaluate_reward_curve( const uint128_t& rshares, const curve_id& curve
 
 //inline bool is_comment_payout_dust( const price& p, uint64_t steem_payout )
 //{
-//   return to_sbd( p, asset( steem_payout, COC_SYMBOL ) ) < CONTENTO_MIN_PAYOUT_SBD;
+//   return to_sbd( p, asset( steem_payout, COS_SYMBOL ) ) < CONTENTO_MIN_PAYOUT_SBD;
 //}
 
 } } } // contento::chain::util

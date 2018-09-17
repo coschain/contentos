@@ -12,10 +12,10 @@
 #define CONTENTO_CHAIN_ID                        (contento::protocol::chain_id_type())
 
 #define VESTS_SYMBOL  (uint64_t(3) | (uint64_t('V') << 8) | (uint64_t('E') << 16) | (uint64_t('S') << 24) | (uint64_t('T') << 32) | (uint64_t('S') << 40)) ///< VESTS with 6 digits of precision
-#define COC_SYMBOL (uint64_t(3) | (uint64_t('C') << 8) | (uint64_t('O') << 16) | (uint64_t('C') << 24))
+#define COS_SYMBOL (uint64_t(3) | (uint64_t('C') << 8) | (uint64_t('O') << 16) | (uint64_t('S') << 24))
 
-#define CONTENTO_SYMBOL                          "COCTENTO"
-#define CONTENTO_ADDRESS_PREFIX                  "COC"
+#define CONTENTO_SYMBOL                          "COSTENTO"
+#define CONTENTO_ADDRESS_PREFIX                  "COS"
 
 
 #define CONTENTO_GENESIS_TIME                    (fc::time_point_sec(1526560970))
@@ -55,9 +55,9 @@
 #define CONTENTO_CHAIN_ID                        (contento::protocol::chain_id_type())
 
 #define VESTS_SYMBOL  (uint64_t(3) | (uint64_t('V') << 8) | (uint64_t('E') << 16) | (uint64_t('S') << 24) | (uint64_t('T') << 32) | (uint64_t('S') << 40)) ///< VESTS with 6 digits of precision
-#define COC_SYMBOL (uint64_t(3) | (uint64_t('C') << 8) | (uint64_t('O') << 16) | (uint64_t('C') << 24))
-#define CONTENTO_SYMBOL                          "COCTENTO"
-#define CONTENTO_ADDRESS_PREFIX                  "COC"
+#define COS_SYMBOL (uint64_t(3) | (uint64_t('C') << 8) | (uint64_t('O') << 16) | (uint64_t('S') << 24))
+#define CONTENTO_SYMBOL                          "COSTENTO"
+#define CONTENTO_ADDRESS_PREFIX                  "COS"
 
 #define CONTENTO_GENESIS_TIME                    (fc::time_point_sec(1526560970))
 #define CONTENTO_MINING_TIME                     (fc::time_point_sec(1526560971))
@@ -170,7 +170,7 @@
 #define CONTENTO_CREATE_ACCOUNT_DELEGATION_RATIO    5
 #define CONTENTO_CREATE_ACCOUNT_DELEGATION_TIME     fc::days(30)
 
-#define CONTENTO_MINING_REWARD                   asset( 1000, COC_SYMBOL )
+#define CONTENTO_MINING_REWARD                   asset( 1000, COS_SYMBOL )
 #define CONTENTO_EQUIHASH_N                      140
 #define CONTENTO_EQUIHASH_K                      6
 
@@ -178,14 +178,14 @@
 #define CONTENTO_MIN_LIQUIDITY_REWARD_PERIOD_SEC (fc::seconds(60)) // 1 minute required on books to receive volume
 #define CONTENTO_LIQUIDITY_REWARD_PERIOD_SEC     (60*60)
 #define CONTENTO_LIQUIDITY_REWARD_BLOCKS         (CONTENTO_LIQUIDITY_REWARD_PERIOD_SEC/CONTENTO_BLOCK_INTERVAL)
-#define CONTENTO_MIN_LIQUIDITY_REWARD            (asset( 1000*CONTENTO_LIQUIDITY_REWARD_BLOCKS, COC_SYMBOL )) // Minumum reward to be paid out to liquidity providers
+#define CONTENTO_MIN_LIQUIDITY_REWARD            (asset( 1000*CONTENTO_LIQUIDITY_REWARD_BLOCKS, COS_SYMBOL )) // Minumum reward to be paid out to liquidity providers
 #define CONTENTO_MIN_CONTENT_REWARD              CONTENTO_MINING_REWARD
 #define CONTENTO_MIN_CURATE_REWARD               CONTENTO_MINING_REWARD
 #define CONTENTO_MIN_PRODUCER_REWARD             CONTENTO_MINING_REWARD
 #define CONTENTO_MIN_POW_REWARD                  CONTENTO_MINING_REWARD
 
-#define CONTENTO_ACTIVE_CHALLENGE_FEE            asset( 2000, COC_SYMBOL )
-#define CONTENTO_OWNER_CHALLENGE_FEE             asset( 30000, COC_SYMBOL )
+#define CONTENTO_ACTIVE_CHALLENGE_FEE            asset( 2000, COS_SYMBOL )
+#define CONTENTO_OWNER_CHALLENGE_FEE             asset( 30000, COS_SYMBOL )
 #define CONTENTO_ACTIVE_CHALLENGE_COOLDOWN       fc::days(1)
 #define CONTENTO_OWNER_CHALLENGE_COOLDOWN        fc::days(1)
 
@@ -295,6 +295,6 @@
 #define CONTENTO_PROXY_TO_SELF_ACCOUNT           ""
 /// Represents the canonical root post parent account
 #define CONTENTO_ROOT_POST_PARENT                (account_name_type())
-/// Represents the per-block producted coc amount.like 10000 refers 10.000 COC
-#define PER_BLOCK_PRODUCT_COC                   10000
+/// Represents the per-block producted coc amount.like 10000 refers 10.000 COS
+#define PER_BLOCK_PRODUCT_COS                   10000
 ///@}

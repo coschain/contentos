@@ -14,7 +14,7 @@ namespace contento { namespace chain {
 
         id_type           id;
         account_name contract_name;
-        asset             coc_balance = asset( 0, COC_SYMBOL );
+        asset             coc_balance = asset( 0, COS_SYMBOL );
         //asset             vesting_balance = asset( 0, VESTS_SYMBOL );
     };
 

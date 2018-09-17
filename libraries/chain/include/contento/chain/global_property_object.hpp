@@ -49,16 +49,16 @@ namespace contento { namespace chain {
           */
          uint32_t num_pow_witnesses = 0;
 
-//         asset       virtual_supply             = asset( 0, COC_SYMBOL );
-         asset       current_supply             = asset( 0, COC_SYMBOL );
-         asset       total_coc   = asset( 0, COC_SYMBOL );
+//         asset       virtual_supply             = asset( 0, COS_SYMBOL );
+         asset       current_supply             = asset( 0, COS_SYMBOL );
+         asset       total_coc   = asset( 0, COS_SYMBOL );
          asset       total_vesting_shares       = asset( 0, VESTS_SYMBOL );
          fc::uint128 total_reward_shares2; ///< the running total of REWARD^2
 
 
        price get_vesting_share_price() const
        {
-           return price( asset( 1, COC_SYMBOL), asset( 1, VESTS_SYMBOL ));
+           return price( asset( 1, COS_SYMBOL), asset( 1, VESTS_SYMBOL ));
        }
 
          /**

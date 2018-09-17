@@ -62,14 +62,14 @@ BOOST_AUTO_TEST_CASE( account_create_test )
 
         const account_object& init = db.get_account( CONTENTO_INIT_MINER_NAME );
         asset init_starting_balance = init.balance;
-        BOOST_REQUIRE(init_starting_balance > asset(0, COC_SYMBOL));
+        BOOST_REQUIRE(init_starting_balance > asset(0, COS_SYMBOL));
 
         BOOST_TEST_MESSAGE( "Testing: account_create" );
         const auto& gpo = db.get_dynamic_global_properties();
 
         account_create_operation op;
 
-        op.fee = asset( 100, COC_SYMBOL );
+        op.fee = asset( 100, COS_SYMBOL );
         op.new_account_name = "alice";
         op.creator = CONTENTO_INIT_MINER_NAME;
         op.owner = authority( 1, priv_key.get_public_key(), 1 );
@@ -96,12 +96,12 @@ BOOST_AUTO_TEST_CASE( account_create_test )
         BOOST_REQUIRE( acct.memo_key == priv_key.get_public_key() );
         BOOST_REQUIRE( acct.proxy == "" );
         BOOST_REQUIRE( acct.created == db.head_block_time() );
-        BOOST_REQUIRE( acct.balance.amount.value == ASSET( "0.000 COC" ).amount.value );
+        BOOST_REQUIRE( acct.balance.amount.value == ASSET( "0.000 COS" ).amount.value );
         BOOST_REQUIRE( acct.vesting_shares.amount.value == ASSET( "0.100 VESTS" ).amount.value);
         BOOST_REQUIRE( acct.id._id == acct_auth.id._id );
 
         BOOST_REQUIRE( acct.vesting_withdraw_rate.amount.value == ASSET( "0.000 VESTS" ).amount.value );
-        BOOST_REQUIRE( ( init_starting_balance - ASSET( "0.100 COC" ) ).amount.value == init.balance.amount.value );
+        BOOST_REQUIRE( ( init_starting_balance - ASSET( "0.100 COS" ) ).amount.value == init.balance.amount.value );
         validate_database();
 
         BOOST_TEST_MESSAGE( "--- Test failure of duplicate account creation" );
@@ -113,18 +113,18 @@ BOOST_AUTO_TEST_CASE( account_create_test )
         BOOST_REQUIRE( acct.memo_key == priv_key.get_public_key() );
         BOOST_REQUIRE( acct.proxy == "" );
         BOOST_REQUIRE( acct.created == db.head_block_time() );
-        BOOST_REQUIRE( acct.balance.amount.value == ASSET( "0.000 COC" ).amount.value );
+        BOOST_REQUIRE( acct.balance.amount.value == ASSET( "0.000 COS" ).amount.value );
         BOOST_REQUIRE( acct.vesting_shares.amount.value == ASSET( "0.100 VESTS" ).amount.value);
         BOOST_REQUIRE( acct.id._id == acct_auth.id._id );
 
         BOOST_REQUIRE( acct.vesting_withdraw_rate.amount.value == ASSET( "0.000 VESTS" ).amount.value );
-        BOOST_REQUIRE( ( init_starting_balance - ASSET( "0.100 COC" ) ).amount.value == init.balance.amount.value );
+        BOOST_REQUIRE( ( init_starting_balance - ASSET( "0.100 COS" ) ).amount.value == init.balance.amount.value );
         validate_database();
 
         BOOST_TEST_MESSAGE( "--- Test failure when creator cannot cover fee" );
         tx.signatures.clear();
         tx.operations.clear();
-        op.fee = asset( db.get_account( CONTENTO_INIT_MINER_NAME ).balance.amount + 1, COC_SYMBOL );
+        op.fee = asset( db.get_account( CONTENTO_INIT_MINER_NAME ).balance.amount + 1, COS_SYMBOL );
         op.new_account_name = "bob";
         tx.operations.push_back( op );
         tx.sign( init_account_priv_key, db.get_chain_id() );
@@ -145,7 +145,7 @@ BOOST_AUTO_TEST_CASE( transfer_authority_test )
         transfer_operation op;
         op.from = "alice";
         op.to = "bob";
-        op.amount = ASSET( "2.500 COC" );
+        op.amount = ASSET( "2.500 COS" );
 
         signed_transaction tx;
         tx.set_expiration( db.head_block_time() + CONTENTO_MAX_TIME_UNTIL_EXPIRATION );
@@ -188,15 +188,15 @@ BOOST_AUTO_TEST_CASE( transfer_test )
 
         BOOST_TEST_MESSAGE( "Testing: transfer" );
 
-        BOOST_REQUIRE( alice.balance.amount.value == ASSET( "10.000 COC" ).amount.value );
-        BOOST_REQUIRE( bob.balance.amount.value == ASSET(" 0.000 COC" ).amount.value );
+        BOOST_REQUIRE( alice.balance.amount.value == ASSET( "10.000 COS" ).amount.value );
+        BOOST_REQUIRE( bob.balance.amount.value == ASSET(" 0.000 COS" ).amount.value );
 
         signed_transaction tx;
         transfer_operation op;
 
         op.from = "alice";
         op.to = "bob";
-        op.amount = ASSET( "5.000 COC" );
+        op.amount = ASSET( "5.000 COS" );
 
         BOOST_TEST_MESSAGE( "--- Test normal transaction" );
         tx.operations.push_back( op );
@@ -204,8 +204,8 @@ BOOST_AUTO_TEST_CASE( transfer_test )
         tx.sign( alice_private_key, db.get_chain_id() );
         db.push_transaction( tx, 0 );
 
-        BOOST_REQUIRE( alice.balance.amount.value == ASSET( "5.000 COC" ).amount.value );
-        BOOST_REQUIRE( bob.balance.amount.value == ASSET( "5.000 COC" ).amount.value );
+        BOOST_REQUIRE( alice.balance.amount.value == ASSET( "5.000 COS" ).amount.value );
+        BOOST_REQUIRE( bob.balance.amount.value == ASSET( "5.000 COS" ).amount.value );
         validate_database();
 
         BOOST_TEST_MESSAGE( "--- Generating a block" );
@@ -214,8 +214,8 @@ BOOST_AUTO_TEST_CASE( transfer_test )
         const auto& new_alice = db.get_account( "alice" );
         const auto& new_bob = db.get_account( "bob" );
 
-        BOOST_REQUIRE( new_alice.balance.amount.value == ASSET( "5.000 COC" ).amount.value );
-        BOOST_REQUIRE( new_bob.balance.amount.value == ASSET( "5.000 COC" ).amount.value );
+        BOOST_REQUIRE( new_alice.balance.amount.value == ASSET( "5.000 COS" ).amount.value );
+        BOOST_REQUIRE( new_bob.balance.amount.value == ASSET( "5.000 COS" ).amount.value );
         validate_database();
 
         BOOST_TEST_MESSAGE( "--- Test emptying an account" );
@@ -226,8 +226,8 @@ BOOST_AUTO_TEST_CASE( transfer_test )
         tx.sign( alice_private_key, db.get_chain_id() );
         db.push_transaction( tx, database::skip_transaction_dupe_check );
 
-        BOOST_REQUIRE( new_alice.balance.amount.value == ASSET( "0.000 COC" ).amount.value );
-        BOOST_REQUIRE( new_bob.balance.amount.value == ASSET( "10.000 COC" ).amount.value );
+        BOOST_REQUIRE( new_alice.balance.amount.value == ASSET( "0.000 COS" ).amount.value );
+        BOOST_REQUIRE( new_bob.balance.amount.value == ASSET( "10.000 COS" ).amount.value );
         validate_database();
 
         BOOST_TEST_MESSAGE( "--- Test transferring non-existent funds" );
@@ -238,8 +238,8 @@ BOOST_AUTO_TEST_CASE( transfer_test )
         tx.sign( alice_private_key, db.get_chain_id() );
         CONTENTO_REQUIRE_THROW( db.push_transaction( tx, database::skip_transaction_dupe_check ), fc::exception );
 
-        BOOST_REQUIRE( new_alice.balance.amount.value == ASSET( "0.000 COC" ).amount.value );
-        BOOST_REQUIRE( new_bob.balance.amount.value == ASSET( "10.000 COC" ).amount.value );
+        BOOST_REQUIRE( new_alice.balance.amount.value == ASSET( "0.000 COS" ).amount.value );
+        BOOST_REQUIRE( new_bob.balance.amount.value == ASSET( "10.000 COS" ).amount.value );
         validate_database();
 
     }
@@ -565,7 +565,7 @@ BOOST_AUTO_TEST_CASE( comment_delete_test )
         ACTORS( (alice) )
         generate_block();
 
-        vest( "alice", ASSET( "1000.000 COC" ) );
+        vest( "alice", ASSET( "1000.000 COS" ) );
 
         generate_block();
 
@@ -646,11 +646,11 @@ BOOST_AUTO_TEST_CASE( vote_test )
         ACTORS( (alice)(bob)(sam)(dave) )
         generate_block();
 
-        vest( "alice", ASSET( "10.000 COC" ) );
+        vest( "alice", ASSET( "10.000 COS" ) );
         validate_database();
-        vest( "bob" , ASSET( "10.000 COC" ) );
-        vest( "sam" , ASSET( "10.000 COC" ) );
-        vest( "dave" , ASSET( "10.000 COC" ) );
+        vest( "bob" , ASSET( "10.000 COS" ) );
+        vest( "sam" , ASSET( "10.000 COS" ) );
+        vest( "dave" , ASSET( "10.000 COS" ) );
         generate_block();
 
         const auto& vote_idx = db.get_index< comment_vote_index >().indices().get< by_comment_voter >();
@@ -991,7 +991,7 @@ BOOST_AUTO_TEST_CASE( transfer_to_vesting_authorities_test )
         transfer_to_vesting_operation op;
         op.from = "alice";
         op.to = "bob";
-        op.amount = ASSET( "2.500 COC" );
+        op.amount = ASSET( "2.500 COS" );
 
         signed_transaction tx;
         tx.set_expiration( db.head_block_time() + CONTENTO_MAX_TIME_UNTIL_EXPIRATION );
@@ -1039,17 +1039,17 @@ BOOST_AUTO_TEST_CASE( transfer_to_vesting_test)
 
        
 
-        BOOST_REQUIRE( alice.balance == ASSET( "10.000 COC" ) );
+        BOOST_REQUIRE( alice.balance == ASSET( "10.000 COS" ) );
 
         auto shares = asset( gpo.total_vesting_shares.amount, VESTS_SYMBOL );
-        auto coc = asset( gpo.total_coc.amount, COC_SYMBOL );
+        auto coc = asset( gpo.total_coc.amount, COS_SYMBOL );
         auto alice_shares = alice.vesting_shares;
         auto bob_shares = bob.vesting_shares;
 
         transfer_to_vesting_operation op;
         op.from = "alice";
         op.to = "";
-        op.amount = ASSET( "7.500 COC" );
+        op.amount = ASSET( "7.500 COS" );
 
         signed_transaction tx;
         tx.operations.push_back( op );
@@ -1062,14 +1062,14 @@ BOOST_AUTO_TEST_CASE( transfer_to_vesting_test)
         shares += new_vest;
         coc -= op.amount;
 
-        BOOST_REQUIRE( alice.balance.amount.value == ASSET( "2.500 COC" ).amount.value );
+        BOOST_REQUIRE( alice.balance.amount.value == ASSET( "2.500 COS" ).amount.value );
         BOOST_REQUIRE( alice.vesting_shares.amount.value == alice_shares.amount.value );
         BOOST_REQUIRE( gpo.total_coc.amount.value == coc.amount.value );
         BOOST_REQUIRE( gpo.total_vesting_shares.amount.value == shares.amount.value );
         validate_database();
 
         op.to = "bob";
-        op.amount = asset( 2000, COC_SYMBOL );
+        op.amount = asset( 2000, COS_SYMBOL );
         tx.operations.clear();
         tx.signatures.clear();
         tx.operations.push_back( op );
@@ -1082,9 +1082,9 @@ BOOST_AUTO_TEST_CASE( transfer_to_vesting_test)
         coc -= op.amount;
         bob_shares += new_vest;
 
-        BOOST_REQUIRE( alice.balance.amount.value == ASSET( "0.500 COC" ).amount.value );
+        BOOST_REQUIRE( alice.balance.amount.value == ASSET( "0.500 COS" ).amount.value );
         BOOST_REQUIRE( alice.vesting_shares.amount.value == alice_shares.amount.value );
-        BOOST_REQUIRE( bob.balance.amount.value == ASSET( "0.000 COC" ).amount.value );
+        BOOST_REQUIRE( bob.balance.amount.value == ASSET( "0.000 COS" ).amount.value );
         BOOST_REQUIRE( bob.vesting_shares.amount.value == bob_shares.amount.value );
         BOOST_REQUIRE( gpo.total_coc.amount.value == coc.amount.value );
         BOOST_REQUIRE( gpo.total_vesting_shares.amount.value == shares.amount.value );
@@ -1092,9 +1092,9 @@ BOOST_AUTO_TEST_CASE( transfer_to_vesting_test)
 
         CONTENTO_REQUIRE_THROW( db.push_transaction( tx, database::skip_transaction_dupe_check ), fc::exception );
 
-        BOOST_REQUIRE( alice.balance.amount.value == ASSET( "0.500 COC" ).amount.value );
+        BOOST_REQUIRE( alice.balance.amount.value == ASSET( "0.500 COS" ).amount.value );
         BOOST_REQUIRE( alice.vesting_shares.amount.value == alice_shares.amount.value );
-        BOOST_REQUIRE( bob.balance.amount.value == ASSET( "0.000 COC" ).amount.value );
+        BOOST_REQUIRE( bob.balance.amount.value == ASSET( "0.000 COS" ).amount.value );
         BOOST_REQUIRE( bob.vesting_shares.amount.value == bob_shares.amount.value );
         BOOST_REQUIRE( gpo.total_coc.amount.value == coc.amount.value );
         BOOST_REQUIRE( gpo.total_vesting_shares.amount.value == shares.amount.value );
@@ -1152,7 +1152,7 @@ BOOST_AUTO_TEST_CASE( convert_from_vesting_test){
         
         ACTORS( (alice) )
         generate_block();
-        vest( "alice", ASSET( "10.000 COC" ) );
+        vest( "alice", ASSET( "10.000 COS" ) );
         
         BOOST_TEST_MESSAGE( "--- Test convert from existing VESTS" );
         
@@ -1276,10 +1276,10 @@ BOOST_AUTO_TEST_CASE( rewards_test){
         ACTORS( (alice)(bob)(sam)(dave) )
         generate_block();
         
-        vest( "alice", ASSET( "10.000 COC" ) );
-        vest( "bob" , ASSET( "10.000 COC" ) );
-        vest( "sam" , ASSET( "10.000 COC" ) );
-        vest( "dave" , ASSET( "10.000 COC" ) );
+        vest( "alice", ASSET( "10.000 COS" ) );
+        vest( "bob" , ASSET( "10.000 COS" ) );
+        vest( "sam" , ASSET( "10.000 COS" ) );
+        vest( "dave" , ASSET( "10.000 COS" ) );
         validate_database();
         generate_block();
         

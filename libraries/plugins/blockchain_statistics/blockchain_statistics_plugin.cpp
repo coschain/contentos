@@ -53,7 +53,7 @@ struct operation_process
       {
          b.transfers++;
 
-         if( op.amount.symbol == COC_SYMBOL )
+         if( op.amount.symbol == COS_SYMBOL )
             b.steem_transferred += op.amount.amount;
          else
             b.sbd_transferred += op.amount.amount;
@@ -195,7 +195,7 @@ struct operation_process
       _db.modify( _bucket, [&]( bucket_object& b )
       {
          b.vesting_withdrawals_processed++;
-         if( op.deposited.symbol == COC_SYMBOL )
+         if( op.deposited.symbol == COS_SYMBOL )
             b.vests_withdrawn += op.withdrawn.amount;
          else
             b.vests_transferred += op.withdrawn.amount;

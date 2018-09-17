@@ -75,7 +75,7 @@ BOOST_AUTO_TEST_CASE( serialization_raw_test )
       transfer_operation op;
       op.from = "alice";
       op.to = "bob";
-      op.amount = asset(100,COC_SYMBOL);
+      op.amount = asset(100,COS_SYMBOL);
 
       trx.operations.push_back( op );
       auto packed = fc::raw::pack( trx );
@@ -94,7 +94,7 @@ BOOST_AUTO_TEST_CASE( serialization_json_test )
       transfer_operation op;
       op.from = "alice";
       op.to = "bob";
-      op.amount = asset(100,COC_SYMBOL);
+      op.amount = asset(100,COS_SYMBOL);
 
       fc::variant test(op.amount);
       auto tmp = test.as<asset>();
@@ -132,9 +132,9 @@ BOOST_AUTO_TEST_CASE( asset_test )
       BOOST_CHECK_EQUAL( steem.decimals(), 3 );
       BOOST_CHECK_EQUAL( steem.symbol_name(), "TESTS" );
       BOOST_CHECK_EQUAL( steem.to_string(), "123.456 TESTS" );
-      BOOST_CHECK_EQUAL( steem.symbol, COC_SYMBOL);
-      BOOST_CHECK_EQUAL( asset(50, COC_SYMBOL).to_string(), "0.050 TESTS" );
-      BOOST_CHECK_EQUAL( asset(50000, COC_SYMBOL).to_string(), "50.000 TESTS" );
+      BOOST_CHECK_EQUAL( steem.symbol, COS_SYMBOL);
+      BOOST_CHECK_EQUAL( asset(50, COS_SYMBOL).to_string(), "0.050 TESTS" );
+      BOOST_CHECK_EQUAL( asset(50000, COS_SYMBOL).to_string(), "50.000 TESTS" );
 
       BOOST_CHECK( std::abs( sbd.to_real() - 654.321 ) < 0.0005 );
       BOOST_CHECK_EQUAL( sbd.amount.value, 654321 );

@@ -560,7 +560,7 @@ void apply_context::transfer( account_name name, const asset& value)  {
     
     FC_ASSERT( value > asset(0), "asset amount must > 0" );
     FC_ASSERT( get_contract_balance() >= value, "Contract does not have sufficient funds for transfer." );
-//    asset s(value,COC_SYMBOL);
+//    asset s(value,COS_SYMBOL);
     control.adjust_contract_balance( from_account, -value );
     control.adjust_balance( to_account, value );
 }

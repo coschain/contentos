@@ -63,7 +63,7 @@ void witness_update_evaluator::do_apply( const witness_update_operation& o )
    _db.get_account( o.owner ); // verify owner exists
 
     FC_ASSERT( o.url.size() <= CONTENTO_MAX_WITNESS_URL_LENGTH, "URL is too long" );
-    FC_ASSERT( o.props.account_creation_fee.symbol == COC_SYMBOL );
+    FC_ASSERT( o.props.account_creation_fee.symbol == COS_SYMBOL );
 
    const auto& by_witness_name_idx = _db.get_index< witness_index >().indices().get< by_name >();
    auto wit_itr = by_witness_name_idx.find( o.owner );
@@ -334,9 +334,9 @@ void account_create_with_delegation_evaluator::do_apply( const account_create_wi
                ( "creator.vesting_shares", creator.vesting_shares )
                ( "creator.delegated_vesting_shares", creator.delegated_vesting_shares )( "required", o.delegation ) );
 
-   auto target_delegation = asset( wso.median_props.account_creation_fee.amount * CONTENTO_CREATE_ACCOUNT_WITH_STEEM_MODIFIER * CONTENTO_CREATE_ACCOUNT_DELEGATION_RATIO, COC_SYMBOL ) * props.get_vesting_share_price();
+   auto target_delegation = asset( wso.median_props.account_creation_fee.amount * CONTENTO_CREATE_ACCOUNT_WITH_STEEM_MODIFIER * CONTENTO_CREATE_ACCOUNT_DELEGATION_RATIO, COS_SYMBOL ) * props.get_vesting_share_price();
 
-   auto current_delegation = asset( o.fee.amount * CONTENTO_CREATE_ACCOUNT_DELEGATION_RATIO, COC_SYMBOL ) * props.get_vesting_share_price() + o.delegation;
+   auto current_delegation = asset( o.fee.amount * CONTENTO_CREATE_ACCOUNT_DELEGATION_RATIO, COS_SYMBOL ) * props.get_vesting_share_price() + o.delegation;
 
    FC_ASSERT( current_delegation >= target_delegation, "Inssufficient Delegation ${f} required, ${p} provided.",
                ("f", target_delegation )
@@ -765,7 +765,7 @@ void comment_evaluator::do_apply( const comment_operation& o )
 //
 //      asset steem_spent = o.steem_amount;
 //      asset sbd_spent = o.sbd_amount;
-//      if( o.fee.symbol == COC_SYMBOL )
+//      if( o.fee.symbol == COS_SYMBOL )
 //         steem_spent += o.fee;
 //      else
 //         sbd_spent += o.fee;
@@ -955,7 +955,7 @@ void transfer_to_vesting_evaluator::do_apply( const transfer_to_vesting_operatio
    const auto& from_account = _db.get_account(o.from);
    const auto& to_account = o.to.size() ? _db.get_account(o.to) : from_account;
 
-   FC_ASSERT( _db.get_balance( from_account, COC_SYMBOL) >= o.amount, "Account does not have sufficient STEEM for transfer." );
+   FC_ASSERT( _db.get_balance( from_account, COS_SYMBOL) >= o.amount, "Account does not have sufficient STEEM for transfer." );
    _db.adjust_balance( from_account, -o.amount );
    _db.create_vesting( to_account, o.amount );
 }
@@ -2254,12 +2254,12 @@ void claim_reward_balance_evaluator::do_apply( const claim_reward_balance_operat
    FC_ASSERT( op.reward_vests <= acnt.reward_vesting_balance, "Cannot claim that much VESTS. Claim: ${c} Actual: ${a}",
       ("c", op.reward_vests)("a", acnt.reward_vesting_balance) );
 
-   asset reward_vesting_steem_to_move = asset( 0, COC_SYMBOL );
+   asset reward_vesting_steem_to_move = asset( 0, COS_SYMBOL );
    if( op.reward_vests == acnt.reward_vesting_balance )
       reward_vesting_steem_to_move = acnt.reward_vesting_steem;
    else
       reward_vesting_steem_to_move = asset( ( ( uint128_t( op.reward_vests.amount.value ) * uint128_t( acnt.reward_vesting_steem.amount.value ) )
-         / uint128_t( acnt.reward_vesting_balance.amount.value ) ).to_uint64(), COC_SYMBOL );
+         / uint128_t( acnt.reward_vesting_balance.amount.value ) ).to_uint64(), COS_SYMBOL );
 
    _db.adjust_reward_balance( acnt, -op.reward_steem );
    _db.adjust_reward_balance( acnt, -op.reward_sbd );
@@ -2293,7 +2293,7 @@ void delegate_vesting_shares_evaluator::do_apply( const delegate_vesting_shares_
 
    const auto& wso = _db.get_witness_schedule_object();
    const auto& gpo = _db.get_dynamic_global_properties();
-   auto min_delegation = asset( wso.median_props.account_creation_fee.amount * 10, COC_SYMBOL ) * gpo.get_vesting_share_price();
+   auto min_delegation = asset( wso.median_props.account_creation_fee.amount * 10, COS_SYMBOL ) * gpo.get_vesting_share_price();
    auto min_update = wso.median_props.account_creation_fee * gpo.get_vesting_share_price();
 
    // If delegation doesn't exist, create it
@@ -2414,7 +2414,7 @@ void vm_evaluator::do_apply( const vm_operation& o )  {
         }
         
         // apply vm action
-        int64_t caller_coc = _db.get_balance( caller, COC_SYMBOL ).amount.value;
+        int64_t caller_coc = _db.get_balance( caller, COS_SYMBOL ).amount.value;
         FC_ASSERT( caller_coc >= gas / config::gas_per_coc, "Not enough balance to apply vm action." );
         
         const uint64_t max_tps = 3000;
@@ -2442,7 +2442,7 @@ void vm_evaluator::do_apply( const vm_operation& o )  {
     // prepare to pay the gas fee
     gas += ctx->gas();
     uint64_t coc_cost = gas / config::gas_per_coc;
-    uint64_t caller_coc = _db.get_balance( caller, COC_SYMBOL ).amount.value;
+    uint64_t caller_coc = _db.get_balance( caller, COS_SYMBOL ).amount.value;
     
     if (coc_cost > caller_coc) {
         // caller's balance is not enough for gas fee. we'll take all her money and mark an error.
@@ -2464,7 +2464,7 @@ void vm_evaluator::do_apply( const vm_operation& o )  {
             transfer_operation pay;
             pay.from = o.caller;
             pay.to = config::gas_fee_account_name;
-            pay.amount = asset(coc_cost, COC_SYMBOL);
+            pay.amount = asset(coc_cost, COS_SYMBOL);
             pay.memo = "gas fee";
             
             transfer_evaluator(_db).do_apply(pay);
