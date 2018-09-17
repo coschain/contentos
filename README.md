@@ -102,7 +102,7 @@ Once `contentosd` and `cli_wallet` were successfully built, you can try performi
                 STARTING TEST NETWORK
     
     ------------------------------------------------------
-    initminer public key: COC6QHBEC2FEGqvNyaw5tupW6v2ojcHZR1k4EtNpZu5bssygjnpnV
+    initminer public key: COS6QHBEC2FEGqvNyaw5tupW6v2ojcHZR1k4EtNpZu5bssygjnpnV
     initminer private key: 5HvTVEQCYAhVTCV347DEb3tgsCV7o4Xg6wwcJ6zqBdNRU6TEueN
     chain id: 0000000000000000000000000000000000000000000000000000000000000000
     blockchain version: 0.0.1
@@ -194,7 +194,7 @@ For detailed command line options, run `./contentosd --help`.
     unlocked >>> list_keys
     list_keys
     [[
-    "COC6QHBEC2FEGqvNyaw5tupW6v2ojcHZR1k4EtNpZu5bssygjnpnV",
+    "COS6QHBEC2FEGqvNyaw5tupW6v2ojcHZR1k4EtNpZu5bssygjnpnV",
     "5HvTVEQCYAhVTCV347DEb3tgsCV7o4Xg6wwcJ6zqBdNRU6TEueN"
      ]
     ]
@@ -211,10 +211,10 @@ To create accounts `alice` and `bob` ,
     unlocked >>> create_account initminer bob "" true
     ...
     unlocked >>> list_my_accounts
-    alice     0.000 COC       0.030 VESTS
-    bob       0.000 COC       0.030 VESTS
+    alice     0.000 COS       0.030 VESTS
+    bob       0.000 COS       0.030 VESTS
     -------------------------------------------------
-    TOTAL     0.000 COC       0.060 VESTS
+    TOTAL     0.000 COS       0.060 VESTS
     
     unlocked >>> get_account alice
     {
@@ -223,17 +223,17 @@ To create accounts `alice` and `bob` ,
       ...
     }
 
-### Transfer COC
+### Transfer COS
 
-In a private net, `initminer` holds the initial supply of COC's. To transfer COC's between accounts,
+In a private net, `initminer` holds the initial supply of COS's. To transfer COS's between accounts,
 
-    unlocked >>> transfer initminer alice "1000.000 COC" "" true
-    unlocked >>> transfer alice bob "300.000 COC" "" true
+    unlocked >>> transfer initminer alice "1000.000 COS" "" true
+    unlocked >>> transfer alice bob "300.000 COS" "" true
     unlocked >>> list_my_accounts
-    alice     700.000 COC       0.030 VESTS
-    bob       300.000 COC       0.030 VESTS
+    alice     700.000 COS       0.030 VESTS
+    bob       300.000 COS       0.030 VESTS
     -------------------------------------------------
-    TOTAL    1000.000 COC       0.060 VESTS
+    TOTAL    1000.000 COS       0.060 VESTS
 
 ### Post an article
 
