@@ -75,7 +75,7 @@ struct reward_fund_context
 {
     uint128_t   recent_claims = 0;
     asset       reward_balance = asset( 0, COS_SYMBOL );
-    share_type  coc_awarded = 0;
+    share_type  cos_awarded = 0;
 };
 
 class database_impl
@@ -1252,14 +1252,14 @@ uint32_t database::get_slot_at_time(fc::time_point_sec when)const
  * @param to_account - the account to receive the new vesting shares
  * @param STEEM - STEEM to be converted to vesting shares
  */
-asset database::create_vesting( const account_object& to_account, asset coc)
+asset database::create_vesting( const account_object& to_account, asset cos)
 {
-    FC_ASSERT( coc.symbol == COS_SYMBOL, "invalid symbol" );
+    FC_ASSERT( cos.symbol == COS_SYMBOL, "invalid symbol" );
    try
    {
        const auto& cprops = get_dynamic_global_properties();
 
-       asset new_vesting = coc * cprops.get_vesting_share_price();
+       asset new_vesting = cos * cprops.get_vesting_share_price();
        modify( to_account, [&]( account_object& to ){
            to.vesting_shares += new_vesting;
        });
@@ -1271,7 +1271,7 @@ asset database::create_vesting( const account_object& to_account, asset coc)
 
         return new_vesting;
    }
-   FC_CAPTURE_AND_RETHROW( (to_account.name)(coc) )
+   FC_CAPTURE_AND_RETHROW( (to_account.name)(cos) )
 }
 
 fc::sha256 database::get_pow_target()const
@@ -1446,7 +1446,7 @@ void database::clear_null_account_balance()
       modify( gpo, [&]( dynamic_global_property_object& g )
       {
          g.total_vesting_shares -= null_account.vesting_shares;
-         g.total_coc -= converted_steem;
+         g.total_cos -= converted_steem;
       });
 
       modify( null_account, [&]( account_object& a )
@@ -1551,8 +1551,8 @@ void database::process_vesting_withdrawals()
       else
          withdraw_quota = std::min( account.vesting_shares.amount, account.vesting_withdraw_rate.amount ).value;
        
-      share_type vests_converted_as_coc = 0;
-      asset total_coc_converted = asset( 0, COS_SYMBOL );
+      share_type vests_converted_as_cos = 0;
+      asset total_cos_converted = asset( 0, COS_SYMBOL );
        
        
        for (auto itr = didx.lower_bound(account.id); itr != didx.end() && itr -> account == account.id; ++itr )
@@ -1560,9 +1560,9 @@ void database::process_vesting_withdrawals()
            if (withdraw_quota > 0) {
                share_type to_convert = withdraw_quota < itr -> vesting_shares.amount? withdraw_quota: itr -> vesting_shares.amount;
                withdraw_quota -= to_convert;
-               vests_converted_as_coc += to_convert;
-               auto converted_coc = asset( to_convert, VESTS_SYMBOL ) * cprops.get_vesting_share_price();
-               total_coc_converted += converted_coc;
+               vests_converted_as_cos += to_convert;
+               auto converted_cos = asset( to_convert, VESTS_SYMBOL ) * cprops.get_vesting_share_price();
+               total_cos_converted += converted_cos;
            }
        }
        
@@ -1571,9 +1571,9 @@ void database::process_vesting_withdrawals()
 
       modify( account, [&]( account_object& a )
       {
-         a.vesting_shares.amount -= vests_converted_as_coc;
-         a.balance += total_coc_converted;
-         a.withdrawn += total_coc_converted.amount;
+         a.vesting_shares.amount -= vests_converted_as_cos;
+         a.balance += total_cos_converted;
+         a.withdrawn += total_cos_converted.amount;
 
          if( a.withdrawn >= a.to_withdraw || a.vesting_shares.amount == 0 )
          {
@@ -1595,11 +1595,11 @@ void database::process_vesting_withdrawals()
 
       modify( cprops, [&]( dynamic_global_property_object& o )
       {
-         o.total_coc += total_coc_converted;
-         o.total_vesting_shares.amount -= vests_converted_as_coc;
+         o.total_cos += total_cos_converted;
+         o.total_vesting_shares.amount -= vests_converted_as_cos;
       });
 
-      push_virtual_operation( fill_vesting_withdraw_operation( account.name, account.name, asset( vests_converted_as_coc, VESTS_SYMBOL ), total_coc_converted ) );
+      push_virtual_operation( fill_vesting_withdraw_operation( account.name, account.name, asset( vests_converted_as_cos, VESTS_SYMBOL ), total_cos_converted ) );
    }
 }
 
@@ -1808,25 +1808,25 @@ void database::process_comment_cashout()
     {
         if (current -> parent_author == CONTENTO_ROOT_POST_PARENT) {
             s_ctx.total_reward_shares2 = subject_rf_ctx.recent_claims;
-            s_ctx.total_reward_fund_coc = subject_rf_ctx.reward_balance;
+            s_ctx.total_reward_fund_cos = subject_rf_ctx.reward_balance;
             s_ctx.reward_curve = grpo.subject_reward_curve;
             s_ctx.reward_weight = CONTENTO_100_PERCENT;
-            subject_rf_ctx.coc_awarded += cashout_comment_helper( s_ctx, *current, true );
+            subject_rf_ctx.cos_awarded += cashout_comment_helper( s_ctx, *current, true );
         }
         else {
             c_ctx.total_reward_shares2 = comment_rf_ctx.recent_claims;
-            c_ctx.total_reward_fund_coc = comment_rf_ctx.reward_balance;
+            c_ctx.total_reward_fund_cos = comment_rf_ctx.reward_balance;
             c_ctx.reward_weight = CONTENTO_100_PERCENT;
             c_ctx.reward_curve = grpo.comment_reward_curve;
-            comment_rf_ctx.coc_awarded += cashout_comment_helper( c_ctx, *current, false );
+            comment_rf_ctx.cos_awarded += cashout_comment_helper( c_ctx, *current, false );
         }
         // current = cidx.begin();
         modify( grpo, [&]( dynamic_global_reward_property_object& dcpo )
        {
            dcpo.subject_recent_claims = subject_rf_ctx.recent_claims;
-           dcpo.subject_reward_balance -= subject_rf_ctx.coc_awarded;
+           dcpo.subject_reward_balance -= subject_rf_ctx.cos_awarded;
            dcpo.comment_recent_claims = comment_rf_ctx.recent_claims;
-           dcpo.comment_reward_balance -= comment_rf_ctx.coc_awarded;
+           dcpo.comment_reward_balance -= comment_rf_ctx.cos_awarded;
        });
     }
 }
@@ -1845,11 +1845,11 @@ void database::process_funds()
     const auto& grprops = get_dynamic_global_reward_properties();
     const auto& wso = get_witness_schedule_object();
     
-    share_type new_coc = PER_BLOCK_PRODUCT_COS;
-    auto creator_reward = ( new_coc * CONTENTO_CREATOR_REWARD_PERCENT) / CONTENTO_100_PERCENT;
-    auto commenter_reward = ( new_coc * CONTENTO_COMMENTER_REWARD_PERCENT ) / CONTENTO_100_PERCENT; /// 15% to commenter
-    auto other_reward = (new_coc * CONTENTO_OTHER_REWARD_PERCENT ) / CONTENTO_100_PERCENT; // 5% 预留
-    auto witness_reward = new_coc - creator_reward - commenter_reward - other_reward;
+    share_type new_cos = PER_BLOCK_PRODUCT_COS;
+    auto creator_reward = ( new_cos * CONTENTO_CREATOR_REWARD_PERCENT) / CONTENTO_100_PERCENT;
+    auto commenter_reward = ( new_cos * CONTENTO_COMMENTER_REWARD_PERCENT ) / CONTENTO_100_PERCENT; /// 15% to commenter
+    auto other_reward = (new_cos * CONTENTO_OTHER_REWARD_PERCENT ) / CONTENTO_100_PERCENT; // 5% 预留
+    auto witness_reward = new_cos - creator_reward - commenter_reward - other_reward;
     const auto& cwit = get_witness( props.current_witness );
     witness_reward *= CONTENTO_MAX_WITNESSES;
     if( cwit.schedule == witness_object::timeshare )
@@ -1861,10 +1861,10 @@ void database::process_funds()
     else
         wlog( "Encountered unknown witness type for witness: ${w}", ("w", cwit.owner) );
     witness_reward /= wso.witness_pay_normalization_factor;
-    new_coc = creator_reward + commenter_reward + other_reward + witness_reward;
+    new_cos = creator_reward + commenter_reward + other_reward + witness_reward;
     modify( props, [&]( dynamic_global_property_object& p )
    {
-       p.current_supply           += asset( new_coc, COS_SYMBOL );
+       p.current_supply           += asset( new_cos, COS_SYMBOL );
    });
     
     modify( grprops, [&]( dynamic_global_reward_property_object& r){
@@ -1915,7 +1915,7 @@ void database::process_other_cashout()
         }
         
         
-        // accumulate new coc into reward balance
+        // accumulate new cos into reward balance
         modify( rpo, [&](dynamic_global_reward_property_object& r)
         {
             r.subject_reward_balance += asset(creator_reward, COS_SYMBOL);
@@ -2472,7 +2472,7 @@ void database::init_genesis( uint64_t init_supply )
          p.recent_slots_filled = fc::uint128::max_value();
          p.participation_count = 128;
          p.current_supply = asset( init_supply, COS_SYMBOL );
-         p.total_coc = p.current_supply;
+         p.total_cos = p.current_supply;
          p.maximum_block_size = CONTENTO_MAX_BLOCK_SIZE;
       } );
        
@@ -3452,7 +3452,7 @@ void database::adjust_balance( const account_object& a, const asset& delta )
         acnt.balance += delta;
     });
     modify(cprops, [&](dynamic_global_property_object& gpo){
-        gpo.total_coc += delta;
+        gpo.total_cos += delta;
     });
 }
 
@@ -3463,7 +3463,7 @@ void database::adjust_contract_balance( const contract_balance_object& a, const 
                switch( delta.symbol )
                {
                    case COS_SYMBOL:
-                       cbo.coc_balance += delta;
+                       cbo.cos_balance += delta;
                        break;
                    default:
                        FC_ASSERT( false, "invalid symbol" );
@@ -3516,9 +3516,9 @@ void database::adjust_supply( const asset& delta, bool adjust_vesting )
       {
          case COS_SYMBOL:
          {
-            asset new_coc( delta.amount, COS_SYMBOL );
-            props.current_supply += delta + new_coc;
-            props.total_coc += new_coc;
+            asset new_cos( delta.amount, COS_SYMBOL );
+            props.current_supply += delta + new_cos;
+            props.total_cos += new_cos;
             assert( props.current_supply.amount.value >= 0 );
             break;
          }
@@ -3969,7 +3969,7 @@ void database::validate_invariants()const
    try
    {
       const auto& account_idx = get_index<account_index>().indices().get<by_name>();
-      asset total_coc = asset( 0, COS_SYMBOL );
+      asset total_cos = asset( 0, COS_SYMBOL );
       asset total_vesting = asset( 0, VESTS_SYMBOL );
       auto gpo = get_dynamic_global_properties();
       auto grpo = get_dynamic_global_reward_properties();
@@ -3981,25 +3981,25 @@ void database::validate_invariants()const
 
       for( auto itr = account_idx.begin(); itr != account_idx.end(); ++itr )
       {
-         total_coc += itr->balance;
+         total_cos += itr->balance;
          total_vesting += itr->vesting_shares;
       }
 
 
-    auto  account_coc = total_coc;
-    total_coc += grpo.subject_reward_balance + grpo.comment_reward_balance + grpo.other_reward_balance;
+    auto  account_cos = total_cos;
+    total_cos += grpo.subject_reward_balance + grpo.comment_reward_balance + grpo.other_reward_balance;
     FC_ASSERT(gpo.total_vesting_shares == total_vesting , "",
               ("gpo.total_vesting_shares", gpo.total_vesting_shares)
               ("total_vesting", total_vesting));
-    FC_ASSERT(gpo.total_coc == account_coc , "",
-             ("gpo.total_coc", gpo.total_coc)
-             ("account_coc", account_coc));
-    FC_ASSERT(gpo.current_supply == total_coc + total_vesting * gpo.get_vesting_share_price(), "",
+    FC_ASSERT(gpo.total_cos == account_cos , "",
+             ("gpo.total_cos", gpo.total_cos)
+             ("account_cos", account_cos));
+    FC_ASSERT(gpo.current_supply == total_cos + total_vesting * gpo.get_vesting_share_price(), "",
               ("gpo.current_supply", gpo.current_supply)
               ("gpo.total_vesting_shares", gpo.total_vesting_shares)
               ("total_vesting", total_vesting)
-              ("gpo.total_coc", gpo.total_coc)
-              ("total_coc", total_coc ));
+              ("gpo.total_cos", gpo.total_cos)
+              ("total_cos", total_cos ));
    }
    FC_CAPTURE_LOG_AND_RETHROW( (head_block_num()) );
 }

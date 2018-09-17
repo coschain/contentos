@@ -51,7 +51,7 @@ namespace contento { namespace chain {
 
 //         asset       virtual_supply             = asset( 0, COS_SYMBOL );
          asset       current_supply             = asset( 0, COS_SYMBOL );
-         asset       total_coc   = asset( 0, COS_SYMBOL );
+         asset       total_cos   = asset( 0, COS_SYMBOL );
          asset       total_vesting_shares       = asset( 0, VESTS_SYMBOL );
          fc::uint128 total_reward_shares2; ///< the running total of REWARD^2
 
@@ -120,7 +120,7 @@ FC_REFLECT( contento::chain::dynamic_global_property_object,
              (num_pow_witnesses)
 //             (virtual_supply)
              (current_supply)
-             (total_coc)
+             (total_cos)
              (total_vesting_shares)
              (total_reward_shares2)
              (maximum_block_size)

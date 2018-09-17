@@ -295,6 +295,6 @@
 #define CONTENTO_PROXY_TO_SELF_ACCOUNT           ""
 /// Represents the canonical root post parent account
 #define CONTENTO_ROOT_POST_PARENT                (account_name_type())
-/// Represents the per-block producted coc amount.like 10000 refers 10.000 COS
+/// Represents the per-block producted cos amount.like 10000 refers 10.000 COS
 #define PER_BLOCK_PRODUCT_COS                   10000
 ///@}

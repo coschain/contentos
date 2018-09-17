@@ -153,7 +153,7 @@ struct dynamic_global_property_object {
 	uint64		total_pow;
 	uint32		num_pow_witnesses;
 	asset		current_supply;
-	asset		total_coc;
+	asset		total_cos;
 	asset		total_vesting_shares;
 	uint128		total_reward_shares2;
 	uint32		maximum_block_size;
@@ -164,7 +164,7 @@ struct dynamic_global_property_object {
 	uint32		vote_power_reserve_rate;
 	uint32		tps; 
  
-	COSLIB_SERIALIZE( dynamic_global_property_object, (id)(head_block_number)(head_block_id)(time)(current_witness)(total_pow)(num_pow_witnesses)(current_supply)(total_coc)(total_vesting_shares)(total_reward_shares2)(maximum_block_size)(current_aslot)(recent_slots_filled)(participation_count)(last_irreversible_block_num)(vote_power_reserve_rate)(tps) ) 
+	COSLIB_SERIALIZE( dynamic_global_property_object, (id)(head_block_number)(head_block_id)(time)(current_witness)(total_pow)(num_pow_witnesses)(current_supply)(total_cos)(total_vesting_shares)(total_reward_shares2)(maximum_block_size)(current_aslot)(recent_slots_filled)(participation_count)(last_irreversible_block_num)(vote_power_reserve_rate)(tps) ) 
 };
 
 struct dynamic_global_property_api_obj : public dynamic_global_property_object {

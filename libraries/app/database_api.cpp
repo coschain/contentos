@@ -383,7 +383,7 @@ asset database_api_impl::get_contract_balance(string name) const {
     auto itr = idx.find( name );
     if(itr != idx.end()){
         const auto& account = _db.get<contract_balance_object, by_name >( name );
-        return account.coc_balance;
+        return account.cos_balance;
     } else {
         return asset(0);
     }

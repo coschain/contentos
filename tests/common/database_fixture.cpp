@@ -340,7 +340,7 @@ void database_fixture::fund(
          {
             if( amount.symbol == COS_SYMBOL )
                gpo.current_supply += amount;
-               gpo.total_coc += amount;
+               gpo.total_cos += amount;
 
          });
       }, default_skip );

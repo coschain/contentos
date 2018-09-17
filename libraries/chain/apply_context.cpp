@@ -546,7 +546,7 @@ bool apply_context::execute_operation( const std::vector<char>& op_buff ){
 
 asset apply_context::get_contract_balance()  {
     const auto& account = control.get_contract_account(receiver);
-    return account.coc_balance;
+    return account.cos_balance;
 }
     
 void apply_context::set_payable_flag() {

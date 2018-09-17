@@ -134,7 +134,7 @@ void controller::adjust_contract_balance( const contract_balance_object& a, cons
                switch( delta.symbol )
                {
                    case COS_SYMBOL:
-                       cbo.coc_balance += delta;
+                       cbo.cos_balance += delta;
                        break;
                    default:
                        FC_ASSERT( false, "invalid symbol" );

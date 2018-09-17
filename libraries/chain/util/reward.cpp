@@ -42,7 +42,7 @@ uint64_t get_rshare_reward( const comment_reward_context& ctx )
    FC_ASSERT( ctx.rshares > 0 );
    FC_ASSERT( ctx.total_reward_shares2 > 0 );
 
-   u256 rf(ctx.total_reward_fund_coc.amount.value);
+   u256 rf(ctx.total_reward_fund_cos.amount.value);
    u256 total_claims = to256( ctx.total_reward_shares2 );
 
    //idump( (ctx) );

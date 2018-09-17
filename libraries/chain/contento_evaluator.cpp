@@ -285,7 +285,7 @@ void account_create_evaluator::do_apply( const account_create_operation& o )
     
     _db.modify( _db.get_dynamic_global_properties(), [&]( dynamic_global_property_object& gpo )
    {
-       gpo.total_coc -= o.fee;
+       gpo.total_cos -= o.fee;
        
    });
 
@@ -371,7 +371,7 @@ void account_create_with_delegation_evaluator::do_apply( const account_create_wi
    });
     
     _db.modify(props, [&](dynamic_global_property_object& p){
-        p.total_coc -= o.fee; 
+        p.total_cos -= o.fee; 
     });
 
    const auto& new_account = _db.create< account_object >( [&]( account_object& acc )
@@ -2276,7 +2276,7 @@ void claim_reward_balance_evaluator::do_apply( const claim_reward_balance_operat
    _db.modify( _db.get_dynamic_global_properties(), [&]( dynamic_global_property_object& gpo )
    {
       gpo.total_vesting_shares += op.reward_vests;
-      gpo.total_coc += reward_vesting_steem_to_move;
+      gpo.total_cos += reward_vesting_steem_to_move;
 
    });
 
@@ -2414,14 +2414,14 @@ void vm_evaluator::do_apply( const vm_operation& o )  {
         }
         
         // apply vm action
-        int64_t caller_coc = _db.get_balance( caller, COS_SYMBOL ).amount.value;
-        FC_ASSERT( caller_coc >= gas / config::gas_per_coc, "Not enough balance to apply vm action." );
+        int64_t caller_cos = _db.get_balance( caller, COS_SYMBOL ).amount.value;
+        FC_ASSERT( caller_cos >= gas / config::gas_per_cos, "Not enough balance to apply vm action." );
         
         const uint64_t max_tps = 3000;
         uint32_t tps = _db.tps();
         if (tps >= max_tps) tps = max_tps - 1;
         
-        ctx->init_bill( (uint64_t)caller_coc * config::gas_per_coc - gas,
+        ctx->init_bill( (uint64_t)caller_cos * config::gas_per_cos - gas,
                        10,
                        1 * max_tps / (max_tps - tps)
                        );
@@ -2441,12 +2441,12 @@ void vm_evaluator::do_apply( const vm_operation& o )  {
     
     // prepare to pay the gas fee
     gas += ctx->gas();
-    uint64_t coc_cost = gas / config::gas_per_coc;
-    uint64_t caller_coc = _db.get_balance( caller, COS_SYMBOL ).amount.value;
+    uint64_t cos_cost = gas / config::gas_per_cos;
+    uint64_t caller_cos = _db.get_balance( caller, COS_SYMBOL ).amount.value;
     
-    if (coc_cost > caller_coc) {
+    if (cos_cost > caller_cos) {
         // caller's balance is not enough for gas fee. we'll take all her money and mark an error.
-        coc_cost = caller_coc;
+        cos_cost = caller_cos;
         if (!error) {
             error = true;
             exc_ptr = std::make_shared<fc::exception>(unspecified_exception_code, 
@@ -2459,16 +2459,16 @@ void vm_evaluator::do_apply( const vm_operation& o )  {
     }
     
     // pay gas fee
-    if (coc_cost > 0) {
+    if (cos_cost > 0) {
         try {
             transfer_operation pay;
             pay.from = o.caller;
             pay.to = config::gas_fee_account_name;
-            pay.amount = asset(coc_cost, COS_SYMBOL);
+            pay.amount = asset(cos_cost, COS_SYMBOL);
             pay.memo = "gas fee";
             
             transfer_evaluator(_db).do_apply(pay);
-            ctx->add_paid_gas(coc_cost * config::gas_per_coc);
+            ctx->add_paid_gas(cos_cost * config::gas_per_cos);
             
         } catch(fc::exception& e) {
             if (!error) {

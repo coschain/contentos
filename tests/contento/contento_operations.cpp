@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE( account_create_test )
         const account_authority_object& acct_auth = db.get< account_authority_object, by_account >( "alice" );
 
 //        auto vest_shares = gpo.total_vesting_shares;
-//        auto vests = gpo.total_vesting_fund_coc;
+//        auto vests = gpo.total_vesting_fund_cos;
 
         BOOST_REQUIRE( acct.name == "alice" );
         BOOST_REQUIRE( acct_auth.owner == authority( 1, priv_key.get_public_key(), 1 ) );
@@ -1042,7 +1042,7 @@ BOOST_AUTO_TEST_CASE( transfer_to_vesting_test)
         BOOST_REQUIRE( alice.balance == ASSET( "10.000 COS" ) );
 
         auto shares = asset( gpo.total_vesting_shares.amount, VESTS_SYMBOL );
-        auto coc = asset( gpo.total_coc.amount, COS_SYMBOL );
+        auto cos = asset( gpo.total_cos.amount, COS_SYMBOL );
         auto alice_shares = alice.vesting_shares;
         auto bob_shares = bob.vesting_shares;
 
@@ -1060,11 +1060,11 @@ BOOST_AUTO_TEST_CASE( transfer_to_vesting_test)
         auto new_vest = op.amount * gpo.get_vesting_share_price();
         alice_shares += new_vest;
         shares += new_vest;
-        coc -= op.amount;
+        cos -= op.amount;
 
         BOOST_REQUIRE( alice.balance.amount.value == ASSET( "2.500 COS" ).amount.value );
         BOOST_REQUIRE( alice.vesting_shares.amount.value == alice_shares.amount.value );
-        BOOST_REQUIRE( gpo.total_coc.amount.value == coc.amount.value );
+        BOOST_REQUIRE( gpo.total_cos.amount.value == cos.amount.value );
         BOOST_REQUIRE( gpo.total_vesting_shares.amount.value == shares.amount.value );
         validate_database();
 
@@ -1079,14 +1079,14 @@ BOOST_AUTO_TEST_CASE( transfer_to_vesting_test)
 
         new_vest = asset( op.amount.amount, VESTS_SYMBOL );
         shares += new_vest;
-        coc -= op.amount;
+        cos -= op.amount;
         bob_shares += new_vest;
 
         BOOST_REQUIRE( alice.balance.amount.value == ASSET( "0.500 COS" ).amount.value );
         BOOST_REQUIRE( alice.vesting_shares.amount.value == alice_shares.amount.value );
         BOOST_REQUIRE( bob.balance.amount.value == ASSET( "0.000 COS" ).amount.value );
         BOOST_REQUIRE( bob.vesting_shares.amount.value == bob_shares.amount.value );
-        BOOST_REQUIRE( gpo.total_coc.amount.value == coc.amount.value );
+        BOOST_REQUIRE( gpo.total_cos.amount.value == cos.amount.value );
         BOOST_REQUIRE( gpo.total_vesting_shares.amount.value == shares.amount.value );
         validate_database();
 
@@ -1096,7 +1096,7 @@ BOOST_AUTO_TEST_CASE( transfer_to_vesting_test)
         BOOST_REQUIRE( alice.vesting_shares.amount.value == alice_shares.amount.value );
         BOOST_REQUIRE( bob.balance.amount.value == ASSET( "0.000 COS" ).amount.value );
         BOOST_REQUIRE( bob.vesting_shares.amount.value == bob_shares.amount.value );
-        BOOST_REQUIRE( gpo.total_coc.amount.value == coc.amount.value );
+        BOOST_REQUIRE( gpo.total_cos.amount.value == cos.amount.value );
         BOOST_REQUIRE( gpo.total_vesting_shares.amount.value == shares.amount.value );
         validate_database();
     }
