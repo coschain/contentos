@@ -6,6 +6,7 @@
 
 import re
 import hashlib
+from datetime import datetime
 
 ######## helper ########
 
@@ -322,6 +323,28 @@ class contento__protocol__public_key_type(baseSummaryFormatter):
 		return r
 
 
+class fc__time_point_sec(baseSummaryFormatter):
+	@staticmethod
+	def summary(valobj, internal_dict):
+		r = "[invalid]"
+		try:
+			r = "UTC " + datetime.utcfromtimestamp(valobj.data.uint32s[0]).isoformat(" ")
+		except:
+			pass
+		return r
+
+
+class fc__time_point(baseSummaryFormatter):
+	@staticmethod
+	def summary(valobj, internal_dict):
+		r = "[invalid]"
+		try:
+			r = "UTC " + datetime.utcfromtimestamp(valobj.data.sint64s[0] / 1000000.0).isoformat(" ")
+		except:
+			pass
+		return r
+
+
 ######## module entry point ########
 
 def __lldb_init_module(debugger, dictionary):
@@ -338,6 +361,8 @@ def __lldb_init_module(debugger, dictionary):
 	handlers["fc::ecc::public_key"] = fc__ecc__public_key
 	handlers["contento::protocol::public_key_type"] = contento__protocol__public_key_type
 	handlers["contento::protocol::private_key_type"] = fc__ecc__private_key
+	handlers["fc::time_point_sec"] = fc__time_point_sec
+	handlers["fc::time_point"] = fc__time_point
 
 	for clazz_name, clazz in handlers.iteritems():
 		clazz.apply(debugger, clazz_name)
