@@ -345,6 +345,25 @@ class fc__time_point(baseSummaryFormatter):
 		return r
 
 
+class contento__chain__shared_string(baseSummaryFormatter):
+	@staticmethod
+	def summary(valobj, internal_dict):
+		r = "[invalid]"
+		try:
+			size = 0
+			d = valobj.GetChildMemberWithName("members_").GetChildMemberWithName("m_repr")
+			short_hdr = d.GetChildMemberWithName("s").GetChildMemberWithName("h").data.uint8s[0]
+			if short_hdr & 1:
+				size = (short_hdr >> 1)
+			else:
+				long_hdr = d.GetChildMemberWithName("r").GetChildMemberWithName("data").data.uint64s[0]
+				size = (long_hdr >> 1)
+			r = "shared_string size=%d" % size
+		except:
+			pass
+		return r
+
+
 ######## module entry point ########
 
 def __lldb_init_module(debugger, dictionary):
@@ -363,6 +382,8 @@ def __lldb_init_module(debugger, dictionary):
 	handlers["contento::protocol::private_key_type"] = fc__ecc__private_key
 	handlers["fc::time_point_sec"] = fc__time_point_sec
 	handlers["fc::time_point"] = fc__time_point
+	handlers["contento::chain::shared_string"] = contento__chain__shared_string
+	handlers["chainbase::shared_string"] = contento__chain__shared_string
 
 	for clazz_name, clazz in handlers.iteritems():
 		clazz.apply(debugger, clazz_name)
