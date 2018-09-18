@@ -73,9 +73,11 @@ class baseSyntheticFormatter(baseFormatter):
 		debugger.HandleCommand("type synthetic add %s --python-class %s.%s" % (target_clazz_name, clz.__module__, clz.__name__))
 	
 	# deal with special case of index comparasion. "[10]" must be greater than "[2]".
+	idx_name_pat = re.compile(r"^\[\d+\]$")
+	
 	@staticmethod
 	def name_cmp(name1, name2):
-		idx_pat = re.compile(r"^\[\d+\]$")
+		idx_pat = baseSyntheticFormatter.idx_name_pat
 		if idx_pat.match(name1) and idx_pat.match(name2):
 			return cmp(int(name1[1:-1]), int(name2[1:-1]))
 		else:
@@ -241,9 +243,13 @@ class contento__protocol__asset(baseSummaryFormatter):
 			while symbol != 0:
 				symbol_name.append(chr(symbol & 0xff))
 				symbol >>= 8
-			fmts = "%%d.%%0%dd %s" % (digits, "".join(symbol_name))
 			divider = 10 ** digits
-			r = fmts % (amount / divider, amount % divider)
+			if divider > 1:
+				fmts = "%%d.%%0%dd %s" % (digits, "".join(symbol_name))
+				r = fmts % (amount / divider, amount % divider)
+			else:
+				fmts = "%%d %s" % "".join(symbol_name)
+				r = fmts % (amount / divider)
 		except:
 			pass
 		return r
