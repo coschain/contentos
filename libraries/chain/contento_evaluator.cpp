@@ -1870,25 +1870,25 @@ void feed_publish_evaluator::do_apply( const feed_publish_operation& o )
 
 void convert_evaluator::do_apply( const convert_operation& o )
 {
-  const auto& owner = _db.get_account( o.owner );
-  FC_ASSERT( _db.get_balance( owner, o.amount.symbol ) >= o.amount, "Account does not have sufficient balance for conversion." );
-
-  _db.adjust_balance( owner, -o.amount );
-
-  const auto& fhistory = _db.get_feed_history();
-  FC_ASSERT( !fhistory.current_median_history.is_null(), "Cannot convert SBD because there is no price feed." );
-
-  auto steemit_conversion_delay = CONTENTO_CONVERSION_DELAY_PRE_HF_16;
-//   if( _db.has_hardfork( CONTENTO_HARDFORK_0_16__551) )
-     steemit_conversion_delay = CONTENTO_CONVERSION_DELAY;
-
-  _db.create<convert_request_object>( [&]( convert_request_object& obj )
-  {
-      obj.owner           = o.owner;
-      obj.requestid       = o.requestid;
-      obj.amount          = o.amount;
-      obj.conversion_date = _db.head_block_time() + steemit_conversion_delay;
-  });
+//  const auto& owner = _db.get_account( o.owner );
+//  FC_ASSERT( _db.get_balance( owner, o.amount.symbol ) >= o.amount, "Account does not have sufficient balance for conversion." );
+//
+//  _db.adjust_balance( owner, -o.amount );
+//
+//  const auto& fhistory = _db.get_feed_history();
+//  FC_ASSERT( !fhistory.current_median_history.is_null(), "Cannot convert SBD because there is no price feed." );
+//
+//  auto steemit_conversion_delay = CONTENTO_CONVERSION_DELAY_PRE_HF_16;
+////   if( _db.has_hardfork( CONTENTO_HARDFORK_0_16__551) )
+//     steemit_conversion_delay = CONTENTO_CONVERSION_DELAY;
+//
+//  _db.create<convert_request_object>( [&]( convert_request_object& obj )
+//  {
+//      obj.owner           = o.owner;
+//      obj.requestid       = o.requestid;
+//      obj.amount          = o.amount;
+//      obj.conversion_date = _db.head_block_time() + steemit_conversion_delay;
+//  });
 
 }
 

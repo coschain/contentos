@@ -425,20 +425,20 @@ struct savings_withdraw_api_obj
    time_point_sec             complete;
 };
 
-struct feed_history_api_obj
-{
-   feed_history_api_obj( const chain::feed_history_object& f ) :
-      id( f.id ),
-      current_median_history( f.current_median_history ),
-      price_history( f.price_history.begin(), f.price_history.end() )
-   {}
-
-   feed_history_api_obj() {}
-
-   feed_history_id_type id;
-   price                current_median_history;
-   deque< price >       price_history;
-};
+//struct feed_history_api_obj
+//{
+//   feed_history_api_obj( const chain::feed_history_object& f ) :
+//      id( f.id ),
+//      current_median_history( f.current_median_history ),
+//      price_history( f.price_history.begin(), f.price_history.end() )
+//   {}
+//
+//   feed_history_api_obj() {}
+//
+//   feed_history_id_type id;
+//   price                current_median_history;
+//   deque< price >       price_history;
+//};
 
 struct witness_api_obj
 {
@@ -596,11 +596,11 @@ FC_REFLECT( contento::app::savings_withdraw_api_obj,
              (complete)
           )
 
-FC_REFLECT( contento::app::feed_history_api_obj,
-             (id)
-             (current_median_history)
-             (price_history)
-          )
+//FC_REFLECT( contento::app::feed_history_api_obj,
+//             (id)
+//             (current_median_history)
+//             (price_history)
+//          )
 
 FC_REFLECT( contento::app::tag_api_obj,
             (name)

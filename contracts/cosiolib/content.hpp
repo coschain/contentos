@@ -1084,13 +1084,13 @@ struct signed_block_api_obj : public signed_block {
 	COSLIB_SERIALIZE_DERIVED( signed_block_api_obj, signed_block,(block_id)(signing_key)(transaction_ids) ) 
 };
 
-struct feed_history_api_obj {
-	feed_history_id_type		id;
-	price		current_median_history;
-	vector<price>		price_history; 
- 
-	COSLIB_SERIALIZE( feed_history_api_obj, (id)(current_median_history)(price_history) ) 
-};
+//struct feed_history_api_obj {
+//    feed_history_id_type        id;
+//    price        current_median_history;
+//    vector<price>        price_history;
+//
+//    COSLIB_SERIALIZE( feed_history_api_obj, (id)(current_median_history)(price_history) )
+//};
 
 struct scheduled_hardfork {
 	hardfork_version		hf_version;
@@ -1350,9 +1350,9 @@ public:
 		STUB_API( RET_TYPE(database_api::get_current_median_history_price),);
 	}
 
-	feed_history_api_obj get_feed_history() {
-		STUB_API( RET_TYPE(database_api::get_feed_history),);
-	}
+//    feed_history_api_obj get_feed_history() {
+//        STUB_API( RET_TYPE(database_api::get_feed_history),);
+//    }
 
 	witness_schedule_api_obj get_witness_schedule() {
 		STUB_API( RET_TYPE(database_api::get_witness_schedule),);

@@ -608,10 +608,10 @@ const node_property_object& database::get_node_properties() const
    return _node_property_object;
 }
 
-const feed_history_object& database::get_feed_history()const
-{ try {
-   return get< feed_history_object >();
-} FC_CAPTURE_AND_RETHROW() }
+//const feed_history_object& database::get_feed_history()const
+//{ try {
+//   return get< feed_history_object >();
+//} FC_CAPTURE_AND_RETHROW() }
 
 const witness_schedule_object& database::get_witness_schedule_object()const
 { try {
@@ -2098,15 +2098,15 @@ share_type database::pay_reward_funds( share_type reward )
    return used_rewards;
 }
 
-asset database::to_sbd( const asset& steem )const
-{
-    return util::to_sbd( get_feed_history().current_median_history, steem );
-}
-
-asset database::to_steem( const asset& sbd )const
-{
-    return util::to_steem( get_feed_history().current_median_history, sbd );
-}
+//asset database::to_sbd( const asset& steem )const
+//{
+//    return util::to_sbd( get_feed_history().current_median_history, steem );
+//}
+//
+//asset database::to_steem( const asset& sbd )const
+//{
+//    return util::to_steem( get_feed_history().current_median_history, sbd );
+//}
 
 void database::account_recovery_processing()
 {
@@ -2301,7 +2301,7 @@ void database::initialize_indexes()
    add_core_index< comment_report_index                    >(*this);
    add_core_index< witness_vote_index                      >(*this);
    add_core_index< limit_order_index                       >(*this);
-   add_core_index< feed_history_index                      >(*this);
+//    add_core_index< feed_history_index                      >(*this);
    add_core_index< convert_request_index                   >(*this);
    add_core_index< liquidity_reward_balance_index          >(*this);
    add_core_index< operation_index                         >(*this);
@@ -2484,7 +2484,7 @@ void database::init_genesis( uint64_t init_supply )
       });
 
       // Nothing to do
-      create< feed_history_object >( [&]( feed_history_object& o ) {});
+//      create< feed_history_object >( [&]( feed_history_object& o ) {});
       for( int i = 0; i < 0x10000; i++ )
          create< block_summary_object >( [&]( block_summary_object& ) {});
       create< hardfork_property_object >( [&](hardfork_property_object& hpo )
@@ -2770,7 +2770,7 @@ void database::_apply_block( const signed_block& next_block )
    clear_expired_delegations();
    update_witness_schedule(*this);
 
-   update_median_feed();
+//   update_median_feed();
 //   update_virtual_supply();
 
    clear_null_account_balance();
@@ -2848,66 +2848,66 @@ void database::process_header_extensions( const signed_block& next_block )
 
 
 
-void database::update_median_feed() {
-try {
-   if( (head_block_num() % CONTENTO_FEED_INTERVAL_BLOCKS) != 0 )
-      return;
-
-   auto now = head_block_time();
-   const witness_schedule_object& wso = get_witness_schedule_object();
-   vector<price> feeds; feeds.reserve( wso.num_scheduled_witnesses );
-   for( int i = 0; i < wso.num_scheduled_witnesses; i++ )
-   {
-      const auto& wit = get_witness( wso.current_shuffled_witnesses[i] );
-    //   if( has_hardfork( CONTENTO_HARDFORK_0_19__822 ) )
-    //   {
-         if( now < wit.last_sbd_exchange_update + CONTENTO_MAX_FEED_AGE_SECONDS
-            && !wit.sbd_exchange_rate.is_null() )
-         {
-            feeds.push_back( wit.sbd_exchange_rate );
-         }
-    //   }
-    //   else if( wit.last_sbd_exchange_update < now + CONTENTO_MAX_FEED_AGE_SECONDS &&
-    //       !wit.sbd_exchange_rate.is_null() )
-    //   {
-    //      feeds.push_back( wit.sbd_exchange_rate );
-    //   }
-   }
-
-   if( feeds.size() >= CONTENTO_MIN_FEEDS )
-   {
-      std::sort( feeds.begin(), feeds.end() );
-      auto median_feed = feeds[feeds.size()/2];
-
-      modify( get_feed_history(), [&]( feed_history_object& fho )
-      {
-         fho.price_history.push_back( median_feed );
-         size_t steemit_feed_history_window = CONTENTO_FEED_HISTORY_WINDOW_PRE_HF_16;
-        //  if( has_hardfork( CONTENTO_HARDFORK_0_16__551) )
-            steemit_feed_history_window = CONTENTO_FEED_HISTORY_WINDOW;
-
-         if( fho.price_history.size() > steemit_feed_history_window )
-            fho.price_history.pop_front();
-
-         if( fho.price_history.size() )
-         {
-            std::deque< price > copy;
-            for( auto i : fho.price_history )
-            {
-               copy.push_back( i );
-            }
-
-            std::sort( copy.begin(), copy.end() ); /// TODO: use nth_item
-            fho.current_median_history = copy[copy.size()/2];
-
-// #ifdef IS_TEST_NET
-//             if( skip_price_feed_limit_check )
-//                return;
-// #endif
-         }
-      });
-   }
-} FC_CAPTURE_AND_RETHROW() }
+//void database::update_median_feed() {
+//try {
+//   if( (head_block_num() % CONTENTO_FEED_INTERVAL_BLOCKS) != 0 )
+//      return;
+//
+//   auto now = head_block_time();
+//   const witness_schedule_object& wso = get_witness_schedule_object();
+//   vector<price> feeds; feeds.reserve( wso.num_scheduled_witnesses );
+//   for( int i = 0; i < wso.num_scheduled_witnesses; i++ )
+//   {
+//      const auto& wit = get_witness( wso.current_shuffled_witnesses[i] );
+//    //   if( has_hardfork( CONTENTO_HARDFORK_0_19__822 ) )
+//    //   {
+//         if( now < wit.last_sbd_exchange_update + CONTENTO_MAX_FEED_AGE_SECONDS
+//            && !wit.sbd_exchange_rate.is_null() )
+//         {
+//            feeds.push_back( wit.sbd_exchange_rate );
+//         }
+//    //   }
+//    //   else if( wit.last_sbd_exchange_update < now + CONTENTO_MAX_FEED_AGE_SECONDS &&
+//    //       !wit.sbd_exchange_rate.is_null() )
+//    //   {
+//    //      feeds.push_back( wit.sbd_exchange_rate );
+//    //   }
+//   }
+//
+//   if( feeds.size() >= CONTENTO_MIN_FEEDS )
+//   {
+//      std::sort( feeds.begin(), feeds.end() );
+//      auto median_feed = feeds[feeds.size()/2];
+//
+//      modify( get_feed_history(), [&]( feed_history_object& fho )
+//      {
+//         fho.price_history.push_back( median_feed );
+//         size_t steemit_feed_history_window = CONTENTO_FEED_HISTORY_WINDOW_PRE_HF_16;
+//        //  if( has_hardfork( CONTENTO_HARDFORK_0_16__551) )
+//            steemit_feed_history_window = CONTENTO_FEED_HISTORY_WINDOW;
+//
+//         if( fho.price_history.size() > steemit_feed_history_window )
+//            fho.price_history.pop_front();
+//
+//         if( fho.price_history.size() )
+//         {
+//            std::deque< price > copy;
+//            for( auto i : fho.price_history )
+//            {
+//               copy.push_back( i );
+//            }
+//
+//            std::sort( copy.begin(), copy.end() ); /// TODO: use nth_item
+//            fho.current_median_history = copy[copy.size()/2];
+//
+//// #ifdef IS_TEST_NET
+////             if( skip_price_feed_limit_check )
+////                return;
+//// #endif
+//         }
+//      });
+//   }
+//} FC_CAPTURE_AND_RETHROW() }
 
 void database::apply_transaction( transaction_wrapper& trx_wrapper, uint32_t skip)
 {

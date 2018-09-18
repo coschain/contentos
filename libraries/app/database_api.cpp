@@ -281,21 +281,21 @@ chain_properties database_api::get_chain_properties()const
    });
 }
 
-feed_history_api_obj database_api::get_feed_history()const
-{
-   return determine_read_lock( [&]()
-   {
-      return feed_history_api_obj( my->_db.get_feed_history() );
-   });
-}
+//feed_history_api_obj database_api::get_feed_history()const
+//{
+//   return determine_read_lock( [&]()
+//   {
+//      return feed_history_api_obj( my->_db.get_feed_history() );
+//   });
+//}
 
-price database_api::get_current_median_history_price()const
-{
-   return determine_read_lock( [&]()
-   {
-      return my->_db.get_feed_history().current_median_history;
-   });
-}
+//price database_api::get_current_median_history_price()const
+//{
+//   return determine_read_lock( [&]()
+//   {
+//      return my->_db.get_feed_history().current_median_history;
+//   });
+//}
 
 dynamic_global_property_api_obj database_api_impl::get_dynamic_global_properties()const
 {
@@ -1920,7 +1920,7 @@ state database_api::get_state( string path )const
       state _state;
       _state.props         = get_dynamic_global_properties();
       _state.current_route = path;
-      _state.feed_price    = get_current_median_history_price();
+    //   _state.feed_price    = get_current_median_history_price();
 
       try {
       if( path.size() && path[0] == '/' )
