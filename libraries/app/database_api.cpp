@@ -2115,7 +2115,7 @@ state database_api::get_state( string path )const
             auto key = d.author +"/" + d.permlink;
             didx.trending.push_back( key );
             if( d.author.size() ) accounts.insert(d.author);
-            _state.content[key] = std::move(d);
+            _state.content[key] = std::move(d)f
          }
       }
       else if( part[0] == "payout"  )

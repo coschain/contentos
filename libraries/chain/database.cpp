@@ -2228,8 +2228,7 @@ void database::initialize_evaluators()
    _my->_evaluator_registry.register_evaluator< delete_comment_evaluator                 >();
    _my->_evaluator_registry.register_evaluator< transfer_evaluator                       >();
    _my->_evaluator_registry.register_evaluator< transfer_to_vesting_evaluator            >();
-   _my->_evaluator_registry.register_evaluator< withdraw_vesting_evaluator               >();
-   _my->_evaluator_registry.register_evaluator< set_withdraw_vesting_route_evaluator     >();
+
    _my->_evaluator_registry.register_evaluator< account_create_evaluator                 >();
    _my->_evaluator_registry.register_evaluator< admin_grant_evaluator                    >();
    _my->_evaluator_registry.register_evaluator< comment_report_evaluator                 >();
@@ -2240,32 +2239,17 @@ void database::initialize_evaluators()
    _my->_evaluator_registry.register_evaluator< custom_evaluator                         >();
    _my->_evaluator_registry.register_evaluator< custom_binary_evaluator                  >();
    _my->_evaluator_registry.register_evaluator< custom_json_evaluator                    >();
-   _my->_evaluator_registry.register_evaluator< pow_evaluator                            >();
-//   _my->_evaluator_registry.register_evaluator< pow2_evaluator                           >();
+
    _my->_evaluator_registry.register_evaluator< report_over_production_evaluator         >();
-   _my->_evaluator_registry.register_evaluator< feed_publish_evaluator                   >();
-   _my->_evaluator_registry.register_evaluator< convert_evaluator                        >();
-//   _my->_evaluator_registry.register_evaluator< limit_order_create_evaluator             >();
-//   _my->_evaluator_registry.register_evaluator< limit_order_create2_evaluator            >();
-//   _my->_evaluator_registry.register_evaluator< limit_order_cancel_evaluator             >();
+
    _my->_evaluator_registry.register_evaluator< challenge_authority_evaluator            >();
    _my->_evaluator_registry.register_evaluator< prove_authority_evaluator                >();
    _my->_evaluator_registry.register_evaluator< request_account_recovery_evaluator       >();
    _my->_evaluator_registry.register_evaluator< recover_account_evaluator                >();
    _my->_evaluator_registry.register_evaluator< change_recovery_account_evaluator        >();
-//   _my->_evaluator_registry.register_evaluator< escrow_transfer_evaluator                >();
-//   _my->_evaluator_registry.register_evaluator< escrow_approve_evaluator                 >();
-//   _my->_evaluator_registry.register_evaluator< escrow_dispute_evaluator                 >();
-//   _my->_evaluator_registry.register_evaluator< escrow_release_evaluator                 >();
-   _my->_evaluator_registry.register_evaluator< transfer_to_savings_evaluator            >();
-   _my->_evaluator_registry.register_evaluator< transfer_from_savings_evaluator          >();
-   _my->_evaluator_registry.register_evaluator< cancel_transfer_from_savings_evaluator   >();
-   _my->_evaluator_registry.register_evaluator< decline_voting_rights_evaluator          >();
-   _my->_evaluator_registry.register_evaluator< reset_account_evaluator                  >();
-   _my->_evaluator_registry.register_evaluator< set_reset_account_evaluator              >();
-   _my->_evaluator_registry.register_evaluator< claim_reward_balance_evaluator           >();
+
    _my->_evaluator_registry.register_evaluator< account_create_with_delegation_evaluator >();
-   _my->_evaluator_registry.register_evaluator< delegate_vesting_shares_evaluator        >();
+
 
    _my->_evaluator_registry.register_evaluator< vm_evaluator        >();
 }
