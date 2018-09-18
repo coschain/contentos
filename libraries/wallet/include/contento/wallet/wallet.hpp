@@ -510,17 +510,6 @@ class wallet_api
 
 
       /**
-       * This method delegates VESTS from one account to another.
-       *
-       * @param delegator The name of the account delegating VESTS
-       * @param delegatee The name of the account receiving VESTS
-       * @param vesting_shares The amount of VESTS to delegate
-       * @param broadcast true if you wish to broadcast the transaction
-       */
-       annotated_signed_transaction delegate_vesting_shares( string delegator, string delegatee, asset vesting_shares, bool broadcast );
-
-
-      /**
        *  This method is used to convert a JSON transaction to its transaction ID.
        */
       transaction_id_type get_transaction_id( const signed_transaction& trx )const { return trx.id(); }
@@ -560,41 +549,6 @@ class wallet_api
                                         public_key_type block_signing_key,
                                         const chain_properties& props,
                                         bool broadcast = false);
-
-      /** Set the voting proxy for an account.
-       *
-       * If a user does not wish to take an active part in voting, they can choose
-       * to allow another account to vote their stake.
-       *
-       * Setting a vote proxy does not remove your previous votes from the blockchain,
-       * they remain there but are ignored.  If you later null out your vote proxy,
-       * your previous votes will take effect again.
-       *
-       * This setting can be changed at any time.
-       *
-       * @param account_to_modify the name or id of the account to update
-       * @param proxy the name of account that should proxy to, or empty string to have no proxy
-       * @param broadcast true if you wish to broadcast the transaction
-       */
-      annotated_signed_transaction set_voting_proxy(string account_to_modify,
-                                          string proxy,
-                                          bool broadcast = false);
-
-      /**
-       * Vote for a witness to become a block producer. By default an account has not voted
-       * positively or negatively for a witness. The account can either vote for with positively
-       * votes or against with negative votes. The vote will remain until updated with another
-       * vote. Vote strength is determined by the accounts vesting shares.
-       *
-       * @param account_to_vote_with The account voting for a witness
-       * @param witness_to_vote_for The witness that is being voted for
-       * @param approve true if the account is voting for the account to be able to be a block produce
-       * @param broadcast true if you wish to broadcast the transaction
-       */
-      annotated_signed_transaction vote_for_witness(string account_to_vote_with,
-                                          string witness_to_vote_for,
-                                          bool approve = true,
-                                          bool broadcast = false);
 
       /**
        * Transfer funds from one account to another. STEEM and SBD can be transferred.
@@ -922,10 +876,7 @@ FC_API( contento::wallet::wallet_api,
 //        (update_account_auth_threshold)
 //        (update_account_meta)
 //        (update_account_memo_key)
-//        (delegate_vesting_shares)
         (update_witness)
-//        (set_voting_proxy)
-//        (vote_for_witness)
         (follow)
         (transfer)
         (transfer_to_vesting)

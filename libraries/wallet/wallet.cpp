@@ -551,18 +551,6 @@ public:
          return tx;
    } FC_CAPTURE_AND_RETHROW( (account_name)(creator_account_name)(broadcast) ) }
 
-   annotated_signed_transaction set_voting_proxy(string account_to_modify, string proxy, bool broadcast /* = false */)
-   { try {
-      account_witness_proxy_operation op;
-      op.account = account_to_modify;
-      op.proxy = proxy;
-
-      signed_transaction tx;
-      tx.operations.push_back( op );
-      tx.validate();
-
-      return sign_transaction( tx, broadcast );
-   } FC_CAPTURE_AND_RETHROW( (account_to_modify)(proxy)(broadcast) ) }
 
    optional< witness_api_obj > get_witness( string owner_account )
    {
@@ -1134,8 +1122,6 @@ optional< witness_api_obj > wallet_api::get_witness(string owner_account)
    return my->get_witness(owner_account);
 }
 
-annotated_signed_transaction wallet_api::set_voting_proxy(string account_to_modify, string voting_account, bool broadcast /* = false */)
-{ return my->set_voting_proxy(account_to_modify, voting_account, broadcast); }
 
 void wallet_api::set_wallet_filename(string wallet_filename) { my->_wallet_filename = wallet_filename; }
 
@@ -1667,26 +1653,6 @@ annotated_signed_transaction wallet_api::update_account_memo_key( string account
    return my->sign_transaction( tx, broadcast );
 }
 
-annotated_signed_transaction wallet_api::delegate_vesting_shares( string delegator, string delegatee, asset vesting_shares, bool broadcast )
-{
-   FC_ASSERT( !is_locked() );
-
-   auto accounts = my->_remote_db->get_accounts( { delegator, delegatee } );
-   FC_ASSERT( accounts.size() == 2 , "One or more of the accounts specified do not exist." );
-   FC_ASSERT( delegator == accounts[0].name, "Delegator account is not right?" );
-   FC_ASSERT( delegatee == accounts[1].name, "Delegator account is not right?" );
-
-   delegate_vesting_shares_operation op;
-   op.delegator = delegator;
-   op.delegatee = delegatee;
-   op.vesting_shares = vesting_shares;
-
-   signed_transaction tx;
-   tx.operations.push_back( op );
-   tx.validate();
-
-   return my->sign_transaction( tx, broadcast );
-}
 
 /**
  *  This method will genrate new owner, active, and memo keys for the new account which
@@ -1758,21 +1724,6 @@ annotated_signed_transaction wallet_api::update_witness( string witness_account_
 
    return my->sign_transaction( tx, broadcast );
 }
-
-annotated_signed_transaction wallet_api::vote_for_witness(string voting_account, string witness_to_vote_for, bool approve, bool broadcast )
-{ try {
-   FC_ASSERT( !is_locked() );
-    account_witness_vote_operation op;
-    op.account = voting_account;
-    op.witness = witness_to_vote_for;
-    op.approve = approve;
-
-    signed_transaction tx;
-    tx.operations.push_back( op );
-    tx.validate();
-
-   return my->sign_transaction( tx, broadcast );
-} FC_CAPTURE_AND_RETHROW( (voting_account)(witness_to_vote_for)(approve)(broadcast) ) }
 
 void wallet_api::check_memo( const string& memo, const account_api_obj& account )const
 {
