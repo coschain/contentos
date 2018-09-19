@@ -2441,6 +2441,9 @@ void vm_evaluator::do_apply( const vm_operation& o )  {
     
     // prepare to pay the gas fee
     gas += ctx->gas();
+    if (gas < config::vm_min_gas) {
+        gas = config::vm_min_gas;
+    }
     uint64_t cos_cost = gas / config::gas_per_cos;
     uint64_t caller_cos = _db.get_balance( caller, COS_SYMBOL ).amount.value;
     
