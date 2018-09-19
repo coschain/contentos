@@ -348,25 +348,6 @@ void database_fixture::fund(
    FC_CAPTURE_AND_RETHROW( (account_name)(amount) )
 }
 
-void database_fixture::convert(
-   const string& account_name,
-   const asset& amount )
-{
-   try
-   {
-      const account_object& account = db.get_account( account_name );
-
-
-      if ( amount.symbol == COS_SYMBOL )
-      {
-         db.adjust_balance( account, -amount );
-         db.adjust_balance( account, db.to_sbd( amount ) );
-         db.adjust_supply( -amount );
-         db.adjust_supply( db.to_sbd( amount ) );
-      }
-   } FC_CAPTURE_AND_RETHROW( (account_name)(amount) )
-}
-
 void database_fixture::transfer(
    const string& from,
    const string& to,
