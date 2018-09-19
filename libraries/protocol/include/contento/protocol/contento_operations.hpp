@@ -299,27 +299,6 @@ namespace contento { namespace protocol {
 
 
    /**
-    * At any given point in time an account can be withdrawing from their
-    * vesting shares. A user may change the number of shares they wish to
-    * cash out at any time between 0 and their total vesting stake.
-    *
-    * After applying this operation, vesting_shares will be withdrawn
-    * at a rate of vesting_shares/104 per week for two years starting
-    * one week after this operation is included in the blockchain.
-    *
-    * This operation is not valid if the user has no vesting shares.
-    */
-   struct withdraw_vesting_operation : public base_operation
-   {
-      account_name_type account;
-      asset             vesting_shares;
-
-      void validate()const;
-      void get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert(account); }
-   };
-
-
-   /**
     * Allows an account to setup a vesting withdraw but with the additional
     * request for the funds to be transferred directly to another account's
     * balance rather than the withdrawing account. In addition, those funds
@@ -475,19 +454,6 @@ namespace contento { namespace protocol {
    };
 
 
-   /**
-    *  This operation instructs the blockchain to start a conversion between STEEM and SBD,
-    *  The funds are deposited after CONTENTO_CONVERSION_DELAY
-    */
-   struct convert_operation : public base_operation
-   {
-      account_name_type owner;
-      uint32_t          requestid = 0;
-      asset             amount;
-
-      void  validate()const;
-      void  get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert(owner); }
-   };
 
 
    /**
@@ -909,7 +875,6 @@ FC_REFLECT( contento::protocol::set_reset_account_operation, (account)(current_r
 
 
 FC_REFLECT( contento::protocol::report_over_production_operation, (reporter)(first_block)(second_block) )
-FC_REFLECT( contento::protocol::convert_operation, (owner)(requestid)(amount) )
 FC_REFLECT( contento::protocol::pow, (worker)(input)(signature)(work) )
 FC_REFLECT( contento::protocol::pow2, (input)(pow_summary) )
 FC_REFLECT( contento::protocol::pow2_input, (worker_account)(prev_block)(nonce) )
@@ -955,7 +920,6 @@ FC_REFLECT( contento::protocol::account_update_operation,
 
 FC_REFLECT( contento::protocol::transfer_operation, (from)(to)(amount)(memo) )
 FC_REFLECT( contento::protocol::transfer_to_vesting_operation, (from)(to)(amount) )
-FC_REFLECT( contento::protocol::withdraw_vesting_operation, (account)(vesting_shares) )
 FC_REFLECT( contento::protocol::convert_from_vesting_operation, (account)(vesting_shares))
 FC_REFLECT( contento::protocol::set_withdraw_vesting_route_operation, (from_account)(to_account)(percent)(auto_vest) )
 FC_REFLECT( contento::protocol::witness_update_operation, (owner)(url)(block_signing_key)(props)(fee) )

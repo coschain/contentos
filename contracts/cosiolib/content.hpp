@@ -332,12 +332,6 @@ struct transfer_to_vesting_operation {
 	COSLIB_SERIALIZE( transfer_to_vesting_operation, (from)(to)(amount) ) 
 };
 
-struct withdraw_vesting_operation {
-	namex		account;
-	asset		vesting_shares; 
- 
-	COSLIB_SERIALIZE( withdraw_vesting_operation, (account)(vesting_shares) ) 
-};
 
 struct convert_from_vesting_operation {
 	namex		account;
@@ -354,14 +348,6 @@ struct price {
 	COSLIB_SERIALIZE( price, (base)(quote) ) 
 };
 
-
-struct convert_operation {
-	namex		owner;
-	uint32		requestid;
-	asset		amount; 
- 
-	COSLIB_SERIALIZE( convert_operation, (owner)(requestid)(amount) ) 
-};
 
 struct account_create_operation {
 	asset		fee;
@@ -760,12 +746,6 @@ struct subject_reward_operation {
 	COSLIB_SERIALIZE( subject_reward_operation, (author)(permlink)(payout) ) 
 };
 
-struct liquidity_reward_operation {
-	namex		owner;
-	asset		payout; 
- 
-	COSLIB_SERIALIZE( liquidity_reward_operation, (owner)(payout) ) 
-};
 
 struct fill_vesting_withdraw_operation {
 	namex		from_account;
@@ -776,16 +756,6 @@ struct fill_vesting_withdraw_operation {
 	COSLIB_SERIALIZE( fill_vesting_withdraw_operation, (from_account)(to_account)(withdrawn)(deposited) ) 
 };
 
-struct fill_order_operation {
-	namex		current_owner;
-	uint32		current_orderid;
-	asset		current_pays;
-	namex		open_owner;
-	uint32		open_orderid;
-	asset		open_pays; 
- 
-	COSLIB_SERIALIZE( fill_order_operation, (current_owner)(current_orderid)(current_pays)(open_owner)(open_orderid)(open_pays) ) 
-};
 
 struct shutdown_witness_operation {
 	namex		owner; 
@@ -856,7 +826,7 @@ struct vm_operation {
 	COSLIB_SERIALIZE( vm_operation, (caller)(contract_name)(action_name)(data)(value) ) 
 };
 
-typedef static_variant<vote_operation,comment_operation,transfer_operation,transfer_to_vesting_operation,withdraw_vesting_operation,convert_from_vesting_operation,convert_operation,account_create_operation,account_update_operation,witness_update_operation,account_witness_vote_operation,account_witness_proxy_operation,pow_operation,custom_operation,report_over_production_operation,delete_comment_operation,custom_json_operation,comment_options_operation,set_withdraw_vesting_route_operation,limit_order_create2_operation,challenge_authority_operation,prove_authority_operation,request_account_recovery_operation,recover_account_operation,change_recovery_account_operation,transfer_to_savings_operation,transfer_from_savings_operation,cancel_transfer_from_savings_operation,custom_binary_operation,decline_voting_rights_operation,reset_account_operation,set_reset_account_operation,claim_reward_balance_operation,delegate_vesting_shares_operation,account_create_with_delegation_operation,admin_grant_operation,comment_report_operation,fill_convert_request_operation,author_reward_operation,curation_reward_operation,comment_reward_operation,subject_reward_operation,liquidity_reward_operation,fill_vesting_withdraw_operation,fill_order_operation,shutdown_witness_operation,fill_transfer_from_savings_operation,hardfork_operation,comment_payout_update_operation,subject_payout_update_operation,return_vesting_delegation_operation,comment_benefactor_reward_operation,producer_reward_operation,vm_operation>
+typedef static_variant<vote_operation,comment_operation,transfer_operation,transfer_to_vesting_operation,convert_from_vesting_operation,account_create_operation,account_update_operation,witness_update_operation,account_witness_vote_operation,account_witness_proxy_operation,pow_operation,custom_operation,report_over_production_operation,delete_comment_operation,custom_json_operation,comment_options_operation,set_withdraw_vesting_route_operation,limit_order_create2_operation,challenge_authority_operation,prove_authority_operation,request_account_recovery_operation,recover_account_operation,change_recovery_account_operation,transfer_to_savings_operation,transfer_from_savings_operation,cancel_transfer_from_savings_operation,custom_binary_operation,decline_voting_rights_operation,reset_account_operation,set_reset_account_operation,claim_reward_balance_operation,delegate_vesting_shares_operation,account_create_with_delegation_operation,admin_grant_operation,comment_report_operation,fill_convert_request_operation,author_reward_operation,curation_reward_operation,comment_reward_operation,subject_reward_operation,fill_vesting_withdraw_operation,shutdown_witness_operation,fill_transfer_from_savings_operation,hardfork_operation,comment_payout_update_operation,subject_payout_update_operation,return_vesting_delegation_operation,comment_benefactor_reward_operation,producer_reward_operation,vm_operation>
 	operation;
 
 

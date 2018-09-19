@@ -15,10 +15,7 @@ namespace contento { namespace protocol {
 
             transfer_operation,
             transfer_to_vesting_operation,
-            withdraw_vesting_operation,
             convert_from_vesting_operation,
-
-            convert_operation,
 
             account_create_operation,
             account_update_operation,
@@ -43,11 +40,6 @@ namespace contento { namespace protocol {
             request_account_recovery_operation,
             recover_account_operation,
             change_recovery_account_operation,
-//            escrow_transfer_operation,
-//            escrow_dispute_operation,
-//            escrow_release_operation,
-//            pow2_operation,
-//            escrow_approve_operation,
             transfer_to_savings_operation,
             transfer_from_savings_operation,
             cancel_transfer_from_savings_operation,
@@ -68,10 +60,7 @@ namespace contento { namespace protocol {
             curation_reward_operation,
             comment_reward_operation,
             subject_reward_operation,
-            liquidity_reward_operation,
-//            interest_operation,
             fill_vesting_withdraw_operation,
-            fill_order_operation,
             shutdown_witness_operation,
             fill_transfer_from_savings_operation,
             hardfork_operation,

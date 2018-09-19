@@ -181,12 +181,6 @@ namespace contento { namespace protocol {
       if ( to != account_name_type() ) validate_account_name( to );
       FC_ASSERT( amount > asset( 0, COC_SYMBOL ), "Must transfer a nonzero amount" );
    }
-
-   void withdraw_vesting_operation::validate() const
-   {
-      validate_account_name( account );
-      FC_ASSERT( is_asset_type( vesting_shares, VESTS_SYMBOL), "Amount must be VESTS"  );
-   }
     
     void convert_from_vesting_operation::validate() const
     {
@@ -378,15 +372,6 @@ namespace contento { namespace protocol {
       FC_ASSERT( (amount_to_sell * exchange_rate).amount > 0, "Amount to sell cannot round to 0 when traded" );
    }
 
-
-   void convert_operation::validate()const
-   {
-      validate_account_name( owner );
-      /// only allow conversion from SBD to STEEM, allowing the opposite can enable traders to abuse
-      /// market fluxuations through converting large quantities without moving the price.
-//      FC_ASSERT( is_asset_type( amount, SBD_SYMBOL ), "Can only convert SBD to STEEM" );
-      FC_ASSERT( amount.amount > 0, "Must convert some SBD" );
-   }
 
    void report_over_production_operation::validate()const
    {

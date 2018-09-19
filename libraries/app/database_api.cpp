@@ -1960,23 +1960,16 @@ state database_api::get_state( string path )const
             for( auto& item : history ) {
                switch( item.second.op.which() ) {
                   case operation::tag<transfer_to_vesting_operation>::value:
-                  case operation::tag<withdraw_vesting_operation>::value:
                    case operation::tag<convert_from_vesting_operation>::value:
-//                  case operation::tag<interest_operation>::value:
                   case operation::tag<transfer_operation>::value:
-                  case operation::tag<liquidity_reward_operation>::value:
                   case operation::tag<author_reward_operation>::value:
                   case operation::tag<curation_reward_operation>::value:
                   case operation::tag<comment_benefactor_reward_operation>::value:
                   case operation::tag<transfer_to_savings_operation>::value:
                   case operation::tag<transfer_from_savings_operation>::value:
                   case operation::tag<cancel_transfer_from_savings_operation>::value:
-//                  case operation::tag<escrow_transfer_operation>::value:
-//                  case operation::tag<escrow_approve_operation>::value:
-//                  case operation::tag<escrow_dispute_operation>::value:
-//                  case operation::tag<escrow_release_operation>::value:
+
                   case operation::tag<fill_convert_request_operation>::value:
-                  case operation::tag<fill_order_operation>::value:
                   case operation::tag<claim_reward_balance_operation>::value:
                      eacnt.transfer_history[item.first] =  item.second;
                      break;

@@ -346,27 +346,11 @@ namespace contento { namespace chain {
          // void process_conversions();
          void process_savings_withdraws();
          void account_recovery_processing();
-         void expire_escrow_ratification();
          void process_decline_voting_rights();
-
-         asset get_liquidity_reward()const;
-         asset get_content_reward()const;
-         asset get_producer_reward();
-         asset get_curation_reward()const;
-         asset get_pow_reward()const;
-
-         uint16_t get_curation_rewards_percent( const comment_object& c ) const;
 
          share_type pay_reward_funds( share_type reward );
 
-         void  pay_liquidity_reward();
 
-         /**
-          * Helper method to return the current sbd value of a given amount of
-          * STEEM.  Return 0 SBD if there isn't a current_median_history
-          */
-//         asset to_sbd( const asset& steem )const;
-//         asset to_steem( const asset& sbd )const;
 
          time_point_sec   head_block_time()const;
          uint32_t         head_block_num()const;

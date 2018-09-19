@@ -171,14 +171,6 @@ struct operation_process
       });
    }
 
-   void operator()( const liquidity_reward_operation& op )const
-   {
-      _db.modify( _bucket, [&]( bucket_object& b )
-      {
-         b.liquidity_rewards_paid += op.payout.amount;
-      });
-   }
-
    void operator()( const transfer_to_vesting_operation& op )const
    {
       _db.modify( _bucket, [&]( bucket_object& b )
@@ -202,14 +194,6 @@ struct operation_process
 
          if( account.vesting_withdraw_rate.amount == 0 )
             b.finished_vesting_withdrawals++;
-      });
-   }
-
-   void operator()( const fill_order_operation& op )const
-   {
-      _db.modify( _bucket, [&]( bucket_object& b )
-      {
-         b.limit_orders_filled += 2;
       });
    }
 
@@ -329,30 +313,6 @@ void blockchain_statistics_plugin_impl::pre_operation( const operation_notificat
                b.replies_deleted++;
             else
                b.root_comments_deleted++;
-         });
-      }
-      else if( o.op.which() == operation::tag< withdraw_vesting_operation >::value )
-      {
-         withdraw_vesting_operation op = o.op.get< withdraw_vesting_operation >();
-         auto& account = db.get_account( op.account );
-         const auto& bucket = db.get(bucket_id);
-
-         auto new_vesting_withdrawal_rate = op.vesting_shares.amount / CONTENTO_VESTING_WITHDRAW_INTERVALS;
-         if( op.vesting_shares.amount > 0 && new_vesting_withdrawal_rate == 0 )
-            new_vesting_withdrawal_rate = 1;
-
-//          if( !db.has_hardfork( CONTENTO_HARDFORK_0_1 ) )
-         new_vesting_withdrawal_rate *= 1000000;
-
-         db.modify( bucket, [&]( bucket_object& b )
-         {
-            if( account.vesting_withdraw_rate.amount > 0 )
-               b.modified_vesting_withdrawal_requests++;
-            else
-               b.new_vesting_withdrawal_requests++;
-
-            // TODO: Figure out how to change delta when a vesting withdraw finishes. Have until March 24th 2018 to figure that out...
-            b.vesting_withdraw_rate_delta += new_vesting_withdrawal_rate - account.vesting_withdraw_rate.amount;
          });
       }
    }
