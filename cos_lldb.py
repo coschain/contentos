@@ -7,6 +7,7 @@
 import re
 import hashlib
 from datetime import datetime
+import binascii
 
 ######## helper ########
 
@@ -370,6 +371,19 @@ class contento__chain__shared_string(baseSummaryFormatter):
 		return r
 
 
+# fc crypto hash classes hold their digests in the '_hash' member, which is an integer array.
+# it applies for fc::ripemd160/sha1/sha224/sha256/sha512 and their typedefs.
+class fc_hash_formatter(baseSummaryFormatter):
+	@staticmethod
+	def summary(valobj, internal_dict):
+		r = "[invalid]"
+		try:
+			r = binascii.hexlify("".join(map(chr,valobj.GetChildMemberWithName("_hash").data.uint8s)))
+		except:
+			pass
+		return r
+
+
 ######## module entry point ########
 
 def __lldb_init_module(debugger, dictionary):
@@ -390,6 +404,11 @@ def __lldb_init_module(debugger, dictionary):
 	handlers["fc::time_point"] = fc__time_point
 	handlers["contento::chain::shared_string"] = contento__chain__shared_string
 	handlers["chainbase::shared_string"] = contento__chain__shared_string
+	handlers["fc::ripemd160"] = fc_hash_formatter
+	handlers["fc::sha1"] = fc_hash_formatter
+	handlers["fc::sha224"] = fc_hash_formatter
+	handlers["fc::sha256"] = fc_hash_formatter
+	handlers["fc::sha512"] = fc_hash_formatter
 
 	for clazz_name, clazz in handlers.iteritems():
 		clazz.apply(debugger, clazz_name)
