@@ -602,22 +602,22 @@ optional< account_recovery_request_api_obj > database_api::get_recovery_request(
    });
 }
 
-optional< escrow_api_obj > database_api::get_escrow( string from, uint32_t escrow_id )const
-{
-   CONTENTOS_API_CLOSE_ASSERT();
-   return determine_read_lock( [&]()
-   {
-      optional< escrow_api_obj > result;
-
-      try
-      {
-         result = my->_db.get_escrow( from, escrow_id );
-      }
-      catch ( ... ) {}
-
-      return result;
-   });
-}
+//optional< escrow_api_obj > database_api::get_escrow( string from, uint32_t escrow_id )const
+//{
+//   CONTENTOS_API_CLOSE_ASSERT();
+//   return determine_read_lock( [&]()
+//   {
+//      optional< escrow_api_obj > result;
+//
+//      try
+//      {
+//         result = my->_db.get_escrow( from, escrow_id );
+//      }
+//      catch ( ... ) {}
+//
+//      return result;
+//   });
+//}
 
 vector< withdraw_route > database_api::get_withdraw_routes( string account, withdraw_route_type type )const
 {
@@ -1983,10 +1983,6 @@ state database_api::get_state( string path )const
                   case operation::tag<comment_operation>::value:
                   //   eacnt.post_history[item.first] =  item.second;
                      break;
-                  case operation::tag<limit_order_create_operation>::value:
-                  case operation::tag<limit_order_cancel_operation>::value:
-                  //   eacnt.market_history[item.first] =  item.second;
-                     break;
                   case operation::tag<vote_operation>::value:
                   case operation::tag<account_witness_vote_operation>::value:
                   case operation::tag<account_witness_proxy_operation>::value:
@@ -2115,7 +2111,7 @@ state database_api::get_state( string path )const
             auto key = d.author +"/" + d.permlink;
             didx.trending.push_back( key );
             if( d.author.size() ) accounts.insert(d.author);
-            _state.content[key] = std::move(d)f
+            _state.content[key] = std::move(d);
          }
       }
       else if( part[0] == "payout"  )

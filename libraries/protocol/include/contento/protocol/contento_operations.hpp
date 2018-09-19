@@ -476,20 +476,6 @@ namespace contento { namespace protocol {
 
 
    /**
-    *  Feeds can only be published by the top N witnesses which are included in every round and are
-    *  used to define the exchange rate between steem and the dollar.
-    */
-   struct feed_publish_operation : public base_operation
-   {
-      account_name_type publisher;
-      price             exchange_rate;
-
-      void  validate()const;
-      void  get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert(publisher); }
-   };
-
-
-   /**
     *  This operation instructs the blockchain to start a conversion between STEEM and SBD,
     *  The funds are deposited after CONTENTO_CONVERSION_DELAY
     */
@@ -501,32 +487,6 @@ namespace contento { namespace protocol {
 
       void  validate()const;
       void  get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert(owner); }
-   };
-
-
-   /**
-    * This operation creates a limit order and matches it against existing open orders.
-    */
-   struct limit_order_create_operation : public base_operation
-   {
-      account_name_type owner;
-      uint32_t          orderid = 0; /// an ID assigned by owner, must be unique
-      asset             amount_to_sell;
-      asset             min_to_receive;
-      bool              fill_or_kill = false;
-      time_point_sec    expiration = time_point_sec::maximum();
-
-      void  validate()const;
-      void  get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert(owner); }
-
-      price             get_price()const { return amount_to_sell / min_to_receive; }
-
-      pair< asset_symbol_type, asset_symbol_type > get_market()const
-      {
-         return amount_to_sell.symbol < min_to_receive.symbol ?
-                std::make_pair(amount_to_sell.symbol, min_to_receive.symbol) :
-                std::make_pair(min_to_receive.symbol, amount_to_sell.symbol);
-      }
    };
 
 
@@ -554,19 +514,6 @@ namespace contento { namespace protocol {
                 std::make_pair(exchange_rate.base.symbol, exchange_rate.quote.symbol) :
                 std::make_pair(exchange_rate.quote.symbol, exchange_rate.base.symbol);
       }
-   };
-
-
-   /**
-    *  Cancels an order and returns the balance to owner.
-    */
-   struct limit_order_cancel_operation : public base_operation
-   {
-      account_name_type owner;
-      uint32_t          orderid = 0;
-
-      void  validate()const;
-      void  get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert(owner); }
    };
 
 
@@ -963,7 +910,6 @@ FC_REFLECT( contento::protocol::set_reset_account_operation, (account)(current_r
 
 FC_REFLECT( contento::protocol::report_over_production_operation, (reporter)(first_block)(second_block) )
 FC_REFLECT( contento::protocol::convert_operation, (owner)(requestid)(amount) )
-FC_REFLECT( contento::protocol::feed_publish_operation, (publisher)(exchange_rate) )
 FC_REFLECT( contento::protocol::pow, (worker)(input)(signature)(work) )
 FC_REFLECT( contento::protocol::pow2, (input)(pow_summary) )
 FC_REFLECT( contento::protocol::pow2_input, (worker_account)(prev_block)(nonce) )
@@ -1020,11 +966,10 @@ FC_REFLECT( contento::protocol::vote_operation, (voter)(author)(permlink)(weight
 FC_REFLECT( contento::protocol::custom_operation, (required_auths)(id)(data) )
 FC_REFLECT( contento::protocol::custom_json_operation, (required_auths)(required_posting_auths)(id)(json) )
 FC_REFLECT( contento::protocol::custom_binary_operation, (required_owner_auths)(required_active_auths)(required_posting_auths)(required_auths)(id)(data) )
-FC_REFLECT( contento::protocol::limit_order_create_operation, (owner)(orderid)(amount_to_sell)(min_to_receive)(fill_or_kill)(expiration) )
-FC_REFLECT( contento::protocol::limit_order_create2_operation, (owner)(orderid)(amount_to_sell)(exchange_rate)(fill_or_kill)(expiration) )
-FC_REFLECT( contento::protocol::limit_order_cancel_operation, (owner)(orderid) )
 
-FC_REFLECT( contento::protocol::delete_comment_operation, (author)(permlink) );
+FC_REFLECT( contento::protocol::limit_order_create2_operation, (owner)(orderid)(amount_to_sell)(exchange_rate)(fill_or_kill)(expiration) )
+
+FC_REFLECT( contento::protocol::delete_comment_operation, (author)(permlink) )
 
 FC_REFLECT( contento::protocol::beneficiary_route_type, (account)(weight) )
 FC_REFLECT( contento::protocol::comment_payout_beneficiaries, (beneficiaries) )

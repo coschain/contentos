@@ -365,21 +365,7 @@ namespace contento { namespace protocol {
       FC_ASSERT( pow_summary == fc::sha256::hash( proof.inputs ).approx_log_32() );
    }
 
-   void feed_publish_operation::validate()const
-   {
-      validate_account_name( publisher );
-      FC_ASSERT( ( is_asset_type( exchange_rate.base, COC_SYMBOL )),
-         "Price feed must be a STEEM/SBD price" );
-      exchange_rate.validate();
-   }
 
-   void limit_order_create_operation::validate()const
-   {
-      validate_account_name( owner );
-      FC_ASSERT( ( is_asset_type( amount_to_sell, COC_SYMBOL ) ),
-         "Limit order must be for the STEEM:SBD market" );
-      (amount_to_sell / min_to_receive).validate();
-   }
    void limit_order_create2_operation::validate()const
    {
       validate_account_name( owner );
@@ -392,10 +378,6 @@ namespace contento { namespace protocol {
       FC_ASSERT( (amount_to_sell * exchange_rate).amount > 0, "Amount to sell cannot round to 0 when traded" );
    }
 
-   void limit_order_cancel_operation::validate()const
-   {
-      validate_account_name( owner );
-   }
 
    void convert_operation::validate()const
    {

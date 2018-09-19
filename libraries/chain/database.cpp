@@ -554,10 +554,10 @@ const comment_object* database::find_comment( const account_name_type& author, c
    return find< comment_object, by_permlink >( boost::make_tuple( author, permlink ) );
 }
 
-const escrow_object& database::get_escrow( const account_name_type& name, uint32_t escrow_id )const
-{ try {
-   return get< escrow_object, by_from_id >( boost::make_tuple( name, escrow_id ) );
-} FC_CAPTURE_AND_RETHROW( (name)(escrow_id) ) }
+//const escrow_object& database::get_escrow( const account_name_type& name, uint32_t escrow_id )const
+//{ try {
+//   return get< escrow_object, by_from_id >( boost::make_tuple( name, escrow_id ) );
+//} FC_CAPTURE_AND_RETHROW( (name)(escrow_id) ) }
 
 const escrow_object* database::find_escrow( const account_name_type& name, uint32_t escrow_id )const
 {
@@ -1275,30 +1275,6 @@ asset database::create_vesting( const account_object& to_account, asset coc)
    FC_CAPTURE_AND_RETHROW( (to_account.name)(coc) )
 }
 
-fc::sha256 database::get_pow_target()const
-{
-   const auto& dgp = get_dynamic_global_properties();
-   fc::sha256 target;
-   target._hash[0] = -1;
-   target._hash[1] = -1;
-   target._hash[2] = -1;
-   target._hash[3] = -1;
-   target = target >> ((dgp.num_pow_witnesses/4)+4);
-   return target;
-}
-
-uint32_t database::get_pow_summary_target()const
-{
-   const dynamic_global_property_object& dgp = get_dynamic_global_properties();
-   if( dgp.num_pow_witnesses >= 1004 )
-      return 0;
-
-//    if( has_hardfork( CONTENTO_HARDFORK_0_16__551 ) )
-      return (0xFE00 - 0x0040 * dgp.num_pow_witnesses ) << 0x10;
-//    else
-//       return (0xFC00 - 0x0040 * dgp.num_pow_witnesses) << 0x10;
-}
-
 void database::adjust_proxied_witness_votes( const account_object& a,
                                    const std::array< share_type, CONTENTO_MAX_PROXY_RECURSION_DEPTH+1 >& delta,
                                    int depth )
@@ -1410,7 +1386,6 @@ void database::clear_witness_votes( const account_object& a )
 
 void database::clear_null_account_balance()
 {
-//    if( !has_hardfork( CONTENTO_HARDFORK_0_14__327 ) ) return;
 
    const auto& null_account = get_account( CONTENTO_NULL_ACCOUNT );
    asset total_steem( 0, COC_SYMBOL );
@@ -1427,17 +1402,6 @@ void database::clear_null_account_balance()
       adjust_savings_balance( null_account, -null_account.savings_balance );
    }
 
-//   if( null_account.sbd_balance.amount > 0 )
-//   {
-//      total_sbd += null_account.sbd_balance;
-//      adjust_balance( null_account, -null_account.sbd_balance );
-//   }
-//
-//   if( null_account.savings_sbd_balance.amount > 0 )
-//   {
-//      total_sbd += null_account.savings_sbd_balance;
-//      adjust_savings_balance( null_account, -null_account.savings_sbd_balance );
-//   }
 
    if( null_account.vesting_shares.amount > 0 )
    {
@@ -1604,17 +1568,6 @@ void database::process_vesting_withdrawals()
    }
 }
 
-//void database::adjust_total_payout( const comment_object& cur, const asset& sbd_created, const asset& curator_sbd_value, const asset& beneficiary_value )
-//{
-//   modify( cur, [&]( comment_object& c )
-//   {
-//      if( c.total_payout_value.symbol == sbd_created.symbol )
-//         c.total_payout_value += sbd_created;
-//         c.curator_payout_value += curator_sbd_value;
-//         c.beneficiary_payout_value += beneficiary_value;
-//   } );
-//   /// TODO: potentially modify author's total payout numbers as well
-//}
 
 /**
  *  This method will iterate through all comment_vote_objects and give them
@@ -1726,27 +1679,6 @@ share_type database::cashout_comment_helper( util::comment_reward_context& ctx, 
         else {
             push_virtual_operation( comment_payout_update_operation( comment.author, to_string( comment.permlink ) ) );
         }
-        // 这个之后可能有性能优化的空间，但是第一版先不删 vote
-        //      const auto& vote_idx = get_index< comment_vote_index >().indices().get< by_comment_voter >();
-        //      auto vote_itr = vote_idx.lower_bound( comment.id );
-        //      while( vote_itr != vote_idx.end() && vote_itr->comment == comment.id )
-        //      {
-        //         const auto& cur_vote = *vote_itr;
-        //         ++vote_itr;
-        //         if( !has_hardfork( CONTENTO_HARDFORK_0_12__177 ) || calculate_discussion_payout_time( comment ) != fc::time_point_sec::maximum() )
-        //         {
-        //            modify( cur_vote, [&]( comment_vote_object& cvo )
-        //            {
-        //               cvo.num_changes = -1;
-        //            });
-        //         }
-        //         else
-        //         {
-        //#ifdef CLEAR_VOTES
-        //            remove( cur_vote );
-        //#endif
-        //         }
-        //      }
         return claimed_reward;
     } FC_CAPTURE_AND_RETHROW( (comment) )
 }

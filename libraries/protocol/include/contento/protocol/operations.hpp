@@ -18,10 +18,6 @@ namespace contento { namespace protocol {
             withdraw_vesting_operation,
             convert_from_vesting_operation,
 
-            limit_order_create_operation,
-            limit_order_cancel_operation,
-
-            feed_publish_operation,
             convert_operation,
 
             account_create_operation,

@@ -236,7 +236,7 @@ class database_api
 
       optional< account_recovery_request_api_obj > get_recovery_request( string account ) const;
 
-      optional< escrow_api_obj > get_escrow( string from, uint32_t escrow_id )const;
+//      optional< escrow_api_obj > get_escrow( string from, uint32_t escrow_id )const;
 
       vector< withdraw_route > get_withdraw_routes( string account, withdraw_route_type type = outgoing )const;
 

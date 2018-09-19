@@ -435,31 +435,6 @@ void database_fixture::proxy( const string& account, const string& proxy )
    } FC_CAPTURE_AND_RETHROW( (account)(proxy) )
 }
 
-void database_fixture::set_price_feed( const price& new_price )
-{
-   try
-   {
-      for ( int i = 1; i < 8; i++ )
-      {
-         feed_publish_operation op;
-         op.publisher = CONTENTO_INIT_MINER_NAME + fc::to_string( i );
-         op.exchange_rate = new_price;
-         trx.operations.push_back( op );
-         trx.set_expiration( db.head_block_time() + CONTENTO_MAX_TIME_UNTIL_EXPIRATION );
-         db.push_transaction( trx, ~0 );
-         trx.operations.clear();
-      }
-   } FC_CAPTURE_AND_RETHROW( (new_price) )
-
-   generate_blocks( CONTENTO_BLOCKS_PER_HOUR );
-   BOOST_REQUIRE(
-//#ifdef IS_TEST_NET
-//      !db.skip_price_feed_limit_check ||
-//#endif
-      db.get(feed_history_id_type()).current_median_history == new_price
-   );
-}
-
 const asset& database_fixture::get_balance( const string& account_name )const
 {
   return db.get_account( account_name ).balance;
