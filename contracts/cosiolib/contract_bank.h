@@ -28,7 +28,7 @@ extern "C" {
    int64_t get_value_internal();
  
     /**
-     * contract api can accept COC when use this function
+     * contract api can accept COS when use this function
      */
     void accept_pay();
 

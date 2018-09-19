@@ -692,7 +692,7 @@ class contract_bank_api : public context_aware_api {
       }
 
       void transfer(account_name& account, const asset& value) {
-          // todo transfer COC to name from contract_bank
+          // todo transfer COS to name from contract_bank
           context.transfer(account,value);
       }
 
@@ -1392,11 +1392,11 @@ public:
       return result.size();
    }
 
-   bool excute_operation( array_ptr<const char> op_buff, size_t data_len ){
+   bool execute_operation( array_ptr<const char> op_buff, size_t data_len ){
       std::vector<char> vec(data_len);
       const char* ptr = op_buff;
       vec.assign(ptr, ptr + data_len);
-      return context.excute_operation(vec);
+      return context.execute_operation(vec);
    }
 
 };
@@ -1914,7 +1914,7 @@ REGISTER_INTRINSICS_WITH_PRICE(transaction_api,
 
 REGISTER_INTRINSICS_WITH_PRICE(content_api,
    WITH_PRICE (on_content_call,           int(int, int, int, int)      )
-   WITH_PRICE (excute_operation,           int(int, int)      )
+   WITH_PRICE (execute_operation,           int(int, int)      )
 );
 
 /*

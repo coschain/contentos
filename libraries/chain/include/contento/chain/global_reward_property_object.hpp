@@ -21,15 +21,15 @@ namespace contento { namespace chain {
         dynamic_global_reward_property_object() {}
         
         id_type         id;
-        asset               subject_reward_balance = asset( 0, COC_SYMBOL);
+        asset               subject_reward_balance = asset( 0, COS_SYMBOL);
         uint128_t           subject_recent_claims = 0;
         uint128_t           subject_content_constant = 0;
         curve_id            subject_reward_curve = linear;
-        asset               comment_reward_balance = asset( 0, COC_SYMBOL );
+        asset               comment_reward_balance = asset( 0, COS_SYMBOL );
         uint128_t           comment_recent_claims = 0;
         uint128_t           comment_content_constant = 0;
         curve_id            comment_reward_curve = square_root;
-        asset               other_reward_balance = asset( 0, COC_SYMBOL );
+        asset               other_reward_balance = asset( 0, COS_SYMBOL );
         uint128_t           tick=0;
         time_point_sec      subject_last_update;
         time_point_sec      comment_last_update;

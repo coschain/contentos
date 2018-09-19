@@ -18,14 +18,14 @@ namespace contento { namespace protocol {
       validate_account_name( reporter );
       validate_account_name( author );
       validate_permlink( permlink );
-      FC_ASSERT( is_asset_type( credit, COC_SYMBOL ), "report comment fee must be COC" );
-      FC_ASSERT( credit > asset( 0, COC_SYMBOL ), "report comment fee must be positive" );
+      FC_ASSERT( is_asset_type( credit, COS_SYMBOL ), "report comment fee must be COS" );
+      FC_ASSERT( credit > asset( 0, COS_SYMBOL ), "report comment fee must be positive" );
    }
 
    void account_create_operation::validate() const
    {
       validate_account_name( new_account_name );
-      FC_ASSERT( is_asset_type( fee, COC_SYMBOL ), "Account creation fee must be COC" );
+      FC_ASSERT( is_asset_type( fee, COS_SYMBOL ), "Account creation fee must be COS" );
       owner.validate();
       active.validate();
 
@@ -34,14 +34,14 @@ namespace contento { namespace protocol {
          FC_ASSERT( fc::is_utf8(json_metadata), "JSON Metadata not formatted in UTF8" );
          FC_ASSERT( fc::json::is_valid(json_metadata), "JSON Metadata not valid JSON" );
       }
-      FC_ASSERT( fee >= asset( 0, COC_SYMBOL ), "Account creation fee cannot be negative" );
+      FC_ASSERT( fee >= asset( 0, COS_SYMBOL ), "Account creation fee cannot be negative" );
    }
 
    void account_create_with_delegation_operation::validate() const
    {
       validate_account_name( new_account_name );
       validate_account_name( creator );
-      FC_ASSERT( is_asset_type( fee, COC_SYMBOL ), "Account creation fee must be COC" );
+      FC_ASSERT( is_asset_type( fee, COS_SYMBOL ), "Account creation fee must be COS" );
       FC_ASSERT( is_asset_type( delegation, VESTS_SYMBOL ), "Delegation must be VESTS" );
 
       owner.validate();
@@ -54,7 +54,7 @@ namespace contento { namespace protocol {
          FC_ASSERT( fc::json::is_valid(json_metadata), "JSON Metadata not valid JSON" );
       }
 
-      FC_ASSERT( fee >= asset( 0, COC_SYMBOL ), "Account creation fee cannot be negative" );
+      FC_ASSERT( fee >= asset( 0, COS_SYMBOL ), "Account creation fee cannot be negative" );
       FC_ASSERT( delegation >= asset( 0, VESTS_SYMBOL ), "Delegation cannot be negative" );
    }
 
@@ -177,9 +177,9 @@ namespace contento { namespace protocol {
    void transfer_to_vesting_operation::validate() const
    {
       validate_account_name( from );
-      FC_ASSERT( is_asset_type( amount, COC_SYMBOL ), "Amount must be STEEM" );
+      FC_ASSERT( is_asset_type( amount, COS_SYMBOL ), "Amount must be STEEM" );
       if ( to != account_name_type() ) validate_account_name( to );
-      FC_ASSERT( amount > asset( 0, COC_SYMBOL ), "Must transfer a nonzero amount" );
+      FC_ASSERT( amount > asset( 0, COS_SYMBOL ), "Must transfer a nonzero amount" );
    }
     
     void convert_from_vesting_operation::validate() const
@@ -200,7 +200,7 @@ namespace contento { namespace protocol {
       validate_account_name( owner );
       FC_ASSERT( url.size() > 0, "URL size must be greater than 0" );
       FC_ASSERT( fc::is_utf8( url ), "URL is not valid UTF8" );
-      FC_ASSERT( fee >= asset( 0, COC_SYMBOL ), "Fee cannot be negative" );
+      FC_ASSERT( fee >= asset( 0, COS_SYMBOL ), "Fee cannot be negative" );
       props.validate();
    }
 
@@ -359,14 +359,13 @@ namespace contento { namespace protocol {
       FC_ASSERT( pow_summary == fc::sha256::hash( proof.inputs ).approx_log_32() );
    }
 
-
    void limit_order_create2_operation::validate()const
    {
       validate_account_name( owner );
       FC_ASSERT( amount_to_sell.symbol == exchange_rate.base.symbol, "Sell asset must be the base of the price" );
       exchange_rate.validate();
 
-      FC_ASSERT( ( is_asset_type( amount_to_sell, COC_SYMBOL )),
+      FC_ASSERT( ( is_asset_type( amount_to_sell, COS_SYMBOL )),
                  "Limit order must be for the STEEM:SBD market" );
 
       FC_ASSERT( (amount_to_sell * exchange_rate).amount > 0, "Amount to sell cannot round to 0 when traded" );
@@ -411,7 +410,7 @@ namespace contento { namespace protocol {
       validate_account_name( from );
       validate_account_name( to );
       FC_ASSERT( amount.amount > 0 );
-      FC_ASSERT( amount.symbol == COC_SYMBOL  );
+      FC_ASSERT( amount.symbol == COS_SYMBOL  );
       FC_ASSERT( memo.size() < CONTENTO_MAX_MEMO_SIZE, "Memo is too large" );
       FC_ASSERT( fc::is_utf8( memo ), "Memo is not UTF8" );
    }
@@ -419,7 +418,7 @@ namespace contento { namespace protocol {
       validate_account_name( from );
       validate_account_name( to );
       FC_ASSERT( amount.amount > 0 );
-      FC_ASSERT( amount.symbol == COC_SYMBOL );
+      FC_ASSERT( amount.symbol == COS_SYMBOL );
       FC_ASSERT( memo.size() < CONTENTO_MAX_MEMO_SIZE, "Memo is too large" );
       FC_ASSERT( fc::is_utf8( memo ), "Memo is not UTF8" );
    }
@@ -453,7 +452,7 @@ namespace contento { namespace protocol {
    void claim_reward_balance_operation::validate()const
    {
       validate_account_name( account );
-      FC_ASSERT( is_asset_type( reward_steem, COC_SYMBOL ), "Reward Steem must be STEEM" );
+      FC_ASSERT( is_asset_type( reward_steem, COS_SYMBOL ), "Reward Steem must be STEEM" );
 //      FC_ASSERT( is_asset_type( reward_sbd, SBD_SYMBOL ), "Reward Steem must be SBD" );
       FC_ASSERT( is_asset_type( reward_vests, VESTS_SYMBOL ), "Reward Steem must be VESTS" );
       FC_ASSERT( reward_steem.amount >= 0, "Cannot claim a negative amount" );

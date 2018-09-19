@@ -1274,7 +1274,7 @@ try {
       op.memo_key = memo.pub_key;
       //op.json_metadata = json_meta;
       op.fee = my->_remote_db->get_chain_properties().account_creation_fee * 
-            asset( CONTENTO_CREATE_ACCOUNT_WITH_STEEM_MODIFIER, COC_SYMBOL );
+            asset( CONTENTO_CREATE_ACCOUNT_WITH_STEEM_MODIFIER, COS_SYMBOL );
             
       tx.operations.push_back(op);
    }
@@ -1309,7 +1309,7 @@ try {
    op.reporter = reporter;
    op.author = author;
    op.permlink = permlink;
-   op.credit = asset( credit, COC_SYMBOL );
+   op.credit = asset( credit, COS_SYMBOL );
    op.tag = tag;
    op.is_ack = is_ack;
    op.approved = approved;
@@ -1343,7 +1343,7 @@ annotated_signed_transaction wallet_api::create_account_with_keys( string creato
    op.posting = authority( 1, posting, 1 );
    op.memo_key = memo;
    op.json_metadata = json_meta;
-   op.fee = my->_remote_db->get_chain_properties().account_creation_fee * asset( CONTENTO_CREATE_ACCOUNT_WITH_STEEM_MODIFIER, COC_SYMBOL );
+   op.fee = my->_remote_db->get_chain_properties().account_creation_fee * asset( CONTENTO_CREATE_ACCOUNT_WITH_STEEM_MODIFIER, COS_SYMBOL );
 
    signed_transaction tx;
    tx.operations.push_back(op);

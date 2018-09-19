@@ -63,7 +63,7 @@ void witness_update_evaluator::do_apply( const witness_update_operation& o )
    _db.get_account( o.owner ); // verify owner exists
 
     FC_ASSERT( o.url.size() <= CONTENTO_MAX_WITNESS_URL_LENGTH, "URL is too long" );
-    FC_ASSERT( o.props.account_creation_fee.symbol == COC_SYMBOL );
+    FC_ASSERT( o.props.account_creation_fee.symbol == COS_SYMBOL );
 
    const auto& by_witness_name_idx = _db.get_index< witness_index >().indices().get< by_name >();
    auto wit_itr = by_witness_name_idx.find( o.owner );
@@ -285,7 +285,7 @@ void account_create_evaluator::do_apply( const account_create_operation& o )
     
     _db.modify( _db.get_dynamic_global_properties(), [&]( dynamic_global_property_object& gpo )
    {
-       gpo.total_coc -= o.fee;
+       gpo.total_cos -= o.fee;
        
    });
 
@@ -334,9 +334,9 @@ void account_create_with_delegation_evaluator::do_apply( const account_create_wi
                ( "creator.vesting_shares", creator.vesting_shares )
                ( "creator.delegated_vesting_shares", creator.delegated_vesting_shares )( "required", o.delegation ) );
 
-   auto target_delegation = asset( wso.median_props.account_creation_fee.amount * CONTENTO_CREATE_ACCOUNT_WITH_STEEM_MODIFIER * CONTENTO_CREATE_ACCOUNT_DELEGATION_RATIO, COC_SYMBOL ) * props.get_vesting_share_price();
+   auto target_delegation = asset( wso.median_props.account_creation_fee.amount * CONTENTO_CREATE_ACCOUNT_WITH_STEEM_MODIFIER * CONTENTO_CREATE_ACCOUNT_DELEGATION_RATIO, COS_SYMBOL ) * props.get_vesting_share_price();
 
-   auto current_delegation = asset( o.fee.amount * CONTENTO_CREATE_ACCOUNT_DELEGATION_RATIO, COC_SYMBOL ) * props.get_vesting_share_price() + o.delegation;
+   auto current_delegation = asset( o.fee.amount * CONTENTO_CREATE_ACCOUNT_DELEGATION_RATIO, COS_SYMBOL ) * props.get_vesting_share_price() + o.delegation;
 
    FC_ASSERT( current_delegation >= target_delegation, "Inssufficient Delegation ${f} required, ${p} provided.",
                ("f", target_delegation )
@@ -371,7 +371,7 @@ void account_create_with_delegation_evaluator::do_apply( const account_create_wi
    });
     
     _db.modify(props, [&](dynamic_global_property_object& p){
-        p.total_coc -= o.fee; 
+        p.total_cos -= o.fee; 
     });
 
    const auto& new_account = _db.create< account_object >( [&]( account_object& acc )
@@ -764,7 +764,7 @@ void transfer_to_vesting_evaluator::do_apply( const transfer_to_vesting_operatio
    const auto& from_account = _db.get_account(o.from);
    const auto& to_account = o.to.size() ? _db.get_account(o.to) : from_account;
 
-   FC_ASSERT( _db.get_balance( from_account, COC_SYMBOL) >= o.amount, "Account does not have sufficient STEEM for transfer." );
+   FC_ASSERT( _db.get_balance( from_account, COS_SYMBOL) >= o.amount, "Account does not have sufficient STEEM for transfer." );
    _db.adjust_balance( from_account, -o.amount );
    _db.create_vesting( to_account, o.amount );
 }
@@ -1309,9 +1309,6 @@ void change_recovery_account_evaluator::do_apply( const change_recovery_account_
    }
 }
 
-
-
-
 void vm_evaluator::do_apply( const vm_operation& o )  {
     
     uint64_t gas = 0;
@@ -1342,14 +1339,14 @@ void vm_evaluator::do_apply( const vm_operation& o )  {
         }
         
         // apply vm action
-        int64_t caller_coc = _db.get_balance( caller, COC_SYMBOL ).amount.value;
-        FC_ASSERT( caller_coc >= gas / config::gas_per_coc, "Not enough balance to apply vm action." );
+        int64_t caller_cos = _db.get_balance( caller, COS_SYMBOL ).amount.value;
+        FC_ASSERT( caller_cos >= gas / config::gas_per_cos, "Not enough balance to apply vm action." );
         
         const uint64_t max_tps = 3000;
         uint32_t tps = _db.tps();
         if (tps >= max_tps) tps = max_tps - 1;
         
-        ctx->init_bill( (uint64_t)caller_coc * config::gas_per_coc - gas,
+        ctx->init_bill( (uint64_t)caller_cos * config::gas_per_cos - gas,
                        10,
                        1 * max_tps / (max_tps - tps)
                        );
@@ -1369,12 +1366,15 @@ void vm_evaluator::do_apply( const vm_operation& o )  {
     
     // prepare to pay the gas fee
     gas += ctx->gas();
-    uint64_t coc_cost = gas / config::gas_per_coc;
-    uint64_t caller_coc = _db.get_balance( caller, COC_SYMBOL ).amount.value;
+    if (gas < config::vm_min_gas) {
+        gas = config::vm_min_gas;
+    }
+    uint64_t cos_cost = gas / config::gas_per_cos;
+    uint64_t caller_cos = _db.get_balance( caller, COS_SYMBOL ).amount.value;
     
-    if (coc_cost > caller_coc) {
+    if (cos_cost > caller_cos) {
         // caller's balance is not enough for gas fee. we'll take all her money and mark an error.
-        coc_cost = caller_coc;
+        cos_cost = caller_cos;
         if (!error) {
             error = true;
             exc_ptr = std::make_shared<fc::exception>(unspecified_exception_code, 
@@ -1387,16 +1387,16 @@ void vm_evaluator::do_apply( const vm_operation& o )  {
     }
     
     // pay gas fee
-    if (coc_cost > 0) {
+    if (cos_cost > 0) {
         try {
             transfer_operation pay;
             pay.from = o.caller;
             pay.to = config::gas_fee_account_name;
-            pay.amount = asset(coc_cost, COC_SYMBOL);
+            pay.amount = asset(cos_cost, COS_SYMBOL);
             pay.memo = "gas fee";
             
             transfer_evaluator(_db).do_apply(pay);
-            ctx->add_paid_gas(coc_cost * config::gas_per_coc);
+            ctx->add_paid_gas(cos_cost * config::gas_per_cos);
             
         } catch(fc::exception& e) {
             if (!error) {

@@ -8,7 +8,7 @@
             "name": "Attach",
             "type": "cppdbg",
             "request": "attach",
-            "program": "contentosd",
+            "program": "/bin/echo",
             "processId": "${command:pickProcess}",
             "MIMode": "lldb"
         },
@@ -36,6 +36,31 @@
             "environment": [],
             "externalConsole": false,
             "MIMode": "lldb",
+            "preLaunchTask": "make_contento_test"
+        },
+        { 
+            "name": "lldbAttach",
+            "type": "lldb",
+            "request": "attach",
+            "program": "/bin/echo",
+            "pid": "${command:pickMyProcess}",
+        },
+        {
+            "name": "lldb_cosd",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/../bninja/programs/contentosd/contentosd",
+            "args": [],
+            "cwd": "${workspaceFolder}/../bninja/programs/contentosd/",
+            "preLaunchTask": "pre_debug_cosd"
+        },
+        {
+            "name": "lldb_cos_test",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/../bninja/tests/contento_test",
+            "args": [],
+            "cwd": "${workspaceFolder}/../bninja/",
             "preLaunchTask": "make_contento_test"
         }
     ]

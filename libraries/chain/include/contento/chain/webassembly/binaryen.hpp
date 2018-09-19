@@ -78,7 +78,7 @@ using import_lut_type = unordered_map<uintptr_t, import_info_type>;
     
 struct interpreter_interface : ModuleInstance::ExternalInterface {
    interpreter_interface(linear_memory_type& memory, call_indirect_table_type& table, import_lut_type& import_lut, const unsigned& initial_memory_size, apply_context& context)
-   :memory(memory),table(table),import_lut(import_lut), current_memory_size(initial_memory_size), context(context)
+   :memory(memory),table(table),import_lut(import_lut), current_memory_size(initial_memory_size), context(context), last_import_query_key(0), last_import_query_value(nullptr)
    {}
 
    void importGlobals(std::map<Name, Literal>& globals, Module& wasm) override
@@ -92,9 +92,13 @@ struct interpreter_interface : ModuleInstance::ExternalInterface {
 
    Literal callImport(Import *import, LiteralList &args) override
    {
-      auto info_iter = import_lut.find((uintptr_t)import);
-      EOS_ASSERT(info_iter != import_lut.end(), wasm_execution_error, "unknown import ${m}:${n}", ("m", import->module.c_str())("n", import->module.c_str()));
-      return info_iter->second.first(this, args);
+      if ((uintptr_t)import != last_import_query_key) {
+        auto info_iter = import_lut.find((uintptr_t)import);
+        EOS_ASSERT(info_iter != import_lut.end(), wasm_execution_error, "unknown import ${m}:${n}", ("m", import->module.c_str())("n", import->module.c_str()));
+        last_import_query_key = (uintptr_t)import;
+        last_import_query_value = &(info_iter->second);
+      }
+      return last_import_query_value->first(this, args);
    }
 
    Literal callTable(Index index, LiteralList& arguments, WasmType result, ModuleInstance& instance) override
@@ -181,13 +185,20 @@ struct interpreter_interface : ModuleInstance::ExternalInterface {
         wasm::Expression::Id expr_id = static_cast<wasm::Expression::Id>(arg1);
         uint64_t price = 0;
         if (expr_id == wasm::Expression::CallImportId) {
-
-            auto info_iter = import_lut.find(arg2);
-            if (info_iter != import_lut.end()) {
+            if (arg2 != last_import_query_key) {
+                auto info_iter = import_lut.find(arg2);
+                if (info_iter != import_lut.end()) {
+                    last_import_query_key = arg2;
+                    last_import_query_value = &(info_iter->second);
+                } else {
+                    last_import_query_key = 0;
+                    last_import_query_value = nullptr;
+                }
+            }
+            if (last_import_query_value) {
                 Literal result = *(Literal *)arg3;
                 LiteralList args = *(LiteralList *)arg4;
-                auto pf = info_iter->second.second;
-                price = pf( &context, result, args );
+                price = last_import_query_value->second( &context, result, args );
             }
 
         } else {
@@ -202,6 +213,8 @@ struct interpreter_interface : ModuleInstance::ExternalInterface {
    import_lut_type&             import_lut;
    unsigned                     current_memory_size;
    apply_context&               context;
+   uintptr_t                    last_import_query_key;
+   const import_info_type*      last_import_query_value;
 };
 
 class binaryen_runtime : public contento::chain::wasm_runtime_interface {

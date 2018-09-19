@@ -23,7 +23,7 @@ struct comment_reward_context
 {
     share_type rshares;
     uint128_t  total_reward_shares2;
-    asset      total_reward_fund_coc;
+    asset      total_reward_fund_cos;
     curve_id   reward_curve;
     uint128_t  content_constant = 0;
     uint16_t   reward_weight=0;
@@ -40,7 +40,7 @@ uint128_t evaluate_reward_curve( const uint128_t& rshares, const curve_id& curve
 
 //inline bool is_comment_payout_dust( const price& p, uint64_t steem_payout )
 //{
-//   return to_sbd( p, asset( steem_payout, COC_SYMBOL ) ) < CONTENTO_MIN_PAYOUT_SBD;
+//   return to_sbd( p, asset( steem_payout, COS_SYMBOL ) ) < CONTENTO_MIN_PAYOUT_SBD;
 //}
 
 } } } // contento::chain::util
@@ -49,7 +49,7 @@ FC_REFLECT( contento::chain::util::comment_reward_context,
    (rshares)
    (reward_weight)
    (total_reward_shares2)
-   (total_reward_fund_coc)
+   (total_reward_fund_cos)
    (reward_curve)
    (content_constant)
    )

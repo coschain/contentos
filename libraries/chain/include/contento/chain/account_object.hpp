@@ -57,8 +57,8 @@ namespace contento { namespace chain {
          uint16_t          voting_power = CONTENTO_100_PERCENT;   ///< current voting power of this account, it falls after every vote
          time_point_sec    last_vote_time; ///< used to increase the voting power of this account the longer it goes without voting.
 
-         asset             balance = asset( 0, COC_SYMBOL );  ///< total liquid shares held by this account
-         asset             savings_balance = asset( 0, COC_SYMBOL );  ///< total liquid shares held by this account
+         asset             balance = asset( 0, COS_SYMBOL );  ///< total liquid shares held by this account
+         asset             savings_balance = asset( 0, COS_SYMBOL );  ///< total liquid shares held by this account
 
          /**
           *  SBD Deposits pay interest based upon the interest rate set by witnesses. The purpose of these
@@ -78,9 +78,9 @@ namespace contento { namespace chain {
          uint8_t           savings_withdraw_requests = 0;
          ///@}
 
-         asset             reward_steem_balance = asset( 0, COC_SYMBOL );
+         asset             reward_steem_balance = asset( 0, COS_SYMBOL );
          asset             reward_vesting_balance = asset( 0, VESTS_SYMBOL );
-         asset             reward_vesting_steem = asset( 0, COC_SYMBOL );
+         asset             reward_vesting_steem = asset( 0, COS_SYMBOL );
 
          share_type        curation_rewards = 0;
          share_type        posting_rewards = 0;

@@ -26,7 +26,7 @@ namespace contento { namespace gas_estimate {
         asset _estimated_gas_fee( const signed_transaction& trx ) {
             FC_ASSERT(_thread && _thread->is_current(), "incorrect thread invoking.");
             transaction_wrapper trx_wrapper = _db->test_push_transaction(trx);
-            return asset(trx_wrapper.invoice.gas_usage / config::gas_per_coc);
+            return asset(trx_wrapper.invoice.gas_usage / config::gas_per_cos);
         }
 
         asset estimated_gas_fee( const signed_transaction& trx ) {

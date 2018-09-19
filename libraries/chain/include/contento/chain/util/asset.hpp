@@ -13,7 +13,7 @@ inline asset to_sbd( const price& p, const asset& steem )
 //    if( p.is_null() )
 //       return asset( 0, SBD_SYMBOL );
 //    return steem * p;
-    return asset(0, COC_SYMBOL);
+    return asset(0, COS_SYMBOL);
 }
 
 inline asset to_steem( const price& p, const asset& sbd )
@@ -22,7 +22,7 @@ inline asset to_steem( const price& p, const asset& sbd )
 //    if( p.is_null() )
 //       return asset( 0, STEEM_SYMBOL );
 //    return sbd * p;
-    return asset(0, COC_SYMBOL);
+    return asset(0, COS_SYMBOL);
 }
 
 } } }

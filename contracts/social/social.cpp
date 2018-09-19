@@ -5,11 +5,11 @@
 #include <eos.hpp>
 
 /**
- *  The purpose of this contract is to implement something like Steem on EOS, this
+ *  The purpose of this contract is to implement something like Contento on EOS, this
  *  means this contract defines its own currency, allows people to create posts, vote
  *  on posts, and stake their voting power.
  *
- *  Unlike Steem, the goal is to enable maximum parallelism and enable the currency to
+ *  Unlike Contento, the goal is to enable maximum parallelism and enable the currency to
  *  be easily integrated with an exchange contract.
  */
 

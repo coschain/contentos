@@ -533,7 +533,7 @@ std::vector<char> apply_context::on_vm_request( const std::vector<char>& req_bod
    return control.get_vm_interface()->on_vm_request(req_body);
 }
 
-bool apply_context::excute_operation( const std::vector<char>& op_buff ){
+bool apply_context::execute_operation( const std::vector<char>& op_buff ){
 
    fc::datastream<char*> ds( (char*)op_buff.data(), op_buff.size());
    contento::protocol::operation op;
@@ -546,7 +546,7 @@ bool apply_context::excute_operation( const std::vector<char>& op_buff ){
 
 asset apply_context::get_contract_balance()  {
     const auto& account = control.get_contract_account(receiver);
-    return account.coc_balance;
+    return account.cos_balance;
 }
     
 void apply_context::set_payable_flag() {
@@ -560,7 +560,7 @@ void apply_context::transfer( account_name name, const asset& value)  {
     
     FC_ASSERT( value > asset(0), "asset amount must > 0" );
     FC_ASSERT( get_contract_balance() >= value, "Contract does not have sufficient funds for transfer." );
-//    asset s(value,COC_SYMBOL);
+//    asset s(value,COS_SYMBOL);
     control.adjust_contract_balance( from_account, -value );
     control.adjust_balance( to_account, value );
 }
