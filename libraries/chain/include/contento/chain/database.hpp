@@ -145,11 +145,6 @@ namespace contento { namespace chain {
          const comment_object&  get_comment(  const account_name_type& author, const string& permlink )const;
          const comment_object*  find_comment( const account_name_type& author, const string& permlink )const;
 
-         const escrow_object&   get_escrow(  const account_name_type& name, uint32_t escrow_id )const;
-         const escrow_object*   find_escrow( const account_name_type& name, uint32_t escrow_id )const;
-
-         const limit_order_object& get_limit_order(  const account_name_type& owner, uint32_t id )const;
-         const limit_order_object* find_limit_order( const account_name_type& owner, uint32_t id )const;
 
          const savings_withdraw_object& get_savings_withdraw(  const account_name_type& owner, uint32_t request_id )const;
          const savings_withdraw_object* find_savings_withdraw( const account_name_type& owner, uint32_t request_id )const;

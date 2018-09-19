@@ -554,31 +554,6 @@ const comment_object* database::find_comment( const account_name_type& author, c
    return find< comment_object, by_permlink >( boost::make_tuple( author, permlink ) );
 }
 
-//const escrow_object& database::get_escrow( const account_name_type& name, uint32_t escrow_id )const
-//{ try {
-//   return get< escrow_object, by_from_id >( boost::make_tuple( name, escrow_id ) );
-//} FC_CAPTURE_AND_RETHROW( (name)(escrow_id) ) }
-
-const escrow_object* database::find_escrow( const account_name_type& name, uint32_t escrow_id )const
-{
-   return find< escrow_object, by_from_id >( boost::make_tuple( name, escrow_id ) );
-}
-
-const limit_order_object& database::get_limit_order( const account_name_type& name, uint32_t orderid )const
-{ try {
-//    if( !has_hardfork( CONTENTO_HARDFORK_0_6__127 ) )
-//       orderid = orderid & 0x0000FFFF;
-
-   return get< limit_order_object, by_account >( boost::make_tuple( name, orderid ) );
-} FC_CAPTURE_AND_RETHROW( (name)(orderid) ) }
-
-const limit_order_object* database::find_limit_order( const account_name_type& name, uint32_t orderid )const
-{
-//    if( !has_hardfork( CONTENTO_HARDFORK_0_6__127 ) )
-//       orderid = orderid & 0x0000FFFF;
-
-   return find< limit_order_object, by_account >( boost::make_tuple( name, orderid ) );
-}
 
 const savings_withdraw_object& database::get_savings_withdraw( const account_name_type& owner, uint32_t request_id )const
 { try {
