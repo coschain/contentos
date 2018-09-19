@@ -240,9 +240,6 @@ class database_api
 
       optional< account_bandwidth_api_obj > get_account_bandwidth( string account, witness::bandwidth_type type )const;
 
-      vector< savings_withdraw_api_obj > get_savings_withdraw_from( string account )const;
-      vector< savings_withdraw_api_obj > get_savings_withdraw_to( string account )const;
-
       vector< vesting_delegation_api_obj > get_vesting_delegations( string account, string from, uint32_t limit = 100 )const;
       vector< vesting_delegation_expiration_api_obj > get_expiring_vesting_delegations( string account, time_point_sec from, uint32_t limit = 100 )const;
 
@@ -532,8 +529,6 @@ FC_API(contento::app::database_api,
 
    (get_withdraw_routes)
    (get_account_bandwidth)
-   (get_savings_withdraw_from)
-   (get_savings_withdraw_to)
    (get_vesting_delegations)
    (get_expiring_vesting_delegations)
 

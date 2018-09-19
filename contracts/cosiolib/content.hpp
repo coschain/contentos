@@ -1369,13 +1369,6 @@ public:
 		STUB_API( RET_TYPE(database_api::get_account_bandwidth), << account << type);
 	}
 
-	vector<savings_withdraw_api_obj> get_savings_withdraw_from( const string& account) {
-		STUB_API( RET_TYPE(database_api::get_savings_withdraw_from), << account);
-	}
-
-	vector<savings_withdraw_api_obj> get_savings_withdraw_to( const string& account) {
-		STUB_API( RET_TYPE(database_api::get_savings_withdraw_to), << account);
-	}
 
 	vector<vesting_delegation_api_obj> get_vesting_delegations( const string& account, const string& from, const uint32& limit) {
 		STUB_API( RET_TYPE(database_api::get_vesting_delegations), << account << from << limit);

@@ -398,8 +398,7 @@ void database_fixture::vest( const string& account, const asset& amount )
       });
 
       db.create_vesting( db.get_account( account ), amount );
-
-      db.update_virtual_supply();
+       
    }, default_skip );
 }
 

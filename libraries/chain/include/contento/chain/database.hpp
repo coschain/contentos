@@ -145,14 +145,9 @@ namespace contento { namespace chain {
          const comment_object&  get_comment(  const account_name_type& author, const string& permlink )const;
          const comment_object*  find_comment( const account_name_type& author, const string& permlink )const;
 
-
-         const savings_withdraw_object& get_savings_withdraw(  const account_name_type& owner, uint32_t request_id )const;
-         const savings_withdraw_object* find_savings_withdraw( const account_name_type& owner, uint32_t request_id )const;
-
          const dynamic_global_property_object&  get_dynamic_global_properties()const;
          const dynamic_global_reward_property_object& get_dynamic_global_reward_properties()const;
          const node_property_object&            get_node_properties()const;
-//         const feed_history_object&             get_feed_history()const;
          const witness_schedule_object&         get_witness_schedule_object()const;
          const hardfork_property_object&        get_hardfork_property_object()const;
 
@@ -303,14 +298,10 @@ namespace contento { namespace chain {
          // void        adjust_liquidity_reward( const account_object& owner, const asset& volume, bool is_bid );
          void        adjust_balance( const account_object& a, const asset& delta );
          void        adjust_contract_balance( const contract_balance_object& a, const asset& delta );
-         void        adjust_savings_balance( const account_object& a, const asset& delta );
-         void        adjust_reward_balance( const account_object& a, const asset& delta );
          void        adjust_supply( const asset& delta, bool adjust_vesting = false );
-         void        adjust_rshares2( const comment_object& comment, fc::uint128_t old_rshares2, fc::uint128_t new_rshares2 );
          void        update_owner_authority( const account_object& account, const authority& owner_authority );
 
          asset       get_balance( const account_object& a, asset_symbol_type symbol )const;
-         asset       get_savings_balance( const account_object& a, asset_symbol_type symbol )const;
          asset       get_balance( const string& aname, asset_symbol_type symbol )const { return get_balance( get_account(aname), symbol ); }
 
          /** this updates the votes for witnesses as a result of account voting proxy changing */
@@ -338,12 +329,8 @@ namespace contento { namespace chain {
          void process_comment_cashout();
          void process_funds();
          void process_other_cashout();
-         // void process_conversions();
-         void process_savings_withdraws();
          void account_recovery_processing();
          void process_decline_voting_rights();
-
-         share_type pay_reward_funds( share_type reward );
 
 
 
@@ -376,18 +363,6 @@ namespace contento { namespace chain {
          std::deque< transaction_wrapper >       _popped_tx;
 
 
-         // bool apply_order( const limit_order_object& new_order_object );
-         // bool fill_order( const limit_order_object& order, const asset& pays, const asset& receives );
-         // void cancel_order( const limit_order_object& obj );
-         // int  match( const limit_order_object& bid, const limit_order_object& ask, const price& trade_price );
-
-         void perform_vesting_share_split( uint32_t magnitude );
-         void retally_comment_children();
-         void retally_witness_votes();
-         void retally_witness_vote_counts( bool force = false );
-         void retally_liquidity_weight();
-         void update_virtual_supply();
-
          bool has_hardfork( uint32_t hardfork )const;
 
          /* For testing and debugging only. Given a hardfork
@@ -407,13 +382,6 @@ namespace contento { namespace chain {
          contento::chain::controller* get_vm_ctrl(){
             return &ctrl;
          }
-
-// #ifdef IS_TEST_NET
-//          bool liquidity_rewards_enabled = true;
-//          bool skip_price_feed_limit_check = true;
-//          bool skip_transaction_delta_check = true;
-//          bool init_genesis_hardforks = true;
-// #endif
 
          bool execute_operation(const transaction_context& trx_context, const operation& op );
        

@@ -1821,39 +1821,6 @@ vector<discussion>  database_api::get_discussions_by_author_before_date(
    });
 }
 
-vector< savings_withdraw_api_obj > database_api::get_savings_withdraw_from( string account )const
-{
-   CONTENTOS_API_CLOSE_ASSERT();
-   return determine_read_lock( [&]()
-   {
-      vector<savings_withdraw_api_obj> result;
-
-      const auto& from_rid_idx = my->_db.get_index< savings_withdraw_index >().indices().get< by_from_rid >();
-      auto itr = from_rid_idx.lower_bound( account );
-      while( itr != from_rid_idx.end() && itr->from == account ) {
-         result.push_back( savings_withdraw_api_obj( *itr ) );
-         ++itr;
-      }
-      return result;
-   });
-}
-vector< savings_withdraw_api_obj > database_api::get_savings_withdraw_to( string account )const
-{
-   CONTENTOS_API_CLOSE_ASSERT();
-   return determine_read_lock( [&]()
-   {
-      vector<savings_withdraw_api_obj> result;
-
-      const auto& to_complete_idx = my->_db.get_index< savings_withdraw_index >().indices().get< by_to_complete >();
-      auto itr = to_complete_idx.lower_bound( account );
-      while( itr != to_complete_idx.end() && itr->to == account ) {
-         result.push_back( savings_withdraw_api_obj( *itr ) );
-         ++itr;
-      }
-      return result;
-   });
-}
-
 vector< vesting_delegation_api_obj > database_api::get_vesting_delegations( string account, string from, uint32_t limit )const
 {
    FC_ASSERT( limit <= 1000 );
