@@ -455,34 +455,6 @@ namespace contento { namespace protocol {
 
 
 
-
-   /**
-    *  This operation is identical to limit_order_create except it serializes the price rather
-    *  than calculating it from other fields.
-    */
-   struct limit_order_create2_operation : public base_operation
-   {
-      account_name_type owner;
-      uint32_t          orderid = 0; /// an ID assigned by owner, must be unique
-      asset             amount_to_sell;
-      bool              fill_or_kill = false;
-      price             exchange_rate;
-      time_point_sec    expiration = time_point_sec::maximum();
-
-      void  validate()const;
-      void  get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert(owner); }
-
-      price             get_price()const { return exchange_rate; }
-
-      pair< asset_symbol_type, asset_symbol_type > get_market()const
-      {
-         return exchange_rate.base.symbol < exchange_rate.quote.symbol ?
-                std::make_pair(exchange_rate.base.symbol, exchange_rate.quote.symbol) :
-                std::make_pair(exchange_rate.quote.symbol, exchange_rate.base.symbol);
-      }
-   };
-
-
    struct pow
    {
       public_key_type worker;
@@ -930,8 +902,6 @@ FC_REFLECT( contento::protocol::vote_operation, (voter)(author)(permlink)(weight
 FC_REFLECT( contento::protocol::custom_operation, (required_auths)(id)(data) )
 FC_REFLECT( contento::protocol::custom_json_operation, (required_auths)(required_posting_auths)(id)(json) )
 FC_REFLECT( contento::protocol::custom_binary_operation, (required_owner_auths)(required_active_auths)(required_posting_auths)(required_auths)(id)(data) )
-
-FC_REFLECT( contento::protocol::limit_order_create2_operation, (owner)(orderid)(amount_to_sell)(exchange_rate)(fill_or_kill)(expiration) )
 
 FC_REFLECT( contento::protocol::delete_comment_operation, (author)(permlink) )
 

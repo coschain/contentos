@@ -51,8 +51,6 @@ enum object_type
    comment_vote_object_type,
    comment_report_object_type,
    witness_vote_object_type,
-   limit_order_object_type,
-//   feed_history_object_type,
    convert_request_object_type,
    liquidity_reward_balance_object_type,
    operation_object_type,
@@ -96,8 +94,6 @@ class comment_object;
 class comment_vote_object;
 class comment_report_object;
 class witness_vote_object;
-class limit_order_object;
-//class feed_history_object;
 class convert_request_object;
 class liquidity_reward_balance_object;
 class operation_object;
@@ -139,8 +135,6 @@ typedef oid< comment_object                         > comment_id_type;
 typedef oid< comment_vote_object                    > comment_vote_id_type;
 typedef oid< comment_report_object                  > comment_report_id_type;
 typedef oid< witness_vote_object                    > witness_vote_id_type;
-typedef oid< limit_order_object                     > limit_order_id_type;
-//typedef oid< feed_history_object                    > feed_history_id_type;
 typedef oid< convert_request_object                 > convert_request_id_type;
 typedef oid< liquidity_reward_balance_object        > liquidity_reward_balance_id_type;
 typedef oid< operation_object                       > operation_id_type;
@@ -255,8 +249,6 @@ FC_REFLECT_ENUM( contento::chain::object_type,
                  (comment_vote_object_type)
                  (comment_report_object_type)
                  (witness_vote_object_type)
-                 (limit_order_object_type)
-//                 (feed_history_object_type)
                  (convert_request_object_type)
                  (liquidity_reward_balance_object_type)
                  (operation_object_type)

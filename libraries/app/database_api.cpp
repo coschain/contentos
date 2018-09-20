@@ -1999,29 +1999,6 @@ state database_api::get_state( string path )const
                }
             }
          }
-         else if( part[1].size() == 0 || part[1] == "feed" )
-         {
-            if( my->_follow_api )
-            {
-               auto feed = my->_follow_api->get_feed_entries( eacnt.name, 0, 20 );
-               eacnt.feed = vector<string>();
-
-               for( auto f: feed )
-               {
-                  const auto link = f.author + "/" + f.permlink;
-                  eacnt.feed->push_back( link );
-                  _state.content[ link ] = my->_db.get_comment( f.author, f.permlink );
-                  // set_pending_payout( _state.content[ link ] );
-                  if( f.reblog_by.size() )
-                  {
-                     if( f.reblog_by.size() )
-                        _state.content[link].first_reblogged_by = f.reblog_by[0];
-                     _state.content[link].reblogged_by = f.reblog_by;
-                     _state.content[link].first_reblogged_on = f.reblog_on;
-                  }
-               }
-            }
-         }
       }
       /// pull a complete discussion
       else if( part[1].size() && part[1][0] == '@' ) {

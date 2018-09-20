@@ -359,17 +359,6 @@ namespace contento { namespace protocol {
       FC_ASSERT( pow_summary == fc::sha256::hash( proof.inputs ).approx_log_32() );
    }
 
-   void limit_order_create2_operation::validate()const
-   {
-      validate_account_name( owner );
-      FC_ASSERT( amount_to_sell.symbol == exchange_rate.base.symbol, "Sell asset must be the base of the price" );
-      exchange_rate.validate();
-
-      FC_ASSERT( ( is_asset_type( amount_to_sell, COS_SYMBOL )),
-                 "Limit order must be for the STEEM:SBD market" );
-
-      FC_ASSERT( (amount_to_sell * exchange_rate).amount > 0, "Amount to sell cannot round to 0 when traded" );
-   }
 
 
    void report_over_production_operation::validate()const

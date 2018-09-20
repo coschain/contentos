@@ -537,16 +537,6 @@ struct set_withdraw_vesting_route_operation {
 	COSLIB_SERIALIZE( set_withdraw_vesting_route_operation, (from_account)(to_account)(percent)(auto_vest) ) 
 };
 
-struct limit_order_create2_operation {
-	namex		owner;
-	uint32		orderid;
-	asset		amount_to_sell;
-	price		exchange_rate;
-	bool		fill_or_kill;
-	time_point_sec		expiration; 
- 
-	COSLIB_SERIALIZE( limit_order_create2_operation, (owner)(orderid)(amount_to_sell)(exchange_rate)(fill_or_kill)(expiration) ) 
-};
 
 struct challenge_authority_operation {
 	namex		challenger;
@@ -842,27 +832,6 @@ struct applied_operation {
 	COSLIB_SERIALIZE( applied_operation, (trx_id)(block)(trx_in_block)(op_in_trx)(virtual_op)(timestamp)(op) ) 
 };
 
-struct limit_order_object {
-	int64		id;
-	time_point_sec		created;
-	time_point_sec		expiration;
-	namex		seller;
-	uint32		orderid;
-	int64		for_sale;
-	price		sell_price; 
- 
-	COSLIB_SERIALIZE( limit_order_object, (id)(created)(expiration)(seller)(orderid)(for_sale)(sell_price) ) 
-};
-
-using limit_order_api_obj	 = limit_order_object;
-
-struct extended_limit_order : public limit_order_api_obj {
-	float64		real_price;
-	bool		rewarded; 
- 
-	COSLIB_SERIALIZE_DERIVED( extended_limit_order, limit_order_api_obj,(real_price)(rewarded) ) 
-};
-
 struct extended_account : public account_api_obj {
 	asset		vesting_balance;
 	int64		reputation;
@@ -874,7 +843,6 @@ struct extended_account : public account_api_obj {
 	vector<string>		witness_votes;
 	vector<map<string,uint32>>		tags_usage;
 	vector<map<namex,uint32>>		guest_bloggers;
-	vector<map<uint32,extended_limit_order>>		open_orders;
 	vector<vector<string>>		comments;
 	vector<vector<string>>		feed;
 	vector<vector<string>>		blog;
@@ -955,8 +923,6 @@ struct candle_stick {
 };
 
 struct market {
-	vector<extended_limit_order>		bids;
-	vector<extended_limit_order>		asks;
 	vector<order_history_item>		history;
 	vector<candle_stick>		price_history;
 	vector<int32>		available_candlesticks;
@@ -964,7 +930,7 @@ struct market {
 	int32		current_candlestick;
 	int32		current_zoom; 
  
-	COSLIB_SERIALIZE( market, (bids)(asks)(history)(price_history)(available_candlesticks)(available_zoom)(current_candlestick)(current_zoom) ) 
+	COSLIB_SERIALIZE( market, (history)(price_history)(available_candlesticks)(available_zoom)(current_candlestick)(current_zoom) ) 
 };
 
 struct state {

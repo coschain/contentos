@@ -109,9 +109,6 @@ struct bucket_object : public object< bucket_object_type, bucket_object >
    share_type           sbd_to_be_converted = 0;                     ///< Amount of SBD to be converted
    uint32_t             sbd_conversion_requests_filled = 0;          ///< SBD conversion requests filled
    share_type           steem_converted = 0;                         ///< Amount of STEEM that was converted
-   uint32_t             limit_orders_created = 0;                    ///< Limit orders created
-   uint32_t             limit_orders_filled = 0;                     ///< Limit orders filled
-   uint32_t             limit_orders_cancelled = 0;                  ///< Limit orders cancelled
    uint32_t             total_pow = 0;                               ///< POW submitted
    uint128_t            estimated_hashpower = 0;                     ///< Estimated average hashpower over interval
 };
@@ -178,9 +175,6 @@ FC_REFLECT( contento::blockchain_statistics::bucket_object,
    (sbd_to_be_converted)
    (sbd_conversion_requests_filled)
    (steem_converted)
-   (limit_orders_created)
-   (limit_orders_filled)
-   (limit_orders_cancelled)
    (total_pow)
    (estimated_hashpower)
 )

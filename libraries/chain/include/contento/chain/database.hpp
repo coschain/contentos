@@ -333,7 +333,6 @@ namespace contento { namespace chain {
          void process_decline_voting_rights();
 
 
-
          time_point_sec   head_block_time()const;
          uint32_t         head_block_num()const;
          block_id_type    head_block_id()const;
@@ -414,8 +413,6 @@ namespace contento { namespace chain {
          void update_global_dynamic_data( const signed_block& b );
          void update_signing_witness(const witness_object& signing_witness, const signed_block& new_block);
          void update_last_irreversible_block();
-         // void clear_expired_transactions();
-         // void clear_expired_orders();
          void clear_expired_delegations();
          void process_header_extensions( const signed_block& next_block );
 

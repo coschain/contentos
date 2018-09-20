@@ -571,10 +571,6 @@ const node_property_object& database::get_node_properties() const
    return _node_property_object;
 }
 
-//const feed_history_object& database::get_feed_history()const
-//{ try {
-//   return get< feed_history_object >();
-//} FC_CAPTURE_AND_RETHROW() }
 
 const witness_schedule_object& database::get_witness_schedule_object()const
 { try {
@@ -1932,8 +1928,6 @@ void database::initialize_indexes()
    add_core_index< comment_vote_index                      >(*this);
    add_core_index< comment_report_index                    >(*this);
    add_core_index< witness_vote_index                      >(*this);
-   add_core_index< limit_order_index                       >(*this);
-//    add_core_index< feed_history_index                      >(*this);
    add_core_index< convert_request_index                   >(*this);
    add_core_index< liquidity_reward_balance_index          >(*this);
    add_core_index< operation_index                         >(*this);
@@ -2116,7 +2110,6 @@ void database::init_genesis( uint64_t init_supply )
       });
 
       // Nothing to do
-//      create< feed_history_object >( [&]( feed_history_object& o ) {});
       for( int i = 0; i < 0x10000; i++ )
          create< block_summary_object >( [&]( block_summary_object& ) {});
       create< hardfork_property_object >( [&](hardfork_property_object& hpo )
@@ -2379,25 +2372,16 @@ void database::_apply_block( const signed_block& next_block )
    update_last_irreversible_block();
 
    create_block_summary(next_block);
-//   clear_expired_transactions();
-//   clear_expired_orders();
    clear_expired_delegations();
    update_witness_schedule(*this);
 
-//   update_median_feed();
-//   update_virtual_supply();
-
    clear_null_account_balance();
    process_funds();
-   // process_conversions();
    process_comment_cashout();
    process_other_cashout();
    process_vesting_withdrawals();
 
-//   update_virtual_supply();
-
    account_recovery_processing();
-   // expire_escrow_ratification();
    process_decline_voting_rights();
 
    process_hardforks();
@@ -2458,69 +2442,6 @@ void database::process_header_extensions( const signed_block& next_block )
       ++itr;
    }
 }
-
-
-
-//void database::update_median_feed() {
-//try {
-//   if( (head_block_num() % CONTENTO_FEED_INTERVAL_BLOCKS) != 0 )
-//      return;
-//
-//   auto now = head_block_time();
-//   const witness_schedule_object& wso = get_witness_schedule_object();
-//   vector<price> feeds; feeds.reserve( wso.num_scheduled_witnesses );
-//   for( int i = 0; i < wso.num_scheduled_witnesses; i++ )
-//   {
-//      const auto& wit = get_witness( wso.current_shuffled_witnesses[i] );
-//    //   if( has_hardfork( CONTENTO_HARDFORK_0_19__822 ) )
-//    //   {
-//         if( now < wit.last_sbd_exchange_update + CONTENTO_MAX_FEED_AGE_SECONDS
-//            && !wit.sbd_exchange_rate.is_null() )
-//         {
-//            feeds.push_back( wit.sbd_exchange_rate );
-//         }
-//    //   }
-//    //   else if( wit.last_sbd_exchange_update < now + CONTENTO_MAX_FEED_AGE_SECONDS &&
-//    //       !wit.sbd_exchange_rate.is_null() )
-//    //   {
-//    //      feeds.push_back( wit.sbd_exchange_rate );
-//    //   }
-//   }
-//
-//   if( feeds.size() >= CONTENTO_MIN_FEEDS )
-//   {
-//      std::sort( feeds.begin(), feeds.end() );
-//      auto median_feed = feeds[feeds.size()/2];
-//
-//      modify( get_feed_history(), [&]( feed_history_object& fho )
-//      {
-//         fho.price_history.push_back( median_feed );
-//         size_t steemit_feed_history_window = CONTENTO_FEED_HISTORY_WINDOW_PRE_HF_16;
-//        //  if( has_hardfork( CONTENTO_HARDFORK_0_16__551) )
-//            steemit_feed_history_window = CONTENTO_FEED_HISTORY_WINDOW;
-//
-//         if( fho.price_history.size() > steemit_feed_history_window )
-//            fho.price_history.pop_front();
-//
-//         if( fho.price_history.size() )
-//         {
-//            std::deque< price > copy;
-//            for( auto i : fho.price_history )
-//            {
-//               copy.push_back( i );
-//            }
-//
-//            std::sort( copy.begin(), copy.end() ); /// TODO: use nth_item
-//            fho.current_median_history = copy[copy.size()/2];
-//
-//// #ifdef IS_TEST_NET
-////             if( skip_price_feed_limit_check )
-////                return;
-//// #endif
-//         }
-//      });
-//   }
-//} FC_CAPTURE_AND_RETHROW() }
 
 void database::apply_transaction( transaction_wrapper& trx_wrapper, uint32_t skip)
 {
@@ -2927,65 +2848,6 @@ void database::init_hardforks()
 {
    _hardfork_times[ 0 ] = fc::time_point_sec( CONTENTO_GENESIS_TIME );
    _hardfork_versions[ 0 ] = hardfork_version( 0, 0 );
-//    FC_ASSERT( CONTENTO_HARDFORK_0_1 == 1, "Invalid hardfork configuration" );
-//    _hardfork_times[ CONTENTO_HARDFORK_0_1 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_1_TIME );
-//    _hardfork_versions[ CONTENTO_HARDFORK_0_1 ] = CONTENTO_HARDFORK_0_1_VERSION;
-//    FC_ASSERT( CONTENTO_HARDFORK_0_2 == 2, "Invlaid hardfork configuration" );
-//    _hardfork_times[ CONTENTO_HARDFORK_0_2 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_2_TIME );
-//    _hardfork_versions[ CONTENTO_HARDFORK_0_2 ] = CONTENTO_HARDFORK_0_2_VERSION;
-//    FC_ASSERT( CONTENTO_HARDFORK_0_3 == 3, "Invalid hardfork configuration" );
-//    _hardfork_times[ CONTENTO_HARDFORK_0_3 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_3_TIME );
-//    _hardfork_versions[ CONTENTO_HARDFORK_0_3 ] = CONTENTO_HARDFORK_0_3_VERSION;
-//    FC_ASSERT( CONTENTO_HARDFORK_0_4 == 4, "Invalid hardfork configuration" );
-//    _hardfork_times[ CONTENTO_HARDFORK_0_4 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_4_TIME );
-//    _hardfork_versions[ CONTENTO_HARDFORK_0_4 ] = CONTENTO_HARDFORK_0_4_VERSION;
-//    FC_ASSERT( CONTENTO_HARDFORK_0_5 == 5, "Invalid hardfork configuration" );
-//    _hardfork_times[ CONTENTO_HARDFORK_0_5 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_5_TIME );
-//    _hardfork_versions[ CONTENTO_HARDFORK_0_5 ] = CONTENTO_HARDFORK_0_5_VERSION;
-//    FC_ASSERT( CONTENTO_HARDFORK_0_6 == 6, "Invalid hardfork configuration" );
-//    _hardfork_times[ CONTENTO_HARDFORK_0_6 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_6_TIME );
-//    _hardfork_versions[ CONTENTO_HARDFORK_0_6 ] = CONTENTO_HARDFORK_0_6_VERSION;
-//    FC_ASSERT( CONTENTO_HARDFORK_0_7 == 7, "Invalid hardfork configuration" );
-//    _hardfork_times[ CONTENTO_HARDFORK_0_7 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_7_TIME );
-//    _hardfork_versions[ CONTENTO_HARDFORK_0_7 ] = CONTENTO_HARDFORK_0_7_VERSION;
-//    FC_ASSERT( CONTENTO_HARDFORK_0_8 == 8, "Invalid hardfork configuration" );
-//    _hardfork_times[ CONTENTO_HARDFORK_0_8 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_8_TIME );
-//    _hardfork_versions[ CONTENTO_HARDFORK_0_8 ] = CONTENTO_HARDFORK_0_8_VERSION;
-//    FC_ASSERT( CONTENTO_HARDFORK_0_9 == 9, "Invalid hardfork configuration" );
-//    _hardfork_times[ CONTENTO_HARDFORK_0_9 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_9_TIME );
-//    _hardfork_versions[ CONTENTO_HARDFORK_0_9 ] = CONTENTO_HARDFORK_0_9_VERSION;
-//    FC_ASSERT( CONTENTO_HARDFORK_0_10 == 10, "Invalid hardfork configuration" );
-//    _hardfork_times[ CONTENTO_HARDFORK_0_10 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_10_TIME );
-//    _hardfork_versions[ CONTENTO_HARDFORK_0_10 ] = CONTENTO_HARDFORK_0_10_VERSION;
-//    FC_ASSERT( CONTENTO_HARDFORK_0_11 == 11, "Invalid hardfork configuration" );
-//    _hardfork_times[ CONTENTO_HARDFORK_0_11 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_11_TIME );
-//    _hardfork_versions[ CONTENTO_HARDFORK_0_11 ] = CONTENTO_HARDFORK_0_11_VERSION;
-//    FC_ASSERT( CONTENTO_HARDFORK_0_12 == 12, "Invalid hardfork configuration" );
-//    _hardfork_times[ CONTENTO_HARDFORK_0_12 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_12_TIME );
-//    _hardfork_versions[ CONTENTO_HARDFORK_0_12 ] = CONTENTO_HARDFORK_0_12_VERSION;
-//    FC_ASSERT( CONTENTO_HARDFORK_0_13 == 13, "Invalid hardfork configuration" );
-//    _hardfork_times[ CONTENTO_HARDFORK_0_13 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_13_TIME );
-//    _hardfork_versions[ CONTENTO_HARDFORK_0_13 ] = CONTENTO_HARDFORK_0_13_VERSION;
-//    FC_ASSERT( CONTENTO_HARDFORK_0_14 == 14, "Invalid hardfork configuration" );
-//    _hardfork_times[ CONTENTO_HARDFORK_0_14 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_14_TIME );
-//    _hardfork_versions[ CONTENTO_HARDFORK_0_14 ] = CONTENTO_HARDFORK_0_14_VERSION;
-//    FC_ASSERT( CONTENTO_HARDFORK_0_15 == 15, "Invalid hardfork configuration" );
-//    _hardfork_times[ CONTENTO_HARDFORK_0_15 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_15_TIME );
-//    _hardfork_versions[ CONTENTO_HARDFORK_0_15 ] = CONTENTO_HARDFORK_0_15_VERSION;
-//    FC_ASSERT( CONTENTO_HARDFORK_0_16 == 16, "Invalid hardfork configuration" );
-//    _hardfork_times[ CONTENTO_HARDFORK_0_16 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_16_TIME );
-//    _hardfork_versions[ CONTENTO_HARDFORK_0_16 ] = CONTENTO_HARDFORK_0_16_VERSION;
-//    FC_ASSERT( CONTENTO_HARDFORK_0_17 == 17, "Invalid hardfork configuration" );
-//    _hardfork_times[ CONTENTO_HARDFORK_0_17 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_17_TIME );
-//    _hardfork_versions[ CONTENTO_HARDFORK_0_17 ] = CONTENTO_HARDFORK_0_17_VERSION;
-//    FC_ASSERT( CONTENTO_HARDFORK_0_18 == 18, "Invalid hardfork configuration" );
-//    _hardfork_times[ CONTENTO_HARDFORK_0_18 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_18_TIME );
-//    _hardfork_versions[ CONTENTO_HARDFORK_0_18 ] = CONTENTO_HARDFORK_0_18_VERSION;
-//    FC_ASSERT( CONTENTO_HARDFORK_0_19 == 19, "Invalid hardfork configuration" );
-//    _hardfork_times[ CONTENTO_HARDFORK_0_19 ] = fc::time_point_sec( CONTENTO_HARDFORK_0_19_TIME );
-//    _hardfork_versions[ CONTENTO_HARDFORK_0_19 ] = CONTENTO_HARDFORK_0_19_VERSION;
-
-
    const auto& hardforks = get_hardfork_property_object();
    FC_ASSERT( hardforks.last_hardfork <= CONTENTO_NUM_HARDFORKS, "Chain knows of more hardforks than configuration", ("hardforks.last_hardfork",hardforks.last_hardfork)("CONTENTO_NUM_HARDFORKS",CONTENTO_NUM_HARDFORKS) );
    FC_ASSERT( _hardfork_versions[ hardforks.last_hardfork ] <= CONTENTO_BLOCKCHAIN_VERSION, "Blockchain version is older than last applied hardfork" );

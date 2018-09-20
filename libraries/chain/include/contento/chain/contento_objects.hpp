@@ -147,68 +147,6 @@ namespace contento { namespace chain {
    };
 
 
-//   /**
-//    *  This object gets updated once per hour, on the hour
-//    */
-//   class feed_history_object  : public object< feed_history_object_type, feed_history_object >
-//   {
-//      feed_history_object() = delete;
-//
-//      public:
-//         template< typename Constructor, typename Allocator >
-//         feed_history_object( Constructor&& c, allocator< Allocator > a )
-//            :price_history( a.get_segment_manager() )
-//         {
-//            c( *this );
-//         }
-//
-//         id_type                                   id;
-//
-//         price                                     current_median_history; ///< the current median of the price history, used as the base for convert operations
-//         bip::deque< price, allocator< price > >   price_history; ///< tracks this last week of median_feed one per hour
-//   };
-
-
-   /**
-    *  @brief an offer to sell a amount of a asset at a specified exchange rate by a certain time
-    *  @ingroup object
-    *  @ingroup protocol
-    *  @ingroup market
-    *
-    *  This limit_order_objects are indexed by @ref expiration and is automatically deleted on the first block after expiration.
-    */
-   class limit_order_object : public object< limit_order_object_type, limit_order_object >
-   {
-      public:
-         template< typename Constructor, typename Allocator >
-         limit_order_object( Constructor&& c, allocator< Allocator > a )
-         {
-            c( *this );
-         }
-
-         limit_order_object(){}
-
-         id_type           id;
-
-         time_point_sec    created;
-         time_point_sec    expiration;
-         account_name_type seller;
-         uint32_t          orderid = 0;
-         share_type        for_sale; ///< asset id is sell_price.base.symbol
-         price             sell_price;
-
-         pair< asset_symbol_type, asset_symbol_type > get_market()const
-         {
-            return sell_price.base.symbol < sell_price.quote.symbol ?
-                std::make_pair( sell_price.base.symbol, sell_price.quote.symbol ) :
-                std::make_pair( sell_price.quote.symbol, sell_price.base.symbol );
-         }
-
-         asset amount_for_sale()const   { return asset( for_sale, sell_price.base.symbol ); }
-         asset amount_to_receive()const { return amount_for_sale() * sell_price; }
-   };
-
-
    /**
     * @breif a route to send withdrawn vesting shares.
     */
@@ -301,27 +239,6 @@ namespace contento { namespace chain {
    struct by_price;
    struct by_expiration;
    struct by_account;
-   typedef multi_index_container<
-      limit_order_object,
-      indexed_by<
-         ordered_unique< tag< by_id >, member< limit_order_object, limit_order_id_type, &limit_order_object::id > >,
-         ordered_non_unique< tag< by_expiration >, member< limit_order_object, time_point_sec, &limit_order_object::expiration > >,
-         ordered_unique< tag< by_price >,
-            composite_key< limit_order_object,
-               member< limit_order_object, price, &limit_order_object::sell_price >,
-               member< limit_order_object, limit_order_id_type, &limit_order_object::id >
-            >,
-            composite_key_compare< std::greater< price >, std::less< limit_order_id_type > >
-         >,
-         ordered_unique< tag< by_account >,
-            composite_key< limit_order_object,
-               member< limit_order_object, account_name_type, &limit_order_object::seller >,
-               member< limit_order_object, uint32_t, &limit_order_object::orderid >
-            >
-         >
-      >,
-      allocator< limit_order_object >
-   > limit_order_index;
 
    struct by_owner;
    struct by_conversion_date;
@@ -363,14 +280,6 @@ namespace contento { namespace chain {
       >,
       allocator< liquidity_reward_balance_object >
    > liquidity_reward_balance_index;
-
-//   typedef multi_index_container<
-//      feed_history_object,
-//      indexed_by<
-//         ordered_unique< tag< by_id >, member< feed_history_object, feed_history_id_type, &feed_history_object::id > >
-//      >,
-//      allocator< feed_history_object >
-//   > feed_history_index;
 
    struct by_withdraw_route;
    struct by_destination;
@@ -519,17 +428,9 @@ namespace contento { namespace chain {
 FC_REFLECT_ENUM( contento::chain::curve_id,
                   (quadratic)(quadratic_curation)(linear)(square_root))
 
-FC_REFLECT( contento::chain::limit_order_object,
-             (id)(created)(expiration)(seller)(orderid)(for_sale)(sell_price) )
-CHAINBASE_SET_INDEX_TYPE( contento::chain::limit_order_object, contento::chain::limit_order_index )
-
 FC_REFLECT( contento::chain::withdraw_vesting_object,
            (id)(account)(vesting_shares))
 CHAINBASE_SET_INDEX_TYPE( contento::chain::withdraw_vesting_object, contento::chain::withdraw_vesting_index )
-
-//FC_REFLECT( contento::chain::feed_history_object,
-//             (id)(current_median_history)(price_history) )
-//CHAINBASE_SET_INDEX_TYPE( contento::chain::feed_history_object, contento::chain::feed_history_index )
 
 FC_REFLECT( contento::chain::convert_request_object,
              (id)(owner)(requestid)(amount)(conversion_date) )

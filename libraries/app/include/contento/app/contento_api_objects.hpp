@@ -16,28 +16,6 @@ namespace contento { namespace app {
 
 using namespace contento::chain;
 
-/*struct limit_order
-{
-   limit_order( chain::limit_order_object& o ):
-      id( o.id ),
-      created( o.created ),
-      expiration( o.expiration ),
-      seller( o.seller ),
-      orderid( o.orderid ),
-      for_sale( o.for_sale ),
-      sell_price( o.sell_price )
-   {}
-
-   limit_order(){}
-
-   chain::limit_order_id_type id;
-   time_point_sec             created;
-   time_point_sec             expiration;
-   account_name_type          seller;
-   uint32_t                   orderid = 0;
-   share_type                 for_sale;
-   price                      sell_price;
-};*/
 
 typedef chain::change_recovery_account_request_object  change_recovery_account_request_api_obj;
 typedef chain::block_summary_object                    block_summary_api_obj;
@@ -45,7 +23,6 @@ typedef chain::comment_vote_object                     comment_vote_api_obj;
 typedef chain::convert_request_object                  convert_request_api_obj;
 typedef chain::escrow_object                           escrow_api_obj;
 typedef chain::liquidity_reward_balance_object         liquidity_reward_balance_api_obj;
-typedef chain::limit_order_object                      limit_order_api_obj;
 typedef chain::withdraw_vesting_route_object           withdraw_vesting_route_api_obj;
 typedef chain::decline_voting_rights_request_object    decline_voting_rights_request_api_obj;
 typedef chain::witness_vote_object                     witness_vote_api_obj;
@@ -424,21 +401,6 @@ struct savings_withdraw_api_obj
    asset                      amount;
    time_point_sec             complete;
 };
-
-//struct feed_history_api_obj
-//{
-//   feed_history_api_obj( const chain::feed_history_object& f ) :
-//      id( f.id ),
-//      current_median_history( f.current_median_history ),
-//      price_history( f.price_history.begin(), f.price_history.end() )
-//   {}
-//
-//   feed_history_api_obj() {}
-//
-//   feed_history_id_type id;
-//   price                current_median_history;
-//   deque< price >       price_history;
-//};
 
 struct witness_api_obj
 {
