@@ -324,7 +324,6 @@ namespace contento { namespace chain {
           */
          void clear_witness_votes( const account_object& a );
          void process_vesting_withdrawals();
-         share_type pay_curators( const comment_object& c, share_type& max_rewards );
          share_type cashout_comment_helper( util::comment_reward_context& ctx, const comment_object& comment, bool is_subject );
          void process_comment_cashout();
          void process_funds();

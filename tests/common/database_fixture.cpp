@@ -64,7 +64,6 @@ clean_database_fixture::clean_database_fixture()
    // Fill up the rest of the required miners
    for( int i = CONTENTO_NUM_INIT_MINERS; i < 5; i++ )
    {
-       const account_object& acct = db.get_account( CONTENTO_INIT_MINER_NAME );
       account_create( CONTENTO_INIT_MINER_NAME + fc::to_string( i ), init_account_pub_key );
       fund( CONTENTO_INIT_MINER_NAME + fc::to_string( i ), CONTENTO_MIN_PRODUCER_REWARD.amount.value );
       witness_create( CONTENTO_INIT_MINER_NAME + fc::to_string( i ), init_account_priv_key, "foo.bar", init_account_pub_key, CONTENTO_MIN_PRODUCER_REWARD.amount );

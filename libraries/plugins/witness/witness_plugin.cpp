@@ -226,22 +226,6 @@ namespace detail
                         _db.get< account_object, chain::by_name >( o.from ),
                         _db.get< account_authority_object, chain::by_account >( o.from ) );
       }
-
-      void operator()( const transfer_to_savings_operation& o )const
-      {
-         if( o.memo.length() > 0 )
-            check_memo( o.memo,
-                        _db.get< account_object, chain::by_name >( o.from ),
-                        _db.get< account_authority_object, chain::by_account >( o.from ) );
-      }
-
-      void operator()( const transfer_from_savings_operation& o )const
-      {
-         if( o.memo.length() > 0 )
-            check_memo( o.memo,
-                        _db.get< account_object, chain::by_name >( o.from ),
-                        _db.get< account_authority_object, chain::by_account >( o.from ) );
-      }
    };
 
    void witness_plugin_impl::pre_transaction( const signed_transaction& trx )
@@ -356,60 +340,58 @@ namespace detail
 
    void witness_plugin_impl::update_account_bandwidth( const account_object& a, uint32_t trx_size, const bandwidth_type type )
    {
-//      database& _db = _self.database();
-//      const auto& props = _db.get_dynamic_global_properties();
-//      bool has_bandwidth = true;
+     database& _db = _self.database();
+     const auto& props = _db.get_dynamic_global_properties();
+     bool has_bandwidth = true;
 
-       // 这部分代码制止了我调试
-       // 不太理解这个带宽逻辑
-//      if( props.total_vesting_shares.amount > 0 )
-//      {
-//         auto band = _db.find< account_bandwidth_object, by_account_bandwidth_type >( boost::make_tuple( a.name, type ) );
-//
-//         if( band == nullptr )
-//         {
-//            band = &_db.create< account_bandwidth_object >( [&]( account_bandwidth_object& b )
-//            {
-//               b.account = a.name;
-//               b.type = type;
-//            });
-//         }
-//
-//         share_type new_bandwidth;
-//         share_type trx_bandwidth = trx_size * CONTENTO_BANDWIDTH_PRECISION;
-//         auto delta_time = ( _db.head_block_time() - band->last_bandwidth_update ).to_seconds();
-//
-//         if( delta_time > CONTENTO_BANDWIDTH_AVERAGE_WINDOW_SECONDS )
-//            new_bandwidth = 0;
-//         else
-//            new_bandwidth = ( ( ( CONTENTO_BANDWIDTH_AVERAGE_WINDOW_SECONDS - delta_time ) * fc::uint128( band->average_bandwidth.value ) )
-//               / CONTENTO_BANDWIDTH_AVERAGE_WINDOW_SECONDS ).to_uint64();
-//
-//         new_bandwidth += trx_bandwidth;
-//
-//         _db.modify( *band, [&]( account_bandwidth_object& b )
-//         {
-//            b.average_bandwidth = new_bandwidth;
-//            b.lifetime_bandwidth += trx_bandwidth;
-//            b.last_bandwidth_update = _db.head_block_time();
-//         });
-//
-//         fc::uint128 account_vshares( a.effective_vesting_shares().amount.value );
-//         fc::uint128 total_vshares( props.total_vesting_shares.amount.value );
-//         fc::uint128 account_average_bandwidth( band->average_bandwidth.value );
-//         fc::uint128 max_virtual_bandwidth( _db.get( reserve_ratio_id_type() ).max_virtual_bandwidth );
-//
-//         has_bandwidth = ( account_vshares * max_virtual_bandwidth ) > ( account_average_bandwidth * total_vshares );
-//
-//         if( _db.is_producing() )
-//            CONTENTO_ASSERT( has_bandwidth, chain::plugin_exception,
-//               "Account: ${account} bandwidth limit exceeded. Please wait to transact or power up STEEM.",
-//               ("account", a.name)
-//               ("account_vshares", account_vshares)
-//               ("account_average_bandwidth", account_average_bandwidth)
-//               ("max_virtual_bandwidth", max_virtual_bandwidth)
-//               ("total_vesting_shares", total_vshares) );
-//      }
+     if( props.total_vesting_shares.amount > 0 )
+     {
+        auto band = _db.find< account_bandwidth_object, by_account_bandwidth_type >( boost::make_tuple( a.name, type ) );
+
+        if( band == nullptr )
+        {
+           band = &_db.create< account_bandwidth_object >( [&]( account_bandwidth_object& b )
+           {
+              b.account = a.name;
+              b.type = type;
+           });
+        }
+
+        share_type new_bandwidth;
+        share_type trx_bandwidth = trx_size * CONTENTO_BANDWIDTH_PRECISION;
+        auto delta_time = ( _db.head_block_time() - band->last_bandwidth_update ).to_seconds();
+
+        if( delta_time > CONTENTO_BANDWIDTH_AVERAGE_WINDOW_SECONDS )
+           new_bandwidth = 0;
+        else
+           new_bandwidth = ( ( ( CONTENTO_BANDWIDTH_AVERAGE_WINDOW_SECONDS - delta_time ) * fc::uint128( band->average_bandwidth.value ) )
+              / CONTENTO_BANDWIDTH_AVERAGE_WINDOW_SECONDS ).to_uint64();
+
+        new_bandwidth += trx_bandwidth;
+
+        _db.modify( *band, [&]( account_bandwidth_object& b )
+        {
+           b.average_bandwidth = new_bandwidth;
+           b.lifetime_bandwidth += trx_bandwidth;
+           b.last_bandwidth_update = _db.head_block_time();
+        });
+
+        fc::uint128 account_vshares( a.effective_vesting_shares().amount.value );
+        fc::uint128 total_vshares( props.total_vesting_shares.amount.value );
+        fc::uint128 account_average_bandwidth( band->average_bandwidth.value );
+        fc::uint128 max_virtual_bandwidth( _db.get( reserve_ratio_id_type() ).max_virtual_bandwidth );
+
+        has_bandwidth = ( account_vshares * max_virtual_bandwidth ) > ( account_average_bandwidth * total_vshares );
+
+        if( _db.is_producing() )
+           CONTENTO_ASSERT( has_bandwidth, chain::plugin_exception,
+              "Account: ${account} bandwidth limit exceeded. Please wait to transact or power up STEEM.",
+              ("account", a.name)
+              ("account_vshares", account_vshares)
+              ("account_average_bandwidth", account_average_bandwidth)
+              ("max_virtual_bandwidth", max_virtual_bandwidth)
+              ("total_vesting_shares", total_vshares) );
+     }
    }
 }
 

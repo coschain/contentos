@@ -357,8 +357,6 @@ struct witness_api_obj
       pow_worker( w.pow_worker ),
       signing_key( w.signing_key ),
       props( w.props ),
-      sbd_exchange_rate( w.sbd_exchange_rate ),
-      last_sbd_exchange_update( w.last_sbd_exchange_update ),
       votes( w.votes ),
       virtual_last_update( w.virtual_last_update ),
       virtual_position( w.virtual_position ),
@@ -381,8 +379,6 @@ struct witness_api_obj
    uint64_t          pow_worker = 0;
    public_key_type   signing_key;
    chain_properties  props;
-   price             sbd_exchange_rate;
-   time_point_sec    last_sbd_exchange_update;
    share_type        votes;
    fc::uint128       virtual_last_update;
    fc::uint128       virtual_position;
@@ -506,7 +502,6 @@ FC_REFLECT( contento::app::witness_api_obj,
              (url)(votes)(virtual_last_update)(virtual_position)(virtual_scheduled_time)(total_missed)
              (last_aslot)(last_confirmed_block_num)(pow_worker)(signing_key)
              (props)
-             (sbd_exchange_rate)(last_sbd_exchange_update)
              (last_work)
              (running_version)
              (hardfork_version_vote)(hardfork_time_vote)

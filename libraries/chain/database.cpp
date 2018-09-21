@@ -1474,59 +1474,6 @@ void database::process_vesting_withdrawals()
 }
 
 
-/**
- *  This method will iterate through all comment_vote_objects and give them
- *  (max_rewards * weight) / c.total_vote_weight.
- *
- *  @returns unclaimed rewards.
- */
-share_type database::pay_curators( const comment_object& c, share_type& max_rewards )
-{
-   try
-   {
-      uint128_t total_weight( c.total_vote_weight );
-      //edump( (total_weight)(max_rewards) );
-      share_type unclaimed_rewards = max_rewards;
-
-      if( !c.allow_curation_rewards )
-      {
-         unclaimed_rewards = 0;
-         max_rewards = 0;
-      }
-      else if( c.total_vote_weight > 0 )
-      {
-         const auto& cvidx = get_index<comment_vote_index>().indices().get<by_comment_weight_voter>();
-         auto itr = cvidx.lower_bound( c.id );
-         while( itr != cvidx.end() && itr->comment == c.id )
-         {
-            uint128_t weight( itr->weight );
-            auto claim = ( ( max_rewards.value * weight ) / total_weight ).to_uint64();
-            if( claim > 0 ) // min_amt is non-zero satoshis
-            {
-               unclaimed_rewards -= claim;
-               const auto& voter = get(itr->voter);
-//               auto reward = create_vesting( voter, asset( claim, COS_SYMBOL ), has_hardfork( CONTENTO_HARDFORK_0_17__659 ) );
-              auto reward = create_vesting( voter, asset( claim, COS_SYMBOL ));
-
-               push_virtual_operation( curation_reward_operation( voter.name, reward, c.author, to_string( c.permlink ) ) );
-
-               #ifndef IS_LOW_MEM
-                  modify( voter, [&]( account_object& a )
-                  {
-                     a.curation_rewards += claim;
-                  });
-               #endif
-            }
-            ++itr;
-         }
-      }
-      max_rewards -= unclaimed_rewards;
-
-      return unclaimed_rewards;
-   } FC_CAPTURE_AND_RETHROW()
-}
-
-
 share_type database::cashout_comment_helper( util::comment_reward_context& ctx, const comment_object& comment, bool is_subject )
 {
     try

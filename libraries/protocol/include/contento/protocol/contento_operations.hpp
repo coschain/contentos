@@ -705,55 +705,12 @@ namespace contento { namespace protocol {
    };
 
 
-   struct transfer_to_savings_operation : public base_operation {
-      account_name_type from;
-      account_name_type to;
-      asset             amount;
-      string            memo;
-
-      void get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert( from ); }
-      void validate() const;
-   };
-
-
-   struct transfer_from_savings_operation : public base_operation {
-      account_name_type from;
-      uint32_t          request_id = 0;
-      account_name_type to;
-      asset             amount;
-      string            memo;
-
-      void get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert( from ); }
-      void validate() const;
-   };
-
-
-   struct cancel_transfer_from_savings_operation : public base_operation {
-      account_name_type from;
-      uint32_t          request_id = 0;
-
-      void get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert( from ); }
-      void validate() const;
-   };
-
-
    struct decline_voting_rights_operation : public base_operation
    {
       account_name_type account;
       bool              decline = true;
 
       void get_required_owner_authorities( flat_set<account_name_type>& a )const{ a.insert( account ); }
-      void validate() const;
-   };
-
-   struct claim_reward_balance_operation : public base_operation
-   {
-      account_name_type account;
-      asset             reward_steem;
-      asset             reward_sbd;
-      asset             reward_vests;
-
-      void get_required_posting_authorities( flat_set< account_name_type >& a )const{ a.insert( account ); }
       void validate() const;
    };
 
@@ -818,10 +775,6 @@ namespace contento { namespace protocol {
    };
 } } // contento::protocol
 
-
-FC_REFLECT( contento::protocol::transfer_to_savings_operation, (from)(to)(amount)(memo) )
-FC_REFLECT( contento::protocol::transfer_from_savings_operation, (from)(request_id)(to)(amount)(memo) )
-FC_REFLECT( contento::protocol::cancel_transfer_from_savings_operation, (from)(request_id) )
 
 FC_REFLECT( contento::protocol::reset_account_operation, (reset_account)(account_to_reset)(new_owner_authority) )
 FC_REFLECT( contento::protocol::set_reset_account_operation, (account)(current_reset_account)(reset_account) )
@@ -896,6 +849,5 @@ FC_REFLECT( contento::protocol::request_account_recovery_operation, (recovery_ac
 FC_REFLECT( contento::protocol::recover_account_operation, (account_to_recover)(new_owner_authority)(recent_owner_authority)(extensions) );
 FC_REFLECT( contento::protocol::change_recovery_account_operation, (account_to_recover)(new_recovery_account)(extensions) );
 FC_REFLECT( contento::protocol::decline_voting_rights_operation, (account)(decline) );
-FC_REFLECT( contento::protocol::claim_reward_balance_operation, (account)(reward_steem)(reward_sbd)(reward_vests) )
 FC_REFLECT( contento::protocol::delegate_vesting_shares_operation, (delegator)(delegatee)(vesting_shares) );
 FC_REFLECT( contento::protocol::vm_operation, (caller)(contract_name)(action_name)(data)(value) )

@@ -60,13 +60,6 @@ struct operation_process
       });
    }
 
-//   void operator()( const interest_operation& op )const
-//   {
-//      _db.modify( _bucket, [&]( bucket_object& b )
-//      {
-//         b.sbd_paid_as_interest += op.interest.amount;
-//      });
-//   }
 
    void operator()( const account_create_operation& op )const
    {
@@ -153,23 +146,6 @@ struct operation_process
       });
    }
 
-   void operator()( const author_reward_operation& op )const
-   {
-      _db.modify( _bucket, [&]( bucket_object& b )
-      {
-         b.payouts++;
-         b.sbd_paid_to_authors += op.sbd_payout.amount;
-         b.vests_paid_to_authors += op.vesting_payout.amount;
-      });
-   }
-
-   void operator()( const curation_reward_operation& op )const
-   {
-      _db.modify( _bucket, [&]( bucket_object& b )
-      {
-         b.vests_paid_to_curators += op.reward.amount;
-      });
-   }
 
    void operator()( const transfer_to_vesting_operation& op )const
    {
@@ -197,15 +173,6 @@ struct operation_process
       });
    }
 
-
-   void operator()( const fill_convert_request_operation& op )const
-   {
-      _db.modify( _bucket, [&]( bucket_object& b )
-      {
-         b.sbd_conversion_requests_filled++;
-         b.steem_converted += op.amount_out.amount;
-      });
-   }
 };
 
 void blockchain_statistics_plugin_impl::on_block( const signed_block& b )

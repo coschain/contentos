@@ -564,31 +564,6 @@ struct change_recovery_account_operation {
 	COSLIB_SERIALIZE( change_recovery_account_operation, (account_to_recover)(new_recovery_account)(extensions) ) 
 };
 
-struct transfer_to_savings_operation {
-	namex		from;
-	namex		to;
-	asset		amount;
-	string		memo; 
- 
-	COSLIB_SERIALIZE( transfer_to_savings_operation, (from)(to)(amount)(memo) ) 
-};
-
-struct transfer_from_savings_operation {
-	namex		from;
-	uint32		request_id;
-	namex		to;
-	asset		amount;
-	string		memo; 
- 
-	COSLIB_SERIALIZE( transfer_from_savings_operation, (from)(request_id)(to)(amount)(memo) ) 
-};
-
-struct cancel_transfer_from_savings_operation {
-	namex		from;
-	uint32		request_id; 
- 
-	COSLIB_SERIALIZE( cancel_transfer_from_savings_operation, (from)(request_id) ) 
-};
 
 struct custom_binary_operation {
 	vector<namex>		required_owner_auths;
@@ -624,14 +599,6 @@ struct set_reset_account_operation {
 	COSLIB_SERIALIZE( set_reset_account_operation, (account)(current_reset_account)(reset_account) ) 
 };
 
-struct claim_reward_balance_operation {
-	namex		account;
-	asset		reward_steem;
-	asset		reward_sbd;
-	asset		reward_vests; 
- 
-	COSLIB_SERIALIZE( claim_reward_balance_operation, (account)(reward_steem)(reward_sbd)(reward_vests) ) 
-};
 
 struct delegate_vesting_shares_operation {
 	namex		delegator;
@@ -677,33 +644,6 @@ struct comment_report_operation {
 	COSLIB_SERIALIZE( comment_report_operation, (reporter)(author)(permlink)(credit)(tag)(is_ack)(approved) ) 
 };
 
-struct fill_convert_request_operation {
-	namex		owner;
-	uint32		requestid;
-	asset		amount_in;
-	asset		amount_out; 
- 
-	COSLIB_SERIALIZE( fill_convert_request_operation, (owner)(requestid)(amount_in)(amount_out) ) 
-};
-
-struct author_reward_operation {
-	namex		author;
-	string		permlink;
-	asset		sbd_payout;
-	asset		steem_payout;
-	asset		vesting_payout; 
- 
-	COSLIB_SERIALIZE( author_reward_operation, (author)(permlink)(sbd_payout)(steem_payout)(vesting_payout) ) 
-};
-
-struct curation_reward_operation {
-	namex		curator;
-	asset		reward;
-	namex		comment_author;
-	string		comment_permlink; 
- 
-	COSLIB_SERIALIZE( curation_reward_operation, (curator)(reward)(comment_author)(comment_permlink) ) 
-};
 
 struct comment_reward_operation {
 	namex		author;
@@ -738,16 +678,6 @@ struct shutdown_witness_operation {
 	COSLIB_SERIALIZE( shutdown_witness_operation, (owner) ) 
 };
 
-struct fill_transfer_from_savings_operation {
-	namex		from;
-	namex		to;
-	asset		amount;
-	uint32		request_id;
-	string		memo; 
- 
-	COSLIB_SERIALIZE( fill_transfer_from_savings_operation, (from)(to)(amount)(request_id)(memo) ) 
-};
-
 struct hardfork_operation {
 	uint32		hardfork_id; 
  
@@ -775,14 +705,6 @@ struct return_vesting_delegation_operation {
 	COSLIB_SERIALIZE( return_vesting_delegation_operation, (account)(vesting_shares) ) 
 };
 
-struct comment_benefactor_reward_operation {
-	namex		benefactor;
-	namex		author;
-	string		permlink;
-	asset		reward; 
- 
-	COSLIB_SERIALIZE( comment_benefactor_reward_operation, (benefactor)(author)(permlink)(reward) ) 
-};
 
 struct producer_reward_operation {
 	namex		producer;
@@ -801,7 +723,7 @@ struct vm_operation {
 	COSLIB_SERIALIZE( vm_operation, (caller)(contract_name)(action_name)(data)(value) ) 
 };
 
-typedef static_variant<vote_operation,comment_operation,transfer_operation,transfer_to_vesting_operation,convert_from_vesting_operation,account_create_operation,account_update_operation,witness_update_operation,account_witness_vote_operation,account_witness_proxy_operation,pow_operation,custom_operation,report_over_production_operation,delete_comment_operation,custom_json_operation,comment_options_operation,challenge_authority_operation,prove_authority_operation,request_account_recovery_operation,recover_account_operation,change_recovery_account_operation,transfer_to_savings_operation,transfer_from_savings_operation,cancel_transfer_from_savings_operation,custom_binary_operation,decline_voting_rights_operation,reset_account_operation,set_reset_account_operation,claim_reward_balance_operation,delegate_vesting_shares_operation,account_create_with_delegation_operation,admin_grant_operation,comment_report_operation,fill_convert_request_operation,author_reward_operation,curation_reward_operation,comment_reward_operation,subject_reward_operation,fill_vesting_withdraw_operation,shutdown_witness_operation,fill_transfer_from_savings_operation,hardfork_operation,comment_payout_update_operation,subject_payout_update_operation,return_vesting_delegation_operation,comment_benefactor_reward_operation,producer_reward_operation,vm_operation>
+typedef static_variant<vote_operation,comment_operation,transfer_operation,transfer_to_vesting_operation,convert_from_vesting_operation,account_create_operation,account_update_operation,witness_update_operation,account_witness_vote_operation,account_witness_proxy_operation,pow_operation,custom_operation,report_over_production_operation,delete_comment_operation,custom_json_operation,comment_options_operation,challenge_authority_operation,prove_authority_operation,request_account_recovery_operation,recover_account_operation,change_recovery_account_operation,custom_binary_operation,decline_voting_rights_operation,reset_account_operation,set_reset_account_operation,delegate_vesting_shares_operation,account_create_with_delegation_operation,admin_grant_operation,comment_report_operation,comment_reward_operation,subject_reward_operation,fill_vesting_withdraw_operation,shutdown_witness_operation,hardfork_operation,comment_payout_update_operation,subject_payout_update_operation,return_vesting_delegation_operation,producer_reward_operation,vm_operation>
 	operation;
 
 
@@ -853,13 +775,12 @@ struct witness_api_obj {
 	public_key_type		signing_key;
 	chain_properties		props;
 	price		sbd_exchange_rate;
-	time_point_sec		last_sbd_exchange_update;
 	checksum256		last_work;
 	version		running_version;
 	hardfork_version		hardfork_version_vote;
 	time_point_sec		hardfork_time_vote; 
  
-	COSLIB_SERIALIZE( witness_api_obj, (id)(owner)(created)(url)(votes)(virtual_last_update)(virtual_position)(virtual_scheduled_time)(total_missed)(last_aslot)(last_confirmed_block_num)(pow_worker)(signing_key)(props)(sbd_exchange_rate)(last_sbd_exchange_update)(last_work)(running_version)(hardfork_version_vote)(hardfork_time_vote) ) 
+	COSLIB_SERIALIZE( witness_api_obj, (id)(owner)(created)(url)(votes)(virtual_last_update)(virtual_position)(virtual_scheduled_time)(total_missed)(last_aslot)(last_confirmed_block_num)(pow_worker)(signing_key)(props)(last_work)(running_version)(hardfork_version_vote)(hardfork_time_vote) )
 };
 
 struct witness_schedule_object {
@@ -981,14 +902,6 @@ struct signed_block_api_obj : public signed_block {
  
 	COSLIB_SERIALIZE_DERIVED( signed_block_api_obj, signed_block,(block_id)(signing_key)(transaction_ids) ) 
 };
-
-//struct feed_history_api_obj {
-//    feed_history_id_type        id;
-//    price        current_median_history;
-//    vector<price>        price_history;
-//
-//    COSLIB_SERIALIZE( feed_history_api_obj, (id)(current_median_history)(price_history) )
-//};
 
 struct scheduled_hardfork {
 	hardfork_version		hf_version;

@@ -38,14 +38,10 @@ namespace contento { namespace protocol {
             request_account_recovery_operation,
             recover_account_operation,
             change_recovery_account_operation,
-            transfer_to_savings_operation,
-            transfer_from_savings_operation,
-            cancel_transfer_from_savings_operation,
             custom_binary_operation,
             decline_voting_rights_operation,
             reset_account_operation,
             set_reset_account_operation,
-            claim_reward_balance_operation,
             delegate_vesting_shares_operation,
             account_create_with_delegation_operation,
 
@@ -53,19 +49,14 @@ namespace contento { namespace protocol {
             comment_report_operation,
 
             /// virtual operations below this point
-            fill_convert_request_operation,
-            author_reward_operation,
-            curation_reward_operation,
             comment_reward_operation,
             subject_reward_operation,
             fill_vesting_withdraw_operation,
             shutdown_witness_operation,
-            fill_transfer_from_savings_operation,
             hardfork_operation,
             comment_payout_update_operation,
             subject_payout_update_operation,
             return_vesting_delegation_operation,
-            comment_benefactor_reward_operation,
             producer_reward_operation,
             vm_operation
          > operation;

@@ -615,12 +615,12 @@ void comment_evaluator::do_apply( const comment_operation& o )
         else
             FC_ASSERT( (now - auth.last_post) >= CONTENTO_MIN_REPLY_INTERVAL, "You may only comment once every 20 seconds.", ("now",now)("auth.last_post",auth.last_post) );
         uint16_t reward_weight = CONTENTO_100_PERCENT;
-
+        uint64_t post_bandwidth = auth.post_bandwidth;
         _db.modify( auth, [&]( account_object& a ) {
             if( o.parent_author == CONTENTO_ROOT_POST_PARENT )
             {
                 a.last_root_post = now;
-                //            a.post_bandwidth = uint32_t( post_bandwidth );
+                a.post_bandwidth = uint32_t( post_bandwidth );
             }
             a.last_post = now;
             a.post_count++;
