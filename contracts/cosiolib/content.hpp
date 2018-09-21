@@ -263,10 +263,6 @@ struct account_api_obj {
 	uint16		voting_power;
 	time_point_sec		last_vote_time;
 	asset		balance;
-	asset		savings_balance;
-	asset		reward_steem_balance;
-	asset		reward_vesting_balance;
-	asset		reward_vesting_steem;
 	asset		vesting_shares;
 	asset		delegated_vesting_shares;
 	asset		received_vesting_shares;
@@ -288,7 +284,7 @@ struct account_api_obj {
 	time_point_sec		last_post;
 	time_point_sec		last_root_post; 
  
-	COSLIB_SERIALIZE( account_api_obj, (id)(name)(owner)(active)(posting)(memo_key)(json_metadata)(proxy)(last_owner_update)(last_account_update)(created)(mined)(owner_challenged)(active_challenged)(last_owner_proved)(last_active_proved)(recovery_account)(last_account_recovery)(reset_account)(comment_count)(lifetime_vote_count)(post_count)(can_vote)(voting_power)(last_vote_time)(balance)(savings_balance)(reward_steem_balance)(reward_vesting_balance)(reward_vesting_steem)(vesting_shares)(delegated_vesting_shares)(received_vesting_shares)(vesting_withdraw_rate)(next_vesting_withdrawal)(withdrawn)(to_withdraw)(withdraw_routes)(curation_rewards)(posting_rewards)(proxied_vsf_votes)(witnesses_voted_for)(average_bandwidth)(lifetime_bandwidth)(last_bandwidth_update)(average_market_bandwidth)(lifetime_market_bandwidth)(last_market_bandwidth_update)(last_post)(last_root_post) )
+	COSLIB_SERIALIZE( account_api_obj, (id)(name)(owner)(active)(posting)(memo_key)(json_metadata)(proxy)(last_owner_update)(last_account_update)(created)(mined)(owner_challenged)(active_challenged)(last_owner_proved)(last_active_proved)(recovery_account)(last_account_recovery)(reset_account)(comment_count)(lifetime_vote_count)(post_count)(can_vote)(voting_power)(last_vote_time)(balance)(vesting_shares)(delegated_vesting_shares)(received_vesting_shares)(vesting_withdraw_rate)(next_vesting_withdrawal)(withdrawn)(to_withdraw)(withdraw_routes)(curation_rewards)(posting_rewards)(proxied_vsf_votes)(witnesses_voted_for)(average_bandwidth)(lifetime_bandwidth)(last_bandwidth_update)(average_market_bandwidth)(lifetime_market_bandwidth)(last_market_bandwidth_update)(last_post)(last_root_post) )
 };
 
 struct vote_operation {

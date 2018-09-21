@@ -39,10 +39,6 @@ using namespace std;
          voting_power( a.voting_power ),
          last_vote_time( a.last_vote_time ),
          balance( a.balance ),
-         savings_balance( a.savings_balance ),
-         reward_steem_balance( a.reward_steem_balance ),
-         reward_vesting_balance( a.reward_vesting_balance ),
-         reward_vesting_steem( a.reward_vesting_steem ),
          curation_rewards( a.curation_rewards ),
          posting_rewards( a.posting_rewards ),
          vesting_shares( a.vesting_shares ),
@@ -84,11 +80,6 @@ using namespace std;
          time_point_sec    last_vote_time;
 
          asset             balance;
-         asset             savings_balance;
-
-         asset             reward_steem_balance;
-         asset             reward_vesting_balance;
-         asset             reward_vesting_steem;
 
          share_type        curation_rewards;
          share_type        posting_rewards;
@@ -122,21 +113,6 @@ using namespace std;
 
 FC_REFLECT( contento::vmi::account_obj_vmi,
            (id)
-           //(name)(memo_key)(json_metadata)(proxy)
-//           (last_account_update)
-//           (created)
-//           (comment_count)(lifetime_vote_count)(post_count)(can_vote)(voting_power)(last_vote_time)
-//           (balance)
-//           (savings_balance)
-//           (savings_withdraw_requests)
-//           (reward_steem_balance)
-//           (reward_vesting_balance)(reward_vesting_steem)
-//           (vesting_shares)(delegated_vesting_shares)(received_vesting_shares)
-//           (vesting_withdraw_rate)(next_vesting_withdrawal)(withdrawn)(to_withdraw)(withdraw_routes)
-//           (curation_rewards)
-//           (posting_rewards)
-//           (witnesses_voted_for)
-//           (last_post)
            (last_root_post)
            )
 

@@ -189,19 +189,6 @@ struct account_api_obj
       voting_power( a.voting_power ),
       last_vote_time( a.last_vote_time ),
       balance( a.balance ),
-      savings_balance( a.savings_balance ),
-//      sbd_balance( a.sbd_balance ),
-//      sbd_seconds( a.sbd_seconds ),
-//      sbd_seconds_last_update( a.sbd_seconds_last_update ),
-//      sbd_last_interest_payment( a.sbd_last_interest_payment ),
-//      savings_sbd_balance( a.savings_sbd_balance ),
-//      savings_sbd_seconds( a.savings_sbd_seconds ),
-//      savings_sbd_seconds_last_update( a.savings_sbd_seconds_last_update ),
-//      savings_sbd_last_interest_payment( a.savings_sbd_last_interest_payment ),
-//      reward_sbd_balance( a.reward_sbd_balance ),
-      reward_steem_balance( a.reward_steem_balance ),
-      reward_vesting_balance( a.reward_vesting_balance ),
-      reward_vesting_steem( a.reward_vesting_steem ),
       curation_rewards( a.curation_rewards ),
       posting_rewards( a.posting_rewards ),
       vesting_shares( a.vesting_shares ),
@@ -285,22 +272,6 @@ struct account_api_obj
    time_point_sec    last_vote_time;
 
    asset             balance;
-   asset             savings_balance;
-
-   asset             sbd_balance;
-   uint128_t         sbd_seconds;
-   time_point_sec    sbd_seconds_last_update;
-   time_point_sec    sbd_last_interest_payment;
-
-   asset             savings_sbd_balance;
-   uint128_t         savings_sbd_seconds;
-   time_point_sec    savings_sbd_seconds_last_update;
-   time_point_sec    savings_sbd_last_interest_payment;
-
-   asset             reward_sbd_balance;
-   asset             reward_steem_balance;
-   asset             reward_vesting_balance;
-   asset             reward_vesting_steem;
 
    share_type        curation_rewards;
    share_type        posting_rewards;
@@ -490,11 +461,6 @@ FC_REFLECT( contento::app::account_api_obj,
              (owner_challenged)(active_challenged)(last_owner_proved)(last_active_proved)(recovery_account)(last_account_recovery)(reset_account)
              (comment_count)(lifetime_vote_count)(post_count)(can_vote)(voting_power)(last_vote_time)
              (balance)
-             (savings_balance)
-//             (sbd_balance)(sbd_seconds)(sbd_seconds_last_update)(sbd_last_interest_payment)
-//             (savings_sbd_balance)(savings_sbd_seconds)(savings_sbd_seconds_last_update)(savings_sbd_last_interest_payment)
-//             (reward_sbd_balance)
-           (reward_steem_balance)(reward_vesting_balance)(reward_vesting_steem)
              (vesting_shares)(delegated_vesting_shares)(received_vesting_shares)(vesting_withdraw_rate)(next_vesting_withdrawal)(withdrawn)(to_withdraw)(withdraw_routes)
              (curation_rewards)
              (posting_rewards)
