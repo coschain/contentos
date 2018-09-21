@@ -27,7 +27,6 @@ using reward_fund_id_type	 = id_type;
 using reward_fund_name_type	 = string16;
 using owner_authority_history_id_type	 = id_type;
 using account_recovery_request_id_type	 = id_type;
-using savings_withdraw_id_type	 = id_type;
 
 struct follow_api_obj {
 	string		follower;
@@ -265,7 +264,6 @@ struct account_api_obj {
 	time_point_sec		last_vote_time;
 	asset		balance;
 	asset		savings_balance;
-	uint8		savings_withdraw_requests;
 	asset		reward_steem_balance;
 	asset		reward_vesting_balance;
 	asset		reward_vesting_steem;
@@ -290,7 +288,7 @@ struct account_api_obj {
 	time_point_sec		last_post;
 	time_point_sec		last_root_post; 
  
-	COSLIB_SERIALIZE( account_api_obj, (id)(name)(owner)(active)(posting)(memo_key)(json_metadata)(proxy)(last_owner_update)(last_account_update)(created)(mined)(owner_challenged)(active_challenged)(last_owner_proved)(last_active_proved)(recovery_account)(last_account_recovery)(reset_account)(comment_count)(lifetime_vote_count)(post_count)(can_vote)(voting_power)(last_vote_time)(balance)(savings_balance)(savings_withdraw_requests)(reward_steem_balance)(reward_vesting_balance)(reward_vesting_steem)(vesting_shares)(delegated_vesting_shares)(received_vesting_shares)(vesting_withdraw_rate)(next_vesting_withdrawal)(withdrawn)(to_withdraw)(withdraw_routes)(curation_rewards)(posting_rewards)(proxied_vsf_votes)(witnesses_voted_for)(average_bandwidth)(lifetime_bandwidth)(last_bandwidth_update)(average_market_bandwidth)(lifetime_market_bandwidth)(last_market_bandwidth_update)(last_post)(last_root_post) ) 
+	COSLIB_SERIALIZE( account_api_obj, (id)(name)(owner)(active)(posting)(memo_key)(json_metadata)(proxy)(last_owner_update)(last_account_update)(created)(mined)(owner_challenged)(active_challenged)(last_owner_proved)(last_active_proved)(recovery_account)(last_account_recovery)(reset_account)(comment_count)(lifetime_vote_count)(post_count)(can_vote)(voting_power)(last_vote_time)(balance)(savings_balance)(reward_steem_balance)(reward_vesting_balance)(reward_vesting_steem)(vesting_shares)(delegated_vesting_shares)(received_vesting_shares)(vesting_withdraw_rate)(next_vesting_withdrawal)(withdrawn)(to_withdraw)(withdraw_routes)(curation_rewards)(posting_rewards)(proxied_vsf_votes)(witnesses_voted_for)(average_bandwidth)(lifetime_bandwidth)(last_bandwidth_update)(average_market_bandwidth)(lifetime_market_bandwidth)(last_market_bandwidth_update)(last_post)(last_root_post) )
 };
 
 struct vote_operation {
@@ -526,15 +524,6 @@ struct comment_options_operation {
 	comment_options_extensions_type		extensions; 
  
 	COSLIB_SERIALIZE( comment_options_operation, (author)(permlink)(max_accepted_payout)(percent_steem_dollars)(allow_votes)(allow_curation_rewards)(extensions) ) 
-};
-
-struct set_withdraw_vesting_route_operation {
-	namex		from_account;
-	namex		to_account;
-	uint16		percent;
-	bool		auto_vest; 
- 
-	COSLIB_SERIALIZE( set_withdraw_vesting_route_operation, (from_account)(to_account)(percent)(auto_vest) ) 
 };
 
 
@@ -816,7 +805,7 @@ struct vm_operation {
 	COSLIB_SERIALIZE( vm_operation, (caller)(contract_name)(action_name)(data)(value) ) 
 };
 
-typedef static_variant<vote_operation,comment_operation,transfer_operation,transfer_to_vesting_operation,convert_from_vesting_operation,account_create_operation,account_update_operation,witness_update_operation,account_witness_vote_operation,account_witness_proxy_operation,pow_operation,custom_operation,report_over_production_operation,delete_comment_operation,custom_json_operation,comment_options_operation,set_withdraw_vesting_route_operation,limit_order_create2_operation,challenge_authority_operation,prove_authority_operation,request_account_recovery_operation,recover_account_operation,change_recovery_account_operation,transfer_to_savings_operation,transfer_from_savings_operation,cancel_transfer_from_savings_operation,custom_binary_operation,decline_voting_rights_operation,reset_account_operation,set_reset_account_operation,claim_reward_balance_operation,delegate_vesting_shares_operation,account_create_with_delegation_operation,admin_grant_operation,comment_report_operation,fill_convert_request_operation,author_reward_operation,curation_reward_operation,comment_reward_operation,subject_reward_operation,fill_vesting_withdraw_operation,shutdown_witness_operation,fill_transfer_from_savings_operation,hardfork_operation,comment_payout_update_operation,subject_payout_update_operation,return_vesting_delegation_operation,comment_benefactor_reward_operation,producer_reward_operation,vm_operation>
+typedef static_variant<vote_operation,comment_operation,transfer_operation,transfer_to_vesting_operation,convert_from_vesting_operation,account_create_operation,account_update_operation,witness_update_operation,account_witness_vote_operation,account_witness_proxy_operation,pow_operation,custom_operation,report_over_production_operation,delete_comment_operation,custom_json_operation,comment_options_operation,challenge_authority_operation,prove_authority_operation,request_account_recovery_operation,recover_account_operation,change_recovery_account_operation,transfer_to_savings_operation,transfer_from_savings_operation,cancel_transfer_from_savings_operation,custom_binary_operation,decline_voting_rights_operation,reset_account_operation,set_reset_account_operation,claim_reward_balance_operation,delegate_vesting_shares_operation,account_create_with_delegation_operation,admin_grant_operation,comment_report_operation,fill_convert_request_operation,author_reward_operation,curation_reward_operation,comment_reward_operation,subject_reward_operation,fill_vesting_withdraw_operation,shutdown_witness_operation,fill_transfer_from_savings_operation,hardfork_operation,comment_payout_update_operation,subject_payout_update_operation,return_vesting_delegation_operation,comment_benefactor_reward_operation,producer_reward_operation,vm_operation>
 	operation;
 
 
@@ -1084,17 +1073,6 @@ struct account_bandwidth_object {
 
 using account_bandwidth_api_obj	 = account_bandwidth_object;
 
-struct savings_withdraw_api_obj {
-	savings_withdraw_id_type		id;
-	namex		from;
-	namex		to;
-	string		memo;
-	uint32		request_id;
-	asset		amount;
-	time_point_sec		complete; 
- 
-	COSLIB_SERIALIZE( savings_withdraw_api_obj, (id)(from)(to)(memo)(request_id)(amount)(complete) ) 
-};
 
 struct vesting_delegation_object {
 	int64		id;
@@ -1327,9 +1305,6 @@ public:
 		STUB_API( RET_TYPE(database_api::get_recovery_request), << account);
 	}
 
-	vector<withdraw_route> get_withdraw_routes( const string& account, const int64& type) {
-		STUB_API( RET_TYPE(database_api::get_withdraw_routes), << account << type);
-	}
 
 	vector<account_bandwidth_api_obj> get_account_bandwidth( const string& account, const int64& type) {
 		STUB_API( RET_TYPE(database_api::get_account_bandwidth), << account << type);

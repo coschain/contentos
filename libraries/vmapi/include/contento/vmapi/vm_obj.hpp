@@ -40,7 +40,6 @@ using namespace std;
          last_vote_time( a.last_vote_time ),
          balance( a.balance ),
          savings_balance( a.savings_balance ),
-         savings_withdraw_requests( a.savings_withdraw_requests ),
          reward_steem_balance( a.reward_steem_balance ),
          reward_vesting_balance( a.reward_vesting_balance ),
          reward_vesting_steem( a.reward_vesting_steem ),
@@ -86,8 +85,6 @@ using namespace std;
 
          asset             balance;
          asset             savings_balance;
-
-         uint8_t           savings_withdraw_requests = 0;
 
          asset             reward_steem_balance;
          asset             reward_vesting_balance;

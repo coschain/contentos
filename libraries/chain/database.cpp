@@ -1929,17 +1929,13 @@ void database::initialize_indexes()
    add_core_index< comment_report_index                    >(*this);
    add_core_index< witness_vote_index                      >(*this);
    add_core_index< convert_request_index                   >(*this);
-   add_core_index< liquidity_reward_balance_index          >(*this);
    add_core_index< operation_index                         >(*this);
    add_core_index< account_history_index                   >(*this);
    add_core_index< hardfork_property_index                 >(*this);
-   add_core_index< withdraw_vesting_route_index            >(*this);
    add_core_index< withdraw_vesting_index                  >(*this);
    add_core_index< owner_authority_history_index           >(*this);
    add_core_index< account_recovery_request_index          >(*this);
    add_core_index< change_recovery_account_request_index   >(*this);
-   add_core_index< escrow_index                            >(*this);
-   add_core_index< savings_withdraw_index                  >(*this);
    add_core_index< decline_voting_rights_request_index     >(*this);
    add_core_index< reward_fund_index                       >(*this);
    add_core_index< vesting_delegation_index                >(*this);

@@ -21,9 +21,6 @@ typedef chain::change_recovery_account_request_object  change_recovery_account_r
 typedef chain::block_summary_object                    block_summary_api_obj;
 typedef chain::comment_vote_object                     comment_vote_api_obj;
 typedef chain::convert_request_object                  convert_request_api_obj;
-typedef chain::escrow_object                           escrow_api_obj;
-typedef chain::liquidity_reward_balance_object         liquidity_reward_balance_api_obj;
-typedef chain::withdraw_vesting_route_object           withdraw_vesting_route_api_obj;
 typedef chain::decline_voting_rights_request_object    decline_voting_rights_request_api_obj;
 typedef chain::witness_vote_object                     witness_vote_api_obj;
 typedef chain::witness_schedule_object                 witness_schedule_api_obj;
@@ -201,7 +198,6 @@ struct account_api_obj
 //      savings_sbd_seconds( a.savings_sbd_seconds ),
 //      savings_sbd_seconds_last_update( a.savings_sbd_seconds_last_update ),
 //      savings_sbd_last_interest_payment( a.savings_sbd_last_interest_payment ),
-      savings_withdraw_requests( a.savings_withdraw_requests ),
 //      reward_sbd_balance( a.reward_sbd_balance ),
       reward_steem_balance( a.reward_steem_balance ),
       reward_vesting_balance( a.reward_vesting_balance ),
@@ -301,8 +297,6 @@ struct account_api_obj
    time_point_sec    savings_sbd_seconds_last_update;
    time_point_sec    savings_sbd_last_interest_payment;
 
-   uint8_t           savings_withdraw_requests = 0;
-
    asset             reward_sbd_balance;
    asset             reward_steem_balance;
    asset             reward_vesting_balance;
@@ -377,29 +371,6 @@ struct account_recovery_request_api_obj
 struct account_history_api_obj
 {
 
-};
-
-struct savings_withdraw_api_obj
-{
-   savings_withdraw_api_obj( const chain::savings_withdraw_object& o ) :
-      id( o.id ),
-      from( o.from ),
-      to( o.to ),
-      memo( to_string( o.memo ) ),
-      request_id( o.request_id ),
-      amount( o.amount ),
-      complete( o.complete )
-   {}
-
-   savings_withdraw_api_obj() {}
-
-   savings_withdraw_id_type   id;
-   account_name_type          from;
-   account_name_type          to;
-   string                     memo;
-   uint32_t                   request_id = 0;
-   asset                      amount;
-   time_point_sec             complete;
 };
 
 struct witness_api_obj
@@ -522,7 +493,6 @@ FC_REFLECT( contento::app::account_api_obj,
              (savings_balance)
 //             (sbd_balance)(sbd_seconds)(sbd_seconds_last_update)(sbd_last_interest_payment)
 //             (savings_sbd_balance)(savings_sbd_seconds)(savings_sbd_seconds_last_update)(savings_sbd_last_interest_payment)
-           (savings_withdraw_requests)
 //             (reward_sbd_balance)
            (reward_steem_balance)(reward_vesting_balance)(reward_vesting_steem)
              (vesting_shares)(delegated_vesting_shares)(received_vesting_shares)(vesting_withdraw_rate)(next_vesting_withdrawal)(withdrawn)(to_withdraw)(withdraw_routes)
@@ -546,16 +516,6 @@ FC_REFLECT( contento::app::account_recovery_request_api_obj,
              (account_to_recover)
              (new_owner_authority)
              (expires)
-          )
-
-FC_REFLECT( contento::app::savings_withdraw_api_obj,
-             (id)
-             (from)
-             (to)
-             (memo)
-             (request_id)
-             (amount)
-             (complete)
           )
 
 //FC_REFLECT( contento::app::feed_history_api_obj,

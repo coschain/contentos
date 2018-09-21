@@ -188,12 +188,6 @@ namespace contento { namespace protocol {
         FC_ASSERT( is_asset_type( vesting_shares, VESTS_SYMBOL), "Amount must be VESTS"  );
     }
 
-   void set_withdraw_vesting_route_operation::validate() const
-   {
-      validate_account_name( from_account );
-      validate_account_name( to_account );
-      FC_ASSERT( 0 <= percent && percent <= CONTENTO_100_PERCENT, "Percent must be valid steemit percent" );
-   }
 
    void witness_update_operation::validate() const
    {

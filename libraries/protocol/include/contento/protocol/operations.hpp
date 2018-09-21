@@ -33,7 +33,6 @@ namespace contento { namespace protocol {
             delete_comment_operation,
             custom_json_operation,
             comment_options_operation,
-            set_withdraw_vesting_route_operation,
             challenge_authority_operation,
             prove_authority_operation,
             request_account_recovery_operation,

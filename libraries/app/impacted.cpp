@@ -94,33 +94,6 @@ struct get_impacted_account_visitor
       _impacted.insert( op.to );
    }
 
-//   void operator()( const escrow_transfer_operation& op )
-//   {
-//      _impacted.insert( op.from );
-//      _impacted.insert( op.to );
-//      _impacted.insert( op.agent );
-//   }
-//
-//   void operator()( const escrow_approve_operation& op )
-//   {
-//      _impacted.insert( op.from );
-//      _impacted.insert( op.to );
-//      _impacted.insert( op.agent );
-//   }
-//
-//   void operator()( const escrow_dispute_operation& op )
-//   {
-//      _impacted.insert( op.from );
-//      _impacted.insert( op.to );
-//      _impacted.insert( op.agent );
-//   }
-//
-//   void operator()( const escrow_release_operation& op )
-//   {
-//      _impacted.insert( op.from );
-//      _impacted.insert( op.to );
-//      _impacted.insert( op.agent );
-//   }
 
    void operator()( const transfer_to_vesting_operation& op )
    {
@@ -132,11 +105,6 @@ struct get_impacted_account_visitor
       }
    }
 
-   void operator()( const set_withdraw_vesting_route_operation& op )
-   {
-      _impacted.insert( op.from_account );
-      _impacted.insert( op.to_account );
-   }
 
    void operator()( const account_witness_vote_operation& op )
    {
