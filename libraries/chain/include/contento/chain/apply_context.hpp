@@ -457,6 +457,7 @@ class apply_context {
       ,db(con.db())
       ,trx_context(trx_ctx)
       ,op(a)
+      ,account(op.account_name)
       ,receiver(op.contract_name)
       ,recurse_depth(depth)
       ,idx64(*this)
@@ -547,10 +548,10 @@ class apply_context {
       int  db_get_i64( int iterator, char* buffer, size_t buffer_size );
       int  db_next_i64( int iterator, uint64_t& primary );
       int  db_previous_i64( int iterator, uint64_t& primary );
-      int  db_find_i64( account_name code, scope_name scope, uint64_t table, uint64_t id );
-      int  db_lowerbound_i64( account_name code, scope_name scope, uint64_t table, uint64_t id );
-      int  db_upperbound_i64( account_name code, scope_name scope, uint64_t table, uint64_t id );
-      int  db_end_i64( account_name code, scope_name scope, uint64_t table );
+      int  db_find_i64( account_name account, account_name code, scope_name scope, uint64_t table, uint64_t id );
+      int  db_lowerbound_i64( account_name account, account_name code, scope_name scope, uint64_t table, uint64_t id );
+      int  db_upperbound_i64( account_name account, account_name code, scope_name scope, uint64_t table, uint64_t id );
+      int  db_end_i64( account_name account, account_name code, scope_name scope, uint64_t table );
    
       asset get_contract_balance();
       void transfer( account_name name, const asset& value);

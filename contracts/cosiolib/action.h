@@ -150,8 +150,12 @@ extern "C" {
 //    account_name current_receiver();
    
    void current_receiver(account_name* recevier);
+    
+   void current_account(account_name* account);
 
    void current_contract_name(scope_name* contract_name);
+    
+   void current_account_name(scope_name* contract_name);
 
    void current_caller(account_name* caller);
 

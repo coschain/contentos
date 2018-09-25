@@ -48,9 +48,9 @@ void apply_context::exec_one()
 {
    //const auto& cfg = control.get_global_properties().configuration;
    try {
-      const auto &a = control.get_account(receiver);
+      const auto &a = control.get_account(account);
       privileged = a.privileged;
-      auto native = control.find_apply_handler(receiver, op.contract_name, op.action_name);
+      auto native = control.find_apply_handler(op.account_name, op.contract_name, op.action_name);
 
       if( native ) {
          (*native)(*this);
@@ -93,7 +93,7 @@ void apply_context::exec()
    }
 
    for( const auto& inline_op : _inline_ops ) {
-      trx_context.apply( inline_op, inline_op.contract_name, false, recurse_depth + 1 );
+      trx_context.apply( inline_op, inline_op.account_name, inline_op.contract_name, false, recurse_depth + 1 );
    }
 
 } /// exec()
@@ -455,10 +455,10 @@ int apply_context::db_previous_i64( int iterator, uint64_t& primary ) {
    return keyval_cache.add(*itr);
 }
 
-int apply_context::db_find_i64( account_name code, scope_name scope, uint64_t table, uint64_t id ) {
+int apply_context::db_find_i64( account_name account, account_name code, scope_name scope, uint64_t table, uint64_t id ) {
    //require_read_lock( code, scope ); // redundant?
 
-   const auto* tab = find_table( code, scope, table );
+   const auto* tab = find_table( account, code, scope, table );
    if( !tab ) return -1;
 
    auto table_end_itr = keyval_cache.cache_table( *tab );
@@ -469,10 +469,10 @@ int apply_context::db_find_i64( account_name code, scope_name scope, uint64_t ta
    return keyval_cache.add( *obj );
 }
 
-int apply_context::db_lowerbound_i64( account_name code, scope_name scope, uint64_t table, uint64_t id ) {
+int apply_context::db_lowerbound_i64( account_name account, account_name code, scope_name scope, uint64_t table, uint64_t id ) {
    //require_read_lock( code, scope ); // redundant?
 
-   const auto* tab = find_table( code, scope, table );
+   const auto* tab = find_table( account, code, scope, table );
    if( !tab ) return -1;
 
    auto table_end_itr = keyval_cache.cache_table( *tab );
@@ -485,10 +485,10 @@ int apply_context::db_lowerbound_i64( account_name code, scope_name scope, uint6
    return keyval_cache.add( *itr );
 }
 
-int apply_context::db_upperbound_i64( account_name code, scope_name scope, uint64_t table, uint64_t id ) {
+int apply_context::db_upperbound_i64( account_name account, account_name code, scope_name scope, uint64_t table, uint64_t id ) {
    //require_read_lock( code, scope ); // redundant?
 
-   const auto* tab = find_table( code, scope, table );
+   const auto* tab = find_table( account, code, scope, table );
    if( !tab ) return -1;
 
    auto table_end_itr = keyval_cache.cache_table( *tab );
@@ -501,10 +501,10 @@ int apply_context::db_upperbound_i64( account_name code, scope_name scope, uint6
    return keyval_cache.add( *itr );
 }
 
-int apply_context::db_end_i64( account_name code, scope_name scope, uint64_t table ) {
+int apply_context::db_end_i64( account_name account, account_name code, scope_name scope, uint64_t table ) {
    //require_read_lock( code, scope ); // redundant?
 
-   const auto* tab = find_table( code, scope, table );
+   const auto* tab = find_table( account, code, scope, table );
    if( !tab ) return -1;
 
    return keyval_cache.cache_table( *tab );

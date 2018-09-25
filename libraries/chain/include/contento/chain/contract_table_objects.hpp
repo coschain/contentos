@@ -16,12 +16,13 @@
 namespace contento { namespace chain {
 
    /**
-    * @brief The table_id_object class tracks the mapping of (scope, code, table) to an opaque identifier
+    * @brief The table_id_object class tracks the mapping of (account, scope, code, table) to an opaque identifier
     */
    class table_id_object : public chainbase::object<table_id_object_type, table_id_object> {
       OBJECT_CTOR(table_id_object)
 
       id_type        id;
+      account_name   account;
       account_name   code;
       scope_name     scope;
       table_name     table;
@@ -39,6 +40,7 @@ namespace contento { namespace chain {
          >,
          ordered_unique<tag<by_code_scope_table>,
             composite_key< table_id_object,
+               member<table_id_object, account_name, &table_id_object::account>,
                member<table_id_object, account_name, &table_id_object::code>,
                member<table_id_object, scope_name,   &table_id_object::scope>,
                member<table_id_object, table_name,   &table_id_object::table>
@@ -164,7 +166,7 @@ namespace config {
    template<>
    struct billable_size<table_id_object> {
       static const uint64_t overhead = overhead_per_row_per_index_ram_bytes * 2;  ///< overhead for 2x indices internal-key and code,scope,table
-      static const uint64_t value = 44 + overhead; ///< 36 bytes for constant size fields + overhead
+      static const uint64_t value = 52 + overhead; ///< 36 bytes for constant size fields + overhead
    };
 
    template<>
@@ -216,5 +218,5 @@ CHAINBASE_SET_INDEX_TYPE(contento::chain::index256_object, contento::chain::inde
 CHAINBASE_SET_INDEX_TYPE(contento::chain::index_double_object, contento::chain::index_double_index)
 CHAINBASE_SET_INDEX_TYPE(contento::chain::index_long_double_object, contento::chain::index_long_double_index)
 
-FC_REFLECT(contento::chain::table_id_object, (id)(code)(scope)(table) )
+FC_REFLECT(contento::chain::table_id_object, (id)(account)(code)(scope)(table) )
 FC_REFLECT(contento::chain::key_value_object, (id)(t_id)(primary_key)(value)(payer) )

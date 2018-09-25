@@ -1005,9 +1005,17 @@ class action_api : public context_aware_api {
       void current_receiver(account_name& receiver) {
          receiver = context.receiver;
       }
+    
+      void current_account(account_name& account) {
+         account = context.account;
+      }
 
       void current_contract_name(scope_name& contract_name) {
          contract_name = context.op.contract_name;
+      }
+    
+      void current_account_name(scope_name& account) {
+         account = context.op.account_name;
       }
 
       void current_caller(account_name& caller) {
@@ -1285,17 +1293,17 @@ class database_api : public context_aware_api {
       int db_previous_i64( int itr, uint64_t& primary ) {
          return context.db_previous_i64(itr, primary);
       }
-      int db_find_i64( account_name& code, scope_name& scope, uint64_t table, uint64_t id ) {
-         return context.db_find_i64( code, scope, table, id );
+      int db_find_i64( account_name& account, account_name& code, scope_name& scope, uint64_t table, uint64_t id ) {
+         return context.db_find_i64( account, code, scope, table, id );
       }
-      int db_lowerbound_i64( account_name& code, scope_name& scope, uint64_t table, uint64_t id ) {
-         return context.db_lowerbound_i64( code, scope, table, id );
+      int db_lowerbound_i64( account_name& account, account_name& code, scope_name& scope, uint64_t table, uint64_t id ) {
+         return context.db_lowerbound_i64( account, code, scope, table, id );
       }
-      int db_upperbound_i64( account_name& code, scope_name& scope, uint64_t table, uint64_t id ) {
-         return context.db_upperbound_i64( code, scope, table, id );
+      int db_upperbound_i64( account_name& account, account_name& code, scope_name& scope, uint64_t table, uint64_t id ) {
+         return context.db_upperbound_i64( account, code, scope, table, id );
       }
-      int db_end_i64( account_name& code, scope_name& scope, uint64_t table ) {
-         return context.db_end_i64( code, scope, table );
+      int db_end_i64( account_name& account, account_name& code, scope_name& scope, uint64_t table ) {
+         return context.db_end_i64( account, code, scope, table );
       }
 
       DB_API_METHOD_WRAPPERS_SIMPLE_SECONDARY(idx64,  uint64_t)
@@ -1812,10 +1820,10 @@ REGISTER_INTRINSICS_WITH_PRICE( database_api,
    WITH_PRICE (db_get_i64,          int(int, int, int))
    WITH_PRICE (db_next_i64,         int(int, int))
    WITH_PRICE (db_previous_i64,     int(int, int))
-   WITH_PRICE (db_find_i64,         int(int,int,int64_t,int64_t))
-   WITH_PRICE (db_lowerbound_i64,   int(int,int,int64_t,int64_t))
-   WITH_PRICE (db_upperbound_i64,   int(int,int,int64_t,int64_t))
-   WITH_PRICE (db_end_i64,          int(int,int,int64_t))
+   WITH_PRICE (db_find_i64,         int(int,int,int,int64_t,int64_t))
+   WITH_PRICE (db_lowerbound_i64,   int(int,int,int,int64_t,int64_t))
+   WITH_PRICE (db_upperbound_i64,   int(int,int,int,int64_t,int64_t))
+   WITH_PRICE (db_end_i64,          int(int,int,int,int64_t))
 
    DB_SECONDARY_INDEX_METHODS_SIMPLE(idx64)
    DB_SECONDARY_INDEX_METHODS_SIMPLE(idx128)
@@ -1863,7 +1871,9 @@ REGISTER_INTRINSICS_WITH_PRICE(action_api,
    WITH_PRICE (read_action_data,       int(int, int)  )
    WITH_PRICE (action_data_size,       int()          )
    WITH_PRICE (current_receiver,           void(int) )
+   WITH_PRICE (current_account,           void(int) )
    WITH_PRICE (current_contract_name,      void(int) )
+   WITH_PRICE (current_account_name,      void(int) )
    WITH_PRICE (current_caller,             void(int) )
 );
 

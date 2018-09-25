@@ -43,21 +43,19 @@ void apply_contento_setcode(apply_context& context) {
    }
 
    const auto& account = db.get<account_object,by_name>(act.account);
-
+    // todo: get contract from contract_map
    int64_t code_size = (int64_t)act.code.size();
-   int64_t old_size  = (int64_t)account.code.size() * config::setcode_ram_bytes_multiplier;
+   int64_t old_size  = account.all_contract.get_contract_code_size() * config::setcode_ram_bytes_multiplier;
    int64_t new_size  = code_size * config::setcode_ram_bytes_multiplier;
 
-   FC_ASSERT( account.code_version != code_id, "contract is already running this version of code" );
+   FC_ASSERT( account.all_contract.get_code_version(act.contract) != code_id, "contract is already running this version of code" );
 
+    // todo: set contract to contract_map
    db.modify( account, [&]( auto& a ) {
       /** TODO: consider whether a microsecond level local timestamp is sufficient to detect code version changes*/
       // TODO: update setcode message to include the hash, then validate it in validate
        // TODO: a.last_code_update = context.control.pending_block_time();
-      a.code_version = code_id;
-      a.code.resize( code_size );
-      if( code_size > 0 )
-         memcpy( (void*)a.code.data(), act.code.data(), code_size );
+       a.all_contract.add_contract_code(act.contract,code_id,act.code,code_size);
 
    });
 
@@ -89,16 +87,14 @@ void apply_contento_setabi(apply_context& context) {
     }
 
    int64_t abi_size = act.abi.size();
-
-   int64_t old_size = (int64_t)account.abi.size();
+ // todo: get contract from contract_map
+    int64_t old_size = account.all_contract.get_contract_abi_size();
    int64_t new_size = abi_size;
-
+// todo: set contract to contract_map
    db.modify( account, [&]( auto& a ) {
-      a.abi.resize( abi_size );
-      if( abi_size > 0 )
-         memcpy( (void*)a.abi.data(), act.abi.data(), abi_size );
+       a.all_contract.add_contract_abi(act.contract,act.abi,abi_size);
    });
-    
+    // todo: contract bank need change, because contract name can be same
      const auto& by_bank_name_idx = db.get_index< contract_balance_index >().indices().get< by_name >();
     auto bank_itr = by_bank_name_idx.find( context.op.caller );
     if(bank_itr == by_bank_name_idx.end()){

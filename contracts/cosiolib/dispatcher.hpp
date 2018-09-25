@@ -77,13 +77,15 @@ namespace cosio {
 extern "C" { \
    void apply( uint64_t _receiver, uint64_t code, uint64_t action ) { \
       auto self = _receiver; \
+      auto account = cosio::current_account();\
+      auto account_name = cosio::current_account_name();\
       auto receiver = cosio::current_receiver();\
       auto contract_name = cosio::current_contract_name();\
       if( action == N(onerror)) { \
          /* onerror is only valid if it is for the "eosio" code account and authorized by "eosio"'s "active permission */ \
          contento_assert(contract_name == N16(eosio), "onerror action's are only valid from the \"eosio\" system account"); \
       } \
-      if( contract_name == receiver || action == N(onerror) ) { \
+      if( account == account_name && contract_name == receiver || action == N(onerror) ) { \
          TYPE thiscontract( receiver ); \
          switch( action ) { \
             COSIO_API( TYPE, MEMBERS ) \

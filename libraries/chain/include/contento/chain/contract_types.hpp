@@ -9,6 +9,7 @@ using action_name    = contento::chain::action_name;
 
 struct setcode {
    account_name                     account;
+   account_name                     contract;
    uint8_t                          vmtype = 0;
    uint8_t                          vmversion = 0;
    uint8_t                          compression=0;
@@ -25,6 +26,7 @@ struct setcode {
 
 struct setabi {
    account_name                     account;
+   account_name                     contract;
    uint8_t                          compression=0;
    bytes                            abi;
 

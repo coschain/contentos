@@ -102,10 +102,11 @@ namespace contento { namespace chain {
         return vm_console;
     }
 
-   void transaction_context::apply( const vm_operation& op, account_name receiver, bool context_free, uint32_t recurse_depth ) {
+   void transaction_context::apply( const vm_operation& op, account_name account, account_name contract_name, bool context_free, uint32_t recurse_depth ) {
       apply_context  acontext( control, *this, op, recurse_depth );
       acontext.context_free = context_free;
-      acontext.receiver     = receiver;
+      // acontext.account     = account;
+      // acontext.receiver     = contract_name;
 
       acontext.exec();
    }

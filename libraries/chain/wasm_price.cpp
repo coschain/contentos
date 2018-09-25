@@ -186,7 +186,9 @@
 #define WASM_PRICE_FN_action_data_size                                       31
 // #define WASM_PRICE_FN_current_receiver                                       13
 #define WASM_PRICE_FN_current_receiver                                         13
+#define WASM_PRICE_FN_current_account                                         13
 #define WASM_PRICE_FN_current_contract_name                                          13
+#define WASM_PRICE_FN_current_account_name                                          13
 #define WASM_PRICE_FN_current_caller                                          13
 
 // authorization_api
@@ -534,10 +536,10 @@ namespace contento { namespace chain { namespace wasm_price {
 //                         (db_get_i64,          (int, int, int, int))
                          (db_next_i64,         (int, int, int))
                          (db_previous_i64,     (int, int, int))
-                         (db_find_i64,         (int, int,int,int64_t,int64_t))
-                         (db_lowerbound_i64,   (int, int,int,int64_t,int64_t))
-                         (db_upperbound_i64,   (int, int,int,int64_t,int64_t))
-                         (db_end_i64,          (int, int,int,int64_t))
+                         (db_find_i64,         (int,int, int,int,int64_t,int64_t))
+                         (db_lowerbound_i64,   (int,int, int,int,int64_t,int64_t))
+                         (db_upperbound_i64,   (int,int, int,int,int64_t,int64_t))
+                         (db_end_i64,          (int,int, int,int,int64_t))
                          
                          DECL_DB_SECONDARY_INDEX_METHODS_SIMPLE(idx64)
                          DECL_DB_SECONDARY_INDEX_METHODS_SIMPLE(idx128)
@@ -589,7 +591,9 @@ namespace contento { namespace chain { namespace wasm_price {
                          (action_data_size,       (int)              )
                         //  (current_receiver,       (int)          )
                          (current_receiver,           (void*, int)  )
+                         (current_account,           (void*, int)  )
                          (current_contract_name,      (void*, int)  )
+                         (current_account_name,      (void*, int)  )
                          (current_caller,             (void*, int)  )
                          );
     

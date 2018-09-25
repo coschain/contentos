@@ -16,7 +16,112 @@
 namespace contento { namespace chain {
 
    using contento::protocol::authority;
-
+    namespace bip = boost::interprocess;
+    
+    struct contract_info {
+        template<typename Allocator>
+        contract_info (const Allocator& a) : code(a),abi(a) {
+        }
+        
+        uint8_t           vm_type = 0;
+        uint8_t           vm_version = 0;
+        time_point_sec    last_code_update;
+        digest_type       code_version;
+        bool              privileged = false;
+        
+        shared_string     code;
+        shared_string     abi;
+    };
+    
+    struct contract_map {
+        template<typename Allocator>
+        contract_map(const Allocator& alloc)
+        :contracts( name_info_allocator_type( alloc.get_segment_manager()  ){
+        }
+                   
+       add_contract_code(scope_name_type name,const fc::sha256& code_id,const bytes& code, int64_t code_size){
+           auto itr = contracts.find(name);
+           if(itr == contracts.end()){
+               // new contract
+               contract_info info(contracts.get_allocator());
+               info.code_version = code_id;
+               info.code.resize( code_size );
+               if( code_size > 0 )
+                   memcpy( (void*)info.code.data(), code.data(), code_size );
+               contracts.emplace( std::pair< scope_name_type, contract_info >( name, info ) );
+           } else {
+               // update contract
+               itr->second.code_version = code_id;
+               itr->second.code.resize( code_size );
+               if( code_size > 0 )
+                   memcpy( (void*)itr->second.code.data(), code.data(), code_size );
+           }
+       }
+                   
+                   add_contract_abi(scope_name_type name,const bytes& abi,int64_t abi_size){
+                       auto itr = contracts.find(name);
+                       if(itr == contracts.end()){
+                           // new contract
+                           contract_info info(contracts.get_allocator());
+                           info.abi.resize( abi_size );
+                           if( abi_size > 0 )
+                               memcpy( (void*)info.abi.data(), abi.data(), abi_size );
+                           contracts.emplace( std::pair< scope_name_type, contract_info >( name, info ) );
+                       } else {
+                           // update contract
+                           itr->second.abi.resize( abi_size );
+                           if( abi_size > 0 )
+                               memcpy( (void*)itr->second.abi.data(), abi.data(), abi_size );
+                       }
+                   }
+                   int64_t get_contract_code_size(scope_name_type name){
+                       auto itr = contracts.find(name);
+                       if(itr == contracts.end()){
+                           return 0;
+                       } else {
+                           
+                           return (int64_t)itr->second.code.size();
+                       }
+                   }
+                   
+                   digest_type get_code_version(scope_name_type name){
+                       auto itr = contracts.find(name);
+                       if(itr == contracts.end()){
+                           fc::sha256 code_id;
+                           return code_id;
+                       } else {
+                           return (int64_t)itr->second.code_version;
+                       }
+                   }
+                   
+                   int64_t get_contract_abi_size(scope_name_type name){
+                       auto itr = contracts.find(name);
+                       if(itr == contracts.end()){
+                           return 0;
+                       } else {
+                           
+                           return (int64_t)itr->second.abi.size();
+                       }
+                   }
+                   
+                   shared_string get_abi(scope_name_type name){
+                       auto itr = contracts.find(name);
+                       if(itr == contracts.end()){
+                           shared_string tmp = "";
+                           return tmp;
+                       } else {
+                           
+                           return itr->second.abi;
+                       }
+                   }
+                   
+                   typedef bip::allocator< std::pair< scope_name_type, contract_info>, bip::managed_mapped_file::segment_manager > name_info_allocator_type;
+                   
+        typedef bip::map< scope_name_type, contract_info, std::less<scope_name_type>, name_info_allocator_type >  name_info_map_type;
+        
+        name_info_map_type contracts;
+    };
+    
    class account_object : public object< account_object_type, account_object >
    {
       account_object() = delete;
@@ -25,8 +130,7 @@ namespace contento { namespace chain {
          template<typename Constructor, typename Allocator>
          account_object( Constructor&& c, allocator< Allocator > a )
             :json_metadata( a ),
-             code( a ),
-             abi( a )
+            all_contract( a )
          {
             c(*this);
          };
@@ -103,14 +207,8 @@ namespace contento { namespace chain {
          time_point_sec    last_root_post = fc::time_point_sec::min();
          uint32_t          post_bandwidth = 0;
 
-         uint8_t           vm_type = 0;
-         uint8_t           vm_version = 0;
-         time_point_sec    last_code_update;
-         digest_type       code_version;
-         bool              privileged = false;
-
-         shared_string     code;
-         shared_string     abi;
+       
+       contract_map all_contract;
 
          /// This function should be used only when the account votes for a witness directly
          share_type        witness_vote_weight()const {

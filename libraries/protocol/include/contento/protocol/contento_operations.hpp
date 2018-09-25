@@ -912,6 +912,7 @@ namespace contento { namespace protocol {
 
    struct vm_operation : public base_operation {
       account_name_type          caller;
+      account_name_type          account_name;
       scope_name_type            contract_name;
       name                       action_name;
       bytes                      data;
@@ -935,9 +936,9 @@ namespace contento { namespace protocol {
          data        = fc::raw::pack(value);
       }
 
-      vm_operation( account_name_type caller, account_name_type account,
+      vm_operation( account_name_type caller, account_name_type account, account_name_type contract,
                     name name, const bytes& data )
-            : caller(caller), contract_name(account), action_name(name), data(data) {}
+            : caller(caller), account_name(account), contract_name(contract), action_name(name), data(data) {}
       
 
       template<typename T>
@@ -1043,4 +1044,4 @@ FC_REFLECT( contento::protocol::change_recovery_account_operation, (account_to_r
 FC_REFLECT( contento::protocol::decline_voting_rights_operation, (account)(decline) );
 FC_REFLECT( contento::protocol::claim_reward_balance_operation, (account)(reward_steem)(reward_sbd)(reward_vests) )
 FC_REFLECT( contento::protocol::delegate_vesting_shares_operation, (delegator)(delegatee)(vesting_shares) );
-FC_REFLECT( contento::protocol::vm_operation, (caller)(contract_name)(action_name)(data)(value) )
+FC_REFLECT( contento::protocol::vm_operation, (caller)(account_name)(contract_name)(action_name)(data)(value) )

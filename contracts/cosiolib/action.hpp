@@ -82,12 +82,24 @@ namespace cosio {
      current_receiver(&receiver);
      return receiver;
    }
+    
+    namex current_account() {
+        namex_ account;
+        current_account(&accout);
+        return account;
+    }
 
    namex current_contract_name() {
      namex_ contract_name;
      current_contract_name(&contract_name);
      return contract_name;
    }
+    
+    namex current_account_name() {
+        namex_ account;
+        current_account_name(&account);
+        return account;
+    }
 
    namex current_caller() {
      namex_ caller;
