@@ -167,14 +167,17 @@ struct tag_api_obj
 };
 
 struct account_code_api_obj{
-   account_code_api_obj( const chain::account_object& a) :
+   account_code_api_obj( const chain::account_object& a, string contract) :
       name(a.name)
    {
-      code.resize(a.code.size());
-      memcpy( code.data(), a.code.data(), a.code.size());
+       account_name contract_name(contract);
+       int64_t code_size = a.all_contract.get_contract_code_size();
+      code.resize(code_size);
+      memcpy( code.data(), a.all_contract.get_code(contract_name)->data(), code_size);
 
-      abi.resize(a.abi.size());
-      memcpy( abi.data(), a.abi.data(), a.abi.size());
+       int64_t abi_size = a.all_contract.get_contract_abi_size();
+      abi.resize(abi_size);
+      memcpy( abi.data(), a.all_contract.get_abi(contract_name)->data(), abi_size);
 
    }
 
@@ -241,9 +244,9 @@ struct account_api_obj
       withdraw_routes( a.withdraw_routes ),
       witnesses_voted_for( a.witnesses_voted_for ),
       last_post( a.last_post ),
-      last_root_post( a.last_root_post ),
-      code( to_string(a.code) ),
-      abi( to_string(a.abi) )
+      last_root_post( a.last_root_post )
+      //code( to_string(a.code) ),
+      //abi( to_string(a.abi) )
    {
       size_t n = a.proxied_vsf_votes.size();
       proxied_vsf_votes.reserve( n );
@@ -358,8 +361,8 @@ struct account_api_obj
    time_point_sec    last_post;
    time_point_sec    last_root_post;
     
-   string code;
-   string abi;
+   //string code;
+   //string abi;
 };
 
 struct owner_authority_history_api_obj

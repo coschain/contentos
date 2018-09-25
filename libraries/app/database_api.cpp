@@ -440,14 +440,14 @@ account_code_api_obj database_api::get_account_code(string name ) const
                               });
 }
 
-account_code_api_obj database_api_impl::get_account_code(string name)const
+account_code_api_obj database_api_impl::get_account_code(string account, string contract)const
 {
    const auto& idx  = _db.get_index< account_index >().indices().get< by_name >();
-   const auto& vidx = _db.get_index< witness_vote_index >().indices().get< by_account_witness >();
+   //const auto& vidx = _db.get_index< witness_vote_index >().indices().get< by_account_witness >();
 
-   auto itr = idx.find( name );
+   auto itr = idx.find( account );
    if ( itr != idx.end() ){
-      return account_code_api_obj( *itr );
+      return account_code_api_obj( *itr , contract);
    }
    FC_ASSERT( FALSE, "no account found");
 }

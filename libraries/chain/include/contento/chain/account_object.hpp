@@ -36,10 +36,10 @@ namespace contento { namespace chain {
     struct contract_map {
         template<typename Allocator>
         contract_map(const Allocator& alloc)
-        :contracts( name_info_allocator_type( alloc.get_segment_manager()  ){
+        :contracts( name_info_allocator_type( alloc.get_segment_manager()  )){
         }
-                   
-       add_contract_code(scope_name_type name,const fc::sha256& code_id,const bytes& code, int64_t code_size){
+        
+       void add_contract_code(account_name_type name,const fc::sha256& code_id,const bytes& code, int64_t code_size){
            auto itr = contracts.find(name);
            if(itr == contracts.end()){
                // new contract
@@ -48,7 +48,7 @@ namespace contento { namespace chain {
                info.code.resize( code_size );
                if( code_size > 0 )
                    memcpy( (void*)info.code.data(), code.data(), code_size );
-               contracts.emplace( std::pair< scope_name_type, contract_info >( name, info ) );
+               contracts.emplace( std::pair< account_name_type, contract_info >( name, info ) );
            } else {
                // update contract
                itr->second.code_version = code_id;
@@ -58,7 +58,7 @@ namespace contento { namespace chain {
            }
        }
                    
-                   add_contract_abi(scope_name_type name,const bytes& abi,int64_t abi_size){
+                   void add_contract_abi(account_name_type name,const bytes& abi,int64_t abi_size){
                        auto itr = contracts.find(name);
                        if(itr == contracts.end()){
                            // new contract
@@ -66,7 +66,7 @@ namespace contento { namespace chain {
                            info.abi.resize( abi_size );
                            if( abi_size > 0 )
                                memcpy( (void*)info.abi.data(), abi.data(), abi_size );
-                           contracts.emplace( std::pair< scope_name_type, contract_info >( name, info ) );
+                           contracts.emplace( std::pair< account_name_type, contract_info >( name, info ) );
                        } else {
                            // update contract
                            itr->second.abi.resize( abi_size );
@@ -74,7 +74,7 @@ namespace contento { namespace chain {
                                memcpy( (void*)itr->second.abi.data(), abi.data(), abi_size );
                        }
                    }
-                   int64_t get_contract_code_size(scope_name_type name){
+                   int64_t get_contract_code_size(account_name_type name){
                        auto itr = contracts.find(name);
                        if(itr == contracts.end()){
                            return 0;
@@ -84,17 +84,17 @@ namespace contento { namespace chain {
                        }
                    }
                    
-                   digest_type get_code_version(scope_name_type name){
+                   digest_type get_code_version(account_name_type name){
                        auto itr = contracts.find(name);
                        if(itr == contracts.end()){
                            fc::sha256 code_id;
                            return code_id;
                        } else {
-                           return (int64_t)itr->second.code_version;
+                           return itr->second.code_version;
                        }
                    }
                    
-                   int64_t get_contract_abi_size(scope_name_type name){
+                   int64_t get_contract_abi_size(account_name_type name){
                        auto itr = contracts.find(name);
                        if(itr == contracts.end()){
                            return 0;
@@ -104,20 +104,30 @@ namespace contento { namespace chain {
                        }
                    }
                    
-                   shared_string get_abi(scope_name_type name){
+                   const shared_string& get_abi(account_name_type name) const{
                        auto itr = contracts.find(name);
                        if(itr == contracts.end()){
-                           shared_string tmp = "";
-                           return tmp;
+                           //shared_string tmp; // compile error, need a allocator(segment manager)
+                           return NULL;
                        } else {
                            
                            return itr->second.abi;
                        }
                    }
+        
+        const shared_string& get_code(account_name_type name) const{
+            auto itr = contracts.find(name);
+            if(itr == contracts.end()){
+                return NULL;
+            } else {
+                
+                return itr->second.code;
+            }
+        }
                    
-                   typedef bip::allocator< std::pair< scope_name_type, contract_info>, bip::managed_mapped_file::segment_manager > name_info_allocator_type;
+                   typedef bip::allocator< std::pair< account_name_type, contract_info>, bip::managed_mapped_file::segment_manager >       name_info_allocator_type;
                    
-        typedef bip::map< scope_name_type, contract_info, std::less<scope_name_type>, name_info_allocator_type >  name_info_map_type;
+        typedef bip::flat_map< account_name_type, contract_info, std::less<account_name_type>, name_info_allocator_type >    name_info_map_type;
         
         name_info_map_type contracts;
     };
@@ -616,8 +626,7 @@ FC_REFLECT( contento::chain::account_object,
              (posting_rewards)
              (proxied_vsf_votes)(witnesses_voted_for)
              (last_post)(last_root_post)(post_bandwidth)
-             (vm_type)(vm_version)(last_code_update)(code_version)(privileged)
-             (code)(abi)
+             (all_contract)
           )
 CHAINBASE_SET_INDEX_TYPE( contento::chain::account_object, contento::chain::account_index )
 

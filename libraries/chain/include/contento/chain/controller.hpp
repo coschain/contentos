@@ -53,12 +53,12 @@ namespace contento { namespace chain {
          wasm_interface& get_wasm_interface();
 
 
-         optional<abi_serializer> get_abi_serializer( account_name n )const {
+         optional<abi_serializer> get_abi_serializer( account_name n, account_name contract)const {
             if( n.good() ) {
                try {
                   const auto& a = get_account( n );
                   abi_def abi;
-                  if( abi_serializer::to_abi( a.abi, abi ))
+                  if( abi_serializer::to_abi( *a.all_contract.get_abi(contract), abi ))
                      return abi_serializer( abi );
                } FC_CAPTURE_AND_LOG((n))
             }
@@ -68,7 +68,7 @@ namespace contento { namespace chain {
          template<typename T>
          fc::variant to_variant_with_abi( const T& obj ) {
             fc::variant pretty_output;
-            abi_serializer::to_variant( obj, pretty_output, [&]( account_name n ){ return get_abi_serializer( n ); });
+            abi_serializer::to_variant( obj, pretty_output, [&]( account_name n, account_name contract ){ return get_abi_serializer( n, contract ); });
             return pretty_output;
          }
 
