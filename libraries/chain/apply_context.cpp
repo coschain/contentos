@@ -211,12 +211,12 @@ void apply_context::execute_inline( vm_operation&& op ) {
 //    _cfa_inline_actions.emplace_back( move(a) );
 // }
 
-const table_id_object* apply_context::find_table( account_name code, scope_name scope, name table ) {
-   return db.find<table_id_object, by_code_scope_table>(boost::make_tuple(code, scope, table));
+const table_id_object* apply_context::find_table( account_name account, account_name code, scope_name scope, name table ) {
+   return db.find<table_id_object, by_code_scope_table>(boost::make_tuple(account, code, scope, table));
 }
 
-const table_id_object& apply_context::find_or_create_table( account_name code, scope_name scope, name table, const account_name &payer ) {
-   const auto* existing_tid =  db.find<table_id_object, by_code_scope_table>(boost::make_tuple(code, scope, table));
+const table_id_object& apply_context::find_or_create_table( account_name account, account_name code, scope_name scope, name table, const account_name &payer ) {
+   const auto* existing_tid =  db.find<table_id_object, by_code_scope_table>(boost::make_tuple(account, code, scope, table));
    if (existing_tid != nullptr) {
       return *existing_tid;
    }
@@ -224,6 +224,7 @@ const table_id_object& apply_context::find_or_create_table( account_name code, s
    update_db_usage(payer, config::billable_size_v<table_id_object>);
 
    return db.create<table_id_object>([&](table_id_object &t_id){
+      t_id.account = account;
       t_id.code = code;
       t_id.scope = scope;
       t_id.table = table;
@@ -314,12 +315,12 @@ int apply_context::get_context_free_data( uint32_t index, char* buffer, size_t b
      */
 
 int apply_context::db_store_i64( scope_name scope, uint64_t table, const account_name& payer, uint64_t id, const char* buffer, size_t buffer_size ) {
-   return db_store_i64( receiver, scope, table, payer, id, buffer, buffer_size);
+   return db_store_i64( account, receiver, scope, table, payer, id, buffer, buffer_size);
 }
 
-int apply_context::db_store_i64( account_name code, scope_name scope, uint64_t table, const account_name& payer, uint64_t id, const char* buffer, size_t buffer_size ) {
+int apply_context::db_store_i64( account_name account, account_name code, scope_name scope, uint64_t table, const account_name& payer, uint64_t id, const char* buffer, size_t buffer_size ) {
 //   require_write_lock( scope );
-   const auto& tab = find_or_create_table( code, scope, table, payer );
+   const auto& tab = find_or_create_table( account, code, scope, table, payer );
    auto tableid = tab.id;
 
    FC_ASSERT( payer != account_name(), "must specify a valid account to pay for new record" );

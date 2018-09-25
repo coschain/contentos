@@ -184,7 +184,7 @@ class apply_context {
 
 //               context.require_write_lock( scope );
 
-               const auto& tab = context.find_or_create_table( context.receiver, scope, table, payer );
+               const auto& tab = context.find_or_create_table( context.account, context.receiver, scope, table, payer );
 
                const auto& obj = context.db.create<ObjectType>( [&]( auto& o ){
                   o.t_id          = tab.id;
@@ -208,7 +208,7 @@ class apply_context {
                context.update_db_usage( obj.payer, -( config::billable_size_v<ObjectType> ) );
 
                const auto& table_obj = itr_cache.get_table( obj.t_id );
-               FC_ASSERT( table_obj.code == context.receiver, "db access violation" );
+               FC_ASSERT( table_obj.account == context.account && table_obj.code == context.receiver, "db access violation" );
 
 //               context.require_write_lock( table_obj.scope );
 
@@ -228,7 +228,7 @@ class apply_context {
                const auto& obj = itr_cache.get( iterator );
 
                const auto& table_obj = itr_cache.get_table( obj.t_id );
-               FC_ASSERT( table_obj.code == context.receiver, "db access violation" );
+               FC_ASSERT( table_obj.account == context.account && table_obj.code == context.receiver, "db access violation" );
 
 //               context.require_write_lock( table_obj.scope );
 
@@ -247,8 +247,8 @@ class apply_context {
                });
             }
 
-            int find_secondary( account_name code, scope_name scope, uint64_t table, secondary_key_proxy_const_type secondary, uint64_t& primary ) {
-               auto tab = context.find_table( code, scope, table );
+            int find_secondary( account_name account, account_name code, scope_name scope, uint64_t table, secondary_key_proxy_const_type secondary, uint64_t& primary ) {
+               auto tab = context.find_table( account, code, scope, table );
                if( !tab ) return -1;
 
                auto table_end_itr = itr_cache.cache_table( *tab );
@@ -261,8 +261,8 @@ class apply_context {
                return itr_cache.add( *obj );
             }
 
-            int lowerbound_secondary( account_name code, scope_name scope, uint64_t table, secondary_key_proxy_type secondary, uint64_t& primary ) {
-               auto tab = context.find_table( code, scope, table );
+            int lowerbound_secondary( account_name account, account_name code, scope_name scope, uint64_t table, secondary_key_proxy_type secondary, uint64_t& primary ) {
+               auto tab = context.find_table( account, code, scope, table );
                if( !tab ) return -1;
 
                auto table_end_itr = itr_cache.cache_table( *tab );
@@ -278,8 +278,8 @@ class apply_context {
                return itr_cache.add( *itr );
             }
 
-            int upperbound_secondary( account_name code, scope_name scope, uint64_t table, secondary_key_proxy_type secondary, uint64_t& primary ) {
-               auto tab = context.find_table( code, scope, table );
+            int upperbound_secondary( account_name account, account_name code, scope_name scope, uint64_t table, secondary_key_proxy_type secondary, uint64_t& primary ) {
+               auto tab = context.find_table( account, code, scope, table );
                if( !tab ) return -1;
 
                auto table_end_itr = itr_cache.cache_table( *tab );
@@ -295,8 +295,8 @@ class apply_context {
                return itr_cache.add( *itr );
             }
 
-            int end_secondary( account_name code, scope_name scope, uint64_t table ) {
-               auto tab = context.find_table( code, scope, table );
+            int end_secondary( account_name account, account_name code, scope_name scope, uint64_t table ) {
+               auto tab = context.find_table( account, code, scope, table );
                if( !tab ) return -1;
 
                return itr_cache.cache_table( *tab );
@@ -349,8 +349,8 @@ class apply_context {
                return itr_cache.add(*itr);
             }
 
-            int find_primary( account_name code, scope_name scope, uint64_t table, secondary_key_proxy_type secondary, uint64_t primary ) {
-               auto tab = context.find_table( code, scope, table );
+            int find_primary( account_name account, account_name code, scope_name scope, uint64_t table, secondary_key_proxy_type secondary, uint64_t primary ) {
+               auto tab = context.find_table( account, code, scope, table );
                if( !tab ) return -1;
 
                auto table_end_itr = itr_cache.cache_table( *tab );
@@ -362,8 +362,8 @@ class apply_context {
                return itr_cache.add( *obj );
             }
 
-            int lowerbound_primary( account_name code, scope_name scope, uint64_t table, uint64_t primary ) {
-               auto tab = context.find_table( code, scope, table );
+            int lowerbound_primary( account_name account, account_name code, scope_name scope, uint64_t table, uint64_t primary ) {
+               auto tab = context.find_table( account, code, scope, table );
                if (!tab) return -1;
 
                auto table_end_itr = itr_cache.cache_table( *tab );
@@ -376,8 +376,8 @@ class apply_context {
                return itr_cache.add(*itr);
             }
 
-            int upperbound_primary( account_name code, scope_name scope, uint64_t table, uint64_t primary ) {
-               auto tab = context.find_table( code, scope, table );
+            int upperbound_primary( account_name account, account_name code, scope_name scope, uint64_t table, uint64_t primary ) {
+               auto tab = context.find_table( account, code, scope, table );
                if ( !tab ) return -1;
 
                auto table_end_itr = itr_cache.cache_table( *tab );
@@ -560,11 +560,11 @@ class apply_context {
 
    private:
 
-      const table_id_object* find_table( account_name code, scope_name scope, name table );
-      const table_id_object& find_or_create_table( account_name code, scope_name scope, name table, const account_name &payer );
+      const table_id_object* find_table(  account_name account, account_name code, scope_name scope, name table );
+      const table_id_object& find_or_create_table( account_name account, account_name code, scope_name scope, name table, const account_name &payer );
       void                   remove_table( const table_id_object& tid );
 
-      int  db_store_i64( account_name code, scope_name scope, uint64_t table, const account_name& payer, uint64_t id, const char* buffer, size_t buffer_size );
+      int  db_store_i64( account_name account, account_name code, scope_name scope, uint64_t table, const account_name& payer, uint64_t id, const char* buffer, size_t buffer_size );
 
 
    /// Misc methods:
@@ -595,6 +595,7 @@ class apply_context {
       chainbase::database&          db;  ///< database where state is stored
       transaction_context&          trx_context; ///< transaction context in which the vm_operation is running
       const vm_operation&           op; ///< message being applied
+      account_name                  account;///< the account that owner of the contract
       account_name                  receiver; ///< the code that is currently running
       uint32_t                      recurse_depth; ///< how deep inline actions can recurse
       bool                          privileged   = false;
