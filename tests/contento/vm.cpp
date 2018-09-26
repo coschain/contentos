@@ -128,7 +128,7 @@ bytes param_to_bin(database &db, namex account_name, namex contract_name, name a
    const auto contract_acc = db.get_account(account_name);
    abi_def abi;
    bytes result;
-   if(abi_serializer::to_abi(*contract_acc.all_contract.get_abi(contract_name), abi)) {
+   if(abi_serializer::to_abi(contract_acc.all_contract.get_abi(contract_name), abi)) {
       abi_serializer abis(abi);
       auto action_type = abis.get_action_type(action_name);
       FC_ASSERT( !action_type.empty(), "unknown action ${action} in contract ${contract}", 

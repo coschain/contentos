@@ -60,10 +60,10 @@ uint64_t contract_storage::get_table_index_name(const get_table_rows_params& p, 
 }
 
 table_rows_api_obj contract_storage::get_table_rows( const get_table_rows_params& p )const {
-   const account_object *acc = _db.find<account_object, by_name>(p.code);
-   CONTENTO_ASSERT(acc != nullptr, chain::contract_table_query_exception, "Failed to retrieve account for ${account}", ("account", p.code));
+   const account_object *acc = _db.find<account_object, by_name>(p.account);
+   CONTENTO_ASSERT(acc != nullptr, chain::contract_table_query_exception, "Failed to retrieve account for ${account}", ("account", p.account));
    abi_def abi;
-   abi_serializer::to_abi(acc->abi, abi);
+   abi_serializer::to_abi(acc->all_contract.get_abi(p.code), abi);
 
    bool primary = false;
    table_rows_api_obj result;

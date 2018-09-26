@@ -44,7 +44,7 @@ namespace contento { namespace chain {
          void set_vm_console(const std::string& s);
          const std::string& get_vm_console() const;
 
-         void apply( const vm_operation& op, account_name receiver, bool context_free = false, uint32_t recurse_depth = 0 );
+         void apply( const vm_operation& op, account_name account, account_name receiver, bool context_free = false, uint32_t recurse_depth = 0 );
          inline void apply( const vm_operation& op, bool context_free = false ) {
             apply(op, op.contract_name, context_free);
          };

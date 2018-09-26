@@ -45,7 +45,7 @@ void apply_contento_setcode(apply_context& context) {
    const auto& account = db.get<account_object,by_name>(act.account);
     // todo: get contract from contract_map
    int64_t code_size = (int64_t)act.code.size();
-   int64_t old_size  = account.all_contract.get_contract_code_size() * config::setcode_ram_bytes_multiplier;
+   int64_t old_size  = account.all_contract.get_contract_code_size(context.op.contract_name) * config::setcode_ram_bytes_multiplier;
    int64_t new_size  = code_size * config::setcode_ram_bytes_multiplier;
 
    FC_ASSERT( account.all_contract.get_code_version(act.contract) != code_id, "contract is already running this version of code" );
@@ -88,7 +88,7 @@ void apply_contento_setabi(apply_context& context) {
 
    int64_t abi_size = act.abi.size();
  // todo: get contract from contract_map
-    int64_t old_size = account.all_contract.get_contract_abi_size();
+    int64_t old_size = account.all_contract.get_contract_abi_size(context.op.contract_name);
    int64_t new_size = abi_size;
 // todo: set contract to contract_map
    db.modify( account, [&]( auto& a ) {

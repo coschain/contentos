@@ -103,11 +103,11 @@ namespace contento { namespace chain { namespace wasm_price {
     (db_##IDX##_store,          (int, int,int64_t,int,int64_t,int))\
     (db_##IDX##_remove,         (void*, int))\
     (db_##IDX##_update,         (void*, int,int,int))\
-    (db_##IDX##_find_primary,   (int, int,int,int64_t,int,int64_t))\
-    (db_##IDX##_find_secondary, (int, int,int,int64_t,int,int))\
-    (db_##IDX##_lowerbound,     (int, int,int,int64_t,int,int))\
-    (db_##IDX##_upperbound,     (int, int,int,int64_t,int,int))\
-    (db_##IDX##_end,            (int, int,int,int64_t))\
+    (db_##IDX##_find_primary,   (int,int, int,int,int64_t,int,int64_t))\
+    (db_##IDX##_find_secondary, (int,int, int,int,int64_t,int,int))\
+    (db_##IDX##_lowerbound,     (int,int, int,int,int64_t,int,int))\
+    (db_##IDX##_upperbound,     (int,int, int,int,int64_t,int,int))\
+    (db_##IDX##_end,            (int,int, int,int,int64_t))\
     (db_##IDX##_next,           (int, int, int))\
     (db_##IDX##_previous,       (int, int, int))
     
@@ -115,11 +115,11 @@ namespace contento { namespace chain { namespace wasm_price {
     (db_##IDX##_store,          (int, int,int64_t,int,int64_t,int,int))\
     (db_##IDX##_remove,         (void*, int))\
     (db_##IDX##_update,         (void*, int,int,int,int))\
-    (db_##IDX##_find_primary,   (int, int,int,int64_t,int,int,int64_t))\
-    (db_##IDX##_find_secondary, (int, int,int,int64_t,int,int,int))\
-    (db_##IDX##_lowerbound,     (int, int,int,int64_t,int,int,int))\
-    (db_##IDX##_upperbound,     (int, int,int,int64_t,int,int,int))\
-    (db_##IDX##_end,            (int, int,int,int64_t))\
+    (db_##IDX##_find_primary,   (int,int, int,int,int64_t,int,int,int64_t))\
+    (db_##IDX##_find_secondary, (int,int, int,int,int64_t,int,int,int))\
+    (db_##IDX##_lowerbound,     (int,int, int,int,int64_t,int,int,int))\
+    (db_##IDX##_upperbound,     (int,int, int,int,int64_t,int,int,int))\
+    (db_##IDX##_end,            (int,int, int,int,int64_t))\
     (db_##IDX##_next,           (int, int, int))\
     (db_##IDX##_previous,       (int, int, int))
     
@@ -186,7 +186,9 @@ namespace contento { namespace chain { namespace wasm_price {
                         (action_data_size,       (int)            )
                         // (current_receiver,       (int)        )
                         (current_receiver,           (void*, int))
+                        (current_account,           (void*, int)  )
                         (current_contract_name,      (void*, int))
+                        (current_account_name,           (void*, int)  )
                         (current_caller,             (void*, int))
                         );
     

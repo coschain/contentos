@@ -178,13 +178,14 @@ class privileged_api : public context_aware_api {
       }
 
       bool is_privileged( account_name& n )const {
-         return context.db.get<account_object, by_name>( n ).privileged;
+        // return context.db.get<account_object, by_name>( n ).privileged;
+          return false;
       }
 
       void set_privileged( account_name& n, bool is_priv ) {
          const auto& a = context.db.get<account_object, by_name>( n );
          context.db.modify( a, [&]( auto& ma ){
-            ma.privileged = is_priv;
+           // ma.privileged = is_priv;
          });
       }
 
@@ -1793,11 +1794,11 @@ REGISTER_INTRINSICS_WITH_PRICE(contract_bank_api,
    WITH_PRICE (db_##IDX##_store,          int(int,int64_t,int,int64_t,int))\
    WITH_PRICE (db_##IDX##_remove,         void(int))\
    WITH_PRICE (db_##IDX##_update,         void(int,int,int))\
-   WITH_PRICE (db_##IDX##_find_primary,   int(int,int,int64_t,int,int64_t))\
-   WITH_PRICE (db_##IDX##_find_secondary, int(int,int,int64_t,int,int))\
-   WITH_PRICE (db_##IDX##_lowerbound,     int(int,int,int64_t,int,int))\
-   WITH_PRICE (db_##IDX##_upperbound,     int(int,int,int64_t,int,int))\
-   WITH_PRICE (db_##IDX##_end,            int(int,int,int64_t))\
+   WITH_PRICE (db_##IDX##_find_primary,   int(int,int,int,int64_t,int,int64_t))\
+   WITH_PRICE (db_##IDX##_find_secondary, int(int,int,int,int64_t,int,int))\
+   WITH_PRICE (db_##IDX##_lowerbound,     int(int,int,int,int64_t,int,int))\
+   WITH_PRICE (db_##IDX##_upperbound,     int(int,int,int,int64_t,int,int))\
+   WITH_PRICE (db_##IDX##_end,            int(int,int,int,int64_t))\
    WITH_PRICE (db_##IDX##_next,           int(int, int))\
    WITH_PRICE (db_##IDX##_previous,       int(int, int))
 
@@ -1805,11 +1806,11 @@ REGISTER_INTRINSICS_WITH_PRICE(contract_bank_api,
       WITH_PRICE (db_##IDX##_store,          int(int,int64_t,int,int64_t,int, int))\
       WITH_PRICE (db_##IDX##_remove,         void(int))\
       WITH_PRICE (db_##IDX##_update,         void(int,int,int,int))\
-      WITH_PRICE (db_##IDX##_find_primary,   int(int,int,int64_t,int,int,int64_t))\
-      WITH_PRICE (db_##IDX##_find_secondary, int(int,int,int64_t,int,int,int))\
-      WITH_PRICE (db_##IDX##_lowerbound,     int(int,int,int64_t,int,int,int))\
-      WITH_PRICE (db_##IDX##_upperbound,     int(int,int,int64_t,int,int,int))\
-      WITH_PRICE (db_##IDX##_end,            int(int,int,int64_t))\
+      WITH_PRICE (db_##IDX##_find_primary,   int(int,int,int,int64_t,int,int,int64_t))\
+      WITH_PRICE (db_##IDX##_find_secondary, int(int,int,int,int64_t,int,int,int))\
+      WITH_PRICE (db_##IDX##_lowerbound,     int(int,int,int,int64_t,int,int,int))\
+      WITH_PRICE (db_##IDX##_upperbound,     int(int,int,int,int64_t,int,int,int))\
+      WITH_PRICE (db_##IDX##_end,            int(int,int,int,int64_t))\
       WITH_PRICE (db_##IDX##_next,           int(int, int))\
       WITH_PRICE (db_##IDX##_previous,       int(int, int))
 

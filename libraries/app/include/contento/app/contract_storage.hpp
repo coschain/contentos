@@ -66,6 +66,7 @@ namespace contract_storage_def {
  };
 
 struct get_table_rows_params {
+      account_name   account;
       account_name   code;
       scope_name     scope;
       name           table;
@@ -77,10 +78,11 @@ struct get_table_rows_params {
       string         index_position; // 1 - primary (first), 2 - secondary index (in order defined by multi_index), 3 - third index, etc
       string         encode_type{"dec"}; //dec, hex , default=dec
 
-      get_table_rows_params(string code, string scope, string table,
+      get_table_rows_params(string account, string code, string scope, string table,
                            string lower_bound, string upper_bound, int limit,
                            string key_type, string index_pos, string encode_type)
-                           :code(code)
+                           :account(account)
+                           ,code(code)
                            ,scope(scope)
                            ,table(table)
                            ,lower_bound(lower_bound)
@@ -124,8 +126,8 @@ public:
 
       bool primary = false;
       const uint64_t table_with_index = get_table_index_name(p, primary);
-      const auto* t_id = _db.find<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple(p.code, scope, p.table));
-      const auto* index_t_id = _db.find<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple(p.code, scope, table_with_index));
+      const auto* t_id = _db.find<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple(p.account, p.code, scope, p.table));
+      const auto* index_t_id = _db.find<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple(p.account, p.code, scope, table_with_index));
       if (t_id != nullptr && index_t_id != nullptr) {
          const auto& secidx = _db.get_index<IndexType, chain::by_secondary>();
          decltype(index_t_id->id) low_tid(index_t_id->id._id);
@@ -184,7 +186,7 @@ public:
 
       uint64_t scope = convert_to_type<uint64_t>(p.scope, "scope");
 
-      const auto* t_id = _db.find<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple(p.code, scope, p.table));
+      const auto* t_id = _db.find<chain::table_id_object, chain::by_code_scope_table>(boost::make_tuple(p.account, p.code, scope, p.table));
       if (t_id != nullptr) {
          const auto& idx = _db.get_index<IndexType, chain::by_scope_primary>();
          decltype(t_id->id) next_tid(t_id->id._id + 1);

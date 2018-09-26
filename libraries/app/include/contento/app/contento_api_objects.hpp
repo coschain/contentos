@@ -171,13 +171,13 @@ struct account_code_api_obj{
       name(a.name)
    {
        account_name contract_name(contract);
-       int64_t code_size = a.all_contract.get_contract_code_size();
+       int64_t code_size = a.all_contract.get_contract_code_size(contract_name);
       code.resize(code_size);
-      memcpy( code.data(), a.all_contract.get_code(contract_name)->data(), code_size);
+      memcpy( code.data(), a.all_contract.get_code(contract_name).data(), code_size);
 
-       int64_t abi_size = a.all_contract.get_contract_abi_size();
+       int64_t abi_size = a.all_contract.get_contract_abi_size(contract_name);
       abi.resize(abi_size);
-      memcpy( abi.data(), a.all_contract.get_abi(contract_name)->data(), abi_size);
+      memcpy( abi.data(), a.all_contract.get_abi(contract_name).data(), abi_size);
 
    }
 

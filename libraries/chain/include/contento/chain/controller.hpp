@@ -58,7 +58,7 @@ namespace contento { namespace chain {
                try {
                   const auto& a = get_account( n );
                   abi_def abi;
-                  if( abi_serializer::to_abi( *a.all_contract.get_abi(contract), abi ))
+                  if( abi_serializer::to_abi( a.all_contract.get_abi(contract), abi ))
                      return abi_serializer( abi );
                } FC_CAPTURE_AND_LOG((n))
             }

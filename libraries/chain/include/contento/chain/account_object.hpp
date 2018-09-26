@@ -11,6 +11,8 @@
 
 #include <boost/multi_index/composite_key.hpp>
 
+#include <contento/protocol/exceptions.hpp>
+
 #include <numeric>
 
 namespace contento { namespace chain {
@@ -74,7 +76,7 @@ namespace contento { namespace chain {
                                memcpy( (void*)itr->second.abi.data(), abi.data(), abi_size );
                        }
                    }
-                   int64_t get_contract_code_size(account_name_type name){
+                   int64_t get_contract_code_size(account_name_type name) const {
                        auto itr = contracts.find(name);
                        if(itr == contracts.end()){
                            return 0;
@@ -84,7 +86,7 @@ namespace contento { namespace chain {
                        }
                    }
                    
-                   digest_type get_code_version(account_name_type name){
+                   digest_type get_code_version(account_name_type name) const {
                        auto itr = contracts.find(name);
                        if(itr == contracts.end()){
                            fc::sha256 code_id;
@@ -94,7 +96,7 @@ namespace contento { namespace chain {
                        }
                    }
                    
-                   int64_t get_contract_abi_size(account_name_type name){
+                   int64_t get_contract_abi_size(account_name_type name) const {
                        auto itr = contracts.find(name);
                        if(itr == contracts.end()){
                            return 0;
@@ -104,21 +106,31 @@ namespace contento { namespace chain {
                        }
                    }
                    
-                   const shared_string& get_abi(account_name_type name) const{
+                   const shared_string& get_abi(account_name_type name) const {
                        auto itr = contracts.find(name);
                        if(itr == contracts.end()){
                            //shared_string tmp; // compile error, need a allocator(segment manager)
-                           return NULL;
+                           FC_THROW_EXCEPTION( contento::protocol::contract_exception, "invalid contract name ${n}", ("n", name) );
                        } else {
                            
                            return itr->second.abi;
                        }
                    }
         
-        const shared_string& get_code(account_name_type name) const{
+        const contract_info& get_contract(account_name_type name) const {
             auto itr = contracts.find(name);
             if(itr == contracts.end()){
-                return NULL;
+                //shared_string tmp; // compile error, need a allocator(segment manager)
+                FC_THROW_EXCEPTION( contento::protocol::contract_exception, "invalid contract name ${n}", ("n", name) );
+            } else {
+                return itr->second;
+            }
+        }
+        
+        const shared_string& get_code(account_name_type name) const {
+            auto itr = contracts.find(name);
+            if(itr == contracts.end()){
+                FC_THROW_EXCEPTION( contento::protocol::contract_exception, "invalid contract name ${n}", ("n", name) );
             } else {
                 
                 return itr->second.code;

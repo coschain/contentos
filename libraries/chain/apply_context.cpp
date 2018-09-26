@@ -49,19 +49,20 @@ void apply_context::exec_one()
    //const auto& cfg = control.get_global_properties().configuration;
    try {
       const auto &a = control.get_account(account);
-      privileged = a.privileged;
+      //privileged = a.privileged;
       auto native = control.find_apply_handler(op.account_name, op.contract_name, op.action_name);
-
+       
       if( native ) {
          (*native)(*this);
          return;
       }
-
-      if( a.code.size() > 0
+      const auto &ct = a.all_contract.get_contract(op.contract_name);
+       
+      if( ct.code.size() > 0
           && !(op.contract_name == config::system_account_name && op.action_name == N(setcode) && receiver == config::system_account_name) )
       {
          try {
-            control.get_wasm_interface().apply(a.code_version, a.code, *this);
+            control.get_wasm_interface().apply(ct.code_version, ct.code, *this);
             trx_context.set_vm_console(_pending_console_output.str());
          } catch ( const wasm_exit& ){
             trx_context.set_vm_console(_pending_console_output.str());

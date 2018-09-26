@@ -22,6 +22,8 @@ namespace contento { namespace protocol {
    FC_DECLARE_DERIVED_EXCEPTION( tx_missing_other_auth,             contento::protocol::transaction_exception, 3040000, "missing required other authority" )
    FC_DECLARE_DERIVED_EXCEPTION( tx_irrelevant_sig,                 contento::protocol::transaction_exception, 3050000, "irrelevant signature included" )
    FC_DECLARE_DERIVED_EXCEPTION( tx_duplicate_sig,                  contento::protocol::transaction_exception, 3060000, "duplicate signature included" )
+    
+    FC_DECLARE_EXCEPTION( contract_exception, 5000000, "contract exception" )
 
    #define CONTENTO_RECODE_EXC( cause_type, effect_type ) \
       catch( const cause_type& e ) \

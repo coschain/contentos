@@ -199,9 +199,9 @@ class database_api
 
       vector< extended_account > get_accounts( vector< string > names ) const;
 
-      account_code_api_obj get_account_code(string name ) const;
+      account_code_api_obj get_account_code(string name, string contract ) const;
 
-      table_rows_api_obj get_table_rows(string code, string scope, string table,
+      table_rows_api_obj get_table_rows(string account, string code, string scope, string table,
                               string lower_bound, string upper_bound, int limit,
                               string key_type, string index_pos, string encode_type) const;
 
