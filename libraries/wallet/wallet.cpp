@@ -367,17 +367,17 @@ public:
       return accounts.front();
    }
 
-   account_code_api_obj get_account_code( string account_name ) const
+   account_code_api_obj get_account_code( string account_name, string contract ) const
    {
-      auto account = _remote_db->get_account_code( account_name );
+      auto account = _remote_db->get_account_code( account_name, contract );
       return account;
    }
 
-   table_rows_api_obj get_table_rows(string code, string scope, string table,
+   table_rows_api_obj get_table_rows(string account, string code, string scope, string table,
                               string lower_bound, string upper_bound, int limit,
                               string key_type, string index_pos, string encode_type) const 
    {
-      return _remote_db->get_table_rows(code, scope, table, lower_bound, upper_bound, 
+      return _remote_db->get_table_rows(account, code, scope, table, lower_bound, upper_bound,
                                         limit, key_type, index_pos, encode_type);
    }
 
@@ -1170,19 +1170,19 @@ account_api_obj wallet_api::get_account( string account_name ) const
    return my->get_account( account_name );
 }
 
-account_code_api_obj wallet_api::get_account_code( string account_name ) const
+account_code_api_obj wallet_api::get_account_code( string account_name, string contract ) const
 {
-   return my->get_account_code( account_name );
+   return my->get_account_code( account_name, contract );
 }
 
-wallet_table_rows wallet_api::get_table_rows(string code, string scope, string table,
+wallet_table_rows wallet_api::get_table_rows(string account, string code, string scope, string table,
                                   string lower_bound, string upper_bound, int limit,
                                   string key_type, string index_pos, string encode_type) const
 {
-   auto obj = my->get_table_rows(code, scope, table, lower_bound, upper_bound, 
+   auto obj = my->get_table_rows(account, code, scope, table, lower_bound, upper_bound,
                                         limit, key_type, index_pos, encode_type);
 
-   auto contract = get_account_code(code);
+   auto contract = get_account_code(account, code);
    abi_def abi;
    abi_serializer::to_abi(contract.abi, abi);
    
@@ -2627,7 +2627,7 @@ fc::variant json_from_file_or_string(const string& file_or_str, fc::json::parse_
    }
 }
 
-bytes param_to_bin(const wallet_api &api, string contract_name, string action_name, string param) {
+bytes param_to_bin(const wallet_api &api, string account, string contract_name, string action_name, string param) {
    fc::variant action_args_var;
    if( !param.empty() ) {
       try {
@@ -2638,7 +2638,7 @@ bytes param_to_bin(const wallet_api &api, string contract_name, string action_na
       }
    }
 
-   const auto contract_acc = api.get_account_code(contract_name);
+   const auto contract_acc = api.get_account_code(account, contract_name);
    abi_def abi;
    bytes result;
    if(abi_serializer::to_abi(contract_acc.abi, abi)) {
@@ -2659,16 +2659,16 @@ bytes param_to_bin(const wallet_api &api, string contract_name, string action_na
    return result;                        
 }
 
-annotated_signed_transaction wallet_api::push_action(string caller, string contract_name, string action_name, string action_param, bool broadcast) {
-   bytes bin = param_to_bin(*this, contract_name, action_name, action_param);
+annotated_signed_transaction wallet_api::push_action(string caller, string account, string contract_name, string action_name, string action_param, bool broadcast) {
+   bytes bin = param_to_bin(*this, account, contract_name, action_name, action_param);
    signed_transaction tx;
-   tx.operations.push_back( vm_operation(caller, contract_name, action_name, bin) );
+   tx.operations.push_back( vm_operation(caller, account, contract_name, action_name, bin) );
    tx.validate();
 
    return my->sign_transaction( tx, broadcast );
 }
 
-asset wallet_api::estimate_gas(string caller, string contract_name, string action_name, string action_data) {
+asset wallet_api::estimate_gas(string caller, string account, string contract_name, string action_name, string action_data) {
     try
     {
         my->use_gas_estimate_api();
@@ -2678,9 +2678,9 @@ asset wallet_api::estimate_gas(string caller, string contract_name, string actio
         elog( "Connected node needs to enable contento_gas_estimate_api" );
         return asset(0);
     }
-    bytes bin = param_to_bin(*this, contract_name, action_name, action_data);
+    bytes bin = param_to_bin(*this, account, contract_name, action_name, action_data);
     signed_transaction tx;
-    tx.operations.push_back( vm_operation(caller, contract_name, action_name, bin) );
+    tx.operations.push_back( vm_operation(caller, account, contract_name, action_name, bin) );
     tx.validate();
     
     return my->estimate_gas(tx);
@@ -2824,7 +2824,8 @@ void wallet_api::set_code_callback( string accountname, string contract_dir, str
     }
       
       tx.operations.push_back ( vm_operation ( accountname, 
-                                               setcode { contract_name, 
+                                               setcode { accountname,
+                                                         contract_name,
                                                          0, 
                                                          0, 
                                                          compression,
@@ -2856,7 +2857,8 @@ void wallet_api::set_abi_callback( string accountname, string contract_dir, stri
 
       try {
             tx.operations.push_back ( vm_operation ( accountname, 
-                                                     setabi { contract_name, 
+                                                     setabi { accountname,
+                                                              contract_name,
                                                               compression,
                                                               abi
                                                             } 

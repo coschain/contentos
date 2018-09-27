@@ -192,9 +192,9 @@ class wallet_api
        * @returns the public account data stored in the blockchain
        */
       account_api_obj                     get_account( string account_name ) const;
-      account_code_api_obj                get_account_code( string account_name ) const;
+      account_code_api_obj                get_account_code( string account_name, string contract ) const;
 
-      wallet_table_rows                get_table_rows(string code, string scope, string table,
+      wallet_table_rows                get_table_rows(string account, string code, string scope, string table,
                                                 string lower_bound, string upper_bound, int limit,
                                                 string key_type, string index_pos, string encode_type) const;
 
@@ -987,17 +987,18 @@ class wallet_api
        *        json string or a file contains a json string
        * @param broadcast true if you wish to broadcast the transaction
        */
-      annotated_signed_transaction push_action(string caller, string contract_name, string action_name, string action_data, bool broadcast);
+      annotated_signed_transaction push_action(string caller, string account, string contract_name, string action_name, string action_data, bool broadcast);
     
       /**
        *
        * @param caller The account who want to exec the action
+       * @param account name of the account
        * @param contract_name name of the contract
        * @param action_name name of the contract action
        * @param action_data the parameter of the action, can either be a
        *        json string or a file contains a json string
       */
-      asset estimate_gas(string caller, string contract_name, string action_name, string action_data);
+      asset estimate_gas(string caller, string account, string contract_name, string action_name, string action_data);
     
       /**
        * @param name The contract name
