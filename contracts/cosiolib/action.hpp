@@ -85,7 +85,7 @@ namespace cosio {
     
     namex current_account() {
         namex_ account;
-        current_account(&accout);
+        current_account(&account);
         return account;
     }
 

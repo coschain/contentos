@@ -377,7 +377,7 @@ BOOST_AUTO_TEST_CASE( storage )
    );
    push_action(db, storage_private_key, N16(storage), N16(storage), N(contract1), N(canceloffer),
         "[\"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\"]",v);
-   push_action(db, hello_private_key, N16(hello), N16(storage), N(placeoffer), 
+   push_action(db, hello_private_key, N16(hello), N16(storage), N(contract1), N(placeoffer), 
                "[ \"hello\", \"3.000 COS\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]",v);
 
    push_action(db, storage_private_key, N16(storage), N16(storage), N(contract1), N(callhello), "[]", v);

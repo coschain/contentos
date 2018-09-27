@@ -26,7 +26,7 @@ class storage : public cosio::contract {
 
       storage(account_name self)
       :cosio::contract(self),
-       offers(_self, _self)
+       offers(_self, _self, _self)
       {}
       
       //@abi action
