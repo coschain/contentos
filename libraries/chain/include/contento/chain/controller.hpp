@@ -44,9 +44,8 @@ namespace contento { namespace chain {
          ::chainbase::database& db()const;
 
          const account_object&                 get_account( account_name n )const;
-         const contract_balance_object&                 get_contract_account( account_name n )const;
          void adjust_balance( const account_object& a, const asset& delta );
-         void adjust_contract_balance( const contract_balance_object& a, const asset& delta );
+         void adjust_contract_balance( const account_object& a, account_name contract,const asset& delta );
          const dynamic_global_property_object& get_global_properties() const;
          const time_point_sec head_block_time() const;
          const apply_handler* find_apply_handler( account_name contract, scope_name scope, action_name act )const;

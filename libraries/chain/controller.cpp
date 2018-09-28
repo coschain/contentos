@@ -6,7 +6,7 @@
 #include <fc/io/json.hpp>
 #include <contento/chain/exceptions.hpp>
 #include <contento/chain/contento_contract.hpp>
-#include <contento/chain/contract_balance_object.hpp>
+//#include <contento/chain/contract_balance_object.hpp>
 
 namespace contento { namespace chain {
 
@@ -106,11 +106,6 @@ const account_object& controller::get_account( account_name name )const
 { try {
    return my->db.get<account_object, by_name>(name);
 } FC_CAPTURE_AND_RETHROW( (name) ) }
-
-const contract_balance_object& controller::get_contract_account( account_name name )const
-{ try {
-    return my->db.get<contract_balance_object, by_name >( name );
-} FC_CAPTURE_AND_RETHROW( (name) ) }
     
 void controller::adjust_balance( const account_object& a, const asset& delta )
 {
@@ -127,19 +122,12 @@ void controller::adjust_balance( const account_object& a, const asset& delta )
            } );
 }
     
-void controller::adjust_contract_balance( const contract_balance_object& a, const asset& delta )
+void controller::adjust_contract_balance( const account_object& a, account_name contract,const asset& delta )
 {
-    my->db.modify( a, [&]( contract_balance_object& cbo )
-           {
-               switch( delta.symbol )
-               {
-                   case COS_SYMBOL:
-                       cbo.cos_balance += delta;
-                       break;
-                   default:
-                       FC_ASSERT( false, "invalid symbol" );
-               }
-           } );
+    my->db.modify( a, [&]( account_object& acnt )
+                  {
+                      acnt.all_contract.adjust_contract_balance(contract, delta);
+                  } );
 }
 
 controller::~controller() {

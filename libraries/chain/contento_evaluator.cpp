@@ -2410,7 +2410,8 @@ void vm_evaluator::do_apply( const vm_operation& o )  {
             
             FC_ASSERT( _db.get_balance( caller, o.value.symbol ) >= o.value, "Account does not have sufficient funds for transfer." );
             _db.adjust_balance( caller, -o.value );
-            _db.adjust_contract_balance( _db.get_contract_account(o.contract_name), o.value );
+            const auto& contract_account = _db.get_account(o.account_name);
+            _db.adjust_contract_balance(contract_account,o.contract_name,o.value);
         }
         
         // apply vm action

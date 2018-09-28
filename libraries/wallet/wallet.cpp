@@ -2686,8 +2686,8 @@ asset wallet_api::estimate_gas(string caller, string account, string contract_na
     return my->estimate_gas(tx);
 }
     
-    asset wallet_api::get_contract_balance(string name) {
-        return my->_remote_db->get_contract_balance(name);
+    asset wallet_api::get_contract_balance(string account, string name) {
+        return my->_remote_db->get_contract_balance(account, name);
     }
     
 annotated_signed_transaction wallet_api::set_contract(string accountname, string contract_dir, string contract_name, bool broadcast ) {

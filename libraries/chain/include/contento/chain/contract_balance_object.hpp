@@ -1,5 +1,5 @@
 #pragma once
-
+/*
 namespace contento { namespace chain {
 
     class contract_balance_object : public object< contract_balance_object_type, contract_balance_object >
@@ -34,4 +34,4 @@ namespace contento { namespace chain {
 }}
 
 FC_REFLECT( contento::chain::contract_balance_object,(id)(contract_name)(cos_balance))
-CHAINBASE_SET_INDEX_TYPE( contento::chain::contract_balance_object, contento::chain::contract_balance_index )
+CHAINBASE_SET_INDEX_TYPE( contento::chain::contract_balance_object, contento::chain::contract_balance_index )*/

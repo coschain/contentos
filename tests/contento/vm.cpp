@@ -18,7 +18,7 @@
 #include <fc/compress/zlib.hpp>
 
 #include "fixtures/contento_fixture.hpp"
-#include <contento/chain/contract_balance_object.hpp>
+//#include <contento/chain/contract_balance_object.hpp>
 
 using namespace contento::chain;
 using namespace contento::protocol;
@@ -222,8 +222,8 @@ BOOST_AUTO_TEST_CASE( hello )
         // check send result
         const account_object& acct3 = db.get_account( "user2" );
         BOOST_REQUIRE( acct3.balance.amount.value < 10000 ); // self keep 10000 + withdraw 10000 - some gas
-        const contract_balance_object& cbo1 = db.get_contract_account( "user1" );// user1 is contract name
-        BOOST_REQUIRE( cbo1.cos_balance.amount.value == 39997 );
+         const account_object& crt1 = db.get_account("user1");
+        BOOST_REQUIRE( crt1.all_contract.get_contract_balance("contract1").amount.value == 39997 );
 
         // user2 withdraw 10 cos back
         string a = "[\"user2\",\"10.000 COS\"]";
@@ -233,19 +233,19 @@ BOOST_AUTO_TEST_CASE( hello )
         // check withdraw result
         const account_object& acct4 = db.get_account( "user2" );
         BOOST_REQUIRE( acct4.balance.amount.value < 20000 );  // ??? how much gas?
-        const contract_balance_object& cbo2 = db.get_contract_account( "user1" );// user1 is contract name
-        BOOST_REQUIRE( cbo2.cos_balance.amount.value == 29997 );
+        const account_object& crt2 = db.get_account("user1");
+        BOOST_REQUIRE( crt2.all_contract.get_contract_balance("contract1").amount.value == 29997 );
         
         // user2 send invalid cos to contract, should failed and exception
         auto origin_user = acct4.balance.amount.value;
-        auto origin_contract = cbo2.cos_balance.amount.value;
+            auto origin_contract = crt2.all_contract.get_contract_balance("contract1").amount.value;
 
         asset v3 = asset::from_string( "2000.000 COS" );
-            BOOST_REQUIRE_THROW(push_action(db, user2_private_key, N16(user2), N16(user1), N16(contract1), N(save), "", v3),fc::exception);
+        BOOST_REQUIRE_THROW(push_action(db, user2_private_key, N16(user2), N16(user1), N16(contract1), N(save), "", v3),fc::exception);
         const account_object& acct5 = db.get_account( "user2" );
         BOOST_REQUIRE( acct5.balance.amount.value < origin_user );// consume gas
-        const contract_balance_object& cbo3 = db.get_contract_account( "user1" );// user1 is contract name
-        BOOST_REQUIRE( cbo3.cos_balance.amount.value == origin_contract );
+        const account_object& crt3 = db.get_account("user1");
+        BOOST_REQUIRE( crt3.all_contract.get_contract_balance("contract1").amount.value == origin_contract );
 
 
         // user2 withdraw invalid cos from contract, should failed and exception
@@ -255,8 +255,8 @@ BOOST_AUTO_TEST_CASE( hello )
         BOOST_REQUIRE_THROW(push_action(db, user2_private_key, N16(user2), N16(user1),N16(contract1), N(withdraw), a, v4),fc::exception);
         const account_object& acct6 = db.get_account( "user2" );
         BOOST_REQUIRE( acct6.balance.amount.value < origin_user );// consume gas
-        const contract_balance_object& cbo4 = db.get_contract_account( "user1" );// user1 is contract name
-        BOOST_REQUIRE( cbo4.cos_balance.amount.value == origin_contract );
+        const account_object& crt4 = db.get_account("user1");
+        BOOST_REQUIRE( crt4.all_contract.get_contract_balance("contract1").amount.value == origin_contract );
 
         // user2 send cos to contract by a payprohibited api, should failed and exception
         a = "[\"user2\",\"5.000 COS\"]";
@@ -265,8 +265,9 @@ BOOST_AUTO_TEST_CASE( hello )
             BOOST_REQUIRE_THROW(push_action(db, user2_private_key, N16(user2), N16(user1),N16(contract1), N(withdraw), a, v5),fc::exception);
         const account_object& acct7 = db.get_account( "user2" );
         BOOST_REQUIRE( acct7.balance.amount.value < origin_user);// consume gas
-        const contract_balance_object& cbo5 = db.get_contract_account( "user1" );// user1 is contract name
-        BOOST_REQUIRE( cbo5.cos_balance.amount.value == origin_contract );
+        const account_object& crt5 = db.get_account("user1");
+        BOOST_REQUIRE( crt5.all_contract.get_contract_balance("contract1").amount.value == origin_contract );
+
 
         // user2 send 0 cos to contract by a payprohibited api, it's ok, and withdraw should success
         a = "[\"user2\",\"5.000 COS\"]";
@@ -274,8 +275,8 @@ BOOST_AUTO_TEST_CASE( hello )
         BOOST_REQUIRE_NO_THROW(push_action(db, user2_private_key, N16(user2), N16(user1),N16(contract1), N(withdraw), a, v6));
         const account_object& acct8 = db.get_account( "user2" );
         BOOST_REQUIRE( acct8.balance.amount.value < 25000 );  // ??? how much gas?
-        const contract_balance_object& cbo6 = db.get_contract_account( "user1" );// user1 is contract name
-        BOOST_REQUIRE( cbo6.cos_balance.amount.value == origin_contract - 5000 );
+        const account_object& crt6 = db.get_account("user1");
+        BOOST_REQUIRE( crt6.all_contract.get_contract_balance("contract1").amount.value == origin_contract - 5000);
 
         // user withdraw cos to a no exist user, should failed and exception
          a = "[\"user12345\",\"10.000 COS\"]";
@@ -284,8 +285,9 @@ BOOST_AUTO_TEST_CASE( hello )
             BOOST_REQUIRE_THROW(push_action(db, user2_private_key, N16(user2), N16(user1),N16(contract1), N(withdraw), a,v7),fc::exception);
         const account_object& acct9 = db.get_account( "user2" );
         BOOST_REQUIRE( acct9.balance.amount.value < origin_user );// consume gas
-        const contract_balance_object& cbo7 = db.get_contract_account( "user1" );// user1 is contract name
-        BOOST_REQUIRE( cbo7.cos_balance.amount.value == origin_contract - 5000);
+        
+            const account_object& crt7 = db.get_account("user1");
+            BOOST_REQUIRE( crt7.all_contract.get_contract_balance("contract1").amount.value == origin_contract - 5000);
     }
     FC_LOG_AND_RETHROW()
 }
@@ -313,8 +315,8 @@ BOOST_AUTO_TEST_CASE( contract_bank_robust )
         // pre send cos to contract
         asset v3 = asset::from_string( "40.000 COS" );
         BOOST_REQUIRE_NO_THROW(push_action(db, user1_private_key, N16(user1), N16(user1), N16(contract1), N(save), "", v3));
-        const contract_balance_object& cbo3 = db.get_contract_account( "user1" );// user1 is contract name
-        BOOST_REQUIRE( cbo3.cos_balance.amount.value == 40000 );
+        const account_object& crt1 = db.get_account("user1");
+        BOOST_REQUIRE( crt1.all_contract.get_contract_balance("contract1").amount.value == 40000);
 
         // no exist user send cos to contract, it's throw exception at verify_authority, before vm excute
         asset v4 = asset::from_string( "10.000 COS" );

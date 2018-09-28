@@ -7,7 +7,7 @@
 //#include <contento/chain/authorization_manager.hpp>
 //#include <contento/chain/resource_limits.hpp>
 #include <contento/chain/account_object.hpp>
-#include <contento/chain/contract_balance_object.hpp>
+//#include <contento/chain/contract_balance_object.hpp>
 
 //#include <contento/chain/global_property_object.hpp>
 
@@ -547,8 +547,8 @@ bool apply_context::execute_operation( const std::vector<char>& op_buff ){
 }
 
 asset apply_context::get_contract_balance()  {
-    const auto& account = control.get_contract_account(receiver);
-    return account.cos_balance;
+    const auto& a = control.get_account(account);
+    return a.all_contract.get_contract_balance(receiver);
 }
     
 void apply_context::set_payable_flag() {
@@ -558,12 +558,13 @@ void apply_context::set_payable_flag() {
 void apply_context::transfer( account_name name, const asset& value)  {
     
     const auto& to_account = control.get_account(name);
-    const auto& from_account = control.get_contract_account(receiver);
+    const auto& from_account = control.get_account(account);
     
     FC_ASSERT( value > asset(0), "asset amount must > 0" );
     FC_ASSERT( get_contract_balance() >= value, "Contract does not have sufficient funds for transfer." );
-//    asset s(value,COS_SYMBOL);
-    control.adjust_contract_balance( from_account, -value );
+    
+    
+    control.adjust_contract_balance( from_account, receiver, -value );
     control.adjust_balance( to_account, value );
 }
     

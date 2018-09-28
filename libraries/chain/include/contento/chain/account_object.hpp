@@ -30,6 +30,7 @@ namespace contento { namespace chain {
         time_point_sec    last_code_update;
         digest_type       code_version;
         bool              privileged = false;
+        asset             cos_balance = asset( 0, COS_SYMBOL );
         
         shared_string     code;
         shared_string     abi;
@@ -116,6 +117,34 @@ namespace contento { namespace chain {
                            return itr->second.abi;
                        }
                    }
+        
+        const asset& get_contract_balance(account_name_type name) const {
+            auto itr = contracts.find(name);
+            if(itr == contracts.end()){
+                //shared_string tmp; // compile error, need a allocator(segment manager)
+                FC_THROW_EXCEPTION( contento::protocol::contract_exception, "invalid contract name ${n}", ("n", name) );
+            } else {
+                
+                return itr->second.cos_balance;
+            }
+        }
+        
+        void adjust_contract_balance(account_name_type name, const asset& delta) {
+            auto itr = contracts.find(name);
+            if(itr == contracts.end()){
+                //shared_string tmp; // compile error, need a allocator(segment manager)
+                FC_THROW_EXCEPTION( contento::protocol::contract_exception, "invalid contract name ${n}", ("n", name) );
+            } else {
+                switch( delta.symbol )
+                {
+                    case COS_SYMBOL:
+                        itr->second.cos_balance += delta;
+                        break;
+                    default:
+                        FC_ASSERT( false, "invalid symbol" );
+                }
+            }
+        }
         
         const contract_info& get_contract(account_name_type name) const {
             auto itr = contracts.find(name);

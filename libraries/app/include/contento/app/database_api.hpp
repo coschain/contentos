@@ -191,7 +191,7 @@ class database_api
       // Contract //
       //////////////
     
-      asset get_contract_balance(string name) const;
+      asset get_contract_balance(string account, string contract) const;
     
       //////////////
       // Accounts //

@@ -14,7 +14,7 @@
 
 #include <fc/compress/zlib.hpp>
 
-#include <contento/chain/contract_balance_object.hpp>
+//#include <contento/chain/contract_balance_object.hpp>
 
 
 namespace contento { namespace chain {
@@ -94,15 +94,6 @@ void apply_contento_setabi(apply_context& context) {
    db.modify( account, [&]( auto& a ) {
        a.all_contract.add_contract_abi(act.contract,act.abi,abi_size);
    });
-    // todo: contract bank need change, because contract name can be same
-     const auto& by_bank_name_idx = db.get_index< contract_balance_index >().indices().get< by_name >();
-    auto bank_itr = by_bank_name_idx.find( context.op.caller );
-    if(bank_itr == by_bank_name_idx.end()){
-        db.create< contract_balance_object > ([&]( auto& cbo ) {
-            // here is system contract, contract_name is system pre-defined, actual target contract name is in the caller
-            cbo.contract_name = context.op.caller;
-        } );
-    }
    
     /* TODOO:
    const auto& account_sequence = db.get<account_sequence_object, by_name>(act.account);
