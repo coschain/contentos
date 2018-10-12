@@ -65,8 +65,8 @@ BOOST_AUTO_TEST_CASE( account_create_test )
         BOOST_REQUIRE(init_starting_balance > asset(0, COS_SYMBOL));
 
         BOOST_TEST_MESSAGE( "Testing: account_create" );
-        const auto& gpo = db.get_dynamic_global_properties();
 
+        const auto& gpo = db.get_dynamic_global_properties();
         account_create_operation op;
 
         op.fee = asset( 100, COS_SYMBOL );

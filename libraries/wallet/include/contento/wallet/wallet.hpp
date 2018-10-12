@@ -130,11 +130,6 @@ class wallet_api
        */
       vector<applied_operation>           get_ops_in_block( uint32_t block_num, bool only_virtual = true );
 
-      /** Return the current price feed history
-       *
-       * @returns Price feed history data on the blockchain
-       */
-      feed_history_api_obj                 get_feed_history()const;
 
       /**
        * Returns the list of witnesses producing blocks in the current round (21 Blocks)
@@ -150,14 +145,6 @@ class wallet_api
        * Returns the state info associated with the URL
        */
       app::state                          get_state( string url );
-
-      /**
-       * Returns vesting withdraw routes for an account.
-       *
-       * @param account Account to query routes
-       * @param type Withdraw type type [incoming, outgoing, all]
-       */
-      vector< withdraw_route >            get_withdraw_routes( string account, withdraw_route_type type = all )const;
 
       /**
        *  Gets the account information for all accounts for which this wallet has a private key
@@ -523,17 +510,6 @@ class wallet_api
 
 
       /**
-       * This method delegates VESTS from one account to another.
-       *
-       * @param delegator The name of the account delegating VESTS
-       * @param delegatee The name of the account receiving VESTS
-       * @param vesting_shares The amount of VESTS to delegate
-       * @param broadcast true if you wish to broadcast the transaction
-       */
-       annotated_signed_transaction delegate_vesting_shares( string delegator, string delegatee, asset vesting_shares, bool broadcast );
-
-
-      /**
        *  This method is used to convert a JSON transaction to its transaction ID.
        */
       transaction_id_type get_transaction_id( const signed_transaction& trx )const { return trx.id(); }
@@ -559,15 +535,6 @@ class wallet_api
        */
       optional< witness_api_obj > get_witness(string owner_account);
 
-      /** Returns conversion requests by an account
-       *
-       * @param owner Account name of the account owning the requests
-       *
-       * @returns All pending conversion requests by account
-       */
-      vector<convert_request_api_obj> get_conversion_requests( string owner );
-
-
       /**
        * Update a witness object owned by the given account.
        *
@@ -583,41 +550,6 @@ class wallet_api
                                         const chain_properties& props,
                                         bool broadcast = false);
 
-      /** Set the voting proxy for an account.
-       *
-       * If a user does not wish to take an active part in voting, they can choose
-       * to allow another account to vote their stake.
-       *
-       * Setting a vote proxy does not remove your previous votes from the blockchain,
-       * they remain there but are ignored.  If you later null out your vote proxy,
-       * your previous votes will take effect again.
-       *
-       * This setting can be changed at any time.
-       *
-       * @param account_to_modify the name or id of the account to update
-       * @param proxy the name of account that should proxy to, or empty string to have no proxy
-       * @param broadcast true if you wish to broadcast the transaction
-       */
-      annotated_signed_transaction set_voting_proxy(string account_to_modify,
-                                          string proxy,
-                                          bool broadcast = false);
-
-      /**
-       * Vote for a witness to become a block producer. By default an account has not voted
-       * positively or negatively for a witness. The account can either vote for with positively
-       * votes or against with negative votes. The vote will remain until updated with another
-       * vote. Vote strength is determined by the accounts vesting shares.
-       *
-       * @param account_to_vote_with The account voting for a witness
-       * @param witness_to_vote_for The witness that is being voted for
-       * @param approve true if the account is voting for the account to be able to be a block produce
-       * @param broadcast true if you wish to broadcast the transaction
-       */
-      annotated_signed_transaction vote_for_witness(string account_to_vote_with,
-                                          string witness_to_vote_for,
-                                          bool approve = true,
-                                          bool broadcast = false);
-
       /**
        * Transfer funds from one account to another. STEEM and SBD can be transferred.
        *
@@ -629,100 +561,7 @@ class wallet_api
        */
       annotated_signed_transaction transfer(string from, string to, asset amount, string memo, bool broadcast = false);
 
-      /**
-       * Transfer funds from one account to another using escrow. STEEM and SBD can be transferred.
-       *
-       * @param from The account the funds are coming from
-       * @param to The account the funds are going to
-       * @param agent The account acting as the agent in case of dispute
-       * @param escrow_id A unique id for the escrow transfer. (from, escrow_id) must be a unique pair
-       * @param sbd_amount The amount of SBD to transfer
-       * @param steem_amount The amount of STEEM to transfer
-       * @param fee The fee paid to the agent
-       * @param ratification_deadline The deadline for 'to' and 'agent' to approve the escrow transfer
-       * @param escrow_expiration The expiration of the escrow transfer, after which either party can claim the funds
-       * @param json_meta JSON encoded meta data
-       * @param broadcast true if you wish to broadcast the transaction
-       */
-      annotated_signed_transaction escrow_transfer(
-         string from,
-         string to,
-         string agent,
-         uint32_t escrow_id,
-         asset sbd_amount,
-         asset steem_amount,
-         asset fee,
-         time_point_sec ratification_deadline,
-         time_point_sec escrow_expiration,
-         string json_meta,
-         bool broadcast = false
-      );
 
-      /**
-       * Approve a proposed escrow transfer. Funds cannot be released until after approval. This is in lieu of requiring
-       * multi-sig on escrow_transfer
-       *
-       * @param from The account that funded the escrow
-       * @param to The destination of the escrow
-       * @param agent The account acting as the agent in case of dispute
-       * @param who The account approving the escrow transfer (either 'to' or 'agent)
-       * @param escrow_id A unique id for the escrow transfer
-       * @param approve true to approve the escrow transfer, otherwise cancels it and refunds 'from'
-       * @param broadcast true if you wish to broadcast the transaction
-       */
-      annotated_signed_transaction escrow_approve(
-         string from,
-         string to,
-         string agent,
-         string who,
-         uint32_t escrow_id,
-         bool approve,
-         bool broadcast = false
-      );
-
-      /**
-       * Raise a dispute on the escrow transfer before it expires
-       *
-       * @param from The account that funded the escrow
-       * @param to The destination of the escrow
-       * @param agent The account acting as the agent in case of dispute
-       * @param who The account raising the dispute (either 'from' or 'to')
-       * @param escrow_id A unique id for the escrow transfer
-       * @param broadcast true if you wish to broadcast the transaction
-       */
-      annotated_signed_transaction escrow_dispute(
-         string from,
-         string to,
-         string agent,
-         string who,
-         uint32_t escrow_id,
-         bool broadcast = false
-      );
-
-      /**
-       * Release funds help in escrow
-       *
-       * @param from The account that funded the escrow
-       * @param to The account the funds are originally going to
-       * @param agent The account acting as the agent in case of dispute
-       * @param who The account authorizing the release
-       * @param receiver The account that will receive funds being released
-       * @param escrow_id A unique id for the escrow transfer
-       * @param sbd_amount The amount of SBD that will be released
-       * @param steem_amount The amount of STEEM that will be released
-       * @param broadcast true if you wish to broadcast the transaction
-       */
-      annotated_signed_transaction escrow_release(
-         string from,
-         string to,
-         string agent,
-         string who,
-         string receiver,
-         uint32_t escrow_id,
-         asset sbd_amount,
-         asset steem_amount,
-         bool broadcast = false
-      );
 
       /**
        * Transfer STEEM into a vesting fund represented by vesting shares (VESTS). VESTS are required to vesting
@@ -736,33 +575,7 @@ class wallet_api
        */
       annotated_signed_transaction transfer_to_vesting(string from, string to, asset amount, bool broadcast = false);
 
-      /**
-       *  Transfers into savings happen immediately, transfers from savings take 72 hours
-       */
-      annotated_signed_transaction transfer_to_savings( string from, string to, asset amount, string memo, bool broadcast = false );
 
-      /**
-       * @param request_id - an unique ID assigned by from account, the id is used to cancel the operation and can be reused after the transfer completes
-       */
-      annotated_signed_transaction transfer_from_savings( string from, uint32_t request_id, string to, asset amount, string memo, bool broadcast = false );
-
-      /**
-       *  @param request_id the id used in transfer_from_savings
-       *  @param from the account that initiated the transfer
-       */
-      annotated_signed_transaction cancel_transfer_from_savings( string from, uint32_t request_id, bool broadcast = false );
-
-
-      /**
-       * Set up a vesting withdraw request. The request is fulfilled once a week over the next two year (104 weeks).
-       *
-       * @param from The account the VESTS are withdrawn from
-       * @param vesting_shares The amount of VESTS to withdraw over the next two years. Each week (amount/104) shares are
-       *    withdrawn and deposited back as STEEM. i.e. "10.000000 VESTS"
-       * @param broadcast true if you wish to broadcast the transaction
-       */
-      annotated_signed_transaction withdraw_vesting( string from, asset vesting_shares, bool broadcast = false );
-    
       /**
        * Transfer STEEM into a vesting fund represented by vesting shares (VESTS). VESTS are required to vesting
        * for a minimum of one coin year and can be withdrawn once a week over a two year withdraw period.
@@ -776,40 +589,7 @@ class wallet_api
     
        annotated_signed_transaction convert_from_vesting(string account, asset vesting_shares, bool broadcast = false);
 
-      /**
-       * Set up a vesting withdraw route. When vesting shares are withdrawn, they will be routed to these accounts
-       * based on the specified weights.
-       *
-       * @param from The account the VESTS are withdrawn from.
-       * @param to   The account receiving either VESTS or STEEM.
-       * @param percent The percent of the withdraw to go to the 'to' account. This is denoted in hundreths of a percent.
-       *    i.e. 100 is 1% and 10000 is 100%. This value must be between 1 and 100000
-       * @param auto_vest Set to true if the from account should receive the VESTS as VESTS, or false if it should receive
-       *    them as STEEM.
-       * @param broadcast true if you wish to broadcast the transaction.
-       */
-      annotated_signed_transaction set_withdraw_vesting_route( string from, string to, uint16_t percent, bool auto_vest, bool broadcast = false );
-
-      /**
-       *  This method will convert SBD to STEEM at the current_median_history price one
-       *  week from the time it is executed. This method depends upon there being a valid price feed.
-       *
-       *  @param from The account requesting conversion of its SBD i.e. "1.000 SBD"
-       *  @param amount The amount of SBD to convert
-       *  @param broadcast true if you wish to broadcast the transaction
-       */
-      annotated_signed_transaction convert_sbd( string from, asset amount, bool broadcast = false );
-
-      /**
-       * A witness can public a price feed for the STEEM:SBD market. The median price feed is used
-       * to process conversion requests from SBD to STEEM.
-       *
-       * @param witness The witness publishing the price feed
-       * @param exchange_rate The desired exchange rate
-       * @param broadcast true if you wish to broadcast the transaction
-       */
-      annotated_signed_transaction publish_feed(string witness, price exchange_rate, bool broadcast );
-
+     
       /** Signs a transaction.
        *
        * Given a fully-formed transaction that is only lacking signatures, this signs
@@ -820,56 +600,8 @@ class wallet_api
        */
       annotated_signed_transaction sign_transaction(signed_transaction tx, bool broadcast = false);
 
-      /** Returns an uninitialized object representing a given blockchain operation.
-       *
-       * This returns a default-initialized object of the given type; it can be used
-       * during early development of the wallet when we don't yet have custom commands for
-       * creating all of the operations the blockchain supports.
-       *
-       * Any operation the blockchain supports can be created using the transaction builder's
-       * \c add_operation_to_builder_transaction() , but to do that from the CLI you need to
-       * know what the JSON form of the operation looks like.  This will give you a template
-       * you can fill in.  It's better than nothing.
-       *
-       * @param operation_type the type of operation to return, must be one of the
-       *                       operations defined in `steemit/chain/operations.hpp`
-       *                       (e.g., "global_parameters_update_operation")
-       * @return a default-constructed operation of the given type
-       */
-      operation get_prototype_operation(string operation_type);
-
       void network_add_nodes( const vector<string>& nodes );
       vector< variant > network_get_connected_peers();
-
-      /**
-       * Gets the current order book for STEEM:SBD
-       *
-       * @param limit Maximum number of orders to return for bids and asks. Max is 1000.
-       */
-      // order_book  get_order_book( uint32_t limit = 1000 );
-      // vector<extended_limit_order>  get_open_orders( string accountname );
-
-      /**
-       *  Creates a limit order at the price amount_to_sell / min_to_receive and will deduct amount_to_sell from account
-       *
-       *  @param owner The name of the account creating the order
-       *  @param order_id is a unique identifier assigned by the creator of the order, it can be reused after the order has been filled
-       *  @param amount_to_sell The amount of either SBD or STEEM you wish to sell
-       *  @param min_to_receive The amount of the other asset you will receive at a minimum
-       *  @param fill_or_kill true if you want the order to be killed if it cannot immediately be filled
-       *  @param expiration the time the order should expire if it has not been filled
-       *  @param broadcast true if you wish to broadcast the transaction
-       */
-      // annotated_signed_transaction create_order( string owner, uint32_t order_id, asset amount_to_sell, asset min_to_receive, bool fill_or_kill, uint32_t expiration, bool broadcast );
-
-      /**
-       * Cancel an order created with create_order
-       *
-       * @param owner The name of the account owning the order to cancel_order
-       * @param orderid The unique identifier assigned to the order by its creator
-       * @param broadcast true if you wish to broadcast the transaction
-       */
-      // annotated_signed_transaction cancel_order( string owner, uint32_t orderid, bool broadcast );
 
       /**
        *  Post or update a comment.
@@ -886,9 +618,6 @@ class wallet_api
       annotated_signed_transaction post_comment( string author, string permlink, string parent_author, string parent_permlink, string body, string json, bool broadcast );
 
       annotated_signed_transaction post_subject( string author, string permlink, string category, string title, string body, string json, bool broadcast);
-      annotated_signed_transaction      send_private_message( string from, string to, string subject, string body, bool broadcast );
-      vector<extended_message_object>   get_inbox( string account, fc::time_point newest, uint32_t limit );
-      vector<extended_message_object>   get_outbox( string account, fc::time_point newest, uint32_t limit );
       message_body try_decrypt_message( const message_api_obj& mo );
 
       /**
@@ -901,67 +630,6 @@ class wallet_api
        * @param broadcast true if you wish to broadcast the transaction
        */
       annotated_signed_transaction vote( string voter, string author, string permlink, int16_t weight, bool broadcast );
-
-      /**
-       * Sets the amount of time in the future until a transaction expires.
-       */
-      void set_transaction_expiration(uint32_t seconds);
-
-      /**
-       * Challenge a user's authority. The challenger pays a fee to the challenged which is depositted as
-       * Steem Power. Until the challenged proves their active key, all posting rights are revoked.
-       *
-       * @param challenger The account issuing the challenge
-       * @param challenged The account being challenged
-       * @param broadcast true if you wish to broadcast the transaction
-       */
-      annotated_signed_transaction challenge( string challenger, string challenged, bool broadcast );
-
-      /**
-       * Create an account recovery request as a recover account. The syntax for this command contains a serialized authority object
-       * so there is an example below on how to pass in the authority.
-       *
-       * request_account_recovery "your_account" "account_to_recover" {"weight_threshold": 1,"account_auths": [], "key_auths": [["new_public_key",1]]} true
-       *
-       * @param recovery_account The name of your account
-       * @param account_to_recover The name of the account you are trying to recover
-       * @param new_authority The new owner authority for the recovered account. This should be given to you by the holder of the compromised or lost account.
-       * @param broadcast true if you wish to broadcast the transaction
-       */
-      annotated_signed_transaction request_account_recovery( string recovery_account, string account_to_recover, authority new_authority, bool broadcast );
-
-      /**
-       * Recover your account using a recovery request created by your recovery account. The syntax for this commain contains a serialized
-       * authority object, so there is an example below on how to pass in the authority.
-       *
-       * recover_account "your_account" {"weight_threshold": 1,"account_auths": [], "key_auths": [["old_public_key",1]]} {"weight_threshold": 1,"account_auths": [], "key_auths": [["new_public_key",1]]} true
-       *
-       * @param account_to_recover The name of your account
-       * @param recent_authority A recent owner authority on your account
-       * @param new_authority The new authority that your recovery account used in the account recover request.
-       * @param broadcast true if you wish to broadcast the transaction
-       */
-      annotated_signed_transaction recover_account( string account_to_recover, authority recent_authority, authority new_authority, bool broadcast );
-
-      /**
-       * Change your recovery account after a 30 day delay.
-       *
-       * @param owner The name of your account
-       * @param new_recovery_account The name of the recovery account you wish to have
-       * @param broadcast true if you wish to broadcast the transaction
-       */
-      annotated_signed_transaction change_recovery_account( string owner, string new_recovery_account, bool broadcast );
-
-      vector< owner_authority_history_api_obj > get_owner_history( string account )const;
-
-      /**
-       * Prove an account's active authority, fulfilling a challenge, restoring posting rights, and making
-       * the account immune to challenge for 24 hours.
-       *
-       * @param challenged The account that was challenged and is proving its authority.
-       * @param broadcast true if you wish to broadcast the transaction
-       */
-      annotated_signed_transaction prove( string challenged, bool broadcast );
 
       /**
        * set_contract, set_code and set_abi have the same input parameters
@@ -1044,10 +712,6 @@ class wallet_api
        */
       string decrypt_memo( string memo );
 
-      annotated_signed_transaction decline_voting_rights( string account, bool decline, bool broadcast );
-
-      annotated_signed_transaction claim_reward_balance( string account, asset reward_steem, asset reward_sbd, asset reward_vests, bool broadcast );
-
       void set_code_callback( string accountname, string contract_dir, string contract_name, signed_transaction& tx );
       void set_abi_callback( string accountname, string contract_dir, string contract_name, signed_transaction& tx );
 };
@@ -1102,11 +766,8 @@ FC_API( contento::wallet::wallet_api,
         (get_table_rows)
         (get_block)
         (get_ops_in_block)
-//        (get_feed_history)
-//        (get_conversion_requests)
         (get_account_history)
         (get_state)
-//        (get_withdraw_routes)
 
         /// transaction api
         (create_account)
@@ -1122,59 +783,26 @@ FC_API( contento::wallet::wallet_api,
 //        (update_account_auth_threshold)
 //        (update_account_meta)
 //        (update_account_memo_key)
-//        (delegate_vesting_shares)
         (update_witness)
-//        (set_voting_proxy)
-//        (vote_for_witness)
         (follow)
         (transfer)
-//        (escrow_transfer)
-//        (escrow_approve)
-//        (escrow_dispute)
-//        (escrow_release)
         (transfer_to_vesting)
         (convert_from_vesting)
-//        (withdraw_vesting)
-//        (set_withdraw_vesting_route)
-//        (convert_sbd)
-//        (publish_feed)
-//        (get_order_book)
-//        (get_open_orders)
-//        (create_order)
-//        (cancel_order)
         (post_comment)
         (post_subject)
         (vote)
-//        (set_transaction_expiration)
-//        (challenge)
-//        (prove)
-//        (request_account_recovery)
-//        (recover_account)
-//        (change_recovery_account)
-//        (get_owner_history)
-//        (transfer_to_savings)
-//        (transfer_from_savings)
-//        (cancel_transfer_from_savings)
-//        (get_encrypted_memo)
-//        (decrypt_memo)
-//        (decline_voting_rights)
-//        (claim_reward_balance)
-
-        // private message api
-//        (send_private_message)
-//        (get_inbox)
-//        (get_outbox)
+        (get_encrypted_memo)
+        (decrypt_memo)
 
         /// helper api
-//        (get_prototype_operation)
-//        (serialize_transaction)
-//        (sign_transaction)
-//
-//        (network_add_nodes)
-//        (network_get_connected_peers)
+       (serialize_transaction)
+       (sign_transaction)
 
-//        (get_active_witnesses)
-//        (get_miner_queue)
+       (network_add_nodes)
+       (network_get_connected_peers)
+
+       (get_active_witnesses)
+       (get_miner_queue)
         (get_transaction)
 
         /// contract api

@@ -98,6 +98,7 @@ const static contento::chain::wasm_interface::vm_type default_wasm_runtime = con
 
 const static uint64_t   gas_per_cos  = 1000;
 const static uint64_t   gas_per_contract_trasfer  = gas_per_cos * 10;
+const static uint64_t   vm_min_gas  = gas_per_cos * 1;
 
 /**
  *  The number of sequential blocks produced by a single producer

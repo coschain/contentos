@@ -64,7 +64,6 @@ clean_database_fixture::clean_database_fixture()
    // Fill up the rest of the required miners
    for( int i = CONTENTO_NUM_INIT_MINERS; i < 5; i++ )
    {
-       const account_object& acct = db.get_account( CONTENTO_INIT_MINER_NAME );
       account_create( CONTENTO_INIT_MINER_NAME + fc::to_string( i ), init_account_pub_key );
       fund( CONTENTO_INIT_MINER_NAME + fc::to_string( i ), CONTENTO_MIN_PRODUCER_REWARD.amount.value );
       witness_create( CONTENTO_INIT_MINER_NAME + fc::to_string( i ), init_account_priv_key, "foo.bar", init_account_pub_key, CONTENTO_MIN_PRODUCER_REWARD.amount );
@@ -348,25 +347,6 @@ void database_fixture::fund(
    FC_CAPTURE_AND_RETHROW( (account_name)(amount) )
 }
 
-void database_fixture::convert(
-   const string& account_name,
-   const asset& amount )
-{
-   try
-   {
-      const account_object& account = db.get_account( account_name );
-
-
-      if ( amount.symbol == COS_SYMBOL )
-      {
-         db.adjust_balance( account, -amount );
-         db.adjust_balance( account, db.to_sbd( amount ) );
-         db.adjust_supply( -amount );
-         db.adjust_supply( db.to_sbd( amount ) );
-      }
-   } FC_CAPTURE_AND_RETHROW( (account_name)(amount) )
-}
-
 void database_fixture::transfer(
    const string& from,
    const string& to,
@@ -417,8 +397,7 @@ void database_fixture::vest( const string& account, const asset& amount )
       });
 
       db.create_vesting( db.get_account( account ), amount );
-
-      db.update_virtual_supply();
+       
    }, default_skip );
 }
 
@@ -433,31 +412,6 @@ void database_fixture::proxy( const string& account, const string& proxy )
       db.push_transaction( trx, ~0 );
       trx.operations.clear();
    } FC_CAPTURE_AND_RETHROW( (account)(proxy) )
-}
-
-void database_fixture::set_price_feed( const price& new_price )
-{
-   try
-   {
-      for ( int i = 1; i < 8; i++ )
-      {
-         feed_publish_operation op;
-         op.publisher = CONTENTO_INIT_MINER_NAME + fc::to_string( i );
-         op.exchange_rate = new_price;
-         trx.operations.push_back( op );
-         trx.set_expiration( db.head_block_time() + CONTENTO_MAX_TIME_UNTIL_EXPIRATION );
-         db.push_transaction( trx, ~0 );
-         trx.operations.clear();
-      }
-   } FC_CAPTURE_AND_RETHROW( (new_price) )
-
-   generate_blocks( CONTENTO_BLOCKS_PER_HOUR );
-   BOOST_REQUIRE(
-//#ifdef IS_TEST_NET
-//      !db.skip_price_feed_limit_check ||
-//#endif
-      db.get(feed_history_id_type()).current_median_history == new_price
-   );
 }
 
 const asset& database_fixture::get_balance( const string& account_name )const

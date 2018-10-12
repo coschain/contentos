@@ -174,8 +174,8 @@ class database_api
        */
       dynamic_global_property_api_obj  get_dynamic_global_properties()const;
       chain_properties                 get_chain_properties()const;
-      price                            get_current_median_history_price()const;
-      feed_history_api_obj             get_feed_history()const;
+//      price                            get_current_median_history_price()const;
+//      feed_history_api_obj             get_feed_history()const;
       witness_schedule_api_obj         get_witness_schedule()const;
       hardfork_version                 get_hardfork_version()const;
       scheduled_hardfork               get_next_scheduled_hardfork()const;
@@ -236,14 +236,8 @@ class database_api
 
       optional< account_recovery_request_api_obj > get_recovery_request( string account ) const;
 
-      optional< escrow_api_obj > get_escrow( string from, uint32_t escrow_id )const;
-
-      vector< withdraw_route > get_withdraw_routes( string account, withdraw_route_type type = outgoing )const;
 
       optional< account_bandwidth_api_obj > get_account_bandwidth( string account, witness::bandwidth_type type )const;
-
-      vector< savings_withdraw_api_obj > get_savings_withdraw_from( string account )const;
-      vector< savings_withdraw_api_obj > get_savings_withdraw_to( string account )const;
 
       vector< vesting_delegation_api_obj > get_vesting_delegations( string account, string from, uint32_t limit = 100 )const;
       vector< vesting_delegation_expiration_api_obj > get_expiring_vesting_delegations( string account, time_point_sec from, uint32_t limit = 100 )const;
@@ -506,8 +500,8 @@ FC_API(contento::app::database_api,
    (get_config)
    (get_dynamic_global_properties)
    (get_chain_properties)
-   (get_feed_history)
-   (get_current_median_history_price)
+//   (get_feed_history)
+//   (get_current_median_history_price)
    (get_witness_schedule)
    (get_hardfork_version)
    (get_next_scheduled_hardfork)
@@ -532,11 +526,7 @@ FC_API(contento::app::database_api,
    (get_account_code)
    (get_table_rows)
 
-   // (get_escrow)
-   (get_withdraw_routes)
    (get_account_bandwidth)
-   (get_savings_withdraw_from)
-   (get_savings_withdraw_to)
    (get_vesting_delegations)
    (get_expiring_vesting_delegations)
 

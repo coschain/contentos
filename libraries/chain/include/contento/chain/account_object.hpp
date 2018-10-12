@@ -58,29 +58,6 @@ namespace contento { namespace chain {
          time_point_sec    last_vote_time; ///< used to increase the voting power of this account the longer it goes without voting.
 
          asset             balance = asset( 0, COS_SYMBOL );  ///< total liquid shares held by this account
-         asset             savings_balance = asset( 0, COS_SYMBOL );  ///< total liquid shares held by this account
-
-         /**
-          *  SBD Deposits pay interest based upon the interest rate set by witnesses. The purpose of these
-          *  fields is to track the total (time * sbd_balance) that it is held. Then at the appointed time
-          *  interest can be paid using the following equation:
-          *
-          *  interest = interest_rate * sbd_seconds / seconds_per_year
-          *
-          *  Every time the sbd_balance is updated the sbd_seconds is also updated. If at least
-          *  CONTENTO_MIN_COMPOUNDING_INTERVAL_SECONDS has past since sbd_last_interest_payment then
-          *  interest is added to sbd_balance.
-          *
-          *  @defgroup sbd_data sbd Balance Data
-          */
-         ///@{
-
-         uint8_t           savings_withdraw_requests = 0;
-         ///@}
-
-         asset             reward_steem_balance = asset( 0, COS_SYMBOL );
-         asset             reward_vesting_balance = asset( 0, VESTS_SYMBOL );
-         asset             reward_vesting_steem = asset( 0, COS_SYMBOL );
 
          share_type        curation_rewards = 0;
          share_type        posting_rewards = 0;
@@ -508,10 +485,6 @@ FC_REFLECT( contento::chain::account_object,
              (owner_challenged)(active_challenged)(last_owner_proved)(last_active_proved)(recovery_account)(last_account_recovery)(reset_account)
              (comment_count)(lifetime_vote_count)(post_count)(can_vote)(voting_power)(last_vote_time)
              (balance)
-             (savings_balance)
-             (savings_withdraw_requests)
-             (reward_steem_balance)
-           (reward_vesting_balance)(reward_vesting_steem)
              (vesting_shares)(delegated_vesting_shares)(received_vesting_shares)
              (vesting_withdraw_rate)(next_vesting_withdrawal)(withdrawn)(to_withdraw)(withdraw_routes)
              (curation_rewards)

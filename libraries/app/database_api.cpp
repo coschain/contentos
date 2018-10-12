@@ -281,21 +281,21 @@ chain_properties database_api::get_chain_properties()const
    });
 }
 
-feed_history_api_obj database_api::get_feed_history()const
-{
-   return determine_read_lock( [&]()
-   {
-      return feed_history_api_obj( my->_db.get_feed_history() );
-   });
-}
+//feed_history_api_obj database_api::get_feed_history()const
+//{
+//   return determine_read_lock( [&]()
+//   {
+//      return feed_history_api_obj( my->_db.get_feed_history() );
+//   });
+//}
 
-price database_api::get_current_median_history_price()const
-{
-   return determine_read_lock( [&]()
-   {
-      return my->_db.get_feed_history().current_median_history;
-   });
-}
+//price database_api::get_current_median_history_price()const
+//{
+//   return determine_read_lock( [&]()
+//   {
+//      return my->_db.get_feed_history().current_median_history;
+//   });
+//}
 
 dynamic_global_property_api_obj database_api_impl::get_dynamic_global_properties()const
 {
@@ -494,7 +494,7 @@ vector<account_id_type> database_api_impl::get_account_references( account_id_ty
       for( auto item : itr->second ) result.push_back(item);
    }
    return result;*/
-   FC_ASSERT( false, "database_api::get_account_references --- Needs to be refactored for steem." );
+   FC_ASSERT( false, "database_api::get_account_references --- Needs to be refactored for contento." );
 }
 
 vector<optional<account_api_obj>> database_api::lookup_account_names(const vector<string>& account_names)const
@@ -597,74 +597,6 @@ optional< account_recovery_request_api_obj > database_api::get_recovery_request(
 
       if( req != rec_idx.end() )
          result = account_recovery_request_api_obj( *req );
-
-      return result;
-   });
-}
-
-optional< escrow_api_obj > database_api::get_escrow( string from, uint32_t escrow_id )const
-{
-   CONTENTOS_API_CLOSE_ASSERT();
-   return determine_read_lock( [&]()
-   {
-      optional< escrow_api_obj > result;
-
-      try
-      {
-         result = my->_db.get_escrow( from, escrow_id );
-      }
-      catch ( ... ) {}
-
-      return result;
-   });
-}
-
-vector< withdraw_route > database_api::get_withdraw_routes( string account, withdraw_route_type type )const
-{
-   CONTENTOS_API_CLOSE_ASSERT();
-   return determine_read_lock( [&]()
-   {
-      vector< withdraw_route > result;
-
-      const auto& acc = my->_db.get_account( account );
-
-      if( type == outgoing || type == all )
-      {
-         const auto& by_route = my->_db.get_index< withdraw_vesting_route_index >().indices().get< by_withdraw_route >();
-         auto route = by_route.lower_bound( acc.id );
-
-         while( route != by_route.end() && route->from_account == acc.id )
-         {
-            withdraw_route r;
-            r.from_account = account;
-            r.to_account = my->_db.get( route->to_account ).name;
-            r.percent = route->percent;
-            r.auto_vest = route->auto_vest;
-
-            result.push_back( r );
-
-            ++route;
-         }
-      }
-
-      if( type == incoming || type == all )
-      {
-         const auto& by_dest = my->_db.get_index< withdraw_vesting_route_index >().indices().get< by_destination >();
-         auto route = by_dest.lower_bound( acc.id );
-
-         while( route != by_dest.end() && route->to_account == acc.id )
-         {
-            withdraw_route r;
-            r.from_account = my->_db.get( route->from_account ).name;
-            r.to_account = account;
-            r.percent = route->percent;
-            r.auto_vest = route->auto_vest;
-
-            result.push_back( r );
-
-            ++route;
-         }
-      }
 
       return result;
    });
@@ -1838,39 +1770,6 @@ vector<discussion>  database_api::get_discussions_by_author_before_date(
    });
 }
 
-vector< savings_withdraw_api_obj > database_api::get_savings_withdraw_from( string account )const
-{
-   CONTENTOS_API_CLOSE_ASSERT();
-   return determine_read_lock( [&]()
-   {
-      vector<savings_withdraw_api_obj> result;
-
-      const auto& from_rid_idx = my->_db.get_index< savings_withdraw_index >().indices().get< by_from_rid >();
-      auto itr = from_rid_idx.lower_bound( account );
-      while( itr != from_rid_idx.end() && itr->from == account ) {
-         result.push_back( savings_withdraw_api_obj( *itr ) );
-         ++itr;
-      }
-      return result;
-   });
-}
-vector< savings_withdraw_api_obj > database_api::get_savings_withdraw_to( string account )const
-{
-   CONTENTOS_API_CLOSE_ASSERT();
-   return determine_read_lock( [&]()
-   {
-      vector<savings_withdraw_api_obj> result;
-
-      const auto& to_complete_idx = my->_db.get_index< savings_withdraw_index >().indices().get< by_to_complete >();
-      auto itr = to_complete_idx.lower_bound( account );
-      while( itr != to_complete_idx.end() && itr->to == account ) {
-         result.push_back( savings_withdraw_api_obj( *itr ) );
-         ++itr;
-      }
-      return result;
-   });
-}
-
 vector< vesting_delegation_api_obj > database_api::get_vesting_delegations( string account, string from, uint32_t limit )const
 {
    FC_ASSERT( limit <= 1000 );
@@ -1920,7 +1819,7 @@ state database_api::get_state( string path )const
       state _state;
       _state.props         = get_dynamic_global_properties();
       _state.current_route = path;
-      _state.feed_price    = get_current_median_history_price();
+    //   _state.feed_price    = get_current_median_history_price();
 
       try {
       if( path.size() && path[0] == '/' )
@@ -1960,32 +1859,12 @@ state database_api::get_state( string path )const
             for( auto& item : history ) {
                switch( item.second.op.which() ) {
                   case operation::tag<transfer_to_vesting_operation>::value:
-                  case operation::tag<withdraw_vesting_operation>::value:
                    case operation::tag<convert_from_vesting_operation>::value:
-//                  case operation::tag<interest_operation>::value:
                   case operation::tag<transfer_operation>::value:
-                  case operation::tag<liquidity_reward_operation>::value:
-                  case operation::tag<author_reward_operation>::value:
-                  case operation::tag<curation_reward_operation>::value:
-                  case operation::tag<comment_benefactor_reward_operation>::value:
-                  case operation::tag<transfer_to_savings_operation>::value:
-                  case operation::tag<transfer_from_savings_operation>::value:
-                  case operation::tag<cancel_transfer_from_savings_operation>::value:
-//                  case operation::tag<escrow_transfer_operation>::value:
-//                  case operation::tag<escrow_approve_operation>::value:
-//                  case operation::tag<escrow_dispute_operation>::value:
-//                  case operation::tag<escrow_release_operation>::value:
-                  case operation::tag<fill_convert_request_operation>::value:
-                  case operation::tag<fill_order_operation>::value:
-                  case operation::tag<claim_reward_balance_operation>::value:
-                     eacnt.transfer_history[item.first] =  item.second;
+
                      break;
                   case operation::tag<comment_operation>::value:
                   //   eacnt.post_history[item.first] =  item.second;
-                     break;
-                  case operation::tag<limit_order_create_operation>::value:
-                  case operation::tag<limit_order_cancel_operation>::value:
-                  //   eacnt.market_history[item.first] =  item.second;
                      break;
                   case operation::tag<vote_operation>::value:
                   case operation::tag<account_witness_vote_operation>::value:
@@ -2056,29 +1935,6 @@ state database_api::get_state( string path )const
                   if( b.reblog_on > time_point_sec() )
                   {
                      _state.content[ link ].first_reblogged_on = b.reblog_on;
-                  }
-               }
-            }
-         }
-         else if( part[1].size() == 0 || part[1] == "feed" )
-         {
-            if( my->_follow_api )
-            {
-               auto feed = my->_follow_api->get_feed_entries( eacnt.name, 0, 20 );
-               eacnt.feed = vector<string>();
-
-               for( auto f: feed )
-               {
-                  const auto link = f.author + "/" + f.permlink;
-                  eacnt.feed->push_back( link );
-                  _state.content[ link ] = my->_db.get_comment( f.author, f.permlink );
-                  // set_pending_payout( _state.content[ link ] );
-                  if( f.reblog_by.size() )
-                  {
-                     if( f.reblog_by.size() )
-                        _state.content[link].first_reblogged_by = f.reblog_by[0];
-                     _state.content[link].reblogged_by = f.reblog_by;
-                     _state.content[link].first_reblogged_on = f.reblog_on;
                   }
                }
             }

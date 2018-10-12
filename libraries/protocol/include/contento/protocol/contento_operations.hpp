@@ -299,46 +299,6 @@ namespace contento { namespace protocol {
 
 
    /**
-    * At any given point in time an account can be withdrawing from their
-    * vesting shares. A user may change the number of shares they wish to
-    * cash out at any time between 0 and their total vesting stake.
-    *
-    * After applying this operation, vesting_shares will be withdrawn
-    * at a rate of vesting_shares/104 per week for two years starting
-    * one week after this operation is included in the blockchain.
-    *
-    * This operation is not valid if the user has no vesting shares.
-    */
-   struct withdraw_vesting_operation : public base_operation
-   {
-      account_name_type account;
-      asset             vesting_shares;
-
-      void validate()const;
-      void get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert(account); }
-   };
-
-
-   /**
-    * Allows an account to setup a vesting withdraw but with the additional
-    * request for the funds to be transferred directly to another account's
-    * balance rather than the withdrawing account. In addition, those funds
-    * can be immediately vested again, circumventing the conversion from
-    * vests to steem and back, guaranteeing they maintain their value.
-    */
-   struct set_withdraw_vesting_route_operation : public base_operation
-   {
-      account_name_type from_account;
-      account_name_type to_account;
-      uint16_t          percent = 0;
-      bool              auto_vest = false;
-
-      void validate()const;
-      void get_required_active_authorities( flat_set<account_name_type>& a )const { a.insert( from_account ); }
-   };
-
-
-   /**
     * Witnesses must vote on how to set certain chain properties to ensure a smooth
     * and well functioning network.  Any time @owner is in the active set of witnesses these
     * properties will be used to control the blockchain configuration.
@@ -474,100 +434,6 @@ namespace contento { namespace protocol {
       void get_required_authorities( vector< authority >& a )const{ for( const auto& i : required_auths ) a.push_back( i ); }
    };
 
-
-   /**
-    *  Feeds can only be published by the top N witnesses which are included in every round and are
-    *  used to define the exchange rate between steem and the dollar.
-    */
-   struct feed_publish_operation : public base_operation
-   {
-      account_name_type publisher;
-      price             exchange_rate;
-
-      void  validate()const;
-      void  get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert(publisher); }
-   };
-
-
-   /**
-    *  This operation instructs the blockchain to start a conversion between STEEM and SBD,
-    *  The funds are deposited after CONTENTO_CONVERSION_DELAY
-    */
-   struct convert_operation : public base_operation
-   {
-      account_name_type owner;
-      uint32_t          requestid = 0;
-      asset             amount;
-
-      void  validate()const;
-      void  get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert(owner); }
-   };
-
-
-   /**
-    * This operation creates a limit order and matches it against existing open orders.
-    */
-   struct limit_order_create_operation : public base_operation
-   {
-      account_name_type owner;
-      uint32_t          orderid = 0; /// an ID assigned by owner, must be unique
-      asset             amount_to_sell;
-      asset             min_to_receive;
-      bool              fill_or_kill = false;
-      time_point_sec    expiration = time_point_sec::maximum();
-
-      void  validate()const;
-      void  get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert(owner); }
-
-      price             get_price()const { return amount_to_sell / min_to_receive; }
-
-      pair< asset_symbol_type, asset_symbol_type > get_market()const
-      {
-         return amount_to_sell.symbol < min_to_receive.symbol ?
-                std::make_pair(amount_to_sell.symbol, min_to_receive.symbol) :
-                std::make_pair(min_to_receive.symbol, amount_to_sell.symbol);
-      }
-   };
-
-
-   /**
-    *  This operation is identical to limit_order_create except it serializes the price rather
-    *  than calculating it from other fields.
-    */
-   struct limit_order_create2_operation : public base_operation
-   {
-      account_name_type owner;
-      uint32_t          orderid = 0; /// an ID assigned by owner, must be unique
-      asset             amount_to_sell;
-      bool              fill_or_kill = false;
-      price             exchange_rate;
-      time_point_sec    expiration = time_point_sec::maximum();
-
-      void  validate()const;
-      void  get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert(owner); }
-
-      price             get_price()const { return exchange_rate; }
-
-      pair< asset_symbol_type, asset_symbol_type > get_market()const
-      {
-         return exchange_rate.base.symbol < exchange_rate.quote.symbol ?
-                std::make_pair(exchange_rate.base.symbol, exchange_rate.quote.symbol) :
-                std::make_pair(exchange_rate.quote.symbol, exchange_rate.base.symbol);
-      }
-   };
-
-
-   /**
-    *  Cancels an order and returns the balance to owner.
-    */
-   struct limit_order_cancel_operation : public base_operation
-   {
-      account_name_type owner;
-      uint32_t          orderid = 0;
-
-      void  validate()const;
-      void  get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert(owner); }
-   };
 
 
    struct pow
@@ -839,55 +705,12 @@ namespace contento { namespace protocol {
    };
 
 
-   struct transfer_to_savings_operation : public base_operation {
-      account_name_type from;
-      account_name_type to;
-      asset             amount;
-      string            memo;
-
-      void get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert( from ); }
-      void validate() const;
-   };
-
-
-   struct transfer_from_savings_operation : public base_operation {
-      account_name_type from;
-      uint32_t          request_id = 0;
-      account_name_type to;
-      asset             amount;
-      string            memo;
-
-      void get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert( from ); }
-      void validate() const;
-   };
-
-
-   struct cancel_transfer_from_savings_operation : public base_operation {
-      account_name_type from;
-      uint32_t          request_id = 0;
-
-      void get_required_active_authorities( flat_set<account_name_type>& a )const{ a.insert( from ); }
-      void validate() const;
-   };
-
-
    struct decline_voting_rights_operation : public base_operation
    {
       account_name_type account;
       bool              decline = true;
 
       void get_required_owner_authorities( flat_set<account_name_type>& a )const{ a.insert( account ); }
-      void validate() const;
-   };
-
-   struct claim_reward_balance_operation : public base_operation
-   {
-      account_name_type account;
-      asset             reward_steem;
-      asset             reward_sbd;
-      asset             reward_vests;
-
-      void get_required_posting_authorities( flat_set< account_name_type >& a )const{ a.insert( account ); }
       void validate() const;
    };
 
@@ -953,17 +776,11 @@ namespace contento { namespace protocol {
 } } // contento::protocol
 
 
-FC_REFLECT( contento::protocol::transfer_to_savings_operation, (from)(to)(amount)(memo) )
-FC_REFLECT( contento::protocol::transfer_from_savings_operation, (from)(request_id)(to)(amount)(memo) )
-FC_REFLECT( contento::protocol::cancel_transfer_from_savings_operation, (from)(request_id) )
-
 FC_REFLECT( contento::protocol::reset_account_operation, (reset_account)(account_to_reset)(new_owner_authority) )
 FC_REFLECT( contento::protocol::set_reset_account_operation, (account)(current_reset_account)(reset_account) )
 
 
 FC_REFLECT( contento::protocol::report_over_production_operation, (reporter)(first_block)(second_block) )
-FC_REFLECT( contento::protocol::convert_operation, (owner)(requestid)(amount) )
-FC_REFLECT( contento::protocol::feed_publish_operation, (publisher)(exchange_rate) )
 FC_REFLECT( contento::protocol::pow, (worker)(input)(signature)(work) )
 FC_REFLECT( contento::protocol::pow2, (input)(pow_summary) )
 FC_REFLECT( contento::protocol::pow2_input, (worker_account)(prev_block)(nonce) )
@@ -1009,9 +826,7 @@ FC_REFLECT( contento::protocol::account_update_operation,
 
 FC_REFLECT( contento::protocol::transfer_operation, (from)(to)(amount)(memo) )
 FC_REFLECT( contento::protocol::transfer_to_vesting_operation, (from)(to)(amount) )
-FC_REFLECT( contento::protocol::withdraw_vesting_operation, (account)(vesting_shares) )
 FC_REFLECT( contento::protocol::convert_from_vesting_operation, (account)(vesting_shares))
-FC_REFLECT( contento::protocol::set_withdraw_vesting_route_operation, (from_account)(to_account)(percent)(auto_vest) )
 FC_REFLECT( contento::protocol::witness_update_operation, (owner)(url)(block_signing_key)(props)(fee) )
 FC_REFLECT( contento::protocol::account_witness_vote_operation, (account)(witness)(approve) )
 FC_REFLECT( contento::protocol::account_witness_proxy_operation, (account)(proxy) )
@@ -1020,27 +835,19 @@ FC_REFLECT( contento::protocol::vote_operation, (voter)(author)(permlink)(weight
 FC_REFLECT( contento::protocol::custom_operation, (required_auths)(id)(data) )
 FC_REFLECT( contento::protocol::custom_json_operation, (required_auths)(required_posting_auths)(id)(json) )
 FC_REFLECT( contento::protocol::custom_binary_operation, (required_owner_auths)(required_active_auths)(required_posting_auths)(required_auths)(id)(data) )
-FC_REFLECT( contento::protocol::limit_order_create_operation, (owner)(orderid)(amount_to_sell)(min_to_receive)(fill_or_kill)(expiration) )
-FC_REFLECT( contento::protocol::limit_order_create2_operation, (owner)(orderid)(amount_to_sell)(exchange_rate)(fill_or_kill)(expiration) )
-FC_REFLECT( contento::protocol::limit_order_cancel_operation, (owner)(orderid) )
 
-FC_REFLECT( contento::protocol::delete_comment_operation, (author)(permlink) );
+FC_REFLECT( contento::protocol::delete_comment_operation, (author)(permlink) )
 
 FC_REFLECT( contento::protocol::beneficiary_route_type, (account)(weight) )
 FC_REFLECT( contento::protocol::comment_payout_beneficiaries, (beneficiaries) )
 FC_REFLECT_TYPENAME( contento::protocol::comment_options_extension )
 FC_REFLECT( contento::protocol::comment_options_operation, (author)(permlink)(max_accepted_payout)(percent_steem_dollars)(allow_votes)(allow_curation_rewards)(extensions) )
 
-//FC_REFLECT( contento::protocol::escrow_transfer_operation, (from)(to)(sbd_amount)(steem_amount)(escrow_id)(agent)(fee)(json_meta)(ratification_deadline)(escrow_expiration) );
-//FC_REFLECT( contento::protocol::escrow_approve_operation, (from)(to)(agent)(who)(escrow_id)(approve) );
-//FC_REFLECT( contento::protocol::escrow_dispute_operation, (from)(to)(agent)(who)(escrow_id) );
-//FC_REFLECT( contento::protocol::escrow_release_operation, (from)(to)(agent)(who)(receiver)(escrow_id)(sbd_amount)(steem_amount) );
 FC_REFLECT( contento::protocol::challenge_authority_operation, (challenger)(challenged)(require_owner) );
 FC_REFLECT( contento::protocol::prove_authority_operation, (challenged)(require_owner) );
 FC_REFLECT( contento::protocol::request_account_recovery_operation, (recovery_account)(account_to_recover)(new_owner_authority)(extensions) );
 FC_REFLECT( contento::protocol::recover_account_operation, (account_to_recover)(new_owner_authority)(recent_owner_authority)(extensions) );
 FC_REFLECT( contento::protocol::change_recovery_account_operation, (account_to_recover)(new_recovery_account)(extensions) );
 FC_REFLECT( contento::protocol::decline_voting_rights_operation, (account)(decline) );
-FC_REFLECT( contento::protocol::claim_reward_balance_operation, (account)(reward_steem)(reward_sbd)(reward_vests) )
 FC_REFLECT( contento::protocol::delegate_vesting_shares_operation, (delegator)(delegatee)(vesting_shares) );
 FC_REFLECT( contento::protocol::vm_operation, (caller)(contract_name)(action_name)(data)(value) )

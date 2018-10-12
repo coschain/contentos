@@ -181,12 +181,6 @@ namespace contento { namespace protocol {
       if ( to != account_name_type() ) validate_account_name( to );
       FC_ASSERT( amount > asset( 0, COS_SYMBOL ), "Must transfer a nonzero amount" );
    }
-
-   void withdraw_vesting_operation::validate() const
-   {
-      validate_account_name( account );
-      FC_ASSERT( is_asset_type( vesting_shares, VESTS_SYMBOL), "Amount must be VESTS"  );
-   }
     
     void convert_from_vesting_operation::validate() const
     {
@@ -194,12 +188,6 @@ namespace contento { namespace protocol {
         FC_ASSERT( is_asset_type( vesting_shares, VESTS_SYMBOL), "Amount must be VESTS"  );
     }
 
-   void set_withdraw_vesting_route_operation::validate() const
-   {
-      validate_account_name( from_account );
-      validate_account_name( to_account );
-      FC_ASSERT( 0 <= percent && percent <= CONTENTO_100_PERCENT, "Percent must be valid steemit percent" );
-   }
 
    void witness_update_operation::validate() const
    {
@@ -365,46 +353,7 @@ namespace contento { namespace protocol {
       FC_ASSERT( pow_summary == fc::sha256::hash( proof.inputs ).approx_log_32() );
    }
 
-   void feed_publish_operation::validate()const
-   {
-      validate_account_name( publisher );
-      FC_ASSERT( ( is_asset_type( exchange_rate.base, COS_SYMBOL )),
-         "Price feed must be a STEEM/SBD price" );
-      exchange_rate.validate();
-   }
 
-   void limit_order_create_operation::validate()const
-   {
-      validate_account_name( owner );
-      FC_ASSERT( ( is_asset_type( amount_to_sell, COS_SYMBOL ) ),
-         "Limit order must be for the STEEM:SBD market" );
-      (amount_to_sell / min_to_receive).validate();
-   }
-   void limit_order_create2_operation::validate()const
-   {
-      validate_account_name( owner );
-      FC_ASSERT( amount_to_sell.symbol == exchange_rate.base.symbol, "Sell asset must be the base of the price" );
-      exchange_rate.validate();
-
-      FC_ASSERT( ( is_asset_type( amount_to_sell, COS_SYMBOL )),
-                 "Limit order must be for the STEEM:SBD market" );
-
-      FC_ASSERT( (amount_to_sell * exchange_rate).amount > 0, "Amount to sell cannot round to 0 when traded" );
-   }
-
-   void limit_order_cancel_operation::validate()const
-   {
-      validate_account_name( owner );
-   }
-
-   void convert_operation::validate()const
-   {
-      validate_account_name( owner );
-      /// only allow conversion from SBD to STEEM, allowing the opposite can enable traders to abuse
-      /// market fluxuations through converting large quantities without moving the price.
-//      FC_ASSERT( is_asset_type( amount, SBD_SYMBOL ), "Can only convert SBD to STEEM" );
-      FC_ASSERT( amount.amount > 0, "Must convert some SBD" );
-   }
 
    void report_over_production_operation::validate()const
    {
@@ -440,26 +389,6 @@ namespace contento { namespace protocol {
       validate_account_name( new_recovery_account );
    }
 
-   void transfer_to_savings_operation::validate()const {
-      validate_account_name( from );
-      validate_account_name( to );
-      FC_ASSERT( amount.amount > 0 );
-      FC_ASSERT( amount.symbol == COS_SYMBOL  );
-      FC_ASSERT( memo.size() < CONTENTO_MAX_MEMO_SIZE, "Memo is too large" );
-      FC_ASSERT( fc::is_utf8( memo ), "Memo is not UTF8" );
-   }
-   void transfer_from_savings_operation::validate()const {
-      validate_account_name( from );
-      validate_account_name( to );
-      FC_ASSERT( amount.amount > 0 );
-      FC_ASSERT( amount.symbol == COS_SYMBOL );
-      FC_ASSERT( memo.size() < CONTENTO_MAX_MEMO_SIZE, "Memo is too large" );
-      FC_ASSERT( fc::is_utf8( memo ), "Memo is not UTF8" );
-   }
-   void cancel_transfer_from_savings_operation::validate()const {
-      validate_account_name( from );
-   }
-
    void decline_voting_rights_operation::validate()const
    {
       validate_account_name( account );
@@ -481,18 +410,6 @@ namespace contento { namespace protocol {
          validate_account_name( current_reset_account );
       validate_account_name( reset_account );
       FC_ASSERT( current_reset_account != reset_account, "new reset account cannot be current reset account" );
-   }
-
-   void claim_reward_balance_operation::validate()const
-   {
-      validate_account_name( account );
-      FC_ASSERT( is_asset_type( reward_steem, COS_SYMBOL ), "Reward Steem must be STEEM" );
-//      FC_ASSERT( is_asset_type( reward_sbd, SBD_SYMBOL ), "Reward Steem must be SBD" );
-      FC_ASSERT( is_asset_type( reward_vests, VESTS_SYMBOL ), "Reward Steem must be VESTS" );
-      FC_ASSERT( reward_steem.amount >= 0, "Cannot claim a negative amount" );
-      FC_ASSERT( reward_sbd.amount >= 0, "Cannot claim a negative amount" );
-      FC_ASSERT( reward_vests.amount >= 0, "Cannot claim a negative amount" );
-      FC_ASSERT( reward_steem.amount > 0 || reward_sbd.amount > 0 || reward_vests.amount > 0, "Must claim something." );
    }
 
    void delegate_vesting_shares_operation::validate()const

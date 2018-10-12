@@ -69,12 +69,12 @@ int main(int argc, char** argv) {
       std::cerr << "------------------------------------------------------\n";
 #endif
 
-      bpo::options_description app_options("Steem Daemon");
-      bpo::options_description cfg_options("Steem Daemon");
+      bpo::options_description app_options("Contento Daemon");
+      bpo::options_description cfg_options("Contento Daemon");
       app_options.add_options()
             ("help,h", "Print this help message and exit.")
             ("data-dir,d", bpo::value<boost::filesystem::path>()->default_value("witness_node_data_dir"), "Directory containing databases, configuration file, etc.")
-            ("version,v", "Print steemd version and exit.")
+            ("version,v", "Print contento version and exit.")
             ;
 
       bpo::variables_map options;
@@ -98,8 +98,8 @@ int main(int argc, char** argv) {
 
       if( options.count("version") )
       {
-         std::cout << "steem_blockchain_version: " << fc::string( CONTENTO_BLOCKCHAIN_VERSION ) << "\n";
-         std::cout << "steem_git_revision:       " << fc::string( graphene::utilities::git_revision_sha ) << "\n";
+         std::cout << "contento_blockchain_version: " << fc::string( CONTENTO_BLOCKCHAIN_VERSION ) << "\n";
+         std::cout << "contento_git_revision:       " << fc::string( graphene::utilities::git_revision_sha ) << "\n";
          std::cout << "fc_git_revision:          " << fc::string( fc::git_revision_sha ) << "\n";
          return 0;
       }
