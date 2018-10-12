@@ -958,10 +958,10 @@ signed_block database::_generate_block(
          try {
              //_apply_transaction( trx_wrapper );
             auto temp_session = start_undo_session( true );
-            detail::with_skip_flags( *this, skip, [&]()
-            {
+            //detail::with_skip_flags( *this, skip, [&]()
+            //{
                 _apply_transaction( trx_wrapper );
-            });
+            //});
             
              temp_session.squash();
 

@@ -756,7 +756,7 @@ struct extended_account : public account_api_obj {
 	vector<vector<string>>		recent_replies;
 	vector<vector<string>>		recommended; 
  
-	COSLIB_SERIALIZE_DERIVED( extended_account, account_api_obj,(vesting_balance)(reputation)(transfer_history)(market_history)(post_history)(vote_history)(other_history)(witness_votes)(tags_usage)(guest_bloggers)(open_orders)(comments)(feed)(blog)(recent_replies)(recommended) ) 
+	COSLIB_SERIALIZE_DERIVED( extended_account, account_api_obj,(vesting_balance)(reputation)(transfer_history)(market_history)(post_history)(vote_history)(other_history)(witness_votes)(tags_usage)(guest_bloggers)(comments)(feed)(blog)(recent_replies)(recommended) ) 
 };
 
 struct witness_api_obj {
