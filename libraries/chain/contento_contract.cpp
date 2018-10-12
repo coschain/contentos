@@ -23,7 +23,7 @@ void apply_contento_setcode(apply_context& context) {
 
    auto& db = context.db;
    auto  act = context.op.as<setcode>();
-   // TODOO: context.require_authorization(act.account);
+   context.require_authorization(act.account);
 
    FC_ASSERT( act.vmtype == 0 );
    FC_ASSERT( act.vmversion == 0 );

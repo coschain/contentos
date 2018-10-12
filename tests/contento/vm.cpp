@@ -190,8 +190,8 @@ BOOST_AUTO_TEST_CASE( hello )
     fund("hello", 5000);
     fund("buttnaked", 5000);
     
-    set_code(db, hello_private_key, N16(hello), "../../contracts/hello/hello.wast");
-    set_abi(db, hello_private_key, N16(hello), "../../contracts/hello/hello.abi");
+    set_code(db, hello_private_key, N16(hello), "./contracts/hello/hello.wast");
+    set_abi(db, hello_private_key, N16(hello), "./contracts/hello/hello.abi");
 
     asset v;
     push_action(db, buttnaked_private_key, N16(buttnaked), N16(hello), N(hi), "[\"test1\"]",v);
@@ -220,8 +220,8 @@ BOOST_AUTO_TEST_CASE( hello )
         const account_object& acct2 = db.get_account( "user2" );
         BOOST_REQUIRE( acct2.balance.amount.value == 50000 );
         
-        set_code(db, user1_private_key, N16(user1), "../../contracts/hello/hello.wast");
-        set_abi(db, user1_private_key, N16(user1), "../../contracts/hello/hello.abi");
+        set_code(db, user1_private_key, N16(user1), "./contracts/hello/hello.wast");
+        set_abi(db, user1_private_key, N16(user1), "./contracts/hello/hello.abi");
         
         // user2 send cos to contract
         asset v1 = asset::from_string( "39.997 COS" ); // save function consume 0.003 cos, send value consume 0.01 COS, self keep 10000, send to contract 39997
@@ -306,8 +306,8 @@ BOOST_AUTO_TEST_CASE( contract_bank_robust )
         const account_object& acct1 = db.get_account( "user1" );
         BOOST_REQUIRE( acct1.balance.amount.value == 50000 );
         
-        set_code(db, user1_private_key, N16(user1), "../../contracts/hello/hello.wast");
-        set_abi(db, user1_private_key, N16(user1), "../../contracts/hello/hello.abi");
+        set_code(db, user1_private_key, N16(user1), "./contracts/hello/hello.wast");
+        set_abi(db, user1_private_key, N16(user1), "./contracts/hello/hello.abi");
         
         // user1 send cos to no exist contract, its throw exception at param_to_bin before vm excute
         asset v1 = asset::from_string( "10.000 COS" );
@@ -344,8 +344,8 @@ BOOST_AUTO_TEST_CASE( contract_require_auth )
         const account_object& acct1 = db.get_account( "hello" );
         BOOST_REQUIRE( acct1.balance.amount.value == 50000 );
         
-        set_code(db, hello_private_key, N16(hello), "../../contracts/hello/hello.wast");
-        set_abi(db, hello_private_key, N16(hello), "../../contracts/hello/hello.abi");
+        set_code(db, hello_private_key, N16(hello), "./contracts/hello/hello.wast");
+        set_abi(db, hello_private_key, N16(hello), "./contracts/hello/hello.abi");
         
         string param = "[\"hello\"]";
         asset v;
@@ -369,10 +369,10 @@ BOOST_AUTO_TEST_CASE( storage )
    fund("buttnaked", 5000);
    fund("storage", 5000);
 
-   set_code(db, hello_private_key, N16(hello), "../../contracts/hello/hello.wast");
-   set_abi(db, hello_private_key, N16(hello), "../../contracts/hello/hello.abi");
-   set_code(db, storage_private_key, N16(storage), "../../contracts/storage/storage.wast");
-   set_abi(db, storage_private_key, N16(storage), "../../contracts/storage/storage.abi");
+   set_code(db, hello_private_key, N16(hello), "./contracts/hello/hello.wast");
+   set_abi(db, hello_private_key, N16(hello), "./contracts/hello/hello.abi");
+   set_code(db, storage_private_key, N16(storage), "./contracts/storage/storage.wast");
+   set_abi(db, storage_private_key, N16(storage), "./contracts/storage/storage.abi");
    
    asset v;
 
