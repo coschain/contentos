@@ -58,6 +58,6 @@ struct onerror {
 
 } } /// namespace contento::chain
 
-FC_REFLECT( contento::chain::setcode                          , (account)(vmtype)(vmversion)(compression)(code) )
-FC_REFLECT( contento::chain::setabi                           , (account)(compression)(abi) )
+FC_REFLECT( contento::chain::setcode                          , (account)(contract)(vmtype)(vmversion)(compression)(code) )
+FC_REFLECT( contento::chain::setabi                           , (account)(contract)(compression)(abi) )
 FC_REFLECT( contento::chain::onerror                          , (sender_id)(sent_trx) )

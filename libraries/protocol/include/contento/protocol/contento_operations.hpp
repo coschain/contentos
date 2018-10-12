@@ -923,6 +923,7 @@ namespace contento { namespace protocol {
       template<typename T, std::enable_if_t<std::is_base_of<bytes, T>::value>* = nullptr>
       vm_operation( account_name_type caller, const T& value )
       :caller(caller) {
+         account_name      = T::get_account();
          contract_name     = T::get_account();
          action_name        = T::get_name();
          data.assign(value.data(), value.data() + value.size());
@@ -931,6 +932,7 @@ namespace contento { namespace protocol {
       template<typename T, std::enable_if_t<!std::is_base_of<bytes, T>::value>* = nullptr>
       vm_operation( account_name_type caller, const T& value )
       :caller(caller) {
+         account_name      = T::get_account();
          contract_name     = T::get_account();
          action_name        = T::get_name();
          data        = fc::raw::pack(value);

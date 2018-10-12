@@ -74,7 +74,6 @@ void apply_contento_setcode(apply_context& context) {
 void apply_contento_setabi(apply_context& context) {
    auto& db  = context.db;
    auto  act = context.op.as<setabi>();
-
    // TODOO: context.require_authorization(act.account);
 
    const auto& account = db.get<account_object,by_name>(act.account);

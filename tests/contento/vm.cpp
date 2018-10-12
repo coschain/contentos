@@ -26,7 +26,7 @@ using namespace contento::test;
 
 vm_operation create_setcode(const namex& account_name, const namex& contract_name, const uint8_t compression, const bytes& code) {
     return vm_operation {
-        contract_name,
+        account_name,
         setcode{
             .account    = account_name,
             .contract   = contract_name,
@@ -39,7 +39,7 @@ vm_operation create_setcode(const namex& account_name, const namex& contract_nam
 }
 vm_operation create_setabi(const namex& account_name, const namex& contract_name, const uint8_t compression, const bytes& abi) {
     return vm_operation {
-        contract_name,
+        account_name,
         setabi{
             .account    = account_name,
             .contract   = contract_name,
@@ -182,8 +182,8 @@ BOOST_AUTO_TEST_CASE( hello )
     fund("hello", 5000);
     fund("buttnaked", 5000);
     
-    set_code(db, hello_private_key, N16(hello), N16(contract1), "./contracts/hello/hello.wast");
-    set_abi(db, hello_private_key, N16(hello), N16(contract1), "./contracts/hello/hello.abi");
+    set_code(db, hello_private_key, N16(hello), N16(contract1), "../../contracts/hello/hello.wast");
+    set_abi(db, hello_private_key, N16(hello), N16(contract1), "../../contracts/hello/hello.abi");
 
     asset v;
     push_action(db, buttnaked_private_key, N16(buttnaked), N16(hello), N16(contract1), N(hi), "[\"test1\"]",v);
@@ -212,8 +212,8 @@ BOOST_AUTO_TEST_CASE( hello )
         const account_object& acct2 = db.get_account( "user2" );
         BOOST_REQUIRE( acct2.balance.amount.value == 50000 );
         
-        set_code(db, user1_private_key, N16(user1), N16(contract1), "./contracts/hello/hello.wast");
-        set_abi(db, user1_private_key, N16(user1), N16(contract1), "./contracts/hello/hello.abi");
+        set_code(db, user1_private_key, N16(user1), N16(contract1), "../../contracts/hello/hello.wast");
+        set_abi(db, user1_private_key, N16(user1), N16(contract1), "../../contracts/hello/hello.abi");
         
         // user2 send cos to contract
         asset v1 = asset::from_string( "39.997 COS" ); // save function consume 0.003 cos, send value consume 0.01 COS, self keep 10000, send to contract 39997
@@ -300,8 +300,8 @@ BOOST_AUTO_TEST_CASE( contract_bank_robust )
         const account_object& acct1 = db.get_account( "user1" );
         BOOST_REQUIRE( acct1.balance.amount.value == 50000 );
         
-        set_code(db, user1_private_key, N16(user1), N(contract1), "./contracts/hello/hello.wast");
-        set_abi(db, user1_private_key, N16(user1), N(contract1), "./contracts/hello/hello.abi");
+        set_code(db, user1_private_key, N16(user1), N(contract1), "../../contracts/hello/hello.wast");
+        set_abi(db, user1_private_key, N16(user1), N(contract1), "../../contracts/hello/hello.abi");
         
         // user1 send cos to no exist contract, its throw exception at param_to_bin before vm excute
         asset v1 = asset::from_string( "10.000 COS" );
@@ -338,8 +338,8 @@ BOOST_AUTO_TEST_CASE( contract_require_auth )
         const account_object& acct1 = db.get_account( "hello" );
         BOOST_REQUIRE( acct1.balance.amount.value == 50000 );
         
-        set_code(db, hello_private_key, N16(hello), N(contract1), "./contracts/hello/hello.wast");
-        set_abi(db, hello_private_key, N16(hello), N(contract1), "./contracts/hello/hello.abi");
+        set_code(db, hello_private_key, N16(hello), N(contract1), "../../contracts/hello/hello.wast");
+        set_abi(db, hello_private_key, N16(hello), N(contract1), "../../contracts/hello/hello.abi");
         
         string param = "[\"hello\"]";
         asset v;
@@ -363,10 +363,10 @@ BOOST_AUTO_TEST_CASE( storage )
    fund("buttnaked", 5000);
    fund("storage", 5000);
 
-   set_code(db, hello_private_key, N16(hello), N(contract1), "./contracts/hello/hello.wast");
-   set_abi(db, hello_private_key, N16(hello), N(contract1), "./contracts/hello/hello.abi");
-   set_code(db, storage_private_key, N16(storage), N(contract1), "./contracts/storage/storage.wast");
-   set_abi(db, storage_private_key, N16(storage), N(contract1), "./contracts/storage/storage.abi");
+   set_code(db, hello_private_key, N16(hello), N(contract1), "../../contracts/hello/hello.wast");
+   set_abi(db, hello_private_key, N16(hello), N(contract1), "../../contracts/hello/hello.abi");
+   set_code(db, storage_private_key, N16(storage), N(contract1), "../../contracts/storage/storage.wast");
+   set_abi(db, storage_private_key, N16(storage), N(contract1), "../../contracts/storage/storage.abi");
    
    asset v;
 
