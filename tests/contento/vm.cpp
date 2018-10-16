@@ -126,6 +126,7 @@ bytes param_to_bin(database &db, namex account_name, namex contract_name, name a
     
 
    const auto contract_acc = db.get_account(account_name);
+    elog("account  ${a}  contract ${c}", ("a", account_name.to_string()) ("c",contract_name.to_string()) );
    abi_def abi;
    bytes result;
    if(abi_serializer::to_abi(contract_acc.all_contract.get_abi(contract_name), abi)) {
@@ -300,8 +301,8 @@ BOOST_AUTO_TEST_CASE( contract_bank_robust )
         const account_object& acct1 = db.get_account( "user1" );
         BOOST_REQUIRE( acct1.balance.amount.value == 50000 );
         
-        set_code(db, user1_private_key, N16(user1), N(contract1), "../../contracts/hello/hello.wast");
-        set_abi(db, user1_private_key, N16(user1), N(contract1), "../../contracts/hello/hello.abi");
+        set_code(db, user1_private_key, N16(user1), N16(contract1), "../../contracts/hello/hello.wast");
+        set_abi(db, user1_private_key, N16(user1), N16(contract1), "../../contracts/hello/hello.abi");
         
         // user1 send cos to no exist contract, its throw exception at param_to_bin before vm excute
         asset v1 = asset::from_string( "10.000 COS" );
@@ -338,16 +339,16 @@ BOOST_AUTO_TEST_CASE( contract_require_auth )
         const account_object& acct1 = db.get_account( "hello" );
         BOOST_REQUIRE( acct1.balance.amount.value == 50000 );
         
-        set_code(db, hello_private_key, N16(hello), N(contract1), "../../contracts/hello/hello.wast");
-        set_abi(db, hello_private_key, N16(hello), N(contract1), "../../contracts/hello/hello.abi");
+        set_code(db, hello_private_key, N16(hello), N16(contract1), "../../contracts/hello/hello.wast");
+        set_abi(db, hello_private_key, N16(hello), N16(contract1), "../../contracts/hello/hello.abi");
         
         string param = "[\"hello\"]";
         asset v;
 
-        BOOST_REQUIRE_NO_THROW(push_action(db, hello_private_key, N16(hello), N16(hello), N(contract1), N(test_auth), param,v));
+        BOOST_REQUIRE_NO_THROW(push_action(db, hello_private_key, N16(hello), N16(hello), N16(contract1), N(test_auth), param,v));
         
         param = "[\"hello2\"]";
-        BOOST_REQUIRE_THROW(push_action(db, hello_private_key, N16(hello), N16(hello), N(contract1), N(test_auth), param,v),fc::exception);
+        BOOST_REQUIRE_THROW(push_action(db, hello_private_key, N16(hello), N16(hello), N16(contract1), N(test_auth), param,v),fc::exception);
 
     }
     FC_LOG_AND_RETHROW()
@@ -363,26 +364,26 @@ BOOST_AUTO_TEST_CASE( storage )
    fund("buttnaked", 5000);
    fund("storage", 5000);
 
-   set_code(db, hello_private_key, N16(hello), N(contract1), "../../contracts/hello/hello.wast");
-   set_abi(db, hello_private_key, N16(hello), N(contract1), "../../contracts/hello/hello.abi");
-   set_code(db, storage_private_key, N16(storage), N(contract1), "../../contracts/storage/storage.wast");
-   set_abi(db, storage_private_key, N16(storage), N(contract1), "../../contracts/storage/storage.abi");
+   set_code(db, hello_private_key, N16(hello), N16(contract1), "../../contracts/hello/hello.wast");
+   set_abi(db, hello_private_key, N16(hello), N16(contract1), "../../contracts/hello/hello.abi");
+   set_code(db, storage_private_key, N16(storage), N16(contract1), "../../contracts/storage/storage.wast");
+   set_abi(db, storage_private_key, N16(storage), N16(contract1), "../../contracts/storage/storage.abi");
    
    asset v;
 
-   push_action(db, storage_private_key, N16(storage), N16(storage), N(contract1), N(placeoffer),
+   push_action(db, storage_private_key, N16(storage), N16(storage), N16(contract1), N(placeoffer),
         "[ \"storage\", \"3.000 COS\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]",v);
    BOOST_REQUIRE_THROW(
-      push_action(db, hello_private_key, N16(hello), N16(storage), N(contract1), N(placeoffer),
+      push_action(db, hello_private_key, N16(hello), N16(storage), N16(contract1), N(placeoffer),
                  "[ \"storage\", \"3.000 COS\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]",v), 
       fc::exception
    );
-   push_action(db, storage_private_key, N16(storage), N16(storage), N(contract1), N(canceloffer),
+   push_action(db, storage_private_key, N16(storage), N16(storage), N16(contract1), N(canceloffer),
         "[\"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\"]",v);
-   push_action(db, hello_private_key, N16(hello), N16(storage), N(contract1), N(placeoffer), 
+   push_action(db, hello_private_key, N16(hello), N16(storage), N16(contract1), N(placeoffer),
                "[ \"hello\", \"3.000 COS\", \"921e0c66a8866ca0037fbb628acd5f63f3ba119962c9f5ca68d54b5a70292f36\" ]",v);
 
-   push_action(db, storage_private_key, N16(storage), N16(storage), N(contract1), N(callhello), "[]", v);
+   push_action(db, storage_private_key, N16(storage), N16(storage), N16(contract1), N(callhello), "[]", v);
    }
    FC_LOG_AND_RETHROW()
 }
