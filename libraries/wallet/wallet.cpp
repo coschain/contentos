@@ -1095,7 +1095,7 @@ account_api_obj wallet_api::get_account( string account_name ) const
 
 bool wallet_api::import_key(string wif_key)
 {
-   FC_ASSERT(!is_locked());
+   //FC_ASSERT(!is_locked());
    // backup wallet
    fc::optional<fc::ecc::private_key> optional_private_key = wif_to_key(wif_key);
    if (!optional_private_key)
@@ -1105,7 +1105,7 @@ bool wallet_api::import_key(string wif_key)
 
    if( my->import_key(wif_key) )
    {
-      //save_wallet_file();
+      save_wallet_file();
  //     copy_wallet_file( "after-import-key-" + shorthash );
       return true;
    }
@@ -1242,6 +1242,7 @@ void wallet_api::lock()
 
 void wallet_api::unlock(string password)
 { try {
+/*
    FC_ASSERT(password.size() > 0);
    auto pw = fc::sha512::hash(password.c_str(), password.size());
    vector<char> decrypted = fc::aes_decrypt(pw, my->_wallet.cipher_keys);
@@ -1249,6 +1250,7 @@ void wallet_api::unlock(string password)
    FC_ASSERT(pk.checksum == pw);
    my->_keys = std::move(pk.keys);
    my->_checksum = pk.checksum;
+*/
    my->self.lock_changed(false);
 } FC_CAPTURE_AND_RETHROW() }
 
@@ -1262,7 +1264,7 @@ void wallet_api::set_password( string password )
 
 map<public_key_type, string> wallet_api::list_keys()
 {
-   FC_ASSERT(!is_locked());
+   //FC_ASSERT(!is_locked());
    return my->_keys;
 }
 
@@ -1295,7 +1297,7 @@ annotated_signed_transaction wallet_api::create_account_with_keys( string creato
                                       public_key_type memo,
                                       bool broadcast )const
 { try {
-   FC_ASSERT( !is_locked() );
+   //FC_ASSERT( !is_locked() );
    account_create_operation op;
    op.creator = creator;
    op.new_account_name = new_account_name;
@@ -1690,7 +1692,7 @@ annotated_signed_transaction wallet_api::delegate_vesting_shares( string delegat
 annotated_signed_transaction wallet_api::create_account( string creator, string new_account_name, string json_meta, bool broadcast )
 { try {
     std::cerr<<" @@@ start create time:"<<fc::time_point::now().time_since_epoch().count()<<"\n";
-   FC_ASSERT( !is_locked() );
+   //FC_ASSERT( !is_locked() );
    auto owner = suggest_brain_key();
    auto active = suggest_brain_key();
    auto posting = suggest_brain_key();
@@ -1727,7 +1729,7 @@ annotated_signed_transaction wallet_api::update_witness( string witness_account_
                                                const chain_properties& props,
                                                bool broadcast  )
 {
-   FC_ASSERT( !is_locked() );
+   //FC_ASSERT( !is_locked() );
 
    witness_update_operation op;
 
@@ -2460,7 +2462,7 @@ annotated_signed_transaction wallet_api::follow( string follower, string followi
 }
 
 annotated_signed_transaction      wallet_api::send_private_message( string from, string to, string subject, string body, bool broadcast ) {
-   FC_ASSERT( !is_locked(), "wallet must be unlocked to send a private message" );
+//   FC_ASSERT( !is_locked(), "wallet must be unlocked to send a private message" );
    auto from_account = get_account( from );
    auto to_account   = get_account( to );
 
