@@ -17,34 +17,6 @@ namespace contento { namespace chain {
    using boost::algorithm::ends_with;
    using std::string;
 
-//   template <typename T>
-//   inline fc::variant variant_from_stream(fc::datastream<const char*>& stream) {
-//      T temp;
-//      fc::raw::unpack( stream, temp );
-//      return fc::variant(temp);
-//   }
-//
-//   template <typename T>
-//   auto pack_unpack() {
-//      return std::make_pair<abi_serializer::unpack_function, abi_serializer::pack_function>(
-//         []( fc::datastream<const char*>& stream, bool is_array, bool is_optional) -> fc::variant  {
-//            if( is_array )
-//               return variant_from_stream<vector<T>>(stream);
-//            else if ( is_optional )
-//               return variant_from_stream<optional<T>>(stream);
-//            return variant_from_stream<T>(stream);
-//         },
-//         []( const fc::variant& var, fc::datastream<char*>& ds, bool is_array, bool is_optional ){
-//            if( is_array )
-//               fc::raw::pack( ds, var.as<vector<T>>() );
-//            else if ( is_optional )
-//               fc::raw::pack( ds, var.as<optional<T>>() );
-//            else
-//               fc::raw::pack( ds,  var.as<T>());
-//         }
-//      );
-//   }
-
    abi_serializer::abi_serializer( const abi_def& abi ) {
       configure_built_in_types();
       set_abi(abi);
@@ -87,11 +59,6 @@ namespace contento { namespace chain {
 
       built_in_types.emplace("public_key",                true);
       built_in_types.emplace("signature",                 true);
-
-      //built_in_types.emplace("symbol",                    pack_unpack<symbol>());
-      //built_in_types.emplace("symbol_code",               pack_unpack<symbol_code>());
-      // built_in_types.emplace("asset",                     pack_unpack<asset>());
-      //built_in_types.emplace("extended_asset",            pack_unpack<extended_asset>());
    }
 
    void abi_serializer::set_abi(const abi_def& abi) {
@@ -237,121 +204,7 @@ namespace contento { namespace chain {
       return type;
    }
 
-//   void abi_serializer::_binary_to_variant(const type_name& type, fc::datastream<const char *>& stream,
-//                                          fc::mutable_variant_object& obj, size_t recursion_depth)const {
-//      FC_ASSERT( ++recursion_depth < max_recursion_depth, "recursive definition, max_recursion_depth" );
-//      const auto& st = get_struct(type);
-//      if( st.base != type_name() ) {
-//         _binary_to_variant(resolve_type(st.base), stream, obj, recursion_depth);
-//      }
-//      for( const auto& field : st.fields ) {
-//         obj( field.name, _binary_to_variant(resolve_type(field.type), stream, recursion_depth) );
-//      }
-//   }
-/*
-   fc::variant abi_serializer::_binary_to_variant(const type_name& type, fc::datastream<const char *>& stream, size_t recursion_depth)const
-   {
-      FC_ASSERT( ++recursion_depth < max_recursion_depth, "recursive definition, max_recursion_depth" );
-      type_name rtype = resolve_type(type);
-      auto ftype = fundamental_type(rtype);
-      auto btype = built_in_types.find(ftype );
-      if( btype != built_in_types.end() ) {
-         return btype->second.first(stream, is_array(rtype), is_optional(rtype));
-      }
-      if ( is_array(rtype) ) {
-        fc::unsigned_int size;
-        fc::raw::unpack(stream, size);
-        vector<fc::variant> vars;
-        vars.resize(size);
-        for (auto& var : vars) {
-           var = _binary_to_variant(ftype, stream, recursion_depth);
-        }
-        return fc::variant( std::move(vars) );
-      } else if ( is_optional(rtype) ) {
-        char flag;
-        fc::raw::unpack(stream, flag);
-        return flag ? _binary_to_variant(ftype, stream, recursion_depth) : fc::variant();
-      }
 
-      fc::mutable_variant_object mvo;
-      _binary_to_variant(rtype, stream, mvo, recursion_depth);
-      return fc::variant( std::move(mvo) );
-   }
-
-   fc::variant abi_serializer::_binary_to_variant(const type_name& type, const bytes& binary, size_t recursion_depth)const{
-      FC_ASSERT( ++recursion_depth < max_recursion_depth, "recursive definition, max_recursion_depth" );
-      fc::datastream<const char*> ds( binary.data(), binary.size() );
-      return _binary_to_variant(type, ds, recursion_depth);
-   }
-
-   void abi_serializer::_variant_to_binary(const type_name& type, const fc::variant& var, fc::datastream<char *>& ds, size_t recursion_depth)const
-   { try {
-      FC_ASSERT( ++recursion_depth < max_recursion_depth, "recursive definition, max_recursion_depth" );
-      auto rtype = resolve_type(type);
-
-      auto btype = built_in_types.find(fundamental_type(rtype));
-      if( btype != built_in_types.end() ) {
-         btype->second.second(var, ds, is_array(rtype), is_optional(rtype));
-      } else if ( is_array(rtype) ) {
-         vector<fc::variant> vars = var.get_array();
-         fc::raw::pack(ds, (fc::unsigned_int)vars.size());
-         for (const auto& var : vars) {
-           _variant_to_binary(fundamental_type(rtype), var, ds, recursion_depth);
-         }
-      } else {
-         const auto& st = get_struct(rtype);
-
-         if( var.is_object() ) {
-            const auto& vo = var.get_object();
-
-            if( st.base != type_name() ) {
-               _variant_to_binary(resolve_type(st.base), var, ds, recursion_depth);
-            }
-            for( const auto& field : st.fields ) {
-               if( vo.contains( string(field.name).c_str() ) ) {
-                  _variant_to_binary(field.type, vo[field.name], ds, recursion_depth);
-               }
-               else {
-                  _variant_to_binary(field.type, fc::variant(), ds, recursion_depth);
-                  /// TODO: default construct field and write it out
-                  FC_THROW( "Missing '${f}' in variant object", ("f",field.name) );
-               }
-            }
-         } else if( var.is_array() ) {
-            const auto& va = var.get_array();
-
-            FC_ASSERT( st.base == type_name(), "support for base class as array not yet implemented" );
-//            if( st.base != type_name() ) {
-//               _variant_to_binary(resolve_type(st.base), var, ds, recursive_depth);
-//            }
-
-            uint32_t i = 0;
-            if (va.size() > 0) {
-               for( const auto& field : st.fields ) {
-                  if( va.size() > i )
-                     _variant_to_binary(field.type, va[i], ds, recursion_depth);
-                  else
-                     _variant_to_binary(field.type, fc::variant(), ds, recursion_depth);
-                  ++i;
-               }
-            }
-         }
-      }
-   } FC_CAPTURE_AND_RETHROW( (type)(var) ) }
-
-   bytes abi_serializer::_variant_to_binary(const type_name& type, const fc::variant& var, size_t recursion_depth)const { try {
-      FC_ASSERT( ++recursion_depth < max_recursion_depth, "recursive definition, max_recursion_depth" );
-      if( !is_type(type) ) {
-         return var.as<bytes>();
-      }
-
-      bytes temp( 1024*1024 );
-      fc::datastream<char*> ds(temp.data(), temp.size() );
-      _variant_to_binary(type, var, ds, recursion_depth);
-      temp.resize(ds.tellp());
-      return temp;
-   } FC_CAPTURE_AND_RETHROW( (type)(var) ) }
-*/
    type_name abi_serializer::get_action_type(name action)const {
       auto itr = actions.find(action);
       if( itr != actions.end() ) return itr->second;

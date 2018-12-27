@@ -93,6 +93,8 @@ int main(int argc, const char **argv) { abi_def output; try {
 //         fc::variant vabi;
 //         to_variant(output, vabi);
 
+
+         // TODO save output to json file
          wlog("success");
 
 //         auto comment = fc::format_string(

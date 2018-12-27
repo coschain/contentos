@@ -9,8 +9,6 @@
 #include <sstream>
 
 #include <contento/abi_generator/abi_serializer.hpp>
-//#include <contento/abi_generator/contract_types.hpp>
-//#include <fc/io/json.hpp>
 
 //clashes with something deep in the AST includes in clang 6 and possibly other versions of clang
 #pragma push_macro("N")
@@ -59,7 +57,7 @@ namespace contento {
 //         }                                                                      \
 //       FC_MULTILINE_MACRO_END \
 //      )
-   
+
    class ricardian_contracts {
       public:
          ricardian_contracts() = default;
@@ -375,7 +373,6 @@ namespace contento {
                   return;
                }
 
-               // TODO XXX
                ABI_ASSERT( md.getMacroInfo()->getNumArgs() == 2 );
 
                clang::SourceLocation b(range.getBegin()), _e(range.getEnd());
