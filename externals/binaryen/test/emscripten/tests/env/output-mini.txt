@@ -1,6 +1,0 @@
-USER=web_user
-PATH=/
-PWD=/
-HOME=/home/web_user
-LANG=C
-_={{{ THIS_PROGRAM }}}
