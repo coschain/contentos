@@ -227,17 +227,17 @@ message( STATUS "Using '${CORE_SYMBOL_NAME}' as CORE symbol name" )
 
 # set( ENABLE_MAC_SHARED_LIB TRUE )
 
-add_subdirectory( externals )
+# add_subdirectory( externals )
 
 # external_plugins needs to be compiled first because libraries/app depends on CONTENTOS_EXTERNAL_PLUGINS being fully populated
 
-add_subdirectory( external_plugins )
+#add_subdirectory( external_plugins )
 add_subdirectory( libraries )
 add_subdirectory( programs )
-add_subdirectory( contracts )
+#add_subdirectory( contracts )
 add_subdirectory( tools )
 
-add_subdirectory( tests )
+#add_subdirectory( tests )
 
 if (ENABLE_INSTALLER)
 
