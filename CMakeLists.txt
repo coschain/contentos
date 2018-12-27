@@ -28,20 +28,20 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS "ON")
 #set (ENABLE_INSTALLER 1)
 #set (USE_PCH 1)
 
-if (USE_PCH)
-  include (cotire)
-endif(USE_PCH)
+#if (USE_PCH)
+#  include (cotire)
+#endif(USE_PCH)
 
-list( APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/libraries/fc/CMakeModules" )
-list( APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/libraries/fc/GitVersionGen" )
+#list( APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/libraries/fc/CMakeModules" )
+#list( APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/libraries/fc/GitVersionGen" )
 
-include( GetGitRevisionDescription )
+#include( GetGitRevisionDescription )
 
 include( InstallDirectoryPermissions )
 include( wasm )
-include( maybe_shared_lib )
+#include( maybe_shared_lib )
 
-get_git_head_revision( GIT_REFSPEC GIT_SHA2 )
+#get_git_head_revision( GIT_REFSPEC GIT_SHA2 )
 
 SET(BOOST_COMPONENTS)
 LIST(APPEND BOOST_COMPONENTS thread
@@ -234,7 +234,7 @@ message( STATUS "Using '${CORE_SYMBOL_NAME}' as CORE symbol name" )
 #add_subdirectory( external_plugins )
 add_subdirectory( libraries )
 add_subdirectory( programs )
-#add_subdirectory( contracts )
+add_subdirectory( contracts )
 add_subdirectory( tools )
 
 #add_subdirectory( tests )
