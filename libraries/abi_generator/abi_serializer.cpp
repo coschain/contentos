@@ -50,41 +50,41 @@ namespace contento { namespace chain {
 
    void abi_serializer::configure_built_in_types() {
 
-      built_in_types.emplace("bool",                      pack_unpack<uint8_t>());
-      built_in_types.emplace("int8",                      pack_unpack<int8_t>());
-      built_in_types.emplace("uint8",                     pack_unpack<uint8_t>());
-      built_in_types.emplace("int16",                     pack_unpack<int16_t>());
-      built_in_types.emplace("uint16",                    pack_unpack<uint16_t>());
-      built_in_types.emplace("int32",                     pack_unpack<int32_t>());
-      built_in_types.emplace("uint32",                    pack_unpack<uint32_t>());
-      built_in_types.emplace("int64",                     pack_unpack<int64_t>());
-      built_in_types.emplace("uint64",                    pack_unpack<uint64_t>());
-      built_in_types.emplace("int128",                    pack_unpack<int128_t>());
-      built_in_types.emplace("uint128",                   pack_unpack<uint128_t>());
-      built_in_types.emplace("varint32",                  pack_unpack<fc::signed_int>());
-      built_in_types.emplace("varuint32",                 pack_unpack<fc::unsigned_int>());
+      built_in_types.emplace("bool",                      true);
+      built_in_types.emplace("int8",                      true);
+      built_in_types.emplace("uint8",                     true);
+      built_in_types.emplace("int16",                     true);
+      built_in_types.emplace("uint16",                    true);
+      built_in_types.emplace("int32",                     true);
+      built_in_types.emplace("uint32",                    true);
+      built_in_types.emplace("int64",                     true);
+      built_in_types.emplace("uint64",                    true);
+      built_in_types.emplace("int128",                    true);
+      built_in_types.emplace("uint128",                   true);
+      built_in_types.emplace("varint32",                  true);
+      built_in_types.emplace("varuint32",                 true);
 
       // TODO: Add proper support for floating point types. For now this is good enough.
-      built_in_types.emplace("float32",                   pack_unpack<float>());
-      built_in_types.emplace("float64",                   pack_unpack<double>());
-      built_in_types.emplace("float128",                  pack_unpack<uint128_t>());
+      built_in_types.emplace("float32",                   true);
+      built_in_types.emplace("float64",                   true);
+      built_in_types.emplace("float128",                  true);
 
-      built_in_types.emplace("time_point",                pack_unpack<fc::time_point>());
-      built_in_types.emplace("time_point_sec",            pack_unpack<fc::time_point_sec>());
+      built_in_types.emplace("time_point",                true);
+      built_in_types.emplace("time_point_sec",            true);
       //built_in_types.emplace("block_timestamp_type",      pack_unpack<block_timestamp_type>());
 
-      built_in_types.emplace("name",                      pack_unpack<name>());
-      built_in_types.emplace("namex",                     pack_unpack<namex>());
-      built_in_types.emplace("namex_",                    pack_unpack<namex>());
-      built_in_types.emplace("bytes",                     pack_unpack<bytes>());
-      built_in_types.emplace("string",                    pack_unpack<string>());
+      built_in_types.emplace("name",                      true);
+      built_in_types.emplace("namex",                     true);
+      built_in_types.emplace("namex_",                    true);
+      built_in_types.emplace("bytes",                     true);
+      built_in_types.emplace("string",                    true);
 
-      built_in_types.emplace("checksum160",               pack_unpack<checksum160_type>());
-      built_in_types.emplace("checksum256",               pack_unpack<checksum256_type>());
-      built_in_types.emplace("checksum512",               pack_unpack<checksum512_type>());
+      built_in_types.emplace("checksum160",               true);
+      built_in_types.emplace("checksum256",               true);
+      built_in_types.emplace("checksum512",               true);
 
-      built_in_types.emplace("public_key",                pack_unpack<bytes>());
-      built_in_types.emplace("signature",                 pack_unpack<signature_type>());
+      built_in_types.emplace("public_key",                true);
+      built_in_types.emplace("signature",                 true);
 
       //built_in_types.emplace("symbol",                    pack_unpack<symbol>());
       //built_in_types.emplace("symbol_code",               pack_unpack<symbol_code>());
@@ -235,18 +235,18 @@ namespace contento { namespace chain {
       return type;
    }
 
-   void abi_serializer::_binary_to_variant(const type_name& type, fc::datastream<const char *>& stream,
-                                          fc::mutable_variant_object& obj, size_t recursion_depth)const {
-      FC_ASSERT( ++recursion_depth < max_recursion_depth, "recursive definition, max_recursion_depth" );
-      const auto& st = get_struct(type);
-      if( st.base != type_name() ) {
-         _binary_to_variant(resolve_type(st.base), stream, obj, recursion_depth);
-      }
-      for( const auto& field : st.fields ) {
-         obj( field.name, _binary_to_variant(resolve_type(field.type), stream, recursion_depth) );
-      }
-   }
-
+//   void abi_serializer::_binary_to_variant(const type_name& type, fc::datastream<const char *>& stream,
+//                                          fc::mutable_variant_object& obj, size_t recursion_depth)const {
+//      FC_ASSERT( ++recursion_depth < max_recursion_depth, "recursive definition, max_recursion_depth" );
+//      const auto& st = get_struct(type);
+//      if( st.base != type_name() ) {
+//         _binary_to_variant(resolve_type(st.base), stream, obj, recursion_depth);
+//      }
+//      for( const auto& field : st.fields ) {
+//         obj( field.name, _binary_to_variant(resolve_type(field.type), stream, recursion_depth) );
+//      }
+//   }
+/*
    fc::variant abi_serializer::_binary_to_variant(const type_name& type, fc::datastream<const char *>& stream, size_t recursion_depth)const
    {
       FC_ASSERT( ++recursion_depth < max_recursion_depth, "recursive definition, max_recursion_depth" );
@@ -319,10 +319,10 @@ namespace contento { namespace chain {
             const auto& va = var.get_array();
 
             FC_ASSERT( st.base == type_name(), "support for base class as array not yet implemented" );
-            /*if( st.base != type_name() ) {
-               _variant_to_binary(resolve_type(st.base), var, ds, recursive_depth);
-            }
-            */
+//            if( st.base != type_name() ) {
+//               _variant_to_binary(resolve_type(st.base), var, ds, recursive_depth);
+//            }
+
             uint32_t i = 0;
             if (va.size() > 0) {
                for( const auto& field : st.fields ) {
@@ -349,7 +349,7 @@ namespace contento { namespace chain {
       temp.resize(ds.tellp());
       return temp;
    } FC_CAPTURE_AND_RETHROW( (type)(var) ) }
-
+*/
    type_name abi_serializer::get_action_type(name action)const {
       auto itr = actions.find(action);
       if( itr != actions.end() ) return itr->second;
