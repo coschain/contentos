@@ -5,10 +5,28 @@
 #pragma once
 
 //#include <contento/abi_generator/types.hpp>
-#include <fc/io/varint.hpp>
-#include <fc/reflect/variant.hpp>
-#include <fc/variant_object.hpp>
-#include <fc/exception/exception.hpp>
+//#include <fc/io/varint.hpp>
+//#include <fc/reflect/variant.hpp>
+//#include <fc/variant_object.hpp>
+//#include <fc/exception/exception.hpp>
+
+#include <map>
+#include <string>
+#include <vector>
+#include <set>
+#include <optional>
+#include <boost/assert.hpp>
+#include <iostream>
+
+#define FC_ASSERT(x, ...) BOOST_ASSERT(x);
+#define FC_CAPTURE_AND_RETHROW(...)  \
+   catch( ... ) {  \
+      throw std::current_exception(); \
+   }
+#define wlog(x, ...) std::cout << x << std::endl
+#define FC_CAPTURE_AND_LOG(...)   \
+   catch( ... ) {  \
+   }
 
 namespace contento { namespace chain {
 
@@ -132,12 +150,12 @@ vector<type_def> common_type_defs();
 
 } } /// namespace contento::chain
 
-FC_REFLECT( contento::chain::type_def                         , (new_type_name)(type) )
-FC_REFLECT( contento::chain::field_def                        , (name)(type) )
-FC_REFLECT( contento::chain::struct_def                       , (name)(base)(fields) )
-FC_REFLECT( contento::chain::action_def                       , (name)(type)(ricardian_contract) )
-FC_REFLECT( contento::chain::table_def                        , (name)(index_type)(key_names)(key_types)(type) )
-FC_REFLECT( contento::chain::clause_pair                      , (id)(body) )
-FC_REFLECT( contento::chain::error_message                    , (error_code)(error_msg) )
-FC_REFLECT( contento::chain::abi_def                          , (version)(types)(structs)(actions)(tables)
-                                                             (ricardian_clauses)(error_messages) )
+//FC_REFLECT( contento::chain::type_def                         , (new_type_name)(type) )
+//FC_REFLECT( contento::chain::field_def                        , (name)(type) )
+//FC_REFLECT( contento::chain::struct_def                       , (name)(base)(fields) )
+//FC_REFLECT( contento::chain::action_def                       , (name)(type)(ricardian_contract) )
+//FC_REFLECT( contento::chain::table_def                        , (name)(index_type)(key_names)(key_types)(type) )
+//FC_REFLECT( contento::chain::clause_pair                      , (id)(body) )
+//FC_REFLECT( contento::chain::error_message                    , (error_code)(error_msg) )
+//FC_REFLECT( contento::chain::abi_def                          , (version)(types)(structs)(actions)(tables)
+//                                                             (ricardian_clauses)(error_messages) )

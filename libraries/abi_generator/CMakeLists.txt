@@ -13,9 +13,11 @@ add_library( abi_generator
 
 target_include_directories(abi_generator
                            PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
+                           "${Boost_INCLUDE_DIR}"
                                   "${LLVM_INCLUDE_DIRS}")
 
-target_link_libraries(abi_generator fc
+target_link_libraries(abi_generator
+  ${Boost_LIBRARIES}
   clangRewrite
   clangTooling
   clangToolingCore

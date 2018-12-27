@@ -10,7 +10,7 @@
 
 #include <contento/abi_generator/abi_serializer.hpp>
 //#include <contento/abi_generator/contract_types.hpp>
-#include <fc/io/json.hpp>
+//#include <fc/io/json.hpp>
 
 //clashes with something deep in the AST includes in clang 6 and possibly other versions of clang
 #pragma push_macro("N")
@@ -45,19 +45,20 @@ namespace cl = llvm::cl;
 namespace contento {
    using namespace contento::chain;
 
-   FC_DECLARE_EXCEPTION( abi_generation_exception, 999999, "Unable to generate abi" );
+   //FC_DECLARE_EXCEPTION( abi_generation_exception, 999999, "Unable to generate abi" );
 
-   #define ABI_ASSERT( TEST, ... ) \
-      FC_EXPAND_MACRO( \
-       FC_MULTILINE_MACRO_BEGIN \
-         if( UNLIKELY(!(TEST)) ) \
-         {                                                                      \
-           if( fc::enable_record_assert_trip )                                  \
-              fc::record_assert_trip( __FILE__, __LINE__, #TEST );              \
-           FC_THROW_EXCEPTION( contento::abi_generation_exception, #TEST ": "  __VA_ARGS__ ); \
-         }                                                                      \
-       FC_MULTILINE_MACRO_END \
-      )
+   #define ABI_ASSERT FC_ASSERT
+//   #define ABI_ASSERT( TEST, ... ) \
+//      FC_EXPAND_MACRO( \
+//       FC_MULTILINE_MACRO_BEGIN \
+//         if( UNLIKELY(!(TEST)) ) \
+//         {                                                                      \
+//           if( fc::enable_record_assert_trip )                                  \
+//              fc::record_assert_trip( __FILE__, __LINE__, #TEST );              \
+//           FC_THROW_EXCEPTION( contento::abi_generation_exception, #TEST ": "  __VA_ARGS__ ); \
+//         }                                                                      \
+//       FC_MULTILINE_MACRO_END \
+//      )
    
    class ricardian_contracts {
       public:

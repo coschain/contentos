@@ -4,7 +4,7 @@
  */
 #pragma once
 #include <contento/abi_generator/abi_def.hpp>
-#include <fc/variant_object.hpp>
+//#include <fc/variant_object.hpp>
 
 namespace contento { namespace chain {
 
@@ -12,7 +12,7 @@ using std::map;
 using std::string;
 using std::function;
 using std::pair;
-using namespace fc;
+//using namespace fc;
 //using namespace protocol;
 
 //namespace impl {
@@ -60,7 +60,7 @@ struct abi_serializer {
    type_name get_action_type(name action)const;
    type_name get_table_type(name action)const;
 
-   optional<string>  get_error_message( uint64_t error_code )const;
+   string  get_error_message( uint64_t error_code )const;
 
    /*
    fc::variant binary_to_variant(const type_name& type, const bytes& binary)const {

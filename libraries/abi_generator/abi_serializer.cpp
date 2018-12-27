@@ -3,9 +3,11 @@
  *  @copyright defined in eos/LICENSE.txt
  */
 #include <contento/abi_generator/abi_serializer.hpp>
-#include <fc/io/raw.hpp>
+//#include <fc/io/raw.hpp>
 #include <boost/algorithm/string/predicate.hpp>
-#include <fc/io/varint.hpp>
+#include <boost/lexical_cast.hpp>
+
+//#include <fc/io/varint.hpp>
 //#include <contento/protocol/asset.hpp>
 
 using namespace boost;
@@ -361,10 +363,10 @@ namespace contento { namespace chain {
       return type_name();
    }
 
-   optional<string> abi_serializer::get_error_message( uint64_t error_code )const {
+   string abi_serializer::get_error_message( uint64_t error_code )const {
       auto itr = error_messages.find( error_code );
       if( itr == error_messages.end() )
-         return optional<string>();
+         return string("");
 
       return itr->second;
    }
