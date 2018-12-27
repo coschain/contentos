@@ -4,7 +4,7 @@ set(DEFAULT_SYSTEM_INCLUDE_FOLDERS
     ${CMAKE_SOURCE_DIR}/contracts/libc++/upstream/include 
     ${CMAKE_SOURCE_DIR}/contracts/musl/upstream/include 
     ${Boost_INCLUDE_DIR} 
-    ${CMAKE_SOURCE_DIR}/libraries/fc/vendor/boost_1.67.0_1/include)
+    )
 
 set(STANDARD_INCLUDE_FOLDERS ${CMAKE_SOURCE_DIR}/contracts ${CMAKE_SOURCE_DIR}/externals/magic_get/include)
 

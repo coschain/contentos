@@ -4,4 +4,4 @@
  * \warning This file is machine generated. DO NOT EDIT.  See core_symbol.hpp.in for changes.
  */
 
-#define CORE_SYMBOL S(3,COS)
+#define CORE_SYMBOL S(3,)
