@@ -487,12 +487,11 @@ string abi_generator::get_vector_element_type(const string& type_name) {
 
 string abi_generator::get_type_name(const clang::QualType& qt, bool with_namespace=false) {
 
-   // TODO XXX
-//   auto name = clang::TypeName::getFullyQualifiedName(qt, *ast_context);
-//  if(!with_namespace)
-//    name = remove_namespace(name);
-//  return name;
-   return string("todo");
+   // TODO Check
+   auto name = clang::TypeName::getFullyQualifiedName(qt, *ast_context );
+  if(!with_namespace)
+    name = remove_namespace(name);
+  return name;
 }
 
 clang::QualType abi_generator::add_typedef(const clang::QualType& tqt, size_t recursion_depth) {

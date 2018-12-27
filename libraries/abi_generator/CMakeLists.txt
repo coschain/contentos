@@ -1,5 +1,5 @@
 # Find an installed build of LLVM
-find_package(LLVM 7.0.1 REQUIRED CONFIG)
+find_package(LLVM 4.0 REQUIRED CONFIG)
 set( CMAKE_CXX_STANDARD 14 )
 
 file(GLOB HEADERS "include/contento/abi_generator/*.hpp")
