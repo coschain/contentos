@@ -8,14 +8,14 @@ set(SOURCES ${HEADERS})
 
 add_library( abi_generator
              abi_generator.cpp
-             #abi_serializer.cpp
+             abi_serializer.cpp
              ${HEADERS} )
 
 target_include_directories(abi_generator
                            PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
                                   "${LLVM_INCLUDE_DIRS}")
 
-target_link_libraries(abi_generator contento_chain
+target_link_libraries(abi_generator fc
   clangRewrite
   clangTooling
   clangToolingCore

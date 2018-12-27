@@ -1,5 +1,7 @@
 #include <contento/abi_generator/abi_generator.hpp>
-#include <contento/chain/abi_def.hpp>
+#include <contento/abi_generator/abi_def.hpp>
+
+
 
 namespace contento {
 
@@ -484,10 +486,13 @@ string abi_generator::get_vector_element_type(const string& type_name) {
 }
 
 string abi_generator::get_type_name(const clang::QualType& qt, bool with_namespace=false) {
-  auto name = clang::TypeName::getFullyQualifiedName(qt, *ast_context);
-  if(!with_namespace)
-    name = remove_namespace(name);
-  return name;
+
+   // TODO XXX
+//   auto name = clang::TypeName::getFullyQualifiedName(qt, *ast_context);
+//  if(!with_namespace)
+//    name = remove_namespace(name);
+//  return name;
+   return string("todo");
 }
 
 clang::QualType abi_generator::add_typedef(const clang::QualType& tqt, size_t recursion_depth) {
@@ -679,4 +684,24 @@ string abi_generator::add_struct(const clang::QualType& sqt, string full_name, s
   return name;
 }
 
+}
+
+
+namespace contento { namespace chain {
+
+   vector<type_def> common_type_defs() {
+      vector<type_def> types;
+
+      types.push_back( type_def{"account_name", "namex"} );
+      //    types.push_back( type_def{"account_name2", "namex"} );
+      types.push_back( type_def{"permission_name", "name"} );
+      types.push_back( type_def{"action_name", "name"} );
+      types.push_back( type_def{"table_name", "name"} );
+      types.push_back( type_def{"transaction_id_type", "checksum256"} );
+      types.push_back( type_def{"block_id_type", "checksum256"} );
+      types.push_back( type_def{"weight_type", "uint16"} );
+
+      return types;
+   }
+}
 }

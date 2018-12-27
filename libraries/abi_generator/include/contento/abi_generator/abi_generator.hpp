@@ -8,8 +8,8 @@
 #include <fstream>
 #include <sstream>
 
-#include <contento/chain/abi_serializer.hpp>
-#include <contento/chain/contract_types.hpp>
+#include <contento/abi_generator/abi_serializer.hpp>
+//#include <contento/abi_generator/contract_types.hpp>
 #include <fc/io/json.hpp>
 
 //clashes with something deep in the AST includes in clang 6 and possibly other versions of clang
@@ -32,7 +32,7 @@
 #include "clang/Lex/MacroArgs.h"
 #include "clang/Tooling/Tooling.h"
 #include "clang/Tooling/CommonOptionsParser.h"
-#include "clang/Tooling/Core/QualTypeNames.h"
+//#include "clang/Tooling/Core/QualTypeNames.h"
 #include "llvm/Support/raw_ostream.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/range/algorithm_ext/erase.hpp>
@@ -374,7 +374,8 @@ namespace contento {
                   return;
                }
 
-               ABI_ASSERT( md.getMacroInfo()->getNumArgs() == 2 );
+               // TODO XXX
+               //ABI_ASSERT( md.getMacroInfo()->getNumArgs() == 2 );
 
                clang::SourceLocation b(range.getBegin()), _e(range.getEnd());
                clang::SourceLocation e(clang::Lexer::getLocForEndOfToken(_e, 0, sm, compiler_instance.getLangOpts()));
