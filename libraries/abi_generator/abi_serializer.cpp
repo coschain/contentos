@@ -15,39 +15,39 @@ namespace contento { namespace chain {
    using boost::algorithm::ends_with;
    using std::string;
 
-   template <typename T>
-   inline fc::variant variant_from_stream(fc::datastream<const char*>& stream) {
-      T temp;
-      fc::raw::unpack( stream, temp );
-      return fc::variant(temp);
-   }
-
-   template <typename T>
-   auto pack_unpack() {
-      return std::make_pair<abi_serializer::unpack_function, abi_serializer::pack_function>(
-         []( fc::datastream<const char*>& stream, bool is_array, bool is_optional) -> fc::variant  {
-            if( is_array )
-               return variant_from_stream<vector<T>>(stream);
-            else if ( is_optional )
-               return variant_from_stream<optional<T>>(stream);
-            return variant_from_stream<T>(stream);
-         },
-         []( const fc::variant& var, fc::datastream<char*>& ds, bool is_array, bool is_optional ){
-            if( is_array )
-               fc::raw::pack( ds, var.as<vector<T>>() );
-            else if ( is_optional )
-               fc::raw::pack( ds, var.as<optional<T>>() );
-            else
-               fc::raw::pack( ds,  var.as<T>());
-         }
-      );
-   }
+//   template <typename T>
+//   inline fc::variant variant_from_stream(fc::datastream<const char*>& stream) {
+//      T temp;
+//      fc::raw::unpack( stream, temp );
+//      return fc::variant(temp);
+//   }
+//
+//   template <typename T>
+//   auto pack_unpack() {
+//      return std::make_pair<abi_serializer::unpack_function, abi_serializer::pack_function>(
+//         []( fc::datastream<const char*>& stream, bool is_array, bool is_optional) -> fc::variant  {
+//            if( is_array )
+//               return variant_from_stream<vector<T>>(stream);
+//            else if ( is_optional )
+//               return variant_from_stream<optional<T>>(stream);
+//            return variant_from_stream<T>(stream);
+//         },
+//         []( const fc::variant& var, fc::datastream<char*>& ds, bool is_array, bool is_optional ){
+//            if( is_array )
+//               fc::raw::pack( ds, var.as<vector<T>>() );
+//            else if ( is_optional )
+//               fc::raw::pack( ds, var.as<optional<T>>() );
+//            else
+//               fc::raw::pack( ds,  var.as<T>());
+//         }
+//      );
+//   }
 
    abi_serializer::abi_serializer( const abi_def& abi ) {
       configure_built_in_types();
       set_abi(abi);
    }
-
+   
    void abi_serializer::configure_built_in_types() {
 
       built_in_types.emplace("bool",                      true);

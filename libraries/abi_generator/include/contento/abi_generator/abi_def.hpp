@@ -4,12 +4,23 @@
  */
 #pragma once
 
-#include <contento/abi_generator/types.hpp>
+//#include <contento/abi_generator/types.hpp>
+#include <fc/io/varint.hpp>
+#include <fc/reflect/variant.hpp>
+#include <fc/variant_object.hpp>
+#include <fc/exception/exception.hpp>
 
 namespace contento { namespace chain {
 
-using type_name      = string;
-using field_name     = string;
+   using std::vector;
+   using std::string;
+   //using std::map;
+
+   using type_name      = std::string;
+   using field_name     = std::string;
+   using table_name = string;
+   using action_name = string;
+   using name = string;
 
 struct type_def {
    type_def() = default;
@@ -113,7 +124,7 @@ struct abi_def {
    vector<table_def>     tables;
    vector<clause_pair>   ricardian_clauses;
    vector<error_message> error_messages;
-   extensions_type       abi_extensions;
+   //extensions_type       abi_extensions;
 };
 
 abi_def contento_contract_abi(const abi_def& contento_system_abi);
@@ -129,4 +140,4 @@ FC_REFLECT( contento::chain::table_def                        , (name)(index_typ
 FC_REFLECT( contento::chain::clause_pair                      , (id)(body) )
 FC_REFLECT( contento::chain::error_message                    , (error_code)(error_msg) )
 FC_REFLECT( contento::chain::abi_def                          , (version)(types)(structs)(actions)(tables)
-                                                             (ricardian_clauses)(error_messages)(abi_extensions) )
+                                                             (ricardian_clauses)(error_messages) )

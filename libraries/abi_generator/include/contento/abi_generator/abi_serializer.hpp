@@ -13,7 +13,7 @@ using std::string;
 using std::function;
 using std::pair;
 using namespace fc;
-using namespace protocol;
+//using namespace protocol;
 
 //namespace impl {
 //  struct abi_from_variant;
@@ -35,8 +35,8 @@ struct abi_serializer {
    map<name,type_name>        tables;
    map<uint64_t, string>      error_messages;
 
-   typedef std::function<fc::variant(fc::datastream<const char*>&, bool, bool)>  unpack_function;
-   typedef std::function<void(const fc::variant&, fc::datastream<char*>&, bool, bool)>  pack_function;
+//   typedef std::function<fc::variant(fc::datastream<const char*>&, bool, bool)>  unpack_function;
+//   typedef std::function<void(const fc::variant&, fc::datastream<char*>&, bool, bool)>  pack_function;
 
    map<type_name, bool> built_in_types;
    void configure_built_in_types();
@@ -90,16 +90,16 @@ struct abi_serializer {
       return abi_vec.size() <= 4;
    }
 
-   template<typename Vec>
-   static bool to_abi(const Vec& abi_vec, abi_def& abi)
-   {
-      if( !is_empty_abi(abi_vec) ) { /// 4 == packsize of empty Abi
-         fc::datastream<const char*> ds( abi_vec.data(), abi_vec.size() );
-         fc::raw::unpack( ds, abi );
-         return true;
-      }
-      return false;
-   }
+//   template<typename Vec>
+//   static bool to_abi(const Vec& abi_vec, abi_def& abi)
+//   {
+//      if( !is_empty_abi(abi_vec) ) { /// 4 == packsize of empty Abi
+//         fc::datastream<const char*> ds( abi_vec.data(), abi_vec.size() );
+//         fc::raw::unpack( ds, abi );
+//         return true;
+//      }
+//      return false;
+//   }
 
    static constexpr size_t max_recursion_depth = 128; // arbitrary depth to prevent infinite recursion
 
